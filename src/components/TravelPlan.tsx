@@ -1,104 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, MapPin, Utensils, Compass, Download, Share2 } from 'lucide-react';
-import { Destination, TripPreferences, TravelerType } from '../types/travel';
+import { Sparkles, MapPin, Utensils, Compass, Download, Share2, Home, Shield, CreditCard, Droplets, Calendar, BookOpen } from 'lucide-react';
+import { Destination, TripPreferences, TravelerType, EnhancedTravelPlan } from '../types/travel';
 import { generateTravelPlan as generateMockTravelPlan } from '../data/mock/travelData';
 
-// Type Definitions
+// Type Definitions - using Activity interface for backward compatibility  
 interface Activity {
   time: string;
   title: string;
   description: string;
   location: string;
   icon: string;
-}
-
-interface DayItinerary {
-  day: number;
-  title: string;
-  activities: Activity[];
-}
-
-interface PlaceToVisit {
-  name: string;
-  description: string;
-  category: string;
-  priority: number;
-}
-
-interface Restaurant {
-  name: string;
-  cuisine: string;
-  priceRange: string;
-  description: string;
-}
-
-interface Bar {
-  name: string;
-  type: string;
-  atmosphere: string;
-  description: string;
-}
-
-interface WeatherInfo {
-  season: string;
-  temperature: string;
-  conditions: string;
-  recommendations: string[];
-}
-
-interface HotelRecommendation {
-  name: string;
-  area: string;
-  priceRange: string;
-  description: string;
-}
-
-interface TransportationInfo {
-  publicTransport: string;
-  airportTransport: string;
-  ridesharing: string;
-  taxiInfo: string;
-}
-
-interface LocalCurrency {
-  currency: string;
-  cashNeeded: boolean;
-  creditCardUsage: string;
-  tips: string[];
-}
-
-interface ActivityItem {
-  name: string;
-  type: string;
-  description: string;
-  duration: string;
-}
-
-interface TippingEtiquette {
-  [key: string]: string;
-}
-
-interface TapWaterInfo {
-  safe: boolean;
-  details: string;
-  recommendations?: string[];
-}
-
-interface TravelPlanData {
-  placesToVisit: PlaceToVisit[];
-  restaurants: Restaurant[];
-  bars: Bar[];
-  weatherInfo: WeatherInfo;
-  socialEtiquette: string[];
-  hotelRecommendation: HotelRecommendation;
-  transportationInfo: TransportationInfo;
-  localCurrency: LocalCurrency;
-  activities: ActivityItem[];
-  itinerary: DayItinerary[];
-  mustTryFood: string[];
-  safetyTips: string[];
-  tippingEtiquette: TippingEtiquette;
-  tapWater: TapWaterInfo;
 }
 
 interface TravelPlanProps {
@@ -112,13 +23,13 @@ function generateTravelPlan(
   destination: Destination,
   preferences: TripPreferences,
   travelerType: TravelerType
-): TravelPlanData {
+): EnhancedTravelPlan {
   return generateMockTravelPlan(destination, preferences, travelerType);
 }
 
 export function TravelPlan({ destination, preferences, travelerType }: TravelPlanProps) {
   const [isGenerating, setIsGenerating] = useState(true);
-  const [travelPlan, setTravelPlan] = useState<TravelPlanData | null>(null);
+  const [travelPlan, setTravelPlan] = useState<EnhancedTravelPlan | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<'itinerary' | 'info'>('itinerary');
@@ -202,7 +113,7 @@ export function TravelPlan({ destination, preferences, travelerType }: TravelPla
   );
 
   // Render a single day's itinerary
-  const renderDayItinerary = (day: DayItinerary) => (
+  const renderDayItinerary = (day: any) => (
     <div key={day.day} className="mb-12">
       <h2 className="text-2xl font-bold text-foreground mb-6 pb-2 border-b border-border">
         {day.title}
@@ -321,227 +232,391 @@ export function TravelPlan({ destination, preferences, travelerType }: TravelPla
 
         {activeTab === 'info' && (
           <div className="space-y-8">
-
-          {/* Places to Visit */}
-          <div className="bg-card rounded-lg shadow p-6">
-            <h4 className="mb-6">Places to Visit</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {travelPlan.placesToVisit.map((place, index) => (
-                <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <h3 className="text-lg font-semibold text-foreground">{place.name}</h3>
-                  <p className="text-muted-foreground text-sm mt-1">{place.category}</p>
-                  <p className="text-foreground/90 mt-2">{place.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Food & Drinks */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Restaurants */}
+            {/* Neighborhoods */}
             <div className="bg-card rounded-lg shadow p-6">
-              <h4 className="mb-6">Recommended Restaurants</h4>
-              <div className="space-y-4">
-                {travelPlan?.restaurants.map((restaurant, index) => (
-                  <div key={index} className="border-b border-border pb-4 last:border-0 last:pb-0">
-                    <h6 className="font-medium text-foreground">{restaurant.name}</h6>
-                    <p className="text-sm text-muted-foreground">{restaurant.cuisine} • {restaurant.priceRange}</p>
-                    <p className="text-foreground/90 mt-1 text-sm">{restaurant.description}</p>
+              <h4 className="mb-6 flex items-center">
+                <Home className="mr-2" /> Neighborhoods
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {travelPlan.neighborhoods?.map((neighborhood, index) => (
+                  <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <h3 className="text-lg font-semibold text-foreground">{neighborhood.name}</h3>
+                    <p className="text-muted-foreground text-sm mt-1">{neighborhood.vibe}</p>
+                    <p className="text-foreground/90 mt-2">{neighborhood.summary}</p>
+                    <div className="mt-4">
+                      <h6 className="text-sm font-medium text-green-600">Pros:</h6>
+                      <ul className="text-sm text-foreground/80">
+                        {neighborhood.pros.map((pro, idx) => (
+                          <li key={idx}>• {pro}</li>
+                        ))}
+                      </ul>
+                      <h6 className="text-sm font-medium text-amber-600 mt-2">Cons:</h6>
+                      <ul className="text-sm text-foreground/80">
+                        {neighborhood.cons.map((con, idx) => (
+                          <li key={idx}>• {con}</li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Bars */}
-            {travelPlan?.bars && travelPlan.bars.length > 0 && (
+            {/* Hotel Recommendations */}
+            <div className="bg-card rounded-lg shadow p-6">
+              <h4 className="mb-6 flex items-center">
+                <Home className="mr-2" /> Hotel Recommendations
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {travelPlan.hotelRecommendations?.map((hotel, index) => (
+                  <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <h3 className="text-lg font-semibold text-foreground">{hotel.name}</h3>
+                    <p className="text-muted-foreground text-sm mt-1">{hotel.neighborhood} • {hotel.priceRange}</p>
+                    <p className="text-foreground/90 mt-2">{hotel.description}</p>
+                    <div className="mt-3">
+                      <h6 className="text-sm font-medium">Amenities:</h6>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {hotel.amenities.map((amenity, idx) => (
+                          <span key={idx} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                            {amenity}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Places to Visit */}
+            <div className="bg-card rounded-lg shadow p-6">
+              <h4 className="mb-6 flex items-center">
+                <MapPin className="mr-2" /> Places to Visit
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {travelPlan.placesToVisit?.map((place, index) => (
+                  <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <h3 className="text-lg font-semibold text-foreground">{place.name}</h3>
+                    <p className="text-muted-foreground text-sm mt-1">{place.category}</p>
+                    <p className="text-foreground/90 mt-2">{place.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Food & Drinks */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Restaurants */}
               <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6">Nightlife</h4>
+                <h4 className="mb-6 flex items-center">
+                  <Utensils className="mr-2" /> Restaurants
+                </h4>
                 <div className="space-y-4">
-                  {travelPlan?.bars.map((bar, index) => (
+                  {travelPlan?.restaurants?.map((restaurant, index) => (
                     <div key={index} className="border-b border-border pb-4 last:border-0 last:pb-0">
-                      <h6 className="font-medium text-foreground">{bar.name}</h6>
-                      <p className="text-sm text-muted-foreground">{bar.type} • {bar.atmosphere}</p>
-                      <p className="text-foreground/90 mt-1 text-sm">{bar.description}</p>
+                      <h6 className="font-medium text-foreground">{restaurant.name}</h6>
+                      <p className="text-sm text-muted-foreground">{restaurant.cuisine} • {restaurant.priceRange}</p>
+                      <p className="text-foreground/90 mt-1 text-sm">{restaurant.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bars */}
+              {travelPlan?.bars && travelPlan.bars.length > 0 && (
+                <div className="bg-card rounded-lg shadow p-6">
+                  <h4 className="mb-6 flex items-center">
+                    <Utensils className="mr-2" /> Bars & Nightlife
+                  </h4>
+                  <div className="space-y-4">
+                    {travelPlan?.bars.map((bar, index) => (
+                      <div key={index} className="border-b border-border pb-4 last:border-0 last:pb-0">
+                        <h6 className="font-medium text-foreground">{bar.name}</h6>
+                        <p className="text-sm text-muted-foreground">{bar.category} • {bar.atmosphere}</p>
+                        <p className="text-foreground/90 mt-1 text-sm">{bar.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Weather Information */}
+            <div className="bg-card rounded-lg shadow p-6">
+              <h4 className="mb-6 flex items-center">
+                <Compass className="mr-2" /> Weather Information
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h6 className="mb-2 font-medium">Conditions</h6>
+                  <p className="text-foreground/90">{travelPlan?.weatherInfo.temperature} • {travelPlan?.weatherInfo.conditions}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{travelPlan?.weatherInfo.humidity}</p>
+                  <p className="text-sm text-muted-foreground">{travelPlan?.weatherInfo.dayNightTempDifference}</p>
+                </div>
+                <div>
+                  <h6 className="mb-2 font-medium">Important Notes</h6>
+                  <p className="text-sm text-foreground/90">{travelPlan?.weatherInfo.airQuality}</p>
+                  <p className="text-sm text-foreground/90">{travelPlan?.weatherInfo.feelsLikeWarning}</p>
+                  <div className="mt-3">
+                    <h6 className="text-sm font-medium">Recommendations:</h6>
+                    <ul className="space-y-1 mt-1">
+                      {travelPlan?.weatherInfo.recommendations?.map((rec, index) => (
+                        <li key={index} className="flex items-start text-sm">
+                          <span className="text-primary mr-2">•</span>
+                          <span className="text-foreground/90">{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Must-Try Local Food */}
+            <div className="bg-card rounded-lg shadow p-6">
+              <h4 className="mb-6 flex items-center">
+                <Utensils className="mr-2" /> Must-Try Local Food
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <h6 className="mb-3 font-medium">Main Dishes</h6>
+                  <ul className="space-y-2">
+                    {travelPlan.mustTryFood?.mainDishes?.map((dish, index) => (
+                      <li key={index} className="bg-background-muted rounded p-3 text-sm">
+                        {dish}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h6 className="mb-3 font-medium">Desserts</h6>
+                  <ul className="space-y-2">
+                    {travelPlan.mustTryFood?.desserts?.map((dessert, index) => (
+                      <li key={index} className="bg-background-muted rounded p-3 text-sm">
+                        {dessert}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h6 className="mb-3 font-medium">Local Drinks</h6>
+                  <ul className="space-y-2">
+                    {travelPlan.mustTryFood?.localAlcohol?.map((drink, index) => (
+                      <li key={index} className="bg-background-muted rounded p-3 text-sm">
+                        {drink}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Safety & Etiquette */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Safety Tips */}
+              <div className="bg-card rounded-lg shadow p-6">
+                <h4 className="mb-6 flex items-center">
+                  <Shield className="mr-2" /> Safety Tips
+                </h4>
+                <ul className="space-y-3">
+                  {travelPlan?.safetyTips?.map((tip, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-primary mr-2">•</span>
+                      <span className="text-foreground text-sm">{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Social Etiquette */}
+              <div className="bg-card rounded-lg shadow p-6">
+                <h4 className="mb-6 flex items-center">
+                  <BookOpen className="mr-2" /> Social Etiquette
+                </h4>
+                <ul className="space-y-3">
+                  {travelPlan?.socialEtiquette?.map((tip, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-primary mr-2">•</span>
+                      <span className="text-foreground text-sm">{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Transportation */}
+            <div className="bg-card rounded-lg shadow p-6">
+              <h4 className="mb-6 flex items-center">
+                <Compass className="mr-2" /> Transportation
+              </h4>
+              <div className="space-y-6">
+                <div>
+                  <h6 className="mb-2 font-medium">Public Transportation</h6>
+                  <p className="text-foreground/90 text-sm">{travelPlan?.transportationInfo.publicTransport}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Credit card payments: {travelPlan?.transportationInfo.creditCardPayment ? 'Accepted' : 'Not accepted'}
+                  </p>
+                </div>
+                <div>
+                  <h6 className="mb-2 font-medium">Airport Transportation</h6>
+                  <p className="text-sm text-muted-foreground mb-2">{travelPlan?.transportationInfo.airportTransport?.mainAirport} - {travelPlan?.transportationInfo.airportTransport?.distanceToCity}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {travelPlan?.transportationInfo.airportTransport?.transportOptions?.map((option, index) => (
+                      <div key={index} className="bg-background-muted rounded p-3">
+                        <h6 className="font-medium text-sm">{option.type}</h6>
+                        <p className="text-xs text-muted-foreground">{option.cost} • {option.duration}</p>
+                        <p className="text-xs text-foreground/80 mt-1">{option.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h6 className="mb-2 font-medium">Taxis & Rideshares</h6>
+                  <p className="text-foreground/90 text-sm">{travelPlan?.transportationInfo.ridesharing}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Average cost: {travelPlan?.transportationInfo.taxiInfo?.averageCost}
+                  </p>
+                  {travelPlan?.transportationInfo.taxiInfo?.tips && (
+                    <ul className="mt-2 space-y-1">
+                      {travelPlan.transportationInfo.taxiInfo.tips.map((tip, index) => (
+                        <li key={index} className="flex items-start text-xs">
+                          <span className="text-primary mr-1">•</span>
+                          <span className="text-foreground/80">{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Currency & Payments */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Local Currency */}
+              <div className="bg-card rounded-lg shadow p-6">
+                <h4 className="mb-6 flex items-center">
+                  <CreditCard className="mr-2" /> Currency & Payments
+                </h4>
+                <p className="text-foreground">
+                  The local currency is <span className="font-medium">{travelPlan?.localCurrency.currency}</span>.
+                  {travelPlan?.localCurrency.cashNeeded ? ' Cash is recommended for some purchases.' : ' Credit cards are widely accepted.'}
+                </p>
+                <p className="text-sm text-foreground/80 mt-2">{travelPlan?.localCurrency.creditCardUsage}</p>
+                {travelPlan?.localCurrency?.tips && travelPlan.localCurrency.tips.length > 0 && (
+                  <div className="mt-4">
+                    <h6 className="mb-2 font-medium">Money Tips:</h6>
+                    <ul className="space-y-2">
+                      {travelPlan?.localCurrency.tips.map((tip, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-primary mr-2">•</span>
+                          <span className="text-foreground text-sm">{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Tipping Etiquette */}
+              <div className="bg-card rounded-lg shadow p-6">
+                <h4 className="mb-6 flex items-center">
+                  <CreditCard className="mr-2" /> Tipping Etiquette
+                </h4>
+                <div className="space-y-3">
+                  {travelPlan?.tipEtiquette && Object.entries(travelPlan.tipEtiquette).map(([category, tip], index) => (
+                    <div key={index}>
+                      <h6 className="font-medium text-sm capitalize">{category}:</h6>
+                      <p className="text-foreground/80 text-sm">{tip}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Tap Water Safety */}
+            <div className="bg-card rounded-lg shadow p-6">
+              <h4 className="mb-6 flex items-center">
+                <Droplets className="mr-2" /> Tap Water Safety
+              </h4>
+              <div className="flex items-start">
+                <div className={`flex-shrink-0 h-6 w-6 ${travelPlan?.tapWaterSafe?.safe ? 'text-green-500' : 'text-yellow-500'}`}>
+                  {travelPlan?.tapWaterSafe?.safe ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  )}
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-lg font-medium text-foreground">
+                    {travelPlan?.tapWaterSafe?.safe ? 'Tap water is safe to drink' : 'Tap water is not recommended for drinking'}
+                  </h3>
+                  <p className="mt-1 text-foreground/80">{travelPlan?.tapWaterSafe?.details}</p>
+                  
+                  {travelPlan?.tapWaterSafe?.recommendations && travelPlan.tapWaterSafe.recommendations.length > 0 && (
+                    <div className="mt-4">
+                      <h6 className="mb-2 font-medium">Recommendations:</h6>
+                      <ul className="list-disc pl-5 space-y-1 text-foreground/80">
+                        {travelPlan.tapWaterSafe.recommendations.map((rec, index) => (
+                          <li key={index} className="text-sm">{rec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Local Events */}
+            {travelPlan?.localEvents && travelPlan.localEvents.length > 0 && (
+              <div className="bg-card rounded-lg shadow p-6">
+                <h4 className="mb-6 flex items-center">
+                  <Calendar className="mr-2" /> Local Events
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {travelPlan.localEvents.map((event, index) => (
+                    <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <h3 className="text-lg font-semibold text-foreground">{event.name}</h3>
+                      <p className="text-muted-foreground text-sm mt-1">{event.type} • {event.dates}</p>
+                      <p className="text-foreground/90 mt-2 text-sm">{event.description}</p>
+                      <p className="text-xs text-muted-foreground mt-2">📍 {event.location}</p>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-          </div>
 
-          {/* Additional Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Local Currency */}
-            <div className="bg-card rounded-lg shadow p-6">
-              <h4 className="mb-6">Local Currency</h4>
-              <p className="text-foreground">
-                The local currency is <span className="font-medium">{travelPlan?.localCurrency.currency}</span>.
-                {travelPlan?.localCurrency.cashNeeded ? ' It\'s recommended to carry some cash.' : ' Credit cards are widely accepted.'}
-              </p>
-              {travelPlan?.localCurrency?.tips && travelPlan.localCurrency.tips.length > 0 && (
-                <div className="mt-4">
-                  <h6 className="mb-2">Money Tips:</h6>
-                  <ul className="space-y-2">
-                    {travelPlan?.localCurrency.tips.map((tip, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-primary mr-2">•</span>
-                        <span className="text-foreground">{tip}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Social Etiquette */}
-            <div className="bg-card rounded-lg shadow p-6">
-              <h4 className="mb-6">Social Etiquette</h4>
-              <ul className="space-y-3">
-                {travelPlan?.socialEtiquette.map((tip, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="text-primary mr-2">•</span>
-                    <span className="text-foreground">{tip}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Must-Try Local Food Section */}
-          <section className="mb-12">
-            <h4 className="mb-6 flex items-center">
-              <Utensils className="mr-2" /> Must-Try Local Food
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {travelPlan.mustTryFood.map((food, index) => (
-                <div key={index} className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow">
-                  <p className="font-medium">{food}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Safety Tips Section */}
-          <section className="mb-12">
-            <h4 className="mb-6 flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              Local Safety Tips
-            </h4>
-            <div className="space-y-4">
-              {travelPlan.safetyTips && travelPlan.safetyTips.length > 0 ? (
-                <div className="bg-white rounded-lg shadow overflow-hidden">
-                  <ul className="divide-y divide-gray-100">
-                    {travelPlan.safetyTips.map((tip, index) => (
-                      <li key={index} className="p-4 hover:bg-gray-50">
-                        <div className="flex items-start">
-                          <div className="flex-shrink-0 h-6 w-6 text-blue-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                          <p className="ml-3 text-gray-700">{tip}</p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <p className="text-gray-500 italic">No specific safety tips available for this destination.</p>
-              )}
-            </div>
-          </section>
-
-          {/* Tipping Etiquette Section */}
-          <section className="mb-12">
-            <h4 className="mb-6 flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Tipping Etiquette
-            </h4>
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <ul className="divide-y divide-gray-100">
-                {Object.entries(travelPlan.tippingEtiquette || {}).map(([category, tip], index) => (
-                  <li key={index} className="p-4 hover:bg-gray-50">
-                    <div className="flex items-start">
-                      <div className="flex-shrink-0 h-6 w-6 text-blue-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                      </div>
-                      <div className="ml-3">
-                        <h3 className="text-lg font-medium text-gray-900">{category}</h3>
-                        <p className="mt-1 text-gray-600">{tip}</p>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-
-          {/* Tap Water Safety Section */}
-          <section className="mb-12">
-            <h4 className="mb-6 flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-              </svg>
-              Tap Water Safety
-            </h4>
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="p-6">
-                <div className="flex items-start">
-                  <div className={`flex-shrink-0 h-6 w-6 ${travelPlan.tapWater.safe ? 'text-green-500' : 'text-yellow-500'}`}>
-                    {travelPlan.tapWater.safe ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                      </svg>
-                    )}
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      {travelPlan.tapWater.safe ? 'Tap water is safe to drink' : 'Tap water is not recommended for drinking'}
-                    </h3>
-                    <p className="mt-1 text-gray-600">{travelPlan.tapWater.details}</p>
-                    
-                    {travelPlan.tapWater.recommendations && travelPlan.tapWater.recommendations.length > 0 && (
-                      <div className="mt-4">
-                        <h6 className="mb-2">Recommendations:</h6>
-                        <ul className="list-disc pl-5 space-y-1 text-gray-600">
-                          {travelPlan.tapWater.recommendations.map((rec, index) => (
-                            <li key={index}>{rec}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </div>
+            {/* Historical Context */}
+            {travelPlan?.history && (
+              <div className="bg-card rounded-lg shadow p-6">
+                <h4 className="mb-6 flex items-center">
+                  <BookOpen className="mr-2" /> Historical Context
+                </h4>
+                <p className="text-foreground/90">{travelPlan.history}</p>
               </div>
-            </div>
-          </section>
+            )}
 
-            {/* Transportation */}
+            {/* Local Activities */}
             <div className="bg-card rounded-lg shadow p-6">
-              <h4 className="mb-6">Getting Around</h4>
-              <div className="space-y-6">
-                <div>
-                  <h6 className="mb-2">Public Transportation</h6>
-                  <p className="text-muted-foreground">{travelPlan?.transportationInfo.publicTransport}</p>
-                </div>
-                <div>
-                  <h6 className="mb-2">From the Airport</h6>
-                  <p className="text-muted-foreground">{travelPlan?.transportationInfo.airportTransport}</p>
-                </div>
-                <div>
-                  <h6 className="mb-2">Taxis & Rideshares</h6>
-                  <p className="text-muted-foreground">{travelPlan?.transportationInfo.taxiInfo}</p>
-                </div>
+              <h4 className="mb-6 flex items-center">
+                <Compass className="mr-2" /> Local Activities & Experiences
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {travelPlan?.activities?.map((activity, index) => (
+                  <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <h3 className="text-lg font-semibold text-foreground">{activity.name}</h3>
+                    <p className="text-muted-foreground text-sm mt-1">{activity.type} • {activity.duration}</p>
+                    <p className="text-foreground/90 mt-2 text-sm">{activity.description}</p>
+                    {activity.localSpecific && (
+                      <span className="inline-block mt-2 px-2 py-1 bg-primary/10 text-primary text-xs rounded">
+                        Local Specialty
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>

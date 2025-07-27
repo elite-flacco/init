@@ -67,16 +67,22 @@ export interface TripPreferences {
 export interface EnhancedTravelPlan {
   destination: Destination;
   placesToVisit: PlaceToVisit[];
+  neighborhoods: Neighborhood[];
+  hotelRecommendations: HotelRecommendation[];
   restaurants: Restaurant[];
   bars: Bar[];
   weatherInfo: WeatherInfo;
   socialEtiquette: string[];
-  hotelRecommendation: HotelRecommendation;
+  safetyTips: string[];
   transportationInfo: TransportationInfo;
   localCurrency: CurrencyInfo;
+  tipEtiquette: TipEtiquette;
   activities: RecommendedActivity[];
+  mustTryFood: MustTryFood;
+  tapWaterSafe: TapWaterInfo;
+  localEvents: LocalEvent[];
+  history: string;
   itinerary: ItineraryDay[];
-  mustTryFood: string[];
 }
 
 export interface PlaceToVisit {
@@ -86,39 +92,74 @@ export interface PlaceToVisit {
   priority: number;
 }
 
+export interface Neighborhood {
+  name: string;
+  summary: string;
+  vibe: string;
+  pros: string[];
+  cons: string[];
+}
+
 export interface Restaurant {
   name: string;
   cuisine: string;
   priceRange: string;
   description: string;
+  neighborhood?: string;
 }
 
 export interface Bar {
   name: string;
-  type: string;
+  type: 'beer' | 'wine' | 'cocktail' | 'dive' | 'other';
   atmosphere: string;
   description: string;
+  category: string;
 }
 
 export interface WeatherInfo {
   season: string;
   temperature: string;
   conditions: string;
+  humidity: string;
+  dayNightTempDifference: string;
+  airQuality: string;
+  feelsLikeWarning: string;
   recommendations: string[];
 }
 
 export interface HotelRecommendation {
   name: string;
-  area: string;
+  neighborhood: string;
   priceRange: string;
   description: string;
+  amenities: string[];
 }
 
 export interface TransportationInfo {
   publicTransport: string;
-  airportTransport: string;
+  creditCardPayment: boolean;
+  airportTransport: AirportTransport;
   ridesharing: string;
-  taxiInfo: string;
+  taxiInfo: TaxiInfo;
+}
+
+export interface AirportTransport {
+  mainAirport: string;
+  distanceToCity: string;
+  transportOptions: TransportOption[];
+}
+
+export interface TransportOption {
+  type: string;
+  cost: string;
+  duration: string;
+  description: string;
+}
+
+export interface TaxiInfo {
+  available: boolean;
+  averageCost: string;
+  tips: string[];
 }
 
 export interface CurrencyInfo {
@@ -128,11 +169,41 @@ export interface CurrencyInfo {
   tips: string[];
 }
 
+export interface TipEtiquette {
+  restaurants: string;
+  bars: string;
+  taxis: string;
+  hotels: string;
+  tours: string;
+  general: string;
+}
+
 export interface RecommendedActivity {
   name: string;
   type: string;
   description: string;
   duration: string;
+  localSpecific: boolean;
+}
+
+export interface MustTryFood {
+  mainDishes: string[];
+  desserts: string[];
+  localAlcohol: string[];
+}
+
+export interface TapWaterInfo {
+  safe: boolean;
+  details: string;
+  recommendations: string[];
+}
+
+export interface LocalEvent {
+  name: string;
+  type: string;
+  description: string;
+  dates: string;
+  location: string;
 }
 
 export interface TravelPlan {
@@ -153,6 +224,7 @@ export interface Activity {
   title: string;
   description: string;
   location: string;
+  icon: string;
 }
 
 export interface DestinationRecommendation {

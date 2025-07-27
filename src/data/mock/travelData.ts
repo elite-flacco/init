@@ -1,4 +1,19 @@
-import { Destination, TripPreferences, TravelerType } from '../../types/travel';
+import { 
+  Destination, 
+  TripPreferences, 
+  TravelerType, 
+  Neighborhood, 
+  HotelRecommendation, 
+  WeatherInfo, 
+  TransportationInfo, 
+  CurrencyInfo, 
+  TipEtiquette, 
+  RecommendedActivity, 
+  MustTryFood, 
+  TapWaterInfo, 
+  LocalEvent,
+  Bar
+} from '../../types/travel';
 
 // Generate tap water safety information
 const generateTapWaterInfo = (destination: Destination) => {
@@ -42,31 +57,39 @@ const generateTapWaterInfo = (destination: Destination) => {
 };
 
 // Generate tipping etiquette based on destination
-const generateTippingEtiquette = (destination: Destination) => {
-  const tippingEtiquette: Record<string, { [key: string]: string }> = {
+const generateTippingEtiquette = (destination: Destination): TipEtiquette => {
+  const tippingEtiquette: Record<string, TipEtiquette> = {
     'Paris': {
-      'Restaurants': 'Service charge is typically included ("service compris"), but it\'s common to leave 5-10% extra for good service.',
-      'Bars/Cafés': 'Small change or rounding up the bill is sufficient.',
-      'Hotels': '1-2€ per bag for bellhops, 1-2€ per day for housekeeping.',
-      'Taxis': 'Round up to the nearest euro or add 5-10% for good service.'
+      restaurants: 'Service charge is typically included ("service compris"), but it\'s common to leave 5-10% extra for good service.',
+      bars: 'Small change or rounding up the bill is sufficient.',
+      hotels: '1-2€ per bag for bellhops, 1-2€ per day for housekeeping.',
+      taxis: 'Round up to the nearest euro or add 5-10% for good service.',
+      tours: '5-10€ per person for full-day tours.',
+      general: 'Tipping is appreciated but not obligatory in France.'
     },
     'Tokyo': {
-      'Restaurants': 'Tipping is not customary and can even be considered rude in some places.',
-      'Bars': 'No tipping expected.',
-      'Hotels': 'No tipping expected, though some high-end hotels may accept tips.',
-      'Taxis': 'No tipping expected. Drivers may even return your change to the last yen.'
+      restaurants: 'Tipping is not customary and can even be considered rude in some places.',
+      bars: 'No tipping expected.',
+      hotels: 'No tipping expected, though some high-end hotels may accept tips.',
+      taxis: 'No tipping expected. Drivers may even return your change to the last yen.',
+      tours: 'Not expected but small gifts or thank you notes are appreciated.',
+      general: 'Tipping is not part of Japanese culture and can cause confusion.'
     },
     'New York': {
-      'Restaurants': '15-20% of the pre-tax bill is standard. 25% or more for exceptional service.',
-      'Bars': '$1-2 per drink or 15-20% of the total tab.',
-      'Hotels': '$2-5 per bag for bellhops, $2-5 per day for housekeeping.',
-      'Taxis': '15-20% of the fare. Round up to the next dollar at minimum.'
+      restaurants: '15-20% of the pre-tax bill is standard. 25% or more for exceptional service.',
+      bars: '$1-2 per drink or 15-20% of the total tab.',
+      hotels: '$2-5 per bag for bellhops, $2-5 per day for housekeeping.',
+      taxis: '15-20% of the fare. Round up to the next dollar at minimum.',
+      tours: '$5-10 per person for group tours, $20-40 for private guides.',
+      general: 'Tipping is expected and forms a significant part of service workers\' income.'
     },
     'default': {
-      'Restaurants': '10-15% is standard for good service.',
-      'Bars': 'Not expected, but you can round up the bill.',
-      'Hotels': '1-2 local currency units per bag for bellhops, 1-2 per day for housekeeping.',
-      'Taxis': 'Round up the fare to the nearest convenient amount.'
+      restaurants: '10-15% is standard for good service.',
+      bars: 'Not expected, but you can round up the bill.',
+      hotels: '1-2 local currency units per bag for bellhops, 1-2 per day for housekeeping.',
+      taxis: 'Round up the fare to the nearest convenient amount.',
+      tours: '5-10% of tour cost for good service.',
+      general: 'Check local customs as tipping practices vary significantly.'
     }
   };
 
@@ -206,70 +229,222 @@ export const generateRestaurants = (destination: Destination, preferences: TripP
   return restaurants;
 };
 
-export const generateBars = (destination: Destination, preferences: TripPreferences) => {
-  const bars = [
+export const generateBars = (destination: Destination, preferences: TripPreferences): Bar[] => {
+  const bars: Bar[] = [
     {
-      name: `${destination.name} Pub`,
-      type: 'Pub',
-      atmosphere: 'Cozy and traditional',
-      description: 'A traditional pub with local beers and spirits.'
+      name: `${destination.name} Craft Brewery`,
+      type: 'beer',
+      atmosphere: 'Casual and friendly',
+      description: 'Local brewery with a variety of craft beers and pub food.',
+      category: 'Craft Beer'
     },
     {
-      name: 'Rooftop Lounge',
-      type: 'Lounge',
-      atmosphere: 'Upscale and modern',
-      description: 'Enjoy craft cocktails with a stunning view of the city.'
+      name: 'Wine Cellar',
+      type: 'wine',
+      atmosphere: 'Sophisticated and intimate',
+      description: 'Extensive wine collection with knowledgeable sommeliers.',
+      category: 'Wine Bar'
+    },
+    {
+      name: 'Mixology Lounge',
+      type: 'cocktail',
+      atmosphere: 'Upscale and trendy',
+      description: 'Creative cocktails made with premium spirits and fresh ingredients.',
+      category: 'Cocktail Lounge'
+    },
+    {
+      name: 'The Local Dive',
+      type: 'dive',
+      atmosphere: 'Laid-back and authentic',
+      description: 'No-frills neighborhood bar popular with locals.',
+      category: 'Dive Bar'
+    },
+    {
+      name: 'Rooftop Bar',
+      type: 'cocktail',
+      atmosphere: 'Scenic and upscale',
+      description: 'Panoramic city views with premium cocktails and small plates.',
+      category: 'Rooftop'
     }
   ];
 
   return bars;
 };
 
-export const generateWeatherInfo = () => ({
+export const generateWeatherInfo = (): WeatherInfo => ({
   season: 'Spring',
   temperature: '18-25°C',
   conditions: 'Mild with occasional rain',
-  recommendations: ['Pack an umbrella', 'Bring a light jacket']
+  humidity: 'Moderate humidity levels (60-70%)',
+  dayNightTempDifference: 'Temperature drops 8-10°C at night',
+  airQuality: 'Good air quality, no special precautions needed',
+  feelsLikeWarning: 'May feel cooler due to wind and humidity',
+  recommendations: ['Pack an umbrella', 'Bring a light jacket', 'Stay hydrated', 'Layer your clothing']
 });
 
-export const generateHotelRecommendation = (destination: Destination, preferences: TripPreferences) => ({
-  name: `${destination.name} Grand Hotel`,
-  area: 'Downtown',
-  priceRange: '$$$',
-  description: 'Luxury hotel in the heart of the city, close to major attractions.'
+export const generateNeighborhoods = (destination: Destination): Neighborhood[] => [
+  {
+    name: 'Historic District',
+    summary: 'The heart of the old city with cobblestone streets and historic architecture',
+    vibe: 'Charming, walkable, tourist-friendly',
+    pros: ['Close to major attractions', 'Great restaurants', 'Beautiful architecture'],
+    cons: ['Can be crowded', 'More expensive', 'Limited parking']
+  },
+  {
+    name: 'Arts Quarter',
+    summary: 'Trendy area with galleries, cafes, and creative spaces',
+    vibe: 'Hip, artistic, young crowd',
+    pros: ['Vibrant nightlife', 'Unique shopping', 'Local art scene'],
+    cons: ['Can be noisy at night', 'Further from main attractions', 'Limited family activities']
+  },
+  {
+    name: 'Waterfront',
+    summary: 'Scenic area along the water with parks and promenades',
+    vibe: 'Relaxed, scenic, upscale',
+    pros: ['Beautiful views', 'Great for walking/jogging', 'High-end dining'],
+    cons: ['More expensive', 'Can be windy', 'Limited late-night options']
+  }
+];
+
+export const generateHotelRecommendations = (destination: Destination, preferences: TripPreferences): HotelRecommendation[] => [
+  {
+    name: `${destination.name} Grand Hotel`,
+    neighborhood: 'Historic District',
+    priceRange: '$$$',
+    description: 'Luxury hotel in the heart of the city, close to major attractions.',
+    amenities: ['Spa', 'Fitness Center', 'Concierge', 'Restaurant', 'Room Service']
+  },
+  {
+    name: `${destination.name} Boutique Inn`,
+    neighborhood: 'Historic District',
+    priceRange: '$$',
+    description: 'Charming boutique hotel with personalized service and unique decor.',
+    amenities: ['Free WiFi', 'Continental Breakfast', 'Business Center', 'Pet Friendly']
+  },
+  {
+    name: `${destination.name} Budget Lodge`,
+    neighborhood: 'Historic District',
+    priceRange: '$',
+    description: 'Clean, comfortable accommodations at an affordable price.',
+    amenities: ['Free WiFi', 'Parking', '24-hour Front Desk']
+  },
+  {
+    name: 'Waterfront Resort',
+    neighborhood: 'Waterfront',
+    priceRange: '$$$',
+    description: 'Stunning waterfront resort with panoramic views and luxury amenities.',
+    amenities: ['Pool', 'Spa', 'Marina', 'Multiple Restaurants', 'Golf Course']
+  },
+  {
+    name: 'Arts District Hotel',
+    neighborhood: 'Arts Quarter',
+    priceRange: '$$',
+    description: 'Modern hotel in the trendy arts district, perfect for culture lovers.',
+    amenities: ['Art Gallery', 'Rooftop Bar', 'Fitness Center', 'Free WiFi']
+  },
+  {
+    name: 'Creative Hostel',
+    neighborhood: 'Arts Quarter',
+    priceRange: '$',
+    description: 'Hip hostel with communal spaces and artistic atmosphere.',
+    amenities: ['Shared Kitchen', 'Common Areas', 'Free WiFi', 'Laundry']
+  }
+];
+
+export const generateTransportationInfo = (): TransportationInfo => ({
+  publicTransport: 'Efficient metro and bus system covering the entire city with frequent service.',
+  creditCardPayment: true,
+  airportTransport: {
+    mainAirport: 'Main International Airport',
+    distanceToCity: '25 km (15 miles) from city center',
+    transportOptions: [
+      {
+        type: 'Airport Express Train',
+        cost: '$12-15',
+        duration: '30 minutes',
+        description: 'Fastest option, runs every 15 minutes'
+      },
+      {
+        type: 'Airport Bus',
+        cost: '$5-8',
+        duration: '45-60 minutes',
+        description: 'Budget-friendly, multiple stops in city'
+      },
+      {
+        type: 'Taxi',
+        cost: '$40-60',
+        duration: '30-45 minutes',
+        description: 'Door-to-door service, price varies with traffic'
+      },
+      {
+        type: 'Rideshare',
+        cost: '$25-40',
+        duration: '30-45 minutes',
+        description: 'App-based service, price varies with demand'
+      }
+    ]
+  },
+  ridesharing: 'Uber and local ridesharing services widely available throughout the city.',
+  taxiInfo: {
+    available: true,
+    averageCost: '$15-25 for typical city rides',
+    tips: [
+      'Look for official taxi stands or hail from the street',
+      'All taxis should have working meters',
+      'Carry cash as some taxis may not accept cards',
+      'Agree on fare beforehand for longer trips'
+    ]
+  }
 });
 
-export const generateTransportationInfo = () => ({
-  publicTransport: 'Efficient metro and bus system covering the entire city.',
-  airportTransport: 'Airport express train available, takes 30 minutes to city center.',
-  ridesharing: 'Uber and local ridesharing services available.',
-  taxiInfo: 'Metered taxis are safe and reliable. Look for official taxi stands.'
-});
-
-export const generateLocalCurrency = () => ({
+export const generateLocalCurrency = (): CurrencyInfo => ({
   currency: 'Local Currency (LC)',
   cashNeeded: true,
   creditCardUsage: 'Widely accepted in hotels and restaurants, but carry some cash for markets and taxis.',
   tips: [
-    'Tipping 10-15% is customary in restaurants',
-    'Round up taxi fares',
-    'Hotel staff appreciate 1-2 LC per bag'
+    'Exchange money at banks or authorized exchange offices for best rates',
+    'ATMs are widely available and usually offer good exchange rates',
+    'Notify your bank before traveling to avoid card blocks',
+    'Keep receipts for major purchases for customs purposes'
   ]
 });
 
-export const generateActivities = (destination: Destination, travelerType: TravelerType) => {
-  const baseActivities = [
+export const generateActivities = (destination: Destination, travelerType: TravelerType): RecommendedActivity[] => {
+  const baseActivities: RecommendedActivity[] = [
     {
       name: 'City Walking Tour',
       type: 'Sightseeing',
       description: 'Explore the main attractions with a local guide.',
-      duration: '2-3 hours'
+      duration: '2-3 hours',
+      localSpecific: true
     },
     {
       name: 'Cooking Class',
       type: 'Food & Drink',
       description: 'Learn to cook local dishes with a professional chef.',
-      duration: '3-4 hours'
+      duration: '3-4 hours',
+      localSpecific: true
+    },
+    {
+      name: 'Traditional Craft Workshop',
+      type: 'Cultural',
+      description: 'Learn traditional local crafts from skilled artisans.',
+      duration: '2-3 hours',
+      localSpecific: true
+    },
+    {
+      name: 'Local Market Tour',
+      type: 'Food & Culture',
+      description: 'Guided tour of local markets with tastings.',
+      duration: '3-4 hours',
+      localSpecific: true
+    },
+    {
+      name: 'Cultural Performance',
+      type: 'Entertainment',
+      description: 'Experience traditional music and dance performances.',
+      duration: '1-2 hours',
+      localSpecific: true
     }
   ];
 
@@ -278,19 +453,34 @@ export const generateActivities = (destination: Destination, travelerType: Trave
       name: 'Family Fun Day',
       type: 'Family',
       description: 'Activities and attractions suitable for all ages.',
-      duration: 'Full day'
+      duration: 'Full day',
+      localSpecific: false
     });
   }
 
   return baseActivities;
 };
 
-export const generateMustTryFood = (destination: Destination) => [
-  `Traditional ${destination.name} Dish`,
-  'Local Street Food Specialties',
-  'Regional Desserts',
-  'Signature Local Beverage'
-];
+export const generateMustTryFood = (destination: Destination): MustTryFood => ({
+  mainDishes: [
+    `Traditional ${destination.name} Stew`,
+    'Local Grilled Specialties',
+    'Regional Pasta/Noodle Dish',
+    'Signature Seafood Preparation'
+  ],
+  desserts: [
+    'Traditional Sweet Pastry',
+    'Local Ice Cream/Gelato',
+    'Regional Fruit Dessert',
+    'Classic Local Cake'
+  ],
+  localAlcohol: [
+    'Traditional Local Spirit',
+    'Regional Wine/Beer',
+    'Local Liqueur',
+    'Signature Cocktail'
+  ]
+});
 
 export const generateSocialEtiquette = () => [
   'Greet with a handshake and maintain eye contact',
@@ -353,6 +543,30 @@ export const generateItinerary = (destination: Destination, days: number) => {
   return itinerary;
 };
 
+export const generateLocalEvents = (destination: Destination): LocalEvent[] => [
+  {
+    name: 'Annual Cultural Festival',
+    type: 'Cultural',
+    description: 'Celebration of local traditions with music, dance, and food.',
+    dates: 'Varies by season',
+    location: 'City Center'
+  },
+  {
+    name: 'Weekly Farmers Market',
+    type: 'Market',
+    description: 'Local produce, crafts, and street food from regional vendors.',
+    dates: 'Every Saturday',
+    location: 'Main Square'
+  },
+  {
+    name: 'Monthly Art Walk',
+    type: 'Arts',
+    description: 'Gallery openings and street art displays in the arts district.',
+    dates: 'First Friday of each month',
+    location: 'Arts Quarter'
+  }
+];
+
 export const generateTravelPlan = (
   destination: Destination,
   preferences: TripPreferences,
@@ -361,20 +575,24 @@ export const generateTravelPlan = (
   const days = parseInt(preferences.duration.split(' ')[0], 10) || 7; // Default to 7 days if parsing fails
   
   return {
+    destination,
     placesToVisit: generatePlacesToVisit(destination, preferences),
+    neighborhoods: generateNeighborhoods(destination),
+    hotelRecommendations: generateHotelRecommendations(destination, preferences),
     restaurants: generateRestaurants(destination, preferences),
     bars: preferences.wantBars ? generateBars(destination, preferences) : [],
     weatherInfo: generateWeatherInfo(),
     socialEtiquette: generateSocialEtiquette(),
-    hotelRecommendation: generateHotelRecommendation(destination, preferences),
+    safetyTips: generateSafetyTips(destination, travelerType),
     transportationInfo: generateTransportationInfo(),
     localCurrency: generateLocalCurrency(),
+    tipEtiquette: generateTippingEtiquette(destination),
     activities: generateActivities(destination, travelerType),
-    itinerary: generateItinerary(destination, days),
     mustTryFood: generateMustTryFood(destination),
-    safetyTips: generateSafetyTips(destination, travelerType),
-    tippingEtiquette: generateTippingEtiquette(destination),
-    tapWater: generateTapWaterInfo(destination),
+    tapWaterSafe: generateTapWaterInfo(destination),
+    localEvents: generateLocalEvents(destination),
+    history: `${destination.name} has a rich history spanning centuries, with influences from various cultures and periods. The city has evolved from its ancient origins to become a modern destination while preserving its cultural heritage and traditions.`,
+    itinerary: generateItinerary(destination, days)
   };
 };
 

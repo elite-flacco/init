@@ -1,4 +1,25 @@
-import { Destination, TripPreferences, TravelerType, DestinationKnowledge, PickDestinationPreferences } from '../types/travel';
+import { 
+  Destination, 
+  TripPreferences, 
+  TravelerType, 
+  DestinationKnowledge, 
+  PickDestinationPreferences,
+  EnhancedTravelPlan as ImportedEnhancedTravelPlan,
+  Neighborhood,
+  HotelRecommendation,
+  Restaurant,
+  Bar,
+  WeatherInfo,
+  TransportationInfo,
+  CurrencyInfo,
+  TipEtiquette,
+  RecommendedActivity,
+  MustTryFood,
+  TapWaterInfo,
+  LocalEvent,
+  PlaceToVisit,
+  ItineraryDay
+} from '../types/travel';
 import { getAIConfig } from '../config/ai';
 import { generateTravelPlan as generateMockTravelPlan } from '../data/mock/travelData';
 
@@ -11,104 +32,12 @@ export interface AITripPlanningRequest {
 }
 
 export interface AITripPlanningResponse {
-  plan: EnhancedTravelPlan;
+  plan: ImportedEnhancedTravelPlan;
   reasoning: string;
   confidence: number;
   personalizations: string[];
 }
 
-export interface EnhancedTravelPlan {
-  placesToVisit: PlaceToVisit[];
-  restaurants: Restaurant[];
-  bars: Bar[];
-  weatherInfo: WeatherInfo;
-  socialEtiquette: string[];
-  hotelRecommendation: HotelRecommendation;
-  transportationInfo: TransportationInfo;
-  localCurrency: LocalCurrency;
-  activities: ActivityItem[];
-  itinerary: ItineraryDay[];
-  mustTryFood: string[];
-  safetyTips: string[];
-  tippingEtiquette: { [key: string]: string };
-  tapWater: TapWaterInfo;
-}
-
-export interface PlaceToVisit {
-  name: string;
-  description: string;
-  category: string;
-  priority: number;
-}
-
-export interface Restaurant {
-  name: string;
-  cuisine: string;
-  priceRange: string;
-  description: string;
-}
-
-export interface Bar {
-  name: string;
-  type: string;
-  atmosphere: string;
-  description: string;
-}
-
-export interface WeatherInfo {
-  season: string;
-  temperature: string;
-  conditions: string;
-  recommendations: string[];
-}
-
-export interface HotelRecommendation {
-  name: string;
-  area: string;
-  priceRange: string;
-  description: string;
-}
-
-export interface TransportationInfo {
-  publicTransport: string;
-  airportTransport: string;
-  ridesharing: string;
-  taxiInfo: string;
-}
-
-export interface LocalCurrency {
-  currency: string;
-  cashNeeded: boolean;
-  creditCardUsage: string;
-  tips: string[];
-}
-
-export interface ActivityItem {
-  name: string;
-  type: string;
-  description: string;
-  duration: string;
-}
-
-export interface ItineraryDay {
-  day: number;
-  title: string;
-  activities: Activity[];
-}
-
-export interface Activity {
-  time: string;
-  title: string;
-  description: string;
-  location: string;
-  icon: string;
-}
-
-export interface TapWaterInfo {
-  safe: boolean;
-  details: string;
-  recommendations?: string[];
-}
 
 class AITripPlanningService {
   private config = getAIConfig();
@@ -261,17 +190,102 @@ TRIP PREFERENCES:
 
     prompt += `
 
-Please create a comprehensive travel plan that includes:
-1. Detailed day-by-day itinerary
-2. Restaurant recommendations that match their preferences and budget
-3. Activity suggestions based on their traveler type
-4. Local insights and cultural tips
-5. Safety and practical information
-6. Personalized recommendations based on their specific preferences
+Please create a comprehensive travel plan that includes ALL of the following detailed sections:
 
-Focus on creating authentic experiences that match their travel style while being practical and well-organized. Consider their budget constraints and time limitations.
+1. PLACES TO VISIT
+   - Main attractions categorized by type (cultural, historical, natural, entertainment, etc.)
+   - Include priority ranking for each attraction
 
-Provide explanations for your recommendations and why they fit this specific traveler's profile.`;
+2. NEIGHBORHOOD BREAKDOWNS
+   - Summary of different neighborhoods with their unique vibes
+   - Pros and cons of each neighborhood for travelers
+   - Best neighborhoods for different types of activities
+
+3. HOTEL RECOMMENDATIONS
+   - Provide exactly 3 hotel options per major neighborhood
+   - Include amenities, price range, and detailed descriptions
+   - Match recommendations to traveler's accommodation preference and budget
+
+4. RESTAURANT RECOMMENDATIONS
+   - Provide ${preferences.duration.includes('week') ? 'at least 14' : preferences.duration.includes('day') ? Math.max(6, parseInt(preferences.duration) * 2) : '10'} restaurant recommendations
+   - Vary by cuisine type, price range, and neighborhood
+   - Include specific dishes to try at each restaurant
+
+5. BAR/NIGHTLIFE RECOMMENDATIONS
+   - Categorize by type: beer bars, wine bars, cocktail lounges, dive bars
+   - Include atmosphere descriptions and what makes each unique
+   - Match to traveler's nightlife preferences
+
+6. DETAILED WEATHER INFORMATION
+   - Humidity levels and hydration recommendations
+   - Day vs night temperature differences
+   - Air quality concerns if applicable
+   - "Feels like" temperature warnings (heat index, wind chill)
+   - Specific clothing and preparation recommendations
+
+7. SOCIAL ETIQUETTE
+   - Cultural norms and expectations (dress codes, behavior, religious considerations)
+   - What travelers should be aware of to show respect
+   - Common mistakes tourists make and how to avoid them
+
+8. LOCAL SAFETY TIPS
+   - Basic safety precautions specific to this destination
+   - Common scams and how to avoid them
+   - Emergency contact information and procedures
+   - Safe vs unsafe areas and times
+
+9. COMPREHENSIVE TRANSPORTATION INFO
+   - Public transportation system overview and how to use it
+   - Credit card payment options for public transport
+   - Airport transportation: which airport is closest to city center
+   - Detailed transportation options from airport (cost, duration, booking)
+   - Uber/taxi availability, typical costs, and tips for using them
+
+10. CURRENCY AND PAYMENT INFORMATION
+    - Local currency and current exchange considerations
+    - Where cash is essential vs where credit cards work
+    - ATM availability and fees
+    - Payment customs and expectations
+
+11. TIPPING ETIQUETTE
+    - Specific tipping guidelines for: restaurants, bars, taxis, hotels, tour guides
+    - Expected percentages or amounts
+    - Cultural context around tipping
+
+12. LOCAL ACTIVITIES AND EXPERIENCES
+    - Destination-specific experiences (cooking classes, cultural workshops, unique tours)
+    - Activities that can't be found elsewhere
+    - Seasonal or time-sensitive opportunities during their travel dates
+
+13. MUST-TRY LOCAL FOOD AND DRINK
+    - Signature main dishes with descriptions
+    - Local desserts and sweet treats
+    - Traditional alcoholic beverages
+    - Where to find the best versions of each
+
+14. TAP WATER SAFETY
+    - Is tap water safe to drink?
+    - Specific recommendations for water consumption
+    - Alternatives if tap water isn't safe
+
+15. LOCAL EVENTS DURING TRAVEL TIME
+    - Festivals, markets, or special events happening during their visit
+    - Cultural celebrations or seasonal events
+    - How to participate or attend
+
+16. HIGH-LEVEL HISTORICAL CONTEXT
+    - Brief but engaging historical background
+    - Key historical sites and their significance
+    - How history influences current culture and attractions
+
+17. DETAILED DAY-BY-DAY ITINERARY
+    - Incorporate all above elements into a practical daily schedule
+    - Consider travel time between locations
+    - Balance must-see attractions with authentic local experiences
+
+Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
+
+Please structure your response as a detailed JSON object that can be easily parsed, with clear sections for each category above.`;
 
     return prompt;
   }
@@ -280,7 +294,7 @@ Provide explanations for your recommendations and why they fit this specific tra
     mockPlan: any, 
     request: AITripPlanningRequest, 
     aiReasoning: string
-  ): { plan: EnhancedTravelPlan; personalizations: string[] } {
+  ): { plan: ImportedEnhancedTravelPlan; personalizations: string[] } {
     const { destination, preferences, travelerType } = request;
     
     // Generate personalizations based on traveler type and preferences
@@ -334,7 +348,7 @@ Provide explanations for your recommendations and why they fit this specific tra
       }));
     }
 
-    const enhancedPlan: EnhancedTravelPlan = {
+    const enhancedPlan: ImportedEnhancedTravelPlan = {
       ...mockPlan,
       itinerary: enhancedItinerary,
       restaurants: enhancedRestaurants
