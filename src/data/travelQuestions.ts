@@ -188,9 +188,18 @@ const typeADestinationQuestions: Question[] = [
         type: 'select',
         question: 'How structured do you like your itinerary? 📅',
         options: [
-            'Minute-by-minute playbook',
-            'General daily plans',
-            'Just major highlights',
+            {
+                label: 'Minute-by-minute playbook',
+                value: 'highly structured detailed minute by minute itinerary'
+            },
+            {
+                label: 'General daily plans',
+                value: 'structured daily plans with flexibility'
+            },
+            {
+                label: 'Just major highlights',
+                value: 'loose structure major highlights only'
+            }
         ]
     }
 ];
@@ -201,10 +210,22 @@ const bougieDestinationQuestions: Question[] = [
         type: 'select',
         question: 'What kind of luxury accommodation do you prefer? 🏨',
         options: [
-            '5-star hotels only',
-            'Boutique luxury',
-            'Private villas',
-            'Luxury resorts'
+            {
+                label: '5-star hotels only',
+                value: 'five star hotels luxury highest tier'
+            },
+            {
+                label: 'Boutique luxury',
+                value: 'boutique luxury unique character properties'
+            },
+            {
+                label: 'Private villas',
+                value: 'private villas exclusive accommodation'
+            },
+            {
+                label: 'Luxury resorts',
+                value: 'luxury resorts full service amenities'
+            }
         ]
     },
     {
@@ -212,10 +233,22 @@ const bougieDestinationQuestions: Question[] = [
         type: 'select',
         question: 'How important are fine dining experiences? 🍽️',
         options: [
-            'Michelin stars required',
-            'Local fine dining',
-            'Casual but high quality',
-            'I\'m here for the sights, not the food'
+            {
+                label: 'Michelin stars required',
+                value: 'michelin star dining haute cuisine'
+            },
+            {
+                label: 'Local fine dining',
+                value: 'local fine dining elevated cuisine'
+            },
+            {
+                label: 'Casual but high quality',
+                value: 'casual high quality food experiences'
+            },
+            {
+                label: 'I\'m here for the sights, not the food',
+                value: 'not focused on dining experiences'
+            }
         ]
     }
 ];
@@ -243,9 +276,18 @@ const explorerTripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'What\'s your adventure energy level? ⚡',
         options: [
-            'High - Go go go! I want to do EVERYTHING!',
-            'Medium - A good mix of adventure and chill',
-            'Low - YOLO but make it relaxed 😎'
+            {
+                label: 'High - Go go go! I want to do EVERYTHING!',
+                value: 'high energy very active adventurous schedule'
+            },
+            {
+                label: 'Medium - A good mix of adventure and chill',
+                value: 'moderate energy balanced adventure and relaxation'
+            },
+            {
+                label: 'Low - YOLO but make it relaxed 😎',
+                value: 'low energy relaxed adventurous mindset'
+            }
         ]
     },
 ];
@@ -256,9 +298,18 @@ const typeATripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'How detailed should your itinerary be? 📅',
         options: [
-            'Minute-by-minute playbook with backup plans',
-            'Hourly schedule with some buffer time',
-            'Daily highlights with timing suggestions'
+            {
+                label: 'Minute-by-minute playbook with backup plans',
+                value: 'very detailed minute by minute schedule with backup plans'
+            },
+            {
+                label: 'Hourly schedule with some buffer time',
+                value: 'hourly schedule structured with flexibility'
+            },
+            {
+                label: 'Daily highlights with timing suggestions',
+                value: 'daily highlights loose timing suggestions'
+            }
         ]
     },
     {
@@ -266,9 +317,18 @@ const typeATripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'How far in advance do you want things booked? 📋',
         options: [
-            'Everything reserved now - no surprises!',
-            'Major things booked, some flexibility',
-            'Key reservations only, rest can wait'
+            {
+                label: 'Everything reserved now - no surprises!',
+                value: 'book everything in advance no surprises'
+            },
+            {
+                label: 'Major things booked, some flexibility',
+                value: 'book major attractions some flexibility'
+            },
+            {
+                label: 'Key reservations only, rest can wait',
+                value: 'minimal advance booking key reservations only'
+            }
         ]
     },
     {
@@ -276,9 +336,18 @@ const typeATripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'Want backup plans for weather/closures? ☔',
         options: [
-            'Yes! Plan A, B, C, and D please',
-            'A couple alternatives would be nice',
-            'I\'ll figure it out if needed'
+            {
+                label: 'Yes! Plan A, B, C, and D please',
+                value: 'multiple backup plans for all scenarios'
+            },
+            {
+                label: 'A couple alternatives would be nice',
+                value: 'some backup options for contingencies'
+            },
+            {
+                label: 'I\'ll figure it out if needed',
+                value: 'minimal backup planning spontaneous adaptation'
+            }
         ]
     }
 ];
@@ -289,9 +358,18 @@ const bougieTripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'What level of luxury are we talking? ✨',
         options: [
-            'Ultra-luxury everything - money no object',
-            'High-end but practical choices',
-            'Selective splurging on key experiences'
+            {
+                label: 'Ultra-luxury everything - money no object',
+                value: 'ultra luxury highest tier money no object'
+            },
+            {
+                label: 'High-end but practical choices',
+                value: 'high end luxury practical value conscious'
+            },
+            {
+                label: 'Selective splurging on key experiences',
+                value: 'selective luxury splurge on special experiences'
+            }
         ]
     },
     {
@@ -299,9 +377,18 @@ const bougieTripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'How much personal service do you want? 🛎️',
         options: [
-            'Full concierge - handle everything for me',
-            'VIP treatment at key moments',
-            'Good service but I can handle some things'
+            {
+                label: 'Full concierge - handle everything for me',
+                value: 'full concierge service white glove treatment'
+            },
+            {
+                label: 'VIP treatment at key moments',
+                value: 'VIP treatment for special experiences'
+            },
+            {
+                label: 'Good service but I can handle some things',
+                value: 'quality service with some independence'
+            }
         ]
     },
     {
@@ -309,9 +396,18 @@ const bougieTripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'How exclusive should your experiences be? 👑',
         options: [
-            'Private everything - no crowds ever',
-            'Skip-the-line and VIP access',
-            'Quality experiences, crowds are ok'
+            {
+                label: 'Private everything - no crowds ever',
+                value: 'completely private exclusive no crowds'
+            },
+            {
+                label: 'Skip-the-line and VIP access',
+                value: 'VIP access skip lines premium treatment'
+            },
+            {
+                label: 'Quality experiences, crowds are ok',
+                value: 'quality experiences crowds acceptable'
+            }
         ]
     }
 ];
@@ -322,9 +418,18 @@ const chillTripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'What\'s your ideal way to unwind? 😌',
         options: [
-            'Beach chair + book + cocktail = perfect',
-            'Spa treatments and wellness activities',
-            'Slow exploration with plenty of coffee breaks'
+            {
+                label: 'Beach chair + book + cocktail = perfect',
+                value: 'beach relaxation reading cocktails peaceful'
+            },
+            {
+                label: 'Spa treatments and wellness activities',
+                value: 'spa wellness treatments self care activities'
+            },
+            {
+                label: 'Slow exploration with plenty of coffee breaks',
+                value: 'slow exploration coffee culture leisurely sightseeing'
+            }
         ]
     },
     {
@@ -332,9 +437,18 @@ const chillTripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'How packed should your days be? 🐌',
         options: [
-            'Minimal plans - maximum chill time',
-            'One main thing per day, rest is flexible',
-            'Light schedule with nap opportunities'
+            {
+                label: 'Minimal plans - maximum chill time',
+                value: 'minimal planning maximum free time relaxation'
+            },
+            {
+                label: 'One main thing per day, rest is flexible',
+                value: 'one main activity per day flexible schedule'
+            },
+            {
+                label: 'Light schedule with nap opportunities',
+                value: 'light schedule with rest breaks nap time'
+            }
         ]
     },
     {
@@ -342,9 +456,18 @@ const chillTripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'What sounds most appealing? 🧘',
         options: [
-            'Zero decisions - just tell me where to show up',
-            'Easy choices between relaxing options',
-            'Some planning but keep it stress-free'
+            {
+                label: 'Zero decisions - just tell me where to show up',
+                value: 'no decisions fully planned stress free'
+            },
+            {
+                label: 'Easy choices between relaxing options',
+                value: 'simple choices between relaxing activities'
+            },
+            {
+                label: 'Some planning but keep it stress-free',
+                value: 'light planning stress free low pressure'
+            }
         ]
     }
 ];
@@ -360,13 +483,49 @@ export const destinationInputQuestion: Question = {
 // Common trip planning questions asked to all traveler types
 export const commonTripPlanningQuestions: Question[] = [
     {
+        id: 'timeOfYear',
+        type: 'select',
+        question: 'When are you planning to escape? 📅',
+        options: [
+            {
+                label: 'March – May',
+                value: 'spring season travel'
+            },
+            {
+                label: 'June – August',
+                value: 'summer season travel'
+            },
+            {
+                label: 'September – November',
+                value: 'autumn/fall season travel'
+            },
+            {
+                label: 'December – February',
+                value: 'winter season travel'
+            },
+            {
+                label: 'No idea yet / I\'m flexible',
+                value: 'flexible with travel dates'
+            }
+        ]
+    },
+    {
         id: 'duration',
         type: 'select',
         question: 'How long can you escape reality? ⏰',
         options: [
-            'Long weekend warrior (3-4 days)',
-            'Can only get one week off work',
-            'Sky is the limit!'
+            {
+                label: 'Long weekend warrior (3-4 days)',
+                value: '3-4 days short trip weekend getaway'
+            },
+            {
+                label: 'Can only get one week off work',
+                value: 'one week vacation 7 days'
+            },
+            {
+                label: 'Sky is the limit!',
+                value: 'extended travel flexible duration multiple weeks'
+            }
         ]
     },
     {
@@ -374,9 +533,18 @@ export const commonTripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'What\'s your wallet situation looking like? 💰',
         options: [
-            'I\'m broke but determined',
-            'I\'ve got some $$$',
-            'Money is no object'
+            {
+                label: '💸 I\'m broke but determined',
+                value: 'budget travel low cost'
+            },
+            {
+                label: '💰 I can afford to be comfortable',
+                value: 'mid-range budget comfortable'
+            },
+            {
+                label: '🤑 Money is no object',
+                value: 'luxury travel high budget'
+            }
         ]
     },
     {
@@ -384,30 +552,48 @@ export const commonTripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'Where do you want to crash? 🛏️',
         options: [
-            'Hostel - Meet people, save money',
-            'Hotel - Classic comfort zone',
-            'Airbnb - Live like a local',
-            'Resort - All-inclusive paradise'
+            {
+                label: 'Hostel - Meet people, save money',
+                value: 'hostel budget social accommodation meet travelers'
+            },
+            {
+                label: 'Hotel - Classic comfort zone',
+                value: 'hotel comfortable reliable accommodation'
+            },
+            {
+                label: 'Airbnb - Live like a local',
+                value: 'airbnb local experience home stay'
+            },
+            {
+                label: 'Resort - All-inclusive paradise',
+                value: 'resort all inclusive luxury amenities'
+            }
         ]
     },
-    {
-        id: 'transportation',
-        type: 'select',
-        question: 'How are you getting around? 🚗',
-        options: [
-            'Public Transport - Eco-friendly explorer',
-            'Rental Car - Freedom to roam',
-            'Walking/Biking - Slow travel vibes',
-            'Tours & Taxis - Let others drive'
-        ]
-    },
+    // {
+    //     id: 'transportation',
+    //     type: 'select',
+    //     question: 'How are you getting around? 🚗',
+    //     options: [
+    //         'Public Transport - Eco-friendly explorer',
+    //         'Rental Car - Freedom to roam',
+    //         'Walking/Biking - Slow travel vibes',
+    //         'Tours & Taxis - Let others drive'
+    //     ]
+    // },
     {
         id: 'restaurants',
         type: 'select',
         question: 'Want restaurant recommendations? 🍽️',
         options: [
-            'Yes please! - I live to eat 🤤',
-            'Nah, I\'m good - I\'ll figure it out myself'
+            {
+                label: 'Yes please! - I live to eat 🤤',
+                value: 'yes restaurant recommendations foodie culinary experiences'
+            },
+            {
+                label: 'Nah, I\'m good - I\'ll figure it out myself',
+                value: 'no restaurant recommendations independent dining'
+            }
         ]
     },
     {
@@ -415,8 +601,14 @@ export const commonTripPlanningQuestions: Question[] = [
         type: 'select',
         question: 'Want bar recommendations? 🍻',
         options: [
-            'Absolutely! - It\'s 5 o\'clock somewhere! 🍹',
-            'Not my scene - I\'ll stick to coffee shops'
+            {
+                label: 'Absolutely! - It\'s 5 o\'clock somewhere! 🍹',
+                value: 'yes bar recommendations nightlife drinking culture'
+            },
+            {
+                label: 'Not my scene - I\'ll stick to coffee shops',
+                value: 'no bar recommendations prefer coffee culture'
+            }
         ]
     }
 ];

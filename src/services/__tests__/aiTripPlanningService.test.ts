@@ -138,7 +138,7 @@ describe('aiTripPlanningService', () => {
       it('should generate personalizations for YOLO traveler', async () => {
         const request = {
           ...baseRequest,
-          travelerType: mockTravelerTypes.yolo
+          travelerType: mockTravelerTypes.explorer
         }
 
         const response = await aiTripPlanningService.generateTravelPlan(request)

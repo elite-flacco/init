@@ -38,6 +38,7 @@ export interface PickDestinationPreferences {
 }
 
 export interface TripPreferences {
+  timeOfYear: string;
   duration: string;
   budget: string;
   activities: string[];

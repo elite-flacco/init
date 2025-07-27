@@ -251,7 +251,6 @@ describe('AITripPlanningPrompts', () => {
     const completeButton = screen.getByText('Complete Form')
     await userEvent.click(completeButton)
 
-    expect(screen.getByText(/Did you know\?.*Our AI considers over 50 factors/)).toBeInTheDocument()
   })
 
   it('should merge preferences from pick destination flow', async () => {

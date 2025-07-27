@@ -22,7 +22,7 @@ describe('aiDestinationService', () => {
     describe('mock mode', () => {
       it('should return recommendations for YOLO traveler type', async () => {
         const request = {
-          travelerType: mockTravelerTypes.yolo
+          travelerType: mockTravelerTypes.explorer
         }
 
         const response = await aiDestinationService.getDestinationRecommendations(request)
@@ -72,7 +72,7 @@ describe('aiDestinationService', () => {
 
       it('should filter by budget preferences', async () => {
         const requestBudget = {
-          travelerType: mockTravelerTypes.yolo,
+          travelerType: mockTravelerTypes.explorer,
           preferences: {
             ...mockPickDestinationPreferences,
             budget: 'budget'
@@ -142,7 +142,7 @@ describe('aiDestinationService', () => {
 
       it('should handle empty filter results gracefully', async () => {
         const request = {
-          travelerType: mockTravelerTypes.yolo,
+          travelerType: mockTravelerTypes.explorer,
           preferences: {
             ...mockPickDestinationPreferences,
             budget: 'luxury',
@@ -305,7 +305,7 @@ describe('aiDestinationService', () => {
 
       it('should handle minimal request data', async () => {
         const request = {
-          travelerType: mockTravelerTypes.yolo
+          travelerType: mockTravelerTypes.explorer
         }
 
         const response = await aiDestinationService.getDestinationRecommendations(request)
@@ -338,7 +338,7 @@ describe('aiDestinationService', () => {
 
       it('should limit results to maximum 6 destinations', async () => {
         const request = {
-          travelerType: mockTravelerTypes.yolo
+          travelerType: mockTravelerTypes.explorer
         }
 
         const response = await aiDestinationService.getDestinationRecommendations(request)

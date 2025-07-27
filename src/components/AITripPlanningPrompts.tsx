@@ -80,6 +80,7 @@ export function AITripPlanningPrompts({
 
     try {
       const preferences: TripPreferences = {
+        timeOfYear: pickDestinationPreferences?.timeOfYear || answers.timeOfYear || '',
         duration: pickDestinationPreferences?.duration || answers.duration || '',
         budget: pickDestinationPreferences?.budget || answers.budget || '',
         activities: [],
@@ -141,11 +142,6 @@ export function AITripPlanningPrompts({
               <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
               <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
-          </div>
-          <div className="bg-primary/10 rounded-lg p-4">
-            <p className="text-sm text-foreground-secondary">
-              💡 <strong>Did you know?</strong> Our AI considers over 50 factors including your travel style, budget, local events, weather patterns, and cultural preferences to create your ideal itinerary.
-            </p>
           </div>
         </div>
       </div>

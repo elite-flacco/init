@@ -125,6 +125,7 @@ TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
 
 TRIP PREFERENCES:
+- Time of Year: ${preferences.timeOfYear}
 - Duration: ${preferences.duration}
 - Budget: ${preferences.budget}
 - Accommodation: ${preferences.accommodation}
@@ -244,7 +245,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
 10. CURRENCY AND PAYMENT INFORMATION
     - Local currency and current exchange considerations
     - Where cash is essential vs where credit cards work
-    - ATM availability and fees
+    - ATM availability and fees, best ATMs to use
     - Payment customs and expectations
 
 11. TIPPING ETIQUETTE
@@ -260,18 +261,16 @@ Please create a comprehensive travel plan that includes ALL of the following det
 13. MUST-TRY LOCAL FOOD AND DRINK
     - Signature main dishes with descriptions
     - Local desserts and sweet treats
-    - Traditional alcoholic beverages
-    - Where to find the best versions of each
+    - Traditional alcoholic beverages if available
+    - Where to find the best versions of each (e.g. try mango sticky rice at xyz restaurant)
 
 14. TAP WATER SAFETY
     - Is tap water safe to drink?
-    - Specific recommendations for water consumption
-    - Alternatives if tap water isn't safe
 
 15. LOCAL EVENTS DURING TRAVEL TIME
     - Festivals, markets, or special events happening during their visit
     - Cultural celebrations or seasonal events
-    - How to participate or attend
+    - How to participate or attend (e.g. best place to celebrate NYE in Bangkok)
 
 16. HIGH-LEVEL HISTORICAL CONTEXT
     - Brief but engaging historical background
@@ -282,10 +281,35 @@ Please create a comprehensive travel plan that includes ALL of the following det
     - Incorporate all above elements into a practical daily schedule
     - Consider travel time between locations
     - Balance must-see attractions with authentic local experiences
+    - Consider user preference for activity level (high, medium, low)
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
 
-Please structure your response as a detailed JSON object that can be easily parsed, with clear sections for each category above.`;
+CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON. 
+
+Use this exact structure:
+
+{
+  "placesToVisit": [{"name": "string", "description": "string", "category": "string", "priority": number}],
+  "neighborhoods": [{"name": "string", "summary": "string", "vibe": "string", "pros": ["string"], "cons": ["string"]}],
+  "hotelRecommendations": [{"name": "string", "neighborhood": "string", "priceRange": "string", "description": "string", "amenities": ["string"]}],
+  "restaurants": [{"name": "string", "cuisine": "string", "priceRange": "string", "description": "string", "neighborhood": "string"}],
+  "bars": [{"name": "string", "type": "string", "atmosphere": "string", "description": "string", "category": "string"}],
+  "weatherInfo": {"season": "string", "temperature": "string", "conditions": "string", "humidity": "string", "dayNightTempDifference": "string", "airQuality": "string", "feelsLikeWarning": "string", "recommendations": ["string"]},
+  "socialEtiquette": ["string"],
+  "safetyTips": ["string"],
+  "transportationInfo": {"publicTransport": "string", "creditCardPayment": boolean, "airportTransport": {"mainAirport": "string", "distanceToCity": "string", "transportOptions": [{"type": "string", "cost": "string", "duration": "string", "description": "string"}]}, "ridesharing": "string", "taxiInfo": {"available": boolean, "averageCost": "string", "tips": ["string"]}},
+  "localCurrency": {"currency": "string", "cashNeeded": boolean, "creditCardUsage": "string", "tips": ["string"]},
+  "tipEtiquette": {"restaurants": "string", "bars": "string", "taxis": "string", "hotels": "string", "tours": "string", "general": "string"},
+  "activities": [{"name": "string", "type": "string", "description": "string", "duration": "string", "localSpecific": boolean}],
+  "mustTryFood": {"mainDishes": ["string"], "desserts": ["string"], "localAlcohol": ["string"]},
+  "tapWaterSafe": {"safe": boolean, "details": "string"},
+  "localEvents": [{"name": "string", "type": "string", "description": "string", "dates": "string", "location": "string"}],
+  "history": "string",
+  "itinerary": [{"day": number, "title": "string", "activities": [{"time": "string", "title": "string", "description": "string", "location": "string", "icon": "string"}]}]
+}
+
+START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
 
     return prompt;
   }
@@ -300,7 +324,7 @@ Please structure your response as a detailed JSON object that can be easily pars
     // Generate personalizations based on traveler type and preferences
     const personalizations: string[] = [];
     
-    if (travelerType.id === 'yolo') {
+    if (travelerType.id === 'explorer') {
       personalizations.push('Added spontaneous activity options for your adventurous spirit');
       personalizations.push('Included flexible itinerary items that can be changed on the fly');
     } else if (travelerType.id === 'adventure') {
@@ -364,7 +388,7 @@ Please structure your response as a detailed JSON object that can be easily pars
   ): string {
     let enhancement = activity.description;
     
-    if (travelerType.id === 'yolo') {
+    if (travelerType.id === 'explorer') {
       enhancement += ' Feel free to explore spontaneously and follow your instincts!';
     } else if (travelerType.id === 'adventure') {
       enhancement += ' Look for opportunities to add some adventure or outdoor elements.';
@@ -377,27 +401,142 @@ Please structure your response as a detailed JSON object that can be easily pars
     return enhancement;
   }
 
+  private parseAIResponse(aiResponse: string, request: AITripPlanningRequest): { plan: ImportedEnhancedTravelPlan; personalizations: string[] } | null {
+    let jsonStr = '';
+    let cleanedJsonStr = '';
+    try {
+      console.log('Attempting to parse AI response. First 500 chars:', aiResponse.substring(0, 500));
+      
+      // Try multiple JSON extraction strategies
+      
+      // Strategy 1: Look for JSON wrapped in code blocks (most common with AI responses)
+      const codeBlockMatch = aiResponse.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+      if (codeBlockMatch) {
+        jsonStr = codeBlockMatch[1];
+      } else {
+        // Strategy 2: Look for the first complete JSON object
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          jsonStr = jsonMatch[0];
+        } else {
+          // Strategy 3: Look for JSON starting after common prefixes
+          const patterns = [
+            /(?:here's the|here is the|response:|plan:)\s*(\{[\s\S]*\})/i,
+            /json\s*[:\-]\s*(\{[\s\S]*\})/i,
+            /(\{[\s\S]*\})/
+          ];
+          
+          for (const pattern of patterns) {
+            const match = aiResponse.match(pattern);
+            if (match) {
+              jsonStr = match[1];
+              break;
+            }
+          }
+        }
+      }
+
+      if (!jsonStr) {
+        console.log('No JSON found in AI response, using fallback');
+        console.log('Full AI response:', aiResponse);
+        return null;
+      }
+
+      console.log('Attempting to parse JSON string. First 300 chars:', jsonStr.substring(0, 300));
+      
+      // Try to fix common JSON issues
+      cleanedJsonStr = jsonStr.trim();
+      
+      // If JSON appears to be truncated (doesn't end with }), try to find the last complete object
+      if (!cleanedJsonStr.endsWith('}')) {
+        console.log('JSON appears truncated, attempting to fix...');
+        
+        // Find the last complete field by looking for the last properly closed section
+        const lastCompleteMatch = cleanedJsonStr.match(/(.*[}\]"])\s*,?\s*[^,}\]]*$/s);
+        if (lastCompleteMatch) {
+          cleanedJsonStr = lastCompleteMatch[1];
+          // Add closing brace if needed
+          if (!cleanedJsonStr.endsWith('}')) {
+            cleanedJsonStr += '}';
+          }
+        }
+      }
+      
+      const parsedData = JSON.parse(cleanedJsonStr);
+      
+      // Map the AI response to our interface structure
+      const plan: ImportedEnhancedTravelPlan = {
+        destination: request.destination,
+        placesToVisit: parsedData.placesToVisit || [],
+        neighborhoods: parsedData.neighborhoods || [],
+        hotelRecommendations: parsedData.hotelRecommendations || [],
+        restaurants: parsedData.restaurants || [],
+        bars: parsedData.bars || [],
+        weatherInfo: parsedData.weatherInfo || {},
+        socialEtiquette: parsedData.socialEtiquette || [],
+        safetyTips: parsedData.safetyTips || [],
+        transportationInfo: parsedData.transportationInfo || {},
+        localCurrency: parsedData.localCurrency || {},
+        tipEtiquette: parsedData.tipEtiquette || {},
+        activities: parsedData.activities || [],
+        mustTryFood: parsedData.mustTryFood || {},
+        tapWaterSafe: parsedData.tapWaterSafe || {},
+        localEvents: parsedData.localEvents || [],
+        history: parsedData.history || '',
+        itinerary: parsedData.itinerary || []
+      };
+
+      const personalizations: string[] = [
+        `Generated comprehensive travel plan for ${request.destination.name}`,
+        `Tailored recommendations for ${request.travelerType.name} traveler type`,
+        `Customized for ${request.preferences.duration} trip with ${request.preferences.budget} budget`,
+        'Included local insights and authentic experiences'
+      ];
+
+      console.log('Successfully parsed AI response as JSON!');
+      return { plan, personalizations };
+    } catch (error) {
+      console.log('Error parsing AI response as JSON:', error);
+      console.log('Original JSON string (first 500 chars):', jsonStr?.substring(0, 500) || 'No JSON string');
+      console.log('Cleaned JSON string (first 500 chars):', cleanedJsonStr?.substring(0, 500) || 'No cleaned JSON string');
+      return null;
+    }
+  }
+
   async generateTravelPlan(request: AITripPlanningRequest): Promise<AITripPlanningResponse> {
     try {
       const prompt = this.generatePrompt(request);
       const aiResponse = await this.callAI(prompt);
       
-      // Generate the base plan using existing mock data
-      const mockPlan = generateMockTravelPlan(
-        request.destination, 
-        request.preferences, 
-        request.travelerType
-      );
+      // Try to parse the AI response as structured JSON
+      const parsedResult = this.parseAIResponse(aiResponse, request);
       
-      // Enhance the mock plan with AI insights and personalizations
-      const { plan, personalizations } = this.enhanceMockPlan(mockPlan, request, aiResponse);
-      
-      return {
-        plan,
-        reasoning: aiResponse,
-        confidence: 0.9 + Math.random() * 0.08, // Mock confidence score
-        personalizations
-      };
+      if (parsedResult) {
+        // Use the parsed AI data
+        return {
+          plan: parsedResult.plan,
+          reasoning: aiResponse,
+          confidence: 0.9 + Math.random() * 0.08,
+          personalizations: parsedResult.personalizations
+        };
+      } else {
+        // Fall back to enhanced mock data if parsing fails
+        console.log('Using enhanced mock data as fallback');
+        const mockPlan = generateMockTravelPlan(
+          request.destination, 
+          request.preferences, 
+          request.travelerType
+        );
+        
+        const { plan, personalizations } = this.enhanceMockPlan(mockPlan, request, aiResponse);
+        
+        return {
+          plan,
+          reasoning: aiResponse,
+          confidence: 0.9 + Math.random() * 0.08,
+          personalizations
+        };
+      }
     } catch (error) {
       console.error('AI trip planning service error:', error);
       

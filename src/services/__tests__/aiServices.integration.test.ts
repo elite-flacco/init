@@ -60,10 +60,10 @@ describe('AI Services Integration', () => {
     })
 
     it('should generate different personalizations for different traveler types', async () => {
-      const yoloRequest = {
+      const explorerRequest = {
         destination: mockDestinations.paris,
         preferences: mockTripPreferences,
-        travelerType: mockTravelerTypes.yolo
+        travelerType: mockTravelerTypes.explorer
       }
 
       const cultureRequest = {
@@ -72,15 +72,15 @@ describe('AI Services Integration', () => {
         travelerType: mockTravelerTypes.culture
       }
 
-      const yoloResponse = await aiTripPlanningService.generateTravelPlan(yoloRequest)
+      const explorerResponse = await aiTripPlanningService.generateTravelPlan(explorerRequest)
       const cultureResponse = await aiTripPlanningService.generateTravelPlan(cultureRequest)
 
       // Both should have personalizations
-      expect(yoloResponse.personalizations.length).toBeGreaterThan(0)
+      expect(explorerResponse.personalizations.length).toBeGreaterThan(0)
       expect(cultureResponse.personalizations.length).toBeGreaterThan(0)
       
       // They should be different (at least one difference)
-      const hasUniquePersonalizations = yoloResponse.personalizations.some(p => 
+      const hasUniquePersonalizations = explorerResponse.personalizations.some(p => 
         !cultureResponse.personalizations.includes(p)
       )
       expect(hasUniquePersonalizations).toBe(true)

@@ -10,7 +10,7 @@ export interface AIConfig {
 export const defaultAIConfig: AIConfig = {
   provider: 'mock', // Start with mock for development
   model: 'gpt-4',
-  maxTokens: 1000,
+  maxTokens: 4000, // Increased for comprehensive travel plans
   temperature: 0.7
 };
 

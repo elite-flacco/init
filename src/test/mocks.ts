@@ -1,8 +1,8 @@
 import { TravelerType, Destination, PickDestinationPreferences, TripPreferences, DestinationKnowledge } from '../types/travel'
 
 export const mockTravelerTypes: Record<string, TravelerType> = {
-  yolo: {
-    id: 'yolo',
+  explorer: {
+    id: 'explorer',
     name: 'YOLO Traveler',
     description: 'Spontaneous and adventurous, goes with the flow',
     icon: '🚀',
@@ -75,12 +75,14 @@ export const mockPickDestinationPreferences: PickDestinationPreferences = {
   duration: '7 days',
   budget: 'mid-range',
   tripType: 'cultural',
+  destinationType: 'city',
   specialActivities: 'museums and historical sites',
   weather: 'warm',
   priority: 'authentic experiences'
 }
 
 export const mockTripPreferences: TripPreferences = {
+  timeOfYear: 'Summer',
   duration: '7 days',
   budget: 'mid-range',
   activities: ['sightseeing', 'food'],

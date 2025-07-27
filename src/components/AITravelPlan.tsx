@@ -117,7 +117,7 @@ export function AITravelPlan({
         </div>
 
         {/* AI Insights Section */}
-        {showPersonalizations && (
+        {/* {showPersonalizations && (
           <div className="mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -148,7 +148,7 @@ export function AITravelPlan({
               </button>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Tabs */}
         <div className="mb-8">
@@ -162,7 +162,7 @@ export function AITravelPlan({
                     : 'bg-background-muted text-muted-foreground hover:text-foreground hover:bg-background-muted'
                 }`}
               >
-                📅 AI Itinerary
+                📅 Sample Itinerary
               </button>
               <button
                 onClick={() => setActiveTab('info')}
@@ -205,7 +205,7 @@ export function AITravelPlan({
             {plan.neighborhoods && (
               <div className="bg-card rounded-lg shadow p-6">
                 <h4 className="mb-6 flex items-center">
-                  <Home className="mr-2" /> AI-Recommended Neighborhoods
+                  <Home className="mr-2" /> Recommended Neighborhoods
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {plan.neighborhoods.map((neighborhood, index) => (
@@ -237,7 +237,7 @@ export function AITravelPlan({
             {plan.hotelRecommendations && (
               <div className="bg-card rounded-lg shadow p-6">
                 <h4 className="mb-6 flex items-center">
-                  <Home className="mr-2" /> AI-Selected Hotels
+                  <Home className="mr-2" /> Recommended Hotels
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {plan.hotelRecommendations.map((hotel, index) => (
@@ -264,7 +264,7 @@ export function AITravelPlan({
             {/* Places to Visit */}
             <div className="bg-card rounded-lg shadow p-6">
               <h4 className="mb-6 flex items-center">
-                <MapPin className="mr-2" /> AI-Recommended Places
+                <MapPin className="mr-2" /> Recommended Places
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {plan.placesToVisit.map((place, index) => (
@@ -282,7 +282,7 @@ export function AITravelPlan({
               {/* Restaurants */}
               <div className="bg-card rounded-lg shadow p-6">
                 <h4 className="mb-6 flex items-center">
-                  <Utensils className="mr-2" /> AI-Selected Restaurants
+                  <Utensils className="mr-2" /> Recommended Restaurants
                 </h4>
                 <div className="space-y-4">
                   {plan.restaurants.map((restaurant, index) => (
@@ -299,7 +299,7 @@ export function AITravelPlan({
               {plan.bars && plan.bars.length > 0 && (
                 <div className="bg-card rounded-lg shadow p-6">
                   <h4 className="mb-6 flex items-center">
-                    <Utensils className="mr-2" /> AI Nightlife Picks
+                    <Utensils className="mr-2" /> Recommended Nightlife
                   </h4>
                   <div className="space-y-4">
                     {plan.bars.map((bar, index) => (
@@ -318,7 +318,7 @@ export function AITravelPlan({
             {plan.weatherInfo && (
               <div className="bg-card rounded-lg shadow p-6">
                 <h4 className="mb-6 flex items-center">
-                  <Compass className="mr-2" /> AI Weather Analysis
+                  <Compass className="mr-2" /> Weather Analysis
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -351,7 +351,7 @@ export function AITravelPlan({
             {plan.mustTryFood && (
               <div className="bg-card rounded-lg shadow p-6">
                 <h4 className="mb-6 flex items-center">
-                  <Utensils className="mr-2" /> AI Food Recommendations
+                  <Utensils className="mr-2" /> Food Recommendations
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
@@ -394,7 +394,7 @@ export function AITravelPlan({
               {plan.safetyTips && (
                 <div className="bg-card rounded-lg shadow p-6">
                   <h4 className="mb-6 flex items-center">
-                    <Shield className="mr-2" /> AI Safety Analysis
+                    <Shield className="mr-2" /> Safety Analysis
                   </h4>
                   <ul className="space-y-3">
                     {plan.safetyTips.map((tip, index) => (
@@ -426,7 +426,7 @@ export function AITravelPlan({
             {/* Transportation */}
             <div className="bg-card rounded-lg shadow p-6">
               <h4 className="mb-6 flex items-center">
-                <Compass className="mr-2" /> AI Transportation Guide
+                <Compass className="mr-2" /> Transportation Guide
               </h4>
               <div className="space-y-6">
                 <div>
@@ -483,7 +483,7 @@ export function AITravelPlan({
                 <p className="text-sm text-foreground/80 mt-2">{plan.localCurrency.creditCardUsage}</p>
                 {plan.localCurrency.tips && plan.localCurrency.tips.length > 0 && (
                   <div className="mt-4">
-                    <h6 className="mb-2 font-medium">AI Money Tips:</h6>
+                    <h6 className="mb-2 font-medium">Money Tips:</h6>
                     <ul className="space-y-2">
                       {plan.localCurrency.tips.map((tip, index) => (
                         <li key={index} className="flex items-start">
@@ -518,7 +518,7 @@ export function AITravelPlan({
             {plan.tapWaterSafe && (
               <div className="bg-card rounded-lg shadow p-6">
                 <h4 className="mb-6 flex items-center">
-                  <Droplets className="mr-2" /> Water Safety Analysis
+                  <Droplets className="mr-2" /> Water Safety
                 </h4>
                 <div className="flex items-start">
                   <div className={`flex-shrink-0 h-6 w-6 ${plan.tapWaterSafe.safe ? 'text-green-500' : 'text-yellow-500'}`}>
@@ -537,17 +537,6 @@ export function AITravelPlan({
                       {plan.tapWaterSafe.safe ? 'Tap water is safe to drink' : 'Tap water is not recommended for drinking'}
                     </h3>
                     <p className="mt-1 text-foreground/80">{plan.tapWaterSafe.details}</p>
-                    
-                    {plan.tapWaterSafe.recommendations && plan.tapWaterSafe.recommendations.length > 0 && (
-                      <div className="mt-4">
-                        <h6 className="mb-2 font-medium">Recommendations:</h6>
-                        <ul className="list-disc pl-5 space-y-1 text-foreground/80">
-                          {plan.tapWaterSafe.recommendations.map((rec, index) => (
-                            <li key={index} className="text-sm">{rec}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -586,7 +575,7 @@ export function AITravelPlan({
             {plan.activities && (
               <div className="bg-card rounded-lg shadow p-6">
                 <h4 className="mb-6 flex items-center">
-                  <Compass className="mr-2" /> AI-Curated Local Experiences
+                  <Compass className="mr-2" /> Curated Local Experiences
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {plan.activities.map((activity, index) => (
