@@ -16,6 +16,7 @@ export interface Destination {
   highlights: string[];
   bestTime: string;
   budget: string;
+  details?: string;
 }
 
 export interface DestinationKnowledge {
@@ -33,6 +34,7 @@ export interface PickDestinationPreferences {
   specialActivities: string;
   weather: string;
   priority: string;
+  destinationType: string;
 }
 
 export interface TripPreferences {

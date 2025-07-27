@@ -1,3 +1,4 @@
+import React from 'react';
 import { MapPin, Calendar, DollarSign, ArrowRight } from 'lucide-react';
 import { Destination } from '../types/travel';
 import { Card } from './ui/Card';
@@ -5,15 +6,20 @@ import { Card } from './ui/Card';
 interface DestinationCardProps {
   destination: Destination;
   onSelect: (destination: Destination) => void;
+  onViewDetails: (destination: Destination) => void;
 }
 
-export function DestinationCard({ destination, onSelect }: DestinationCardProps) {
+export function DestinationCard({ destination, onSelect, onViewDetails }: DestinationCardProps) {
+  const handleCardClick = () => {
+    onViewDetails(destination);
+  };
+
   return (
     <div 
-      onClick={() => onSelect(destination)}
-      className="group h-full transition-all duration-300 transform hover:-translate-y-1"
+      onClick={handleCardClick}
+      className="group h-full transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
     >
-      <Card className="h-full overflow-hidden border-2 border-transparent group-hover:border-primary transition-colors duration-300">
+        <Card className="h-full overflow-hidden border-2 border-transparent group-hover:border-primary transition-colors duration-300">
         {/* Image with overlay */}
         <div className="relative h-64 overflow-hidden">
           <img
@@ -86,7 +92,7 @@ export function DestinationCard({ destination, onSelect }: DestinationCardProps)
               className="inline-flex items-center text-sm font-medium text-primary hover:text-primary-dark transition-colors duration-200 group/button"
               onClick={(e) => {
                 e.stopPropagation();
-                onSelect(destination);
+                onViewDetails(destination);
               }}
             >
               View details

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Sparkles, RefreshCw } from 'lucide-react';
 import { DestinationCard } from './DestinationCard';
+import { DestinationDetailsModal } from './DestinationDetailsModal';
 import { TravelerType, Destination, PickDestinationPreferences, DestinationKnowledge } from '../types/travel';
 import { aiDestinationService } from '../services/aiDestinationService';
 
@@ -25,6 +26,7 @@ export function AIDestinationRecommendationResults({
   const [aiReasoning, setAiReasoning] = useState<string>('');
   const [confidence, setConfidence] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
+  const [selectedDestinationForModal, setSelectedDestinationForModal] = useState<Destination | null>(null);
 
   const generateRecommendations = async () => {
     setIsGenerating(true);
@@ -56,6 +58,19 @@ export function AIDestinationRecommendationResults({
 
   const handleRegenerateRecommendations = () => {
     generateRecommendations();
+  };
+
+  const handleViewDetails = (destination: Destination) => {
+    setSelectedDestinationForModal(destination);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedDestinationForModal(null);
+  };
+
+  const handleSelectFromModal = (destination: Destination) => {
+    onSelect(destination);
+    setSelectedDestinationForModal(null);
   };
 
   return (
@@ -121,30 +136,11 @@ export function AIDestinationRecommendationResults({
             isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}>
             <h1 className="text-5xl font-bold text-foreground mb-6">
-              AI-Curated Destinations for You
+              Your Top Hits
             </h1>
             <p className="text-xl text-foreground-secondary max-w-3xl mx-auto leading-relaxed mb-6">
-              Based on your travel style and preferences, our AI has found these perfect matches!
+              We think you'll love these!
             </p>
-            
-            {confidence > 0 && (
-              <div className="flex items-center justify-center mb-4">
-                <div className="flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  {Math.round(confidence * 100)}% Match Confidence
-                </div>
-              </div>
-            )}
-            
-            {aiReasoning && (
-              <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 text-blue-900 rounded-xl max-w-4xl mx-auto">
-                <p className="text-sm font-medium mb-3 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  AI Insights
-                </p>
-                <p className="text-sm leading-relaxed">{aiReasoning}</p>
-              </div>
-            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -159,6 +155,7 @@ export function AIDestinationRecommendationResults({
                 <DestinationCard
                   destination={destination}
                   onSelect={onSelect}
+                  onViewDetails={handleViewDetails}
                 />
               </div>
             ))}
@@ -179,6 +176,16 @@ export function AIDestinationRecommendationResults({
             </div>
           )}
         </>
+      )}
+      
+      {/* Modal rendered at top level to cover entire viewport */}
+      {selectedDestinationForModal && (
+        <DestinationDetailsModal
+          destination={selectedDestinationForModal}
+          isOpen={!!selectedDestinationForModal}
+          onClose={handleCloseModal}
+          onSelectForPlanning={handleSelectFromModal}
+        />
       )}
     </div>
   );

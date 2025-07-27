@@ -1,4 +1,4 @@
-import { Destination } from '../types/travel';
+import { Destination } from '../../types/travel';
 
 export const destinations: Destination[] = [
   {

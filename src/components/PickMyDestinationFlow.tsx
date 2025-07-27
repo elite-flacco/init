@@ -36,9 +36,9 @@ export function PickMyDestinationFlow({
       tripType: answers.tripType || '',
       specialActivities: answers.specialActivities || '',
       weather: answers.weather || '',
-      priority: answers.priority || ''
+      priority: answers.priority || '',
+      destinationType: answers.destinationType || ''
     };
-    
     onComplete(preferences);
   };
 

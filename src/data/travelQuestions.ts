@@ -6,11 +6,26 @@ export const commonDestinationQuestions: Question[] = [
         type: 'select',
         question: 'When are you planning to escape? 📅',
         options: [
-            'March – May',
-            'June – August',
-            'September – November',
-            'December – February',
-            'No idea yet / I’m flexible'
+            {
+                label: 'March – May',
+                value: 'spring season travel'
+            },
+            {
+                label: 'June – August',
+                value: 'summer season travel'
+            },
+            {
+                label: 'September – November',
+                value: 'autumn/fall season travel'
+            },
+            {
+                label: 'December – February',
+                value: 'winter season travel'
+            },
+            {
+                label: 'No idea yet / I\'m flexible',
+                value: 'flexible with travel dates'
+            }
         ]
     },
     {
@@ -18,9 +33,18 @@ export const commonDestinationQuestions: Question[] = [
         type: 'select',
         question: 'How much time can you steal from life? ⏰',
         options: [
-            'Long weekend warrior (3-5 days)',
-            'Can only get one week off work',
-            'I\'ve got time!'
+            {
+                label: 'Long weekend warrior (3-5 days)',
+                value: 'short trip 3-5 days'
+            },
+            {
+                label: 'Can only get one week off work',
+                value: 'one week vacation'
+            },
+            {
+                label: 'I\'ve got time!',
+                value: 'extended travel multiple weeks'
+            }
         ]
     },
     {
@@ -28,9 +52,18 @@ export const commonDestinationQuestions: Question[] = [
         type: 'select',
         question: 'What\'s your wallet situation? 💰',
         options: [
-            '💸 I\'m broke but determined',
-            '💰 I can afford to be comfortable',
-            '🤑 Money is no object'
+            {
+                label: '💸 I\'m broke but determined',
+                value: 'budget travel low cost'
+            },
+            {
+                label: '💰 I can afford to be comfortable',
+                value: 'mid-range budget comfortable'
+            },
+            {
+                label: '🤑 Money is no object',
+                value: 'luxury travel high budget'
+            }
         ]
     },
     {
@@ -38,28 +71,49 @@ export const commonDestinationQuestions: Question[] = [
         type: 'select',
         question: 'What kind of adventure calls to you? 🎭',
         options: [
-            'Nature & outdoors',
-            'History & culture',
-            'Food & drinks',
-            'Beach & chill',
-            'Cities & nightlife',
-            'Can\'t decide, surprise me!'
+            {
+                label: 'Nature & outdoors',
+                value: 'nature outdoor activities hiking adventure'
+            },
+            {
+                label: 'History & culture',
+                value: 'cultural experiences historical sites museums'
+            },
+            {
+                label: 'Food & drinks',
+                value: 'culinary experiences local cuisine food tours'
+            },
+            {
+                label: 'Beach & chill',
+                value: 'beach relaxation coastal activities'
+            },
+            {
+                label: 'Cities & nightlife',
+                value: 'urban exploration nightlife city experiences'
+            },
+            {
+                label: 'Can\'t decide, surprise me!',
+                value: 'variety mixed experiences open to anything'
+            }
         ]
-    },
-    {
-        id: 'specialActivities',
-        type: 'textarea',
-        question: 'Any bucket list items we should know about?',
-        placeholder: 'e.g., swim with sharks, learn to make pasta in Italy, see the Northern Lights, or just \'surprise me!\''
     },
     {
         id: 'weather',
         type: 'select',
         question: 'How do you want to feel temperature-wise? 🌡️',
         options: [
-            'Don\'t want to get toasted',
-            'Don\'t want to freeze my ass off',
-            'Weather is whatever'
+            {
+                label: 'Don\'t want to get toasted',
+                value: 'prefer cooler weather'
+            },
+            {
+                label: 'Don\'t want to freeze my ass off',
+                value: 'prefer warm weather'
+            },
+            {
+                label: 'Weather is whatever',
+                value: 'no weather preference'
+            }
         ]
     },
     {
@@ -67,14 +121,57 @@ export const commonDestinationQuestions: Question[] = [
         type: 'select',
         question: 'What matters most to you? 🎯',
         options: [
-            '🍽️ Incredible food & drinks',
-            '🍸 Nightlife & social vibes',
-            '🛍️ Shopping until I\'m broke',
-            '📸 Instagram-worthy spots',
-            '👯 Meeting awesome people',
-            '🧘 Total relaxation mode'
+            {
+                label: '🍽️ Incredible food & drinks',
+                value: 'prioritize culinary experiences'
+            },
+            {
+                label: '🍸 Nightlife & social vibes',
+                value: 'prioritize nightlife and social activities'
+            },
+            {
+                label: '🛍️ Shopping until I\'m broke',
+                value: 'prioritize shopping and retail experiences'
+            },
+            {
+                label: '📸 Instagram-worthy spots',
+                value: 'prioritize photogenic and scenic locations'
+            },
+            {
+                label: '👯 Meeting awesome people',
+                value: 'prioritize social connections and meeting locals'
+            },
+            {
+                label: '🧘 Total relaxation mode',
+                value: 'prioritize relaxation and wellness'
+            }
         ]
-    }
+    },
+    {
+        id: 'destinationType',
+        type: 'select',
+        question: 'What kind of destination vibe are you going for? 🗺️',
+        options: [
+            {
+                label: '🏛️ Major hits - I don\'t mind tourists. Give me the classics.',
+                value: 'major tourist destinations popular attractions'
+            },
+            {
+                label: '🌲 Off the beaten path - I want hidden gems',
+                value: 'off beaten path hidden gems remote destinations'
+            },
+            {
+                label: '🚀 Up and coming - Let me go before it gets too popular',
+                value: 'up and coming trending emerging destinations'
+            }
+        ]
+    },
+    {
+        id: 'specialActivities',
+        type: 'textarea',
+        question: 'Lastly...Any bucket list items we should know about?',
+        placeholder: 'e.g., swim with sharks, learn to make pasta in Italy, see the Northern Lights, or just \'surprise me!\''
+    },
 ];
 
 export const regionQuestion: Question = {

@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+
+export interface QuestionOption {
+  label: string;
+  value: string;
+}
 
 export interface Question {
   id: string;
   type: 'text' | 'select' | 'textarea';
   question: string;
   placeholder?: string;
-  options?: string[];
+  options?: (string | QuestionOption)[];
   required?: boolean;
 }
 
@@ -77,21 +81,29 @@ export function QuestionStep({
       case 'select':
         return (
           <div className="flex flex-col space-y-4">
-            {question.options?.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => {
-                  setLocalValue(option);
-                  onChange(option);
-                  onComplete();
-                }}
-                className="btn-primary"
-                disabled={isCompleted && !isEditing}
-              >
-                {option}
-              </button>
-            ))}
+            {question.options?.map((option) => {
+              const isObject = typeof option === 'object';
+              const label = isObject ? option.label : option;
+              const value = isObject ? option.value : option;
+              const key = isObject ? option.label : option;
+              
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => {
+                    setLocalValue(value);
+                    onChange(value);
+                    // Use a longer delay to ensure React state updates are processed
+                    setTimeout(() => onComplete(), 100);
+                  }}
+                  className="btn-primary"
+                  disabled={isCompleted && !isEditing}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         );
 
