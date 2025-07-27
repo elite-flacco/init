@@ -3,11 +3,12 @@ import { Plane } from 'lucide-react';
 import { TravelerTypeSelection } from './components/TravelerTypeSelection';
 import { DestinationKnowledgeSelection } from './components/DestinationKnowledgeSelection';
 import { PickMyDestinationFlow } from './components/PickMyDestinationFlow';
-import { DestinationRecommendationResults } from './components/DestinationRecommendationResults';
-import { TripPlanningPrompts } from './components/TripPlanningPrompts';
-import { TravelPlan } from './components/TravelPlan';
+import { AIDestinationRecommendationResults } from './components/AIDestinationRecommendationResults';
+import { AITripPlanningPrompts } from './components/AITripPlanningPrompts';
+import { AITravelPlan } from './components/AITravelPlan';
 import { PlaceholderMessage } from './components/PlaceholderMessage';
 import { TravelerType, Destination, TripPreferences, DestinationKnowledge, PickDestinationPreferences } from './types/travel';
+import { AITripPlanningResponse } from './services/aiTripPlanningService';
 
 type AppStep = 'traveler-type' | 'destination-knowledge' | 'pick-destination' | 'destination-recommendations' | 'planning' | 'plan' | 'placeholder';
 
@@ -17,7 +18,7 @@ function App() {
   const [destinationKnowledge, setDestinationKnowledge] = useState<DestinationKnowledge | null>(null);
   const [pickDestinationPreferences, setPickDestinationPreferences] = useState<PickDestinationPreferences | null>(null);
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
-  const [tripPreferences, setTripPreferences] = useState<TripPreferences | null>(null);
+  const [aiTripPlanningResponse, setAiTripPlanningResponse] = useState<AITripPlanningResponse | null>(null);
 
   const handleTravelerTypeSelect = (type: TravelerType) => {
     setSelectedTravelerType(type);
@@ -49,9 +50,14 @@ function App() {
     setCurrentStep('planning');
   };
 
-  const handlePlanningComplete = (preferences: TripPreferences) => {
-    setTripPreferences(preferences);
+  const handlePlanningComplete = (response: AITripPlanningResponse) => {
+    setAiTripPlanningResponse(response);
     setCurrentStep('plan');
+  };
+
+  const handleRegeneratePlan = () => {
+    setCurrentStep('planning');
+    setAiTripPlanningResponse(null);
   };
 
   const handleBack = () => {
@@ -85,7 +91,7 @@ function App() {
         break;
       case 'plan':
         setCurrentStep('planning');
-        setTripPreferences(null);
+        setAiTripPlanningResponse(null);
         break;
     }
   };
@@ -202,24 +208,28 @@ function App() {
           />
         )}
 
-        {currentStep === 'destination-recommendations' && pickDestinationPreferences && (
-          <DestinationRecommendationResults
+        {currentStep === 'destination-recommendations' && pickDestinationPreferences && selectedTravelerType && (
+          <AIDestinationRecommendationResults
+            travelerType={selectedTravelerType}
             preferences={pickDestinationPreferences}
+            destinationKnowledge={destinationKnowledge}
             onSelect={handleDestinationSelect}
+            onBack={handleBack}
           />
         )}
 
         {currentStep === 'planning' && selectedTravelerType && (
-          <TripPlanningPrompts
+          <AITripPlanningPrompts
             destination={selectedDestination}
             travelerType={selectedTravelerType}
             destinationKnowledge={destinationKnowledge}
             pickDestinationPreferences={pickDestinationPreferences}
             onComplete={handlePlanningComplete}
+            onBack={handleBack}
           />
         )}
 
-        {currentStep === 'plan' && tripPreferences && selectedTravelerType && (
+        {currentStep === 'plan' && aiTripPlanningResponse && selectedTravelerType && (
           (() => {
             // Create a default destination if user said they know where to go but no destination was selected
             const destination = selectedDestination || {
@@ -233,16 +243,12 @@ function App() {
               budget: '3-4 days'
             };
             
-            console.log('Rendering TravelPlan with props:', {
-              destination,
-              preferences: tripPreferences,
-              travelerType: selectedTravelerType
-            });
             return (
-              <TravelPlan
+              <AITravelPlan
                 destination={destination}
-                preferences={tripPreferences}
                 travelerType={selectedTravelerType}
+                aiResponse={aiTripPlanningResponse}
+                onRegeneratePlan={handleRegeneratePlan}
               />
             );
           })()

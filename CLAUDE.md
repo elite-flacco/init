@@ -9,7 +9,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Lint code**: `npm run lint`
 - **Preview production build**: `npm run preview`
 
-Note: This project does not have test scripts configured. If adding tests, update this section accordingly.
+## Testing
+
+- **Run tests**: `npm test`
+- **Run tests with UI**: `npm run test:ui`
+- **Run tests once**: `npm run test:run`
+- **Run tests with coverage**: `npm run test:coverage`
+
+### Test Structure
+
+The project uses Vitest for testing with the following test files:
+- `src/services/__tests__/aiDestinationService.test.ts` - Tests for destination recommendation AI service
+- `src/services/__tests__/aiTripPlanningService.test.ts` - Tests for trip planning AI service  
+- `src/services/__tests__/aiServices.integration.test.ts` - Integration tests for AI services
+- `src/components/__tests__/*.test.tsx` - Component tests for AI-powered components
+
+### Test Configuration
+
+Tests are configured to:
+- Use jsdom environment for component testing
+- Mock AI API calls for consistent testing
+- Include comprehensive test utilities and mock data
+- Support both unit and integration testing
 
 ## Project Architecture
 
@@ -45,7 +66,8 @@ The application heavily relies on TypeScript interfaces:
 
 - **Static data**: Destinations and traveler types are hardcoded in `src/data/`
 - **Dynamic data**: User selections and preferences flow through component props
-- **No backend**: Currently a frontend-only application
+- **AI Integration**: AI-powered destination recommendations via `src/services/aiDestinationService.ts`
+- **No backend**: Currently a frontend-only application with optional AI API integration
 
 ### Component Organization
 
@@ -58,3 +80,39 @@ Components follow a hierarchical pattern where each major step has its own compo
 
 - **Documentation Reminders**:
   - Remember to check /docs/Design.md when making UI/UX changes
+
+## AI Integration
+
+The app includes AI-powered destination recommendations using the `aiDestinationService`. 
+
+### Configuration
+
+AI settings can be configured via environment variables:
+- `REACT_APP_AI_PROVIDER`: Set to 'openai', 'anthropic', or 'mock' (default: 'mock')
+- `REACT_APP_OPENAI_API_KEY`: Your OpenAI API key
+- `REACT_APP_ANTHROPIC_API_KEY`: Your Anthropic API key
+- `REACT_APP_AI_MODEL`: AI model to use (default: 'gpt-4')
+- `REACT_APP_AI_MAX_TOKENS`: Maximum tokens for AI responses (default: 1000)
+- `REACT_APP_AI_TEMPERATURE`: AI temperature setting (default: 0.7)
+
+### Usage
+
+The AI services are used in two main flows:
+
+**Destination Recommendations:**
+1. User completes traveler type selection and preference questionnaire
+2. `AIDestinationRecommendationResults` component calls `aiDestinationService.getDestinationRecommendations()`
+3. Service generates personalized prompts based on user input
+4. AI returns destination recommendations with reasoning
+5. Results are filtered and displayed to the user
+
+**Trip Planning:**
+1. User selects destination and completes trip planning questionnaire
+2. `AITripPlanningPrompts` component calls `aiTripPlanningService.generateTravelPlan()`
+3. Service creates comprehensive prompts including user preferences, traveler type, and destination details
+4. AI returns detailed travel plans with itineraries, recommendations, and cultural insights
+5. `AITravelPlan` component displays the AI-generated plan with personalization explanations
+
+### Development Mode
+
+By default, the app runs in mock mode with simulated AI responses. To enable real AI integration, set the appropriate environment variables and API keys.

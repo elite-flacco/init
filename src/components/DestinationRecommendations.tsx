@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Sparkles } from 'lucide-react';
-import { destinations } from '../data/destinations';
 import { DestinationCard } from './DestinationCard';
 import { TravelerType, Destination } from '../types/travel';
+import { aiDestinationService } from '../services/aiDestinationService';
 
 interface DestinationRecommendationsProps {
   travelerType: TravelerType;
@@ -18,47 +18,31 @@ export function DestinationRecommendations({
   const [recommendedDestinations, setRecommendedDestinations] = useState<Destination[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isGenerating, setIsGenerating] = useState(true);
+  const [aiReasoning, setAiReasoning] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setIsGenerating(true);
+    setError(null);
     
-    setTimeout(() => {
-      // Simulate AI recommendation based on traveler type
-      let filtered = [...destinations];
-      
-      if (travelerType.id === 'yolo') {
-        // YOLO travelers get all destinations shuffled
-        filtered = filtered.sort(() => Math.random() - 0.5);
-      } else if (travelerType.id === 'adventure') {
-        // Adventure seekers get more outdoor destinations first
-        filtered = filtered.sort((a, b) => {
-          const adventureDestinations = ['iceland', 'new-zealand', 'costa-rica'];
-          const aScore = adventureDestinations.includes(a.id) ? 1 : 0;
-          const bScore = adventureDestinations.includes(b.id) ? 1 : 0;
-          return bScore - aScore;
+    const getAIRecommendations = async () => {
+      try {
+        const response = await aiDestinationService.getDestinationRecommendations({
+          travelerType
         });
-      } else if (travelerType.id === 'culture') {
-        // Culture explorers get historical destinations first
-        filtered = filtered.sort((a, b) => {
-          const cultureDestinations = ['japan', 'greece'];
-          const aScore = cultureDestinations.includes(a.id) ? 1 : 0;
-          const bScore = cultureDestinations.includes(b.id) ? 1 : 0;
-          return bScore - aScore;
-        });
-      } else if (travelerType.id === 'relaxation') {
-        // Relaxation focused get peaceful destinations first
-        filtered = filtered.sort((a, b) => {
-          const relaxationDestinations = ['bali', 'greece'];
-          const aScore = relaxationDestinations.includes(a.id) ? 1 : 0;
-          const bScore = relaxationDestinations.includes(b.id) ? 1 : 0;
-          return bScore - aScore;
-        });
+        
+        setRecommendedDestinations(response.destinations);
+        setAiReasoning(response.reasoning);
+        setIsGenerating(false);
+        setTimeout(() => setIsLoaded(true), 100);
+      } catch (err) {
+        console.error('Failed to get AI recommendations:', err);
+        setError('Unable to get AI recommendations. Showing default options.');
+        setIsGenerating(false);
       }
-      
-      setRecommendedDestinations(filtered);
-      setIsGenerating(false);
-      setTimeout(() => setIsLoaded(true), 100);
-    }, 1500);
+    };
+
+    getAIRecommendations();
   }, [travelerType]);
 
   return (
@@ -103,6 +87,17 @@ export function DestinationRecommendations({
             <p className="text-xl text-foreground-secondary max-w-3xl mx-auto leading-relaxed">
               Based on your travel style, here are our AI-curated recommendations. Choose the destination that excites you most!
             </p>
+            {error && (
+              <div className="mt-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg max-w-2xl mx-auto">
+                <p className="text-sm">{error}</p>
+              </div>
+            )}
+            {aiReasoning && !error && (
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg max-w-3xl mx-auto">
+                <p className="text-sm font-medium mb-2">AI Reasoning:</p>
+                <p className="text-sm">{aiReasoning}</p>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

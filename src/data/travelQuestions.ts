@@ -252,6 +252,14 @@ const chillTripPlanningQuestions: Question[] = [
     }
 ];
 
+// Destination question for when user knows where they want to go
+export const destinationInputQuestion: Question = {
+    id: 'destination',
+    type: 'textarea',
+    question: 'Where are you planning to go? 🌍',
+    placeholder: 'e.g., Tokyo, Japan or Bali, Indonesia or Paris, France...'
+};
+
 // Common trip planning questions asked to all traveler types
 export const commonTripPlanningQuestions: Question[] = [
     {
