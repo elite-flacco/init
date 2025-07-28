@@ -7,7 +7,6 @@ import {
   EnhancedTravelPlan as ImportedEnhancedTravelPlan
 } from '../types/travel';
 import { getAIConfig } from '../config/ai';
-import { generateTravelPlan as generateMockTravelPlan } from '../data/mock/travelData';
 
 export interface AITripPlanningRequest {
   destination: Destination;
@@ -335,7 +334,7 @@ Focus on creating authentic experiences that match their travel style while bein
 
 CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON. 
 
-Use this exact structure:
+Use this exact structure, make sure there is comma after each field:
 
 {
   "placesToVisit": [{"name": "string", "description": "string", "category": "string", "priority": number}],
@@ -362,99 +361,10 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
     return prompt;
   }
 
-  private enhanceMockPlan(
-    mockPlan: any, 
-    request: AITripPlanningRequest, 
-    aiReasoning: string
-  ): { plan: ImportedEnhancedTravelPlan; personalizations: string[] } {
-    const { destination, preferences, travelerType } = request;
-    
-    // Generate personalizations based on traveler type and preferences
-    const personalizations: string[] = [];
-    
-    if (travelerType.id === 'explorer') {
-      personalizations.push('Added spontaneous activity options for your adventurous spirit');
-      personalizations.push('Included flexible itinerary items that can be changed on the fly');
-    } else if (travelerType.id === 'adventure') {
-      personalizations.push('Prioritized outdoor activities and adventure experiences');
-      personalizations.push('Included off-the-beaten-path destinations');
-    } else if (travelerType.id === 'culture') {
-      personalizations.push('Focused on cultural experiences and historical sites');
-      personalizations.push('Added local cultural events and museum recommendations');
-    } else if (travelerType.id === 'relaxation') {
-      personalizations.push('Emphasized relaxing activities and peaceful locations');
-      personalizations.push('Scheduled downtime between activities for rest');
-    }
-
-    if (preferences.budget === 'budget') {
-      personalizations.push('Optimized recommendations for budget-conscious travelers');
-      personalizations.push('Included free and low-cost activities');
-    } else if (preferences.budget === 'luxury') {
-      personalizations.push('Curated premium experiences and luxury accommodations');
-      personalizations.push('Added exclusive activities and high-end dining options');
-    }
-
-    if (preferences.wantRestaurants) {
-      personalizations.push('Included diverse restaurant options matching your cuisine preferences');
-    }
-
-    if (preferences.wantBars) {
-      personalizations.push('Added nightlife recommendations for evening entertainment');
-    }
-
-    // Enhance the itinerary based on traveler type
-    const enhancedItinerary = mockPlan.itinerary.map((day: any) => ({
-      ...day,
-      activities: day.activities.map((activity: any) => ({
-        ...activity,
-        description: this.enhanceActivityDescription(activity, travelerType, preferences)
-      }))
-    }));
-
-    // Enhance restaurants based on preferences
-    let enhancedRestaurants = [...mockPlan.restaurants];
-    if (preferences.budget === 'luxury') {
-      enhancedRestaurants = enhancedRestaurants.map(restaurant => ({
-        ...restaurant,
-        priceRange: restaurant.priceRange === '$' ? '$$' : restaurant.priceRange === '$$' ? '$$$' : restaurant.priceRange
-      }));
-    }
-
-    const enhancedPlan: ImportedEnhancedTravelPlan = {
-      ...mockPlan,
-      itinerary: enhancedItinerary,
-      restaurants: enhancedRestaurants
-    };
-
-    return { plan: enhancedPlan, personalizations };
-  }
-
-  private enhanceActivityDescription(
-    activity: any, 
-    travelerType: TravelerType, 
-    preferences: TripPreferences
-  ): string {
-    let enhancement = activity.description;
-    
-    if (travelerType.id === 'explorer') {
-      enhancement += ' Feel free to explore spontaneously and follow your instincts!';
-    } else if (travelerType.id === 'adventure') {
-      enhancement += ' Look for opportunities to add some adventure or outdoor elements.';
-    } else if (travelerType.id === 'culture') {
-      enhancement += ' Take time to appreciate the cultural significance and local traditions.';
-    } else if (travelerType.id === 'relaxation') {
-      enhancement += ' Enjoy at a leisurely pace and take breaks as needed.';
-    }
-
-    return enhancement;
-  }
-
-  private parseAIResponse(aiResponse: string, request: AITripPlanningRequest): { plan: ImportedEnhancedTravelPlan; personalizations: string[] } | null {
+  private parseAIResponse(aiResponse: string, request: AITripPlanningRequest): { plan: ImportedEnhancedTravelPlan; personalizations: string[] } {
     let jsonStr = '';
     let cleanedJsonStr = '';
     try {
-      console.log('Attempting to parse AI response. First 500 chars:', aiResponse.substring(0, 500));
-      
       // Try multiple JSON extraction strategies
       
       // Strategy 1: Look for JSON wrapped in code blocks (most common with AI responses)
@@ -485,9 +395,9 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
       }
 
       if (!jsonStr) {
-        console.log('No JSON found in AI response, using fallback');
+        console.log('No JSON found in AI response');
         console.log('Full AI response:', aiResponse);
-        return null;
+        throw new Error('AI did not return valid JSON format. Please try again.');
       }
 
       console.log('Attempting to parse JSON string. First 300 chars:', jsonStr.substring(0, 300));
@@ -507,10 +417,17 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
           if (!cleanedJsonStr.endsWith('}')) {
             cleanedJsonStr += '}';
           }
+        } else {
+          throw new Error('AI response was incomplete. Please try again.');
         }
       }
       
       const parsedData = JSON.parse(cleanedJsonStr);
+      
+      // Validate required fields
+      if (!parsedData || typeof parsedData !== 'object') {
+        throw new Error('AI returned invalid travel plan format. Please try again.');
+      }
       
       // Map the AI response to our interface structure
       const plan: ImportedEnhancedTravelPlan = {
@@ -561,7 +478,15 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
       console.log('Error parsing AI response as JSON:', error);
       console.log('Original JSON string (first 500 chars):', jsonStr?.substring(0, 500) || 'No JSON string');
       console.log('Cleaned JSON string (first 500 chars):', cleanedJsonStr?.substring(0, 500) || 'No cleaned JSON string');
-      return null;
+      
+      // Throw specific error messages instead of returning null
+      if (error instanceof SyntaxError) {
+        throw new Error('AI returned malformed JSON. Please try again.');
+      }
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to parse AI travel plan. Please try again.');
     }
   }
 
@@ -570,57 +495,24 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
       const prompt = this.generatePrompt(request);
       const aiResponse = await this.callAI(prompt);
       
-      // Try to parse the AI response as structured JSON
+      // Try to parse the AI response as structured JSON - will throw error if parsing fails
       const parsedResult = this.parseAIResponse(aiResponse, request);
       
-      if (parsedResult) {
-        // Use the parsed AI data
-        return {
-          plan: parsedResult.plan,
-          reasoning: aiResponse,
-          confidence: 0.9 + Math.random() * 0.08,
-          personalizations: parsedResult.personalizations
-        };
-      } else {
-        // Fall back to enhanced mock data if parsing fails
-        console.log('Using enhanced mock data as fallback');
-        const mockPlan = generateMockTravelPlan(
-          request.destination, 
-          request.preferences, 
-          request.travelerType
-        );
-        
-        const { plan, personalizations } = this.enhanceMockPlan(mockPlan, request, aiResponse);
-        
-        return {
-          plan,
-          reasoning: aiResponse,
-          confidence: 0.9 + Math.random() * 0.08,
-          personalizations
-        };
-      }
+      // Use the parsed AI data
+      return {
+        plan: parsedResult.plan,
+        reasoning: aiResponse,
+        confidence: 0.9 + Math.random() * 0.08,
+        personalizations: parsedResult.personalizations
+      };
     } catch (error) {
       console.error('AI trip planning service error:', error);
       
-      // Fallback to enhanced mock plan
-      const mockPlan = generateMockTravelPlan(
-        request.destination, 
-        request.preferences, 
-        request.travelerType
-      );
-      
-      const { plan, personalizations } = this.enhanceMockPlan(
-        mockPlan, 
-        request, 
-        'Using fallback recommendations based on your preferences and traveler type.'
-      );
-      
-      return {
-        plan,
-        reasoning: 'Using our curated recommendations based on your traveler profile and preferences.',
-        confidence: 0.75,
-        personalizations
-      };
+      // Don't fallback to mock data - let the error bubble up to the frontend
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to generate travel plan. Please try again.');
     }
   }
 }

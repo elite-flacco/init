@@ -47,7 +47,8 @@ export function AIDestinationRecommendationResults({
       setTimeout(() => setIsLoaded(true), 100);
     } catch (err) {
       console.error('Failed to get AI recommendations:', err);
-      setError('Unable to get AI recommendations. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Unable to get AI recommendations. Please try again.';
+      setError(errorMessage);
       setIsGenerating(false);
     }
   };

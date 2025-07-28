@@ -207,14 +207,14 @@ Ensure the JSON is valid and parseable.`;
       const aiData = JSON.parse(cleanResponse);
       
       if (!aiData.destinations || !Array.isArray(aiData.destinations)) {
-        throw new Error('Invalid AI response format: missing destinations array');
+        throw new Error('AI returned invalid format: missing destinations array');
       }
 
       // Convert AI destinations to our Destination interface
       const destinations: Destination[] = aiData.destinations.map((dest: unknown, index: number) => {
         const destObj = dest as Record<string, unknown>;
         if (!destObj.name || !destObj.country) {
-          throw new Error(`Invalid destination data: missing name or country for destination ${index}`);
+          throw new Error(`AI returned incomplete destination data: missing name or country for destination ${index + 1}`);
         }
 
         const name = String(destObj.name);
@@ -237,8 +237,11 @@ Ensure the JSON is valid and parseable.`;
     } catch (error) {
       console.error('Error parsing AI response:', error);
       console.log('Raw AI response:', response);
-      // Fallback to mock destinations if parsing fails
-      return this.getMockDestinations(request);
+      // Throw error instead of falling back to mock data
+      if (error instanceof SyntaxError) {
+        throw new Error(`AI returned invalid JSON format. Please try again.`);
+      }
+      throw new Error(`Failed to parse AI response: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -379,13 +382,11 @@ Ensure the JSON is valid and parseable.`;
     } catch (error) {
       console.error('AI destination service error:', error);
       
-      // Fallback to basic filtering
-      const fallbackDestinations = this.parseAIResponse('', request);
-      return {
-        destinations: fallbackDestinations,
-        reasoning: 'Using fallback recommendations based on your traveler type.',
-        confidence: 0.6
-      };
+      // Don't fallback to mock data - let the error bubble up to the frontend
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to get destination recommendations. Please try again.');
     }
   }
 }

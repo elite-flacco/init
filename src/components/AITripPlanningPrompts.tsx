@@ -120,7 +120,8 @@ export function AITripPlanningPrompts({
       onComplete(aiResponse);
     } catch (error) {
       console.error('Failed to generate AI travel plan:', error);
-      setGenerationError('Failed to generate your travel plan. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please give it another go.';
+      setGenerationError(errorMessage);
       setIsGeneratingPlan(false);
     }
   };
