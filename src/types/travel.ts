@@ -99,6 +99,7 @@ export interface Neighborhood {
   vibe: string;
   pros: string[];
   cons: string[];
+  bestFor: string;
 }
 
 export interface Restaurant {
@@ -108,6 +109,7 @@ export interface Restaurant {
   description: string;
   neighborhood?: string;
   specialDishes?: string[];
+  reservationsRecommended?: string;
 }
 
 export interface Bar {
@@ -116,6 +118,7 @@ export interface Bar {
   atmosphere: string;
   description: string;
   category: string;
+  neighborhood?: string;
 }
 
 export interface WeatherInfo {

@@ -23,9 +23,9 @@ export function ItemCard({
   className = '' 
 }: ItemCardProps) {
   return (
-    <div className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${className}`}>
+    <div className={`border rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow ${className}`}>
       <div className="flex items-center">
-        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+        <h6>{title}</h6>
         {searchLink && (
           <div className="ml-2">
             <a href={searchLink} target="_blank" rel="noopener noreferrer"
@@ -37,21 +37,21 @@ export function ItemCard({
       </div>
       
       {subtitle && (
-        <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
+        <p className="text-foreground-secondary mt-1">{subtitle}</p>
       )}
       
       {metadata && (
-        <p className="text-xs text-muted-foreground mt-1">{metadata}</p>
+        <p className="text-foreground-secondary mt-1">{metadata}</p>
       )}
       
       {description && (
-        <p className="text-foreground/90 mt-2 text-sm">{description}</p>
+        <p className="text-foreground/90 mt-2">{description}</p>
       )}
       
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-1 mt-3">
           {tags.map((tag, idx) => (
-            <span key={idx} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+            <span key={idx} className="text-2xs bg-primary/10 text-primary px-2 py-1 rounded">
               {tag}
             </span>
           ))}

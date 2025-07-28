@@ -42,7 +42,7 @@ module.exports = {
         },
         foreground: {
           DEFAULT: '#111827',      // gray-900
-          secondary: '#6b7280',    // gray-500
+          secondary: '#4a5568',    // gray-700
           dim: '#9ca3af',        // gray-400
         },
         border: {

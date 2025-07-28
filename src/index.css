@@ -50,12 +50,16 @@
   }
 
   p {
-    @apply text-base text-foreground-secondary leading-relaxed;
+    @apply text-sm sm:text-base text-foreground-secondary;
   }
 
   /* Links */
   a {
     @apply font-medium text-primary hover:text-primary-dark transition-colors duration-150;
+  }
+
+  span {
+    @apply text-xs sm:text-sm text-foreground-secondary;
   }
 
   /* Forms */
@@ -93,7 +97,7 @@
   }
 
   .back-button {
-    @apply inline-flex items-center text-sm font-medium text-foreground-secondary hover:text-primary transition-colors duration-150;
+    @apply inline-flex items-center text-sm sm:text-base font-medium text-foreground-secondary hover:text-primary transition-colors duration-150;
   }
 
   .back-button-icon {

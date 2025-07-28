@@ -289,21 +289,24 @@ export const generateNeighborhoods = (destination: Destination): Neighborhood[] 
     summary: 'The heart of the old city with cobblestone streets and historic architecture',
     vibe: 'Charming, walkable, tourist-friendly',
     pros: ['Close to major attractions', 'Great restaurants', 'Beautiful architecture'],
-    cons: ['Can be crowded', 'More expensive', 'Limited parking']
+    cons: ['Can be crowded', 'More expensive', 'Limited parking'],
+    bestFor: 'Tourists'
   },
   {
     name: 'Arts Quarter',
     summary: 'Trendy area with galleries, cafes, and creative spaces',
     vibe: 'Hip, artistic, young crowd',
     pros: ['Vibrant nightlife', 'Unique shopping', 'Local art scene'],
-    cons: ['Can be noisy at night', 'Further from main attractions', 'Limited family activities']
+    cons: ['Can be noisy at night', 'Further from main attractions', 'Limited family activities'],
+    bestFor: 'Youth'
   },
   {
     name: 'Waterfront',
     summary: 'Scenic area along the water with parks and promenades',
     vibe: 'Relaxed, scenic, upscale',
     pros: ['Beautiful views', 'Great for walking/jogging', 'High-end dining'],
-    cons: ['More expensive', 'Can be windy', 'Limited late-night options']
+    cons: ['More expensive', 'Can be windy', 'Limited late-night options'],
+    bestFor: 'Tourists'
   }
 ];
 
@@ -689,21 +692,24 @@ export const generateDevMockData = (): {
           summary: 'Famous for the crossing and nightlife',
           vibe: 'Energetic and bustling',
           pros: ['Great nightlife', 'Shopping', 'Central location'],
-          cons: ['Very crowded', 'Can be noisy']
+          cons: ['Very crowded', 'Can be noisy'],
+          bestFor: 'Tourists'
         },
         {
           name: 'Asakusa',
           summary: 'Traditional area with temples and old-town feel',
           vibe: 'Traditional and cultural',
           pros: ['Rich history', 'Great food', 'Less crowded'],
-          cons: ['Further from modern areas', 'Limited nightlife']
+          cons: ['Further from modern areas', 'Limited nightlife'],
+          bestFor: 'Tourists'
         },
         {
           name: 'Ginza',
           summary: 'Upscale shopping and dining district',
           vibe: 'Luxury and sophistication',
           pros: ['High-end shopping', 'Fine dining', 'Beautiful architecture'],
-          cons: ['Very expensive', 'Formal atmosphere', 'Less local culture']
+          cons: ['Very expensive', 'Formal atmosphere', 'Less local culture'],
+          bestFor: 'Tourists'
         }
       ],
       hotelRecommendations: [
@@ -792,6 +798,7 @@ export const generateDevMockData = (): {
           atmosphere: 'Intimate and traditional',
           description: 'Famous narrow alley with tiny bars',
           category: 'Traditional',
+          neighborhood: 'Asakusa'
         },
         {
           name: 'New York Grill',
@@ -799,6 +806,7 @@ export const generateDevMockData = (): {
           atmosphere: 'Upscale with city views',
           description: 'High-end bar with panoramic Tokyo views',
           category: 'Rooftop',
+          neighborhood: 'Shibuya'
         }
       ],
       weatherInfo: {
