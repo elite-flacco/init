@@ -5,6 +5,7 @@ export interface TravelerType {
   icon: string;
   showPlaceholder: boolean;
   placeholderMessage?: string;
+  greeting?: string;
 }
 
 export interface Destination {

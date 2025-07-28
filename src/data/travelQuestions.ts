@@ -31,7 +31,7 @@ export const commonDestinationQuestions: Question[] = [
     {
         id: 'duration',
         type: 'select',
-        question: 'How much time can you steal from life? ⏰',
+        question: 'How long can you escape reality? ⏰',
         options: [
             {
                 label: 'Long weekend warrior (3-5 days)',
@@ -204,7 +204,7 @@ const typeADestinationQuestions: Question[] = [
     }
 ];
 
-const bougieDestinationQuestions: Question[] = [
+const overthinkerDestinationQuestions: Question[] = [
     {
         id: 'accommodation',
         type: 'select',
@@ -261,8 +261,8 @@ export const getQuestionsByTravelerType = (travelerTypeId: string): Question[] =
     switch (travelerTypeId) {
         case 'type-a':
             return [...questions, ...typeADestinationQuestions];
-        case 'bougie':
-            return [...questions, ...bougieDestinationQuestions];
+        case 'overthinker':
+            return [...questions, ...overthinkerDestinationQuestions];
         // Add more cases for other traveler types as needed
         default:
             return questions;
@@ -352,7 +352,7 @@ const typeATripPlanningQuestions: Question[] = [
     }
 ];
 
-const bougieTripPlanningQuestions: Question[] = [
+const overthinkerTripPlanningQuestions: Question[] = [
     {
         id: 'luxuryLevel',
         type: 'select',
@@ -515,16 +515,16 @@ export const commonTripPlanningQuestions: Question[] = [
         question: 'How long can you escape reality? ⏰',
         options: [
             {
-                label: 'Long weekend warrior (3-4 days)',
-                value: '3-4 days short trip weekend getaway'
+                label: 'Long weekend warrior (3-5 days)',
+                value: '3-5 days'
             },
             {
                 label: 'Can only get one week off work',
-                value: 'one week vacation 7 days'
+                value: '7-10 days'
             },
             {
-                label: 'Sky is the limit!',
-                value: 'extended travel flexible duration multiple weeks'
+                label: 'I\'ve got time!',
+                value: '10+ days'
             }
         ]
     },
@@ -564,10 +564,10 @@ export const commonTripPlanningQuestions: Question[] = [
                 label: 'Airbnb - Live like a local',
                 value: 'airbnb local experience home stay'
             },
-            {
-                label: 'Resort - All-inclusive paradise',
-                value: 'resort all inclusive luxury amenities'
-            }
+            // {
+            //     label: 'Resort - All-inclusive paradise',
+            //     value: 'resort all inclusive luxury amenities'
+            // }
         ]
     },
     // {
@@ -581,36 +581,36 @@ export const commonTripPlanningQuestions: Question[] = [
     //         'Tours & Taxis - Let others drive'
     //     ]
     // },
-    {
-        id: 'restaurants',
-        type: 'select',
-        question: 'Want restaurant recommendations? 🍽️',
-        options: [
-            {
-                label: 'Yes please! - I live to eat 🤤',
-                value: 'yes restaurant recommendations foodie culinary experiences'
-            },
-            {
-                label: 'Nah, I\'m good - I\'ll figure it out myself',
-                value: 'no restaurant recommendations independent dining'
-            }
-        ]
-    },
-    {
-        id: 'bars',
-        type: 'select',
-        question: 'Want bar recommendations? 🍻',
-        options: [
-            {
-                label: 'Absolutely! - It\'s 5 o\'clock somewhere! 🍹',
-                value: 'yes bar recommendations nightlife drinking culture'
-            },
-            {
-                label: 'Not my scene - I\'ll stick to coffee shops',
-                value: 'no bar recommendations prefer coffee culture'
-            }
-        ]
-    }
+    // {
+    //     id: 'restaurants',
+    //     type: 'select',
+    //     question: 'Want restaurant recommendations? 🍽️',
+    //     options: [
+    //         {
+    //             label: 'Yes please! - I live to eat 🤤',
+    //             value: 'yes restaurant recommendations foodie culinary experiences'
+    //         },
+    //         {
+    //             label: 'Nah, I\'m good - I\'ll figure it out myself',
+    //             value: 'no restaurant recommendations independent dining'
+    //         }
+    //     ]
+    // },
+    // {
+    //     id: 'bars',
+    //     type: 'select',
+    //     question: 'Want bar recommendations? 🍻',
+    //     options: [
+    //         {
+    //             label: 'Absolutely! - It\'s 5 o\'clock somewhere! 🍹',
+    //             value: 'yes bar recommendations nightlife drinking culture'
+    //         },
+    //         {
+    //             label: 'Not my scene - I\'ll stick to coffee shops',
+    //             value: 'no bar recommendations prefer coffee culture'
+    //         }
+    //     ]
+    // }
 ];
 
 export const getTripPlanningQuestionsByTravelerType = (travelerTypeId: string): Question[] => {
@@ -619,8 +619,8 @@ export const getTripPlanningQuestionsByTravelerType = (travelerTypeId: string): 
             return explorerTripPlanningQuestions;
         case 'type-a':
             return typeATripPlanningQuestions;
-        case 'bougie':
-            return bougieTripPlanningQuestions;
+        case 'overthinker':
+            return overthinkerTripPlanningQuestions;
         case 'chill':
             return chillTripPlanningQuestions;
         default:

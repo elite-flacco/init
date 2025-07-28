@@ -17,10 +17,10 @@ export function PlaceholderMessage({ travelerType, onContinue }: PlaceholderMess
         <div className="text-6xl mb-6" aria-hidden="true">
           {travelerType.icon}
         </div>
-        <h3 className="mb-12">Hello {travelerType.name} friend!</h3>
-        <h5 className="mb-6 text-foreground-secondary">
+        <h3 className="mb-12">{travelerType.greeting}</h3>
+        <h6 className="mb-6 text-foreground-secondary">
           {travelerType.placeholderMessage}
-        </h5>
+        </h6>
       </Card>
     </div>
   );

@@ -4,9 +4,9 @@ export const travelerTypes: TravelerType[] = [
   {
     id: 'explorer',
     name: 'Explorer',
-    description: 'I’m down for whatever, just point me in a direction. Show me cool stuff and I’ll roll with it.',
+    description: 'I’m down for whatever - just show me all the cool stuff and I’ll have a blast.',
     icon: '🎢',
-    showPlaceholder: false
+    showPlaceholder: false,
   },
   {
     id: 'type-a',
@@ -14,22 +14,25 @@ export const travelerTypes: TravelerType[] = [
     description: 'I have spreadsheets for my spreadsheets. Every minute planned, every detail covered.',
     icon: '📋',
     showPlaceholder: true,
-    placeholderMessage: 'We can\'t help you (yet), go back to your spreadsheets for now.'
+    placeholderMessage: 'We\'re deep in the spreadsheets building this feature. For now, keep rocking yours.',
+    greeting: 'Hello Type A friend!'
   },
   {
-    id: 'bougie',
-    name: 'Spender',
-    description: 'I’m here to live it up — 5-star stays, fine dining, and first-class vibes',
-    icon: '🤑',
+    id: 'overthinker',
+    name: 'Typical Overthinker',
+    description: 'I’ve got 51 tabs open, and still not sure where to stay.',
+    icon: '🧠',
     showPlaceholder: true,
-    placeholderMessage: 'Luxury awaits! But we can\'t help you (yet). You can hire someone else to plan it for you since you have got the money.'
+    placeholderMessage: 'We are overthinking on how to help you beat the analysis paralysis - stay tuned.',
+    greeting: 'Hey overthinker, we see you.'
   },
   {
     id: 'chill',
-    name: 'Chiller',
+    name: 'Just Here to Chill',
     description: 'Beach, spa, nap, repeat. My biggest decision should be piña colada or mojito.',
     icon: '🌴',
     showPlaceholder: true,
-    placeholderMessage: 'We can\'t help you (yet), you can netflix and chill at home for now.'
+    placeholderMessage: 'We aren\'t slacking off at the beach - chill mode support is coming soon. In the meantime, Netflix and Chill.',
+    greeting: 'Hello chill soul.'
   }
 ];

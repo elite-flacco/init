@@ -20,7 +20,7 @@ const destinationOptions: DestinationKnowledge[] = [
   {
     type: 'no-clue',
     label: 'No clue',
-    description: 'The world is my oyster! Help me discover my next adventure 🌍✨'
+    description: 'The world is my oyster. Help me discover my next adventure 🌍✨'
   }
 ];
 
@@ -47,9 +47,9 @@ export function DestinationKnowledgeSelection({ onSelect }: DestinationKnowledge
         <h1 id="step-title" className="page-title">
           Got a destination in mind?
         </h1>
-        <p className="page-subtitle">
-          No judgment here! Whether you're a planning pro or winging it, we've got you covered 😎
-        </p>
+        {/* <p className="page-subtitle">
+          No judgment here. Whether you're a planning pro or winging it, we've got you covered 😎
+        </p> */}
       </div>
 
       {/* Options Grid */}

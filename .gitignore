@@ -24,6 +24,8 @@ dist-ssr
 *.sw?
 .env
 
+/.vite
+
 /docs
 /chats
 /.claude
