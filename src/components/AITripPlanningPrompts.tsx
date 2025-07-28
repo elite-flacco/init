@@ -43,6 +43,7 @@ export function AITripPlanningPrompts({
     
     // Add common questions, but skip duration/budget if we already have them from pick destination flow
     const filteredCommonQuestions = commonTripPlanningQuestions.filter(question => {
+      if (question.id === 'timeOfYear' && pickDestinationPreferences?.timeOfYear) return false;
       if (question.id === 'duration' && pickDestinationPreferences?.duration) return false;
       if (question.id === 'budget' && pickDestinationPreferences?.budget) return false;
       return true;

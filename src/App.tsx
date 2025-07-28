@@ -261,15 +261,6 @@ function App() {
         {currentStep === 'destination-recommendations' && (
           isLoadingDestinations ? (
             <div className="max-w-7xl mx-auto p-6">
-              <div className="flex items-center justify-between mb-8">
-                <button
-                  onClick={handleBack}
-                  className="flex items-center text-foreground-muted hover:text-foreground transition-colors group"
-                >
-                  <span className="w-5 h-5 mr-2">←</span>
-                  Back
-                </button>
-              </div>
               <div className="text-center py-16">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full mb-6">
                   <span className="w-8 h-8 text-primary animate-pulse">✨</span>
@@ -291,15 +282,6 @@ function App() {
             </div>
           ) : destinationError ? (
             <div className="max-w-7xl mx-auto p-6">
-              <div className="flex items-center justify-between mb-8">
-                <button
-                  onClick={handleBack}
-                  className="flex items-center text-foreground-muted hover:text-foreground transition-colors group"
-                >
-                  <span className="w-5 h-5 mr-2">←</span>
-                  Back
-                </button>
-              </div>
               <div className="text-center py-16">
                 <div className="max-w-2xl mx-auto">
                   <h2 className="text-2xl font-bold text-foreground mb-4">

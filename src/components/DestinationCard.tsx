@@ -15,11 +15,11 @@ export function DestinationCard({ destination, onSelect, onViewDetails }: Destin
   };
 
   return (
-    <div 
+    <div
       onClick={handleCardClick}
       className="group h-full transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
     >
-        <Card className="h-full overflow-hidden border-2 border-transparent group-hover:border-primary transition-colors duration-300">
+      <Card className="h-full overflow-hidden border-2 border-transparent group-hover:border-primary transition-colors duration-300">
         {/* Image with overlay */}
         <div className="relative h-64 overflow-hidden">
           <img
@@ -29,7 +29,7 @@ export function DestinationCard({ destination, onSelect, onViewDetails }: Destin
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
-          
+
           {/* Location Badge */}
           <div className="absolute top-4 left-4">
             <div className="flex items-center bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
@@ -39,10 +39,10 @@ export function DestinationCard({ destination, onSelect, onViewDetails }: Destin
               </span>
             </div>
           </div>
-          
+
           {/* Title */}
           <div className="absolute bottom-4 left-4 right-4">
-            <h3 className="text-2xl font-bold text-white group-hover:translate-y-[-2px] transition-transform duration-300">
+            <h3 className="text-white group-hover:translate-y-[-2px] transition-transform duration-300">
               {destination.name}
             </h3>
           </div>
@@ -51,45 +51,44 @@ export function DestinationCard({ destination, onSelect, onViewDetails }: Destin
         {/* Content */}
         <div className="p-6">
           {/* Description */}
-          <p className="text-foreground-secondary mb-6 leading-relaxed line-clamp-3">
+          <p className="mb-6 line-clamp-3">
             {destination.description}
           </p>
-          
+
           {/* Details */}
           <div className="space-y-3 mb-6">
             <div className="flex items-center text-sm">
-              <Calendar className="w-4 h-4 text-foreground-muted mr-2 flex-shrink-0" />
-              <span className="text-foreground-secondary">
-                Best time: <span className="font-medium text-foreground">{destination.bestTime}</span>
+              <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span>
+                Best time: <span>{destination.bestTime}</span>
               </span>
             </div>
             <div className="flex items-center text-sm">
-              <DollarSign className="w-4 h-4 text-foreground-muted mr-2 flex-shrink-0" />
-              <span className="text-foreground-secondary">
-                Budget: <span className="font-medium text-foreground">{destination.budget}</span>
+              <DollarSign className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span>
+                Budget: <span>{destination.budget}</span>
               </span>
             </div>
           </div>
 
           {/* Highlights */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground">Highlights:</h4>
-            <div className="flex flex-wrap gap-2">
+          <div className="space-y-1">
+            <h5>Highlights</h5>
+            <div className="flex flex-wrap gap-1 mt-8">
               {destination.highlights.map((highlight, index) => (
-                <span
+                <li
                   key={index}
-                  className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium"
                 >
                   {highlight}
-                </span>
+                </li>
               ))}
             </div>
           </div>
-          
+
           {/* CTA Button */}
           <div className="mt-6 pt-4 border-t border-border">
-            <button 
-              className="inline-flex items-center text-sm font-medium text-primary hover:text-primary-dark transition-colors duration-200 group/button"
+            <button
+              className="btn-primary"
               onClick={(e) => {
                 e.stopPropagation();
                 onViewDetails(destination);
