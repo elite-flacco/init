@@ -5,7 +5,7 @@ import { getAIConfig } from '../config/ai';
 export interface AIDestinationRequest {
   travelerType: TravelerType;
   preferences?: PickDestinationPreferences;
-  destinationKnowledge?: {
+  destinationKnowledge: {
     type: 'yes' | 'country' | 'no-clue';
     label: string;
     description: string;

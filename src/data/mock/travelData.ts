@@ -15,6 +15,7 @@ import {
   Bar
 } from '../../types/travel';
 import { AITripPlanningResponse } from '../../services/aiTripPlanningService';
+import { destinations } from './destinations';
 
 // Generate tap water safety information
 const generateTapWaterInfo = (destination: Destination) => {
@@ -1057,6 +1058,26 @@ export const generateDevMockData = (): {
     travelerType: mockTravelerType,
     destination: mockDestination,
     response: mockResponse
+  };
+};
+
+// Generate mock destination recommendations response for dev mode
+export const generateDevMockDestinationData = () => {
+  const mockTravelerType: TravelerType = {
+    id: 'explorer',
+    name: 'Explorer',
+    description: 'Love spontaneous adventures',
+    icon: '🎒',
+    showPlaceholder: false
+  };
+
+  return {
+    travelerType: mockTravelerType,
+    destinationResponse: {
+      destinations: destinations,
+      reasoning: 'Mock destinations loaded for development',
+      confidence: 1.0
+    }
   };
 };
 

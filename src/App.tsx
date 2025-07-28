@@ -9,7 +9,8 @@ import { AITravelPlan } from './components/AITravelPlan';
 import { PlaceholderMessage } from './components/PlaceholderMessage';
 import { TravelerType, Destination, DestinationKnowledge, PickDestinationPreferences } from './types/travel';
 import { AITripPlanningResponse } from './services/aiTripPlanningService';
-import { generateDevMockData } from './data/mock/travelData';
+import { AIDestinationResponse, aiDestinationService } from './services/aiDestinationService';
+import { generateDevMockData, generateDevMockDestinationData } from './data/mock/travelData';
 
 type AppStep = 'traveler-type' | 'destination-knowledge' | 'pick-destination' | 'destination-recommendations' | 'planning' | 'plan' | 'placeholder';
 
@@ -20,17 +21,28 @@ function App() {
   const [pickDestinationPreferences, setPickDestinationPreferences] = useState<PickDestinationPreferences | null>(null);
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [aiTripPlanningResponse, setAiTripPlanningResponse] = useState<AITripPlanningResponse | null>(null);
+  const [aiDestinationResponse, setAiDestinationResponse] = useState<AIDestinationResponse | null>(null);
+  const [isLoadingDestinations, setIsLoadingDestinations] = useState(false);
+  const [destinationError, setDestinationError] = useState<string | null>(null);
 
-  // Development shortcut - check for URL parameter to jump to travel plan
+  // Development shortcuts - check for URL parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('dev') === 'plan') {
+    const devMode = urlParams.get('dev');
+    
+    if (devMode === 'plan') {
       const { travelerType, destination, response } = generateDevMockData();
       
       setSelectedTravelerType(travelerType);
       setSelectedDestination(destination);
       setAiTripPlanningResponse(response);
       setCurrentStep('plan');
+    } else if (devMode === 'destinations') {
+      const { travelerType, destinationResponse } = generateDevMockDestinationData();
+      
+      setSelectedTravelerType(travelerType);
+      setAiDestinationResponse(destinationResponse);
+      setCurrentStep('destination-recommendations');
     }
   }, []);
 
@@ -56,7 +68,31 @@ function App() {
 
   const handlePickDestinationComplete = (preferences: PickDestinationPreferences) => {
     setPickDestinationPreferences(preferences);
+    generateDestinationRecommendations(preferences);
+  };
+
+  const generateDestinationRecommendations = async (preferences?: PickDestinationPreferences) => {
+    if (!selectedTravelerType) return;
+    
+    setIsLoadingDestinations(true);
+    setDestinationError(null);
     setCurrentStep('destination-recommendations');
+    
+    try {
+      const response = await aiDestinationService.getDestinationRecommendations({
+        travelerType: selectedTravelerType,
+        preferences: preferences || pickDestinationPreferences,
+        destinationKnowledge
+      });
+      
+      setAiDestinationResponse(response);
+    } catch (err) {
+      console.error('Failed to get AI recommendations:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unable to get AI recommendations. Please try again.';
+      setDestinationError(errorMessage);
+    } finally {
+      setIsLoadingDestinations(false);
+    }
   };
 
   const handleDestinationSelect = (destination: Destination) => {
@@ -222,14 +258,72 @@ function App() {
           />
         )}
 
-        {currentStep === 'destination-recommendations' && pickDestinationPreferences && selectedTravelerType && (
-          <AIDestinationRecommendationResults
-            travelerType={selectedTravelerType}
-            preferences={pickDestinationPreferences}
-            destinationKnowledge={destinationKnowledge}
-            onSelect={handleDestinationSelect}
-            onBack={handleBack}
-          />
+        {currentStep === 'destination-recommendations' && (
+          isLoadingDestinations ? (
+            <div className="max-w-7xl mx-auto p-6">
+              <div className="flex items-center justify-between mb-8">
+                <button
+                  onClick={handleBack}
+                  className="flex items-center text-foreground-muted hover:text-foreground transition-colors group"
+                >
+                  <span className="w-5 h-5 mr-2">←</span>
+                  Back
+                </button>
+              </div>
+              <div className="text-center py-16">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full mb-6">
+                  <span className="w-8 h-8 text-primary animate-pulse">✨</span>
+                </div>
+                <h2 className="text-2xl font-bold text-foreground mb-4">
+                  AI is analyzing your preferences...
+                </h2>
+                <p className="text-foreground-secondary mb-8">
+                  Finding the perfect destinations that match your travel style
+                </p>
+                <div className="flex justify-center">
+                  <div className="flex space-x-2">
+                    <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : destinationError ? (
+            <div className="max-w-7xl mx-auto p-6">
+              <div className="flex items-center justify-between mb-8">
+                <button
+                  onClick={handleBack}
+                  className="flex items-center text-foreground-muted hover:text-foreground transition-colors group"
+                >
+                  <span className="w-5 h-5 mr-2">←</span>
+                  Back
+                </button>
+              </div>
+              <div className="text-center py-16">
+                <div className="max-w-2xl mx-auto">
+                  <h2 className="text-2xl font-bold text-foreground mb-4">
+                    Oops! Something went wrong
+                  </h2>
+                  <p className="text-foreground-secondary mb-8">{destinationError}</p>
+                  <button
+                    onClick={() => generateDestinationRecommendations()}
+                    className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                  >
+                    <span className="w-4 h-4 mr-2">↻</span>
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : aiDestinationResponse ? (
+            <AIDestinationRecommendationResults
+              aiResponse={aiDestinationResponse}
+              onSelect={handleDestinationSelect}
+              onBack={handleBack}
+              onRegenerate={() => generateDestinationRecommendations()}
+            />
+          ) : null
         )}
 
         {currentStep === 'planning' && selectedTravelerType && (
