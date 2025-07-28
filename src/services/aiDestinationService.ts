@@ -278,7 +278,7 @@ Ensure the JSON is valid and parseable.`;
       tags.push('Adventure');
     } else if (request.travelerType.id === 'type-a') {
       tags.push('Well-organized');
-    } else if (request.travelerType.id === 'bougie') {
+    } else if (request.travelerType.id === 'overthinker') {
       tags.push('Luxury');
     } else if (request.travelerType.id === 'chill') {
       tags.push('Relaxing');
@@ -327,7 +327,7 @@ Ensure the JSON is valid and parseable.`;
         const bScore = organizedDestinations.includes(b.id) ? 1 : 0;
         return bScore - aScore;
       });
-    } else if (travelerType.id === 'bougie') {
+    } else if (travelerType.id === 'overthinker') {
       const luxuryDestinations = ['japan', 'norway', 'switzerland'];
       filtered = filtered.sort((a, b) => {
         const aScore = luxuryDestinations.includes(a.id) ? 1 : 0;
