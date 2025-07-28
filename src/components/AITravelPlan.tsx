@@ -44,10 +44,10 @@ export function AITravelPlan({
   const generateBookingLinks = (activityName: string): BookingLink[] => {
     const query = encodeURIComponent(`${activityName} ${destination.name}`);
     return [
-      {
-        platform: 'airbnb' as const,
-        url: `https://www.airbnb.com/s/experiences?query=${query}`
-      },
+      // {
+      //   platform: 'airbnb' as const,
+      //   url: `https://www.airbnb.com/s/experiences?query=${query}`
+      // },
       {
         platform: 'getyourguide' as const,
         url: `https://www.getyourguide.com/s/?q=${query}`
@@ -104,7 +104,7 @@ export function AITravelPlan({
   const renderDayItinerary = (day: ItineraryDay) => (
     <div key={day.day} className="mb-12">
       <h2 className="text-2xl font-bold text-foreground mb-6 pb-2 border-b border-border">
-        {day.title}
+        Day {day.day}: {day.title}
       </h2>
       <div className="space-y-6">
         {day.activities.map((activity, index) => renderActivity(activity, index))}
@@ -176,7 +176,7 @@ export function AITravelPlan({
           <div className="space-y-8">
             {/* Itinerary */}
             <TravelPlanSection>
-              <h2 className="mb-6">Your AI-Generated Itinerary</h2>
+              <h4 className="mb-6">Just some food for thought</h4>
               {plan.itinerary.length > 0 ? (
                 <div className="space-y-6">
                   {plan.itinerary.map((day) => (
@@ -360,7 +360,7 @@ export function AITravelPlan({
                                 searchLink={generateGoogleSearchLink(restaurant.name, 'restaurant')}
                                 tags={restaurant.specialDishes}
                               >
-                                {restaurant.reservationsRecommended && (
+                                {restaurant.reservationsRecommended === "Yes" && (
                                   <div className="mt-3 text-sm text-amber-600 font-medium">
                                     💡 Reservations recommended
                                   </div>
@@ -453,7 +453,6 @@ export function AITravelPlan({
                                 <ItemCard
                                   key={index}
                                   title={item.name}
-                                  subtitle={item.priceRange || ''}
                                   description={item.description}
                                   searchLink={generateGoogleSearchLink(item.name, 'food')}
                                   metadata={item.whereToFind ? `📍 ${item.whereToFind}` : undefined}
@@ -608,11 +607,11 @@ export function AITravelPlan({
                     <p className="mt-1">Day/Night temperature difference: {plan.weatherInfo.dayNightTempDifference}</p>
                   </div>
                   <div>
-                    <h6 className="mb-2">Important Notes</h6>
+                    {/* <h6 className="mb-2">Important Notes</h6>
                     <p className="mt-1">Air quality: {plan.weatherInfo.airQuality}</p>
-                    <p className="mt-1">Feels like warning: {plan.weatherInfo.feelsLikeWarning}</p>
-                    <div className="mt-3">
-                      <h6 className="mt-1">Recommendations:</h6>
+                    <p className="mt-1">Feels like warning: {plan.weatherInfo.feelsLikeWarning}</p> */}
+                    <div>
+                      <h6>Recommendations:</h6>
                       <ul className="space-y-1 mt-1">
                         {plan.weatherInfo.recommendations?.map((rec, index) => (
                           <li key={index} className="flex items-start text-sm">
@@ -683,7 +682,7 @@ export function AITravelPlan({
                     <ul className="space-y-1">
                       <li className="flex items-start">
                         <p className="mr-2">•</p>
-                        <p>Credit card widely accepted?</p>
+                        <p>Credit card usage</p>
 
                       </li>
                       <span className="text-sm ml-4">{plan.localCurrency.creditCardUsage}</span>

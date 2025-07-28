@@ -240,15 +240,17 @@ Please create a comprehensive travel plan that includes ALL of the following det
    - One-liner suggestion on best for, e.g. "Best for first-timers" or "Best for families"
 
 3. HOTEL RECOMMENDATIONS
-   - Provide exactly 3 accommodation options per each neighborhood, based on traveler's accommodation preference and budget - i.e. provide only hostel options if that's the traveler's preference
-   - Include amenities, price range, and detailed descriptions
-   - Include Airbnb links if user prefers Airbnb
+   - For each neighborhood listed above, provide EXACTLY THREE (3) separate and distinct accommodation options
+   - Each option must match the traveler's accommodation type preference (${preferences.accommodation}) and budget (${preferences.budget})
+   - For each of the 3 options per neighborhood, include: name, amenities, price range, and detailed descriptions
+   - Include link to Airbnb listing if applicable (for Airbnb preferences)
+   - CRITICAL: You must provide 3 different accommodation options for EACH neighborhood - do not provide only 1 option per neighborhood
 
 4. RESTAURANT RECOMMENDATIONS
    - Adjust number based on trip length and activity level: ${this.getRestaurantCount(preferences)} recommendations
    - Vary by cuisine type, price range, and neighborhood
    - Include specific dishes to try at each restaurant
-   - Include if reservations are recommended / required
+   - Include if reservations are recommended / required - "Yes" or "No"
 
 5. BAR/NIGHTLIFE RECOMMENDATIONS
    - Adjust the number of bars based on trip length and activity level: ${this.getBarCount(preferences)} recommendations
@@ -278,10 +280,10 @@ Please create a comprehensive travel plan that includes ALL of the following det
 
 9. COMPREHENSIVE TRANSPORTATION INFO
    - Public transportation system overview and how to use it
-   - Credit card payment options for public transport
+   - Credit card payment options for public transport - if you can tap credit card on train/bus directly
    - Airport transportation: provide a list of ALL major airports serving the destination
    - For each airport, include: distance to city center, ALL transportation options (including train, bus, taxi, rideshare)with cost, duration, and important notes/warnings (e.g., "be careful with unofficial taxis")
-   - Uber/taxi availability, typical costs, and tips for using them
+   - Rideshare/taxi availability, typical costs, and tips for using them
 
 10. CURRENCY AND PAYMENT INFORMATION
     - Local currency and current exchange rate from USD
