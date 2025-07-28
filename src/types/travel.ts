@@ -107,6 +107,7 @@ export interface Restaurant {
   priceRange: string;
   description: string;
   neighborhood?: string;
+  specialDishes?: string[];
 }
 
 export interface Bar {
@@ -134,6 +135,7 @@ export interface HotelRecommendation {
   priceRange: string;
   description: string;
   amenities: string[];
+  airbnbLink?: string;
 }
 
 export interface TransportationInfo {
@@ -168,6 +170,12 @@ export interface CurrencyInfo {
   cashNeeded: boolean;
   creditCardUsage: string;
   tips: string[];
+  exchangeRate?: {
+    from: string;
+    to: string;
+    rate: number;
+    lastUpdated: string;
+  };
 }
 
 export interface TipEtiquette {
@@ -185,18 +193,25 @@ export interface RecommendedActivity {
   description: string;
   duration: string;
   localSpecific: boolean;
+  bookingLink?: string;
+  experienceType?: 'airbnb' | 'getyourguide' | 'viator' | 'other';
+}
+
+export interface FoodItem {
+  name: string;
+  description: string;
+  category: 'main' | 'dessert' | 'drink' | 'snack';
+  whereToFind?: string;
+  priceRange?: string;
 }
 
 export interface MustTryFood {
-  mainDishes: string[];
-  desserts: string[];
-  localAlcohol: string[];
+  items: FoodItem[];
 }
 
 export interface TapWaterInfo {
   safe: boolean;
   details: string;
-  recommendations: string[];
 }
 
 export interface LocalEvent {

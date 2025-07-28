@@ -4,21 +4,7 @@ import {
   TravelerType, 
   DestinationKnowledge, 
   PickDestinationPreferences,
-  EnhancedTravelPlan as ImportedEnhancedTravelPlan,
-  Neighborhood,
-  HotelRecommendation,
-  Restaurant,
-  Bar,
-  WeatherInfo,
-  TransportationInfo,
-  CurrencyInfo,
-  TipEtiquette,
-  RecommendedActivity,
-  MustTryFood,
-  TapWaterInfo,
-  LocalEvent,
-  PlaceToVisit,
-  ItineraryDay
+  EnhancedTravelPlan as ImportedEnhancedTravelPlan
 } from '../types/travel';
 import { getAIConfig } from '../config/ai';
 import { generateTravelPlan as generateMockTravelPlan } from '../data/mock/travelData';
@@ -41,6 +27,67 @@ export interface AITripPlanningResponse {
 
 class AITripPlanningService {
   private config = getAIConfig();
+
+  private getRestaurantCount(preferences: TripPreferences): string {
+    const baseDays = parseInt(preferences.duration) || 7;
+    const activityMultiplier = preferences.activityLevel === 'high' ? 3 : 
+                              preferences.activityLevel === 'low' ? 1.5 : 2;
+    return Math.ceil(baseDays * activityMultiplier).toString();
+  }
+
+  private getPlacesCount(preferences: TripPreferences): string {
+    const baseDays = parseInt(preferences.duration) || 7;
+    const activityMultiplier = preferences.activityLevel === 'high' ? 4 : 
+                              preferences.activityLevel === 'low' ? 2 : 3;
+    return Math.ceil(baseDays * activityMultiplier).toString();
+  }
+
+  private generateAirbnbLink(neighborhood: string, cityName: string): string {
+    const query = encodeURIComponent(`${neighborhood} ${cityName}`);
+    return `https://www.airbnb.com/s/${query}/homes`;
+  }
+
+  private generateBookingLink(activityName: string, experienceType: string, cityName: string): string {
+    const query = encodeURIComponent(`${activityName} ${cityName}`);
+    
+    switch (experienceType) {
+      case 'airbnb':
+        return `https://www.airbnb.com/s/experiences?query=${query}`;
+      case 'getyourguide':
+        return `https://www.getyourguide.com/s/?q=${query}`;
+      case 'viator':
+        return `https://www.viator.com/searchResults/all?text=${query}`;
+      default:
+        return `https://www.google.com/search?q=${query}+booking`;
+    }
+  }
+
+  private generateExchangeRate(localCurrency?: string): { from: string; to: string; rate: number; lastUpdated: string } | null {
+    if (!localCurrency) return null;
+    
+    // Mock exchange rate data - in a real app, this would come from an API
+    const mockRates: { [key: string]: number } = {
+      'EUR': 0.85,
+      'GBP': 0.73,
+      'JPY': 110,
+      'CAD': 1.25,
+      'AUD': 1.35,
+      'CHF': 0.92,
+      'CNY': 6.45,
+      'INR': 74.5,
+      'MXN': 20.1,
+      'BRL': 5.2
+    };
+    
+    const rate = mockRates[localCurrency] || 1;
+    
+    return {
+      from: 'USD',
+      to: localCurrency,
+      rate: rate,
+      lastUpdated: new Date().toISOString().split('T')[0]
+    };
+  }
 
   private async callAI(prompt: string): Promise<string> {
     const { provider, apiKey } = this.config;
@@ -194,23 +241,26 @@ TRIP PREFERENCES:
 Please create a comprehensive travel plan that includes ALL of the following detailed sections:
 
 1. PLACES TO VISIT
+   - Adjust number of attractions based on trip length and activity level: ${this.getPlacesCount(preferences)} recommendations
    - Main attractions categorized by type (cultural, historical, natural, entertainment, etc.)
    - Include priority ranking for each attraction
 
-2. NEIGHBORHOOD BREAKDOWNS
-   - Summary of different neighborhoods with their unique vibes
+2. NEIGHBORHOOD BREAKDOWNS (3-5 MOST POPULAR NEIGHBORHOODS)
+   - Summary of 3-5 most popular neighborhoods with their unique vibes
    - Pros and cons of each neighborhood for travelers
    - Best neighborhoods for different types of activities
+   - What makes each neighborhood unique and worth visiting
 
 3. HOTEL RECOMMENDATIONS
-   - Provide exactly 3 hotel options per major neighborhood
+   - Provide exactly 3 accommodation options per major neighborhood, based on traveler's accommodation preference and budget
    - Include amenities, price range, and detailed descriptions
-   - Match recommendations to traveler's accommodation preference and budget
+   - Include Airbnb links if user prefers Airbnb
 
 4. RESTAURANT RECOMMENDATIONS
-   - Provide ${preferences.duration.includes('week') ? 'at least 14' : preferences.duration.includes('day') ? Math.max(6, parseInt(preferences.duration) * 2) : '10'} restaurant recommendations
+   - Adjust number based on trip length and activity level: ${this.getRestaurantCount(preferences)} recommendations
    - Vary by cuisine type, price range, and neighborhood
    - Include specific dishes to try at each restaurant
+   - Include must-try signature dishes for each restaurant
 
 5. BAR/NIGHTLIFE RECOMMENDATIONS
    - Categorize by type: beer bars, wine bars, cocktail lounges, dive bars
@@ -243,10 +293,11 @@ Please create a comprehensive travel plan that includes ALL of the following det
    - Uber/taxi availability, typical costs, and tips for using them
 
 10. CURRENCY AND PAYMENT INFORMATION
-    - Local currency and current exchange considerations
+    - Local currency and current exchange rate from USD
     - Where cash is essential vs where credit cards work
     - ATM availability and fees, best ATMs to use
     - Payment customs and expectations
+    - Current exchange rate information (can default to USD)
 
 11. TIPPING ETIQUETTE
     - Specific tipping guidelines for: restaurants, bars, taxis, hotels, tour guides
@@ -257,12 +308,13 @@ Please create a comprehensive travel plan that includes ALL of the following det
     - Destination-specific experiences (cooking classes, cultural workshops, unique tours)
     - Activities that can't be found elsewhere
     - Seasonal or time-sensitive opportunities during their travel dates
+    - Include booking links for experiences (Airbnb Experiences, GetYourGuide, Viator)
+    - Specify experience provider type for each activity
 
 13. MUST-TRY LOCAL FOOD AND DRINK
-    - Signature main dishes with descriptions
-    - Local desserts and sweet treats
-    - Traditional alcoholic beverages if available
-    - Where to find the best versions of each (e.g. try mango sticky rice at xyz restaurant)
+    - Provide detailed food items as structured objects with names, descriptions, and categories
+    - Include main dishes, desserts, drinks, and snacks with specific descriptions
+    - Add where to find each item and price ranges when relevant
 
 14. TAP WATER SAFETY
     - Is tap water safe to drink?
@@ -272,16 +324,21 @@ Please create a comprehensive travel plan that includes ALL of the following det
     - Cultural celebrations or seasonal events
     - How to participate or attend (e.g. best place to celebrate NYE in Bangkok)
 
-16. HIGH-LEVEL HISTORICAL CONTEXT
-    - Brief but engaging historical background
+16. EXTENDED HISTORICAL CONTEXT (AROUND 300 WORDS)
+    - Comprehensive modern history covering major periods
     - Key historical sites and their significance
     - How history influences current culture and attractions
+    - Cultural evolution and modern-day implications
+    - Stories and legends that shaped the destination
 
 17. DETAILED DAY-BY-DAY ITINERARY
     - Incorporate all above elements into a practical daily schedule
+    - Adjust daily activities based on preferred activity level: ${preferences.activityLevel || 'medium'}
+    - High activity: 4-6 activities per day
+    - Medium activity: 3-4 activities per day  
+    - Low activity: 2-3 activities per day
     - Consider travel time between locations
     - Balance must-see attractions with authentic local experiences
-    - Consider user preference for activity level (high, medium, low)
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
 
@@ -292,17 +349,17 @@ Use this exact structure:
 {
   "placesToVisit": [{"name": "string", "description": "string", "category": "string", "priority": number}],
   "neighborhoods": [{"name": "string", "summary": "string", "vibe": "string", "pros": ["string"], "cons": ["string"]}],
-  "hotelRecommendations": [{"name": "string", "neighborhood": "string", "priceRange": "string", "description": "string", "amenities": ["string"]}],
-  "restaurants": [{"name": "string", "cuisine": "string", "priceRange": "string", "description": "string", "neighborhood": "string"}],
+  "hotelRecommendations": [{"name": "string", "neighborhood": "string", "priceRange": "string", "description": "string", "amenities": ["string"], "airbnbLink": "string"}],
+  "restaurants": [{"name": "string", "cuisine": "string", "priceRange": "string", "description": "string", "neighborhood": "string", "specialDishes": ["string"]}],
   "bars": [{"name": "string", "type": "string", "atmosphere": "string", "description": "string", "category": "string"}],
   "weatherInfo": {"season": "string", "temperature": "string", "conditions": "string", "humidity": "string", "dayNightTempDifference": "string", "airQuality": "string", "feelsLikeWarning": "string", "recommendations": ["string"]},
   "socialEtiquette": ["string"],
   "safetyTips": ["string"],
   "transportationInfo": {"publicTransport": "string", "creditCardPayment": boolean, "airportTransport": {"mainAirport": "string", "distanceToCity": "string", "transportOptions": [{"type": "string", "cost": "string", "duration": "string", "description": "string"}]}, "ridesharing": "string", "taxiInfo": {"available": boolean, "averageCost": "string", "tips": ["string"]}},
-  "localCurrency": {"currency": "string", "cashNeeded": boolean, "creditCardUsage": "string", "tips": ["string"]},
+  "localCurrency": {"currency": "string", "cashNeeded": boolean, "creditCardUsage": "string", "tips": ["string"], "exchangeRate": {"from": "USD", "to": "string", "rate": number, "lastUpdated": "string"}},
   "tipEtiquette": {"restaurants": "string", "bars": "string", "taxis": "string", "hotels": "string", "tours": "string", "general": "string"},
-  "activities": [{"name": "string", "type": "string", "description": "string", "duration": "string", "localSpecific": boolean}],
-  "mustTryFood": {"mainDishes": ["string"], "desserts": ["string"], "localAlcohol": ["string"]},
+  "activities": [{"name": "string", "type": "string", "description": "string", "duration": "string", "localSpecific": boolean, "bookingLink": "string", "experienceType": "airbnb|getyourguide|viator|other"}],
+  "mustTryFood": {"items": [{"name": "string", "description": "string", "category": "main|dessert|drink|snack", "whereToFind": "string", "priceRange": "string"}]},
   "tapWaterSafe": {"safe": boolean, "details": "string"},
   "localEvents": [{"name": "string", "type": "string", "description": "string", "dates": "string", "location": "string"}],
   "history": "string",
@@ -469,17 +526,32 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
         destination: request.destination,
         placesToVisit: parsedData.placesToVisit || [],
         neighborhoods: parsedData.neighborhoods || [],
-        hotelRecommendations: parsedData.hotelRecommendations || [],
-        restaurants: parsedData.restaurants || [],
+        hotelRecommendations: (parsedData.hotelRecommendations || []).map((hotel: any) => ({
+          ...hotel,
+          airbnbLink: hotel.airbnbLink || this.generateAirbnbLink(hotel.neighborhood, request.destination.name)
+        })),
+        restaurants: (parsedData.restaurants || []).map((restaurant: any) => ({
+          ...restaurant,
+          specialDishes: restaurant.specialDishes || []
+        })),
         bars: parsedData.bars || [],
         weatherInfo: parsedData.weatherInfo || {},
         socialEtiquette: parsedData.socialEtiquette || [],
         safetyTips: parsedData.safetyTips || [],
         transportationInfo: parsedData.transportationInfo || {},
-        localCurrency: parsedData.localCurrency || {},
+        localCurrency: {
+          ...(parsedData.localCurrency || {}),
+          exchangeRate: parsedData.localCurrency?.exchangeRate || this.generateExchangeRate(parsedData.localCurrency?.currency)
+        },
         tipEtiquette: parsedData.tipEtiquette || {},
-        activities: parsedData.activities || [],
-        mustTryFood: parsedData.mustTryFood || {},
+        activities: (parsedData.activities || []).map((activity: any) => ({
+          ...activity,
+          bookingLink: activity.bookingLink || this.generateBookingLink(activity.name, activity.experienceType, request.destination.name),
+          experienceType: activity.experienceType || 'other'
+        })),
+        mustTryFood: {
+          items: parsedData.mustTryFood?.items || []
+        },
         tapWaterSafe: parsedData.tapWaterSafe || {},
         localEvents: parsedData.localEvents || [],
         history: parsedData.history || '',

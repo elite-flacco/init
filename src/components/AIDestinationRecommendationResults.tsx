@@ -8,7 +8,7 @@ import { aiDestinationService } from '../services/aiDestinationService';
 interface AIDestinationRecommendationResultsProps {
   travelerType: TravelerType;
   preferences?: PickDestinationPreferences;
-  destinationKnowledge?: DestinationKnowledge;
+  destinationKnowledge?: DestinationKnowledge | null;
   onSelect: (destination: Destination) => void;
   onBack: () => void;
 }

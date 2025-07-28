@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plane } from 'lucide-react';
 import { TravelerTypeSelection } from './components/TravelerTypeSelection';
 import { DestinationKnowledgeSelection } from './components/DestinationKnowledgeSelection';
@@ -7,8 +7,9 @@ import { AIDestinationRecommendationResults } from './components/AIDestinationRe
 import { AITripPlanningPrompts } from './components/AITripPlanningPrompts';
 import { AITravelPlan } from './components/AITravelPlan';
 import { PlaceholderMessage } from './components/PlaceholderMessage';
-import { TravelerType, Destination, TripPreferences, DestinationKnowledge, PickDestinationPreferences } from './types/travel';
+import { TravelerType, Destination, DestinationKnowledge, PickDestinationPreferences } from './types/travel';
 import { AITripPlanningResponse } from './services/aiTripPlanningService';
+import { generateDevMockData } from './data/mock/travelData';
 
 type AppStep = 'traveler-type' | 'destination-knowledge' | 'pick-destination' | 'destination-recommendations' | 'planning' | 'plan' | 'placeholder';
 
@@ -19,6 +20,19 @@ function App() {
   const [pickDestinationPreferences, setPickDestinationPreferences] = useState<PickDestinationPreferences | null>(null);
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [aiTripPlanningResponse, setAiTripPlanningResponse] = useState<AITripPlanningResponse | null>(null);
+
+  // Development shortcut - check for URL parameter to jump to travel plan
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('dev') === 'plan') {
+      const { travelerType, destination, response } = generateDevMockData();
+      
+      setSelectedTravelerType(travelerType);
+      setSelectedDestination(destination);
+      setAiTripPlanningResponse(response);
+      setCurrentStep('plan');
+    }
+  }, []);
 
   const handleTravelerTypeSelect = (type: TravelerType) => {
     setSelectedTravelerType(type);

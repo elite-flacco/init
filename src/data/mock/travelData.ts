@@ -14,6 +14,7 @@ import {
   LocalEvent,
   Bar
 } from '../../types/travel';
+import { AITripPlanningResponse } from '../../services/aiTripPlanningService';
 
 // Generate tap water safety information
 const generateTapWaterInfo = (destination: Destination) => {
@@ -462,23 +463,49 @@ export const generateActivities = (destination: Destination, travelerType: Trave
 };
 
 export const generateMustTryFood = (destination: Destination): MustTryFood => ({
-  mainDishes: [
-    `Traditional ${destination.name} Stew`,
-    'Local Grilled Specialties',
-    'Regional Pasta/Noodle Dish',
-    'Signature Seafood Preparation'
-  ],
-  desserts: [
-    'Traditional Sweet Pastry',
-    'Local Ice Cream/Gelato',
-    'Regional Fruit Dessert',
-    'Classic Local Cake'
-  ],
-  localAlcohol: [
-    'Traditional Local Spirit',
-    'Regional Wine/Beer',
-    'Local Liqueur',
-    'Signature Cocktail'
+  items: [
+    {
+      name: `Traditional ${destination.name} Stew`,
+      description: 'A hearty local stew with regional ingredients and traditional spices',
+      category: 'main' as const,
+      whereToFind: 'Local restaurants and family-run establishments',
+      priceRange: '$$'
+    },
+    {
+      name: 'Local Grilled Specialties',
+      description: 'Fresh grilled meats or vegetables prepared with local seasonings',
+      category: 'main' as const,
+      whereToFind: 'Street vendors and traditional grills',
+      priceRange: '$-$$'
+    },
+    {
+      name: 'Traditional Sweet Pastry',
+      description: 'Classic local pastry with traditional fillings and preparation methods',
+      category: 'dessert' as const,
+      whereToFind: 'Local bakeries and cafes',
+      priceRange: '$'
+    },
+    {
+      name: 'Regional Fruit Dessert',
+      description: 'Seasonal fruit prepared in traditional local style',
+      category: 'dessert' as const,
+      whereToFind: 'Markets and dessert shops',
+      priceRange: '$'
+    },
+    {
+      name: 'Traditional Local Spirit',
+      description: 'Regional alcoholic beverage with local significance',
+      category: 'drink' as const,
+      whereToFind: 'Bars and specialty shops',
+      priceRange: '$$'
+    },
+    {
+      name: 'Local Liqueur',
+      description: 'Traditional liqueur made with local ingredients',
+      category: 'drink' as const,
+      whereToFind: 'Wine bars and restaurants',
+      priceRange: '$$-$$$'
+    }
   ]
 });
 
@@ -593,6 +620,350 @@ export const generateTravelPlan = (
     localEvents: generateLocalEvents(destination),
     history: `${destination.name} has a rich history spanning centuries, with influences from various cultures and periods. The city has evolved from its ancient origins to become a modern destination while preserving its cultural heritage and traditions.`,
     itinerary: generateItinerary(destination, days)
+  };
+};
+
+// Development mock data for testing enhanced features
+export const generateDevMockData = (): {
+  travelerType: TravelerType;
+  destination: Destination;
+  response: AITripPlanningResponse;
+} => {
+  const mockTravelerType: TravelerType = {
+    id: 'explorer',
+    name: 'Explorer',
+    description: 'Love spontaneous adventures',
+    icon: '🎒',
+    showPlaceholder: false
+  };
+  
+  const mockDestination: Destination = {
+    id: 'tokyo',
+    name: 'Tokyo',
+    country: 'Japan',
+    description: 'A vibrant metropolis blending tradition and modernity',
+    image: '/images/tokyo.jpg',
+    highlights: ['Temples', 'Food scene', 'Technology'],
+    bestTime: 'Spring & Fall',
+    budget: '$$-$$$'
+  };
+  
+  const mockResponse: AITripPlanningResponse = {
+    plan: {
+      destination: mockDestination,
+      placesToVisit: [
+        {
+          name: 'Senso-ji Temple',
+          description: 'Ancient Buddhist temple in Asakusa',
+          category: 'Cultural',
+          priority: 1,
+        },
+        {
+          name: 'Tokyo Skytree',
+          description: 'Iconic broadcasting tower with city views',
+          category: 'Entertainment',
+          priority: 2,
+        },
+        {
+          name: 'Imperial Palace Gardens',
+          description: 'Beautiful gardens surrounding the Imperial Palace',
+          category: 'Natural',
+          priority: 3,
+        },
+        {
+          name: 'Meiji Shrine',
+          description: 'Peaceful Shinto shrine in the heart of Tokyo',
+          category: 'Cultural',
+          priority: 4,
+        },
+        {
+          name: 'Shibuya Crossing',
+          description: 'Famous busy intersection with neon lights',
+          category: 'Entertainment',
+          priority: 5,
+        }
+      ],
+      neighborhoods: [
+        {
+          name: 'Shibuya',
+          summary: 'Famous for the crossing and nightlife',
+          vibe: 'Energetic and bustling',
+          pros: ['Great nightlife', 'Shopping', 'Central location'],
+          cons: ['Very crowded', 'Can be noisy']
+        },
+        {
+          name: 'Asakusa',
+          summary: 'Traditional area with temples and old-town feel',
+          vibe: 'Traditional and cultural',
+          pros: ['Rich history', 'Great food', 'Less crowded'],
+          cons: ['Further from modern areas', 'Limited nightlife']
+        },
+        {
+          name: 'Ginza',
+          summary: 'Upscale shopping and dining district',
+          vibe: 'Luxury and sophistication',
+          pros: ['High-end shopping', 'Fine dining', 'Beautiful architecture'],
+          cons: ['Very expensive', 'Formal atmosphere', 'Less local culture']
+        }
+      ],
+      hotelRecommendations: [
+        {
+          name: 'Hotel Gracery Shinjuku',
+          neighborhood: 'Shinjuku',
+          priceRange: '$$$',
+          description: 'Modern hotel with Godzilla theme',
+          amenities: ['WiFi', 'Restaurant', 'Fitness Center'],
+          // airbnbLink: 'https://www.airbnb.com/s/Shinjuku+Tokyo/homes'
+        },
+        {
+          name: 'Richmond Hotel Asakusa',
+          neighborhood: 'Asakusa',
+          priceRange: '$$',
+          description: 'Comfortable hotel near traditional sites',
+          amenities: ['WiFi', 'Breakfast', 'Laundry'],
+          // googleMapsLink: 'https://www.google.com/maps/search/Richmond+Hotel+Asakusa+Tokyo',
+          airbnbLink: 'https://www.airbnb.com/s/Asakusa+Tokyo/homes'
+        },
+        {
+          name: 'Park Hotel Tokyo',
+          neighborhood: 'Ginza',
+          priceRange: '$$$$',
+          description: 'Luxury hotel with artist-designed rooms',
+          amenities: ['Spa', 'Multiple Restaurants', 'Concierge', 'Art Gallery'],
+          // googleMapsLink: 'https://www.google.com/maps/search/Park+Hotel+Tokyo+Ginza',
+          airbnbLink: 'https://www.airbnb.com/s/Ginza+Tokyo/homes'
+        },
+        {
+          name: 'Capsule Hotel Anshin Oyado',
+          neighborhood: 'Shinjuku',
+          priceRange: '$',
+          description: 'Modern capsule hotel experience',
+          amenities: ['Shared Bath', 'Lockers', 'WiFi'],
+          // googleMapsLink: 'https://www.google.com/maps/search/Capsule+Hotel+Anshin+Oyado+Shinjuku',
+          airbnbLink: 'https://www.airbnb.com/s/Shinjuku+Tokyo/homes'
+        }
+      ],
+      restaurants: [
+        {
+          name: 'Sukiyabashi Jiro',
+          cuisine: 'Sushi',
+          priceRange: '$$$$',
+          description: 'World-famous sushi restaurant',
+          neighborhood: 'Ginza',
+          specialDishes: ['Omakase tasting menu', 'Fresh tuna']
+        },
+        {
+          name: 'Ramen Yashichi',
+          cuisine: 'Ramen',
+          priceRange: '$',
+          description: 'Authentic local ramen shop',
+          neighborhood: 'Shibuya',
+          specialDishes: ['Tonkotsu ramen', 'Gyoza']
+        },
+        {
+          name: 'Tempura Kondo',
+          cuisine: 'Tempura',
+          priceRange: '$$$',
+          description: 'Michelin-starred tempura restaurant',
+          neighborhood: 'Ginza',
+          specialDishes: ['Vegetable tempura', 'Sweet potato tempura']
+        },
+        {
+          name: 'Daiwa Sushi',
+          cuisine: 'Sushi',
+          priceRange: '$$',
+          description: 'Popular sushi spot at Tsukiji Outer Market',
+          neighborhood: 'Tsukiji',
+          specialDishes: ['Fresh tuna sashimi', 'Chirashi bowl']
+        },
+        {
+          name: 'Kozasa',
+          cuisine: 'Traditional Japanese',
+          priceRange: '$$$',
+          description: 'Traditional kaiseki dining experience',
+          neighborhood: 'Asakusa',
+          specialDishes: ['Seasonal kaiseki course', 'Traditional sweets']
+        }
+      ],
+      bars: [
+        {
+          name: 'Golden Gai',
+          type: 'other',
+          atmosphere: 'Intimate and traditional',
+          description: 'Famous narrow alley with tiny bars',
+          category: 'Traditional',
+        },
+        {
+          name: 'New York Grill',
+          type: 'cocktail',
+          atmosphere: 'Upscale with city views',
+          description: 'High-end bar with panoramic Tokyo views',
+          category: 'Rooftop',
+        }
+      ],
+      weatherInfo: {
+        season: 'Spring',
+        temperature: '15-25°C (59-77°F)',
+        conditions: 'Mild and pleasant',
+        humidity: 'Moderate',
+        dayNightTempDifference: '10°C difference',
+        airQuality: 'Good',
+        feelsLikeWarning: 'Pack layers',
+        recommendations: ['Light jacket', 'Comfortable shoes']
+      },
+      socialEtiquette: ['Bow when greeting', 'Remove shoes indoors'],
+      safetyTips: ['Very safe city', 'Keep cash handy'],
+      transportationInfo: {
+        publicTransport: 'Excellent rail system',
+        creditCardPayment: false,
+        airportTransport: {
+          mainAirport: 'Narita International',
+          distanceToCity: '60km from city center',
+          transportOptions: [
+            {
+              type: 'Narita Express',
+              cost: '¥3,070',
+              duration: '60 minutes',
+              description: 'Direct train to central Tokyo'
+            }
+          ]
+        },
+        ridesharing: 'Limited Uber, use taxis',
+        taxiInfo: {
+          available: true,
+          averageCost: '¥500-1000 for short trips',
+          tips: ['Cash only', 'Doors open automatically']
+        }
+      },
+      localCurrency: {
+        currency: 'Japanese Yen (JPY)',
+        cashNeeded: true,
+        creditCardUsage: 'Limited acceptance',
+        tips: ['Withdraw from 7-Eleven ATMs'],
+        exchangeRate: {
+          from: 'USD',
+          to: 'JPY',
+          rate: 150,
+          lastUpdated: new Date().toISOString().split('T')[0]
+        }
+      },
+      tipEtiquette: {
+        restaurants: 'No tipping required',
+        bars: 'No tipping required',
+        taxis: 'No tipping required',
+        hotels: 'No tipping required',
+        tours: 'No tipping required',
+        general: 'Tipping is not part of Japanese culture'
+      },
+      activities: [
+        {
+          name: 'Sushi Making Class',
+          type: 'Cooking Class',
+          description: 'Learn to make authentic sushi',
+          duration: '3 hours',
+          localSpecific: true,
+          bookingLink: 'https://www.airbnb.com/s/experiences?query=sushi+making+Tokyo',
+          experienceType: 'airbnb'
+        },
+        {
+          name: 'Tsukiji Fish Market Tour',
+          type: 'Cultural Tour',
+          description: 'Early morning fish market experience',
+          duration: '4 hours',
+          localSpecific: true,
+          bookingLink: 'https://www.getyourguide.com/s/?q=Tsukiji+Fish+Market+Tokyo',
+          experienceType: 'getyourguide'
+        },
+        {
+          name: 'Tea Ceremony Experience',
+          type: 'Cultural Workshop',
+          description: 'Traditional Japanese tea ceremony',
+          duration: '2 hours',
+          localSpecific: true,
+          bookingLink: 'https://www.viator.com/searchResults/all?text=tea+ceremony+Tokyo',
+          experienceType: 'viator'
+        }
+      ],
+      mustTryFood: {
+        items: [
+          {
+            name: 'Sushi',
+            description: 'Fresh fish and vegetables',
+            category: 'main',
+            whereToFind: 'Local restaurants',
+              priceRange: '$$'
+          },
+          {
+            name: 'Ramen',
+            description: 'Thick noodles in flavorful broth',
+            category: 'main',
+            whereToFind: 'Street vendors',
+            priceRange: '$'
+          },
+          {
+            name: 'Mochi',
+            description: 'Sweet rice cake',
+            category: 'dessert',
+            whereToFind: 'Local bakeries',
+            priceRange: '$'
+          },
+          {
+            name: 'Sake',
+            description: 'Traditional Japanese alcohol',
+            category: 'drink',
+            whereToFind: 'Bars',
+            priceRange: '$$'
+          }
+        ]
+      },
+      tapWaterSafe: {
+        safe: true,
+        details: 'Tokyo tap water is safe to drink'
+      },
+      localEvents: [{
+        name: 'Tokyo Marathon',
+        type: 'Marathon',
+        description: 'Annual marathon event',
+        dates: 'March',
+        location: 'Tokyo Marathon Course'
+      }],
+      history: 'Tokyo, originally named Edo, has been Japan\'s capital since 1868. The city has transformed from a feudal castle town into a modern metropolis, surviving earthquakes, wars, and rapid modernization. Today it stands as a unique blend of ancient traditions and cutting-edge technology, where centuries-old shrines coexist with futuristic skyscrapers. The city\'s evolution reflects Japan\'s journey from isolation to becoming a global economic powerhouse, while maintaining its distinct cultural identity. From the Meiji Restoration through post-war reconstruction to hosting the Olympics, Tokyo continues to reinvent itself while honoring its rich cultural heritage.',
+      itinerary: [
+        {
+          day: 1,
+          title: 'Day 1: Traditional Tokyo',
+          activities: [
+            {
+              time: '9:00 AM',
+              title: 'Senso-ji Temple',
+              description: 'Visit Tokyo\'s oldest temple',
+              location: 'Asakusa',
+              icon: 'map'
+            },
+            {
+              time: '12:00 PM',
+              title: 'Lunch in Asakusa',
+              description: 'Try traditional Japanese cuisine',
+              location: 'Asakusa',
+              icon: 'utensils'
+            }
+          ]
+        }
+      ]
+    },
+    reasoning: 'Mock data for development testing',
+    confidence: 0.95,
+    personalizations: [
+      'Tailored for Explorer traveler type',
+      'Includes authentic experiences',
+      'Balanced traditional and modern activities'
+    ]
+  };
+  
+  return {
+    travelerType: mockTravelerType,
+    destination: mockDestination,
+    response: mockResponse
   };
 };
 

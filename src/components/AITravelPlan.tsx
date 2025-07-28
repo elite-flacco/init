@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { Sparkles, MapPin, Utensils, Compass, Download, Share2, RefreshCw, Lightbulb, Home, Shield, CreditCard, Droplets, Calendar, BookOpen } from 'lucide-react';
+import { Sparkles, MapPin, Utensils, Compass, Download, Share2, RefreshCw, Lightbulb, Home, Shield, CreditCard, Droplets, Calendar, BookOpen, ExternalLink } from 'lucide-react';
 import { Destination, TravelerType, ItineraryDay, Activity } from '../types/travel';
 import { AITripPlanningResponse } from '../services/aiTripPlanningService';
+import { TravelPlanSection } from './ui/TravelPlanSection';
+import { SectionHeader } from './ui/SectionHeader';
+import { ItemCard } from './ui/ItemCard';
+import { ItemGrid } from './ui/ItemGrid';
+import { CategoryGroup } from './ui/CategoryGroup';
+import { RestaurantItem } from './ui/RestaurantItem';
 
 interface AITravelPlanProps {
   destination: Destination;
@@ -10,16 +16,31 @@ interface AITravelPlanProps {
   onRegeneratePlan: () => void;
 }
 
-export function AITravelPlan({ 
-  destination, 
-  travelerType, 
+export function AITravelPlan({
+  destination,
+  travelerType,
   aiResponse,
-  onRegeneratePlan 
+  onRegeneratePlan
 }: AITravelPlanProps) {
   const [activeTab, setActiveTab] = useState<'itinerary' | 'info'>('itinerary');
-  const [showPersonalizations, setShowPersonalizations] = useState(true);
 
   const { plan, reasoning, confidence, personalizations } = aiResponse;
+
+  // Helper functions to generate search links dynamically
+  const generateGoogleMapsLink = (placeName: string) => {
+    const query = encodeURIComponent(`${placeName} ${destination.name}`);
+    return `https://www.google.com/maps/search/${query}`;
+  };
+
+  const generateGoogleSearchLink = (itemName: string, type = '') => {
+    const query = encodeURIComponent(`${itemName} ${type} ${destination.name}`);
+    return `https://www.google.com/search?q=${query}`;
+  };
+
+  const generateAirbnbLink = (neighborhood: string) => {
+    const query = encodeURIComponent(`${neighborhood} ${destination.name}`);
+    return `https://www.airbnb.com/s/${query}/homes`;
+  };
 
   // Helper function to get icon component based on icon name
   const getIconComponent = (iconName: string) => {
@@ -82,73 +103,30 @@ export function AITravelPlan({
           <div>
             <div className="flex items-center mb-2">
               <Sparkles className="w-6 h-6 text-primary mr-2" />
-              <span className="text-sm font-medium text-primary bg-primary/10 px-3 py-1 rounded-full">
-                AI-Generated Plan
-              </span>
+              <h1 className="text-3xl font-bold text-foreground">Your Personalized Travel Plan</h1>
             </div>
-            <h1 className="text-3xl font-bold text-foreground">Your Personalized Travel Plan</h1>
-            <p className="text-muted-foreground">
-              AI-crafted itinerary for {destination.name} • {Math.round(confidence * 100)}% match confidence
-            </p>
           </div>
           <div className="flex space-x-3 mt-4 md:mt-0">
             <button
               onClick={onRegeneratePlan}
               className="flex items-center px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors"
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Regenerate Plan
+              <RefreshCw className="w-4 h-4" />
             </button>
             <button
               className="flex items-center px-4 py-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
               onClick={() => console.log('Download clicked')}
             >
-              <Download className="w-4 h-4 mr-2" />
-              Download
+              <Download className="w-4 h-4" />
             </button>
             <button
               className="flex items-center px-4 py-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
               onClick={() => console.log('Share clicked')}
             >
-              <Share2 className="w-4 h-4 mr-2" />
-              Share
+              <Share2 className="w-4 h-4" />
             </button>
           </div>
         </div>
-
-        {/* AI Insights Section */}
-        {/* {showPersonalizations && (
-          <div className="mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center mb-3">
-                  <Lightbulb className="w-5 h-5 text-blue-600 mr-2" />
-                  <h3 className="text-lg font-semibold text-blue-900">AI Personalizations</h3>
-                </div>
-                <div className="space-y-2 mb-4">
-                  {personalizations.map((personalization, index) => (
-                    <div key={index} className="flex items-start">
-                      <span className="text-blue-600 mr-2">✓</span>
-                      <span className="text-blue-800 text-sm">{personalization}</span>
-                    </div>
-                  ))}
-                </div>
-                {reasoning && (
-                  <div className="border-t border-blue-200 pt-4">
-                    <h4 className="text-sm font-medium text-blue-900 mb-2">AI Reasoning:</h4>
-                    <p className="text-sm text-blue-800">{reasoning}</p>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => setShowPersonalizations(false)}
-                className="text-blue-600 hover:text-blue-800 ml-4"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )} */}
 
         {/* Tabs */}
         <div className="mb-8">
@@ -156,21 +134,19 @@ export function AITravelPlan({
             <nav className="flex space-x-2">
               <button
                 onClick={() => setActiveTab('itinerary')}
-                className={`flex-1 py-3 px-6 font-medium text-sm rounded-md transition-all duration-200 ${
-                  activeTab === 'itinerary'
-                    ? 'bg-primary/25 text-primary-foreground shadow-sm'
-                    : 'bg-background-muted text-muted-foreground hover:text-foreground hover:bg-background-muted'
-                }`}
+                className={`flex-1 py-3 px-6 font-medium text-sm rounded-md transition-all duration-200 ${activeTab === 'itinerary'
+                  ? 'bg-primary/25 text-primary-foreground shadow-sm'
+                  : 'bg-background-muted text-muted-foreground hover:text-foreground hover:bg-background-muted'
+                  }`}
               >
                 📅 Sample Itinerary
               </button>
               <button
                 onClick={() => setActiveTab('info')}
-                className={`flex-1 py-3 px-6 font-medium text-sm rounded-md transition-all duration-200 ${
-                  activeTab === 'info'
-                    ? 'bg-primary/25 text-primary-foreground shadow-sm'
-                    : 'bg-background-muted text-muted-foreground hover:text-foreground hover:bg-background-muted'
-                }`}
+                className={`flex-1 py-3 px-6 font-medium text-sm rounded-md transition-all duration-200 ${activeTab === 'info'
+                  ? 'bg-primary/25 text-primary-foreground shadow-sm'
+                  : 'bg-background-muted text-muted-foreground hover:text-foreground hover:bg-background-muted'
+                  }`}
               >
                 ℹ️ Travel Info
               </button>
@@ -182,7 +158,7 @@ export function AITravelPlan({
         {activeTab === 'itinerary' && (
           <div className="space-y-8">
             {/* Itinerary */}
-            <div className="bg-card rounded-lg shadow p-6">
+            <TravelPlanSection>
               <h2 className="text-2xl font-bold text-foreground mb-6">Your AI-Generated Itinerary</h2>
               {plan.itinerary.length > 0 ? (
                 <div className="space-y-6">
@@ -195,7 +171,7 @@ export function AITravelPlan({
                   No itinerary available for this destination.
                 </div>
               )}
-            </div>
+            </TravelPlanSection>
           </div>
         )}
 
@@ -203,16 +179,16 @@ export function AITravelPlan({
           <div className="space-y-8">
             {/* Neighborhoods */}
             {plan.neighborhoods && (
-              <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6 flex items-center">
-                  <Home className="mr-2" /> Recommended Neighborhoods
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <TravelPlanSection>
+                <SectionHeader icon={Home} title="Recommended Neighborhoods" />
+                <ItemGrid columns={3}>
                   {plan.neighborhoods.map((neighborhood, index) => (
-                    <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <h3 className="text-lg font-semibold text-foreground">{neighborhood.name}</h3>
-                      <p className="text-muted-foreground text-sm mt-1">{neighborhood.vibe}</p>
-                      <p className="text-foreground/90 mt-2">{neighborhood.summary}</p>
+                    <ItemCard 
+                      key={index}
+                      title={neighborhood.name}
+                      subtitle={neighborhood.vibe}
+                      description={neighborhood.summary}
+                    >
                       <div className="mt-4">
                         <h6 className="text-sm font-medium text-green-600">Pros:</h6>
                         <ul className="text-sm text-foreground/80">
@@ -227,99 +203,120 @@ export function AITravelPlan({
                           ))}
                         </ul>
                       </div>
-                    </div>
+                    </ItemCard>
                   ))}
-                </div>
-              </div>
+                </ItemGrid>
+              </TravelPlanSection>
             )}
 
             {/* Hotel Recommendations */}
             {plan.hotelRecommendations && (
-              <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6 flex items-center">
-                  <Home className="mr-2" /> Recommended Hotels
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {plan.hotelRecommendations.map((hotel, index) => (
-                    <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <h3 className="text-lg font-semibold text-foreground">{hotel.name}</h3>
-                      <p className="text-muted-foreground text-sm mt-1">{hotel.neighborhood} • {hotel.priceRange}</p>
-                      <p className="text-foreground/90 mt-2">{hotel.description}</p>
-                      <div className="mt-3">
-                        <h6 className="text-sm font-medium">Amenities:</h6>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {hotel.amenities.map((amenity, idx) => (
-                            <span key={idx} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                              {amenity}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <TravelPlanSection>
+                <SectionHeader icon={Home} title="Recommended Hotels" />
+                {(() => {
+                  // Group hotels by neighborhood
+                  const hotelsByNeighborhood = plan.hotelRecommendations?.reduce((acc, hotel) => {
+                    const neighborhood = hotel.neighborhood || 'Other Areas';
+                    if (!acc[neighborhood]) {
+                      acc[neighborhood] = [];
+                    }
+                    acc[neighborhood].push(hotel);
+                    return acc;
+                  }, {} as Record<string, typeof plan.hotelRecommendations>);
+
+                  return Object.entries(hotelsByNeighborhood || {}).map(([neighborhood, hotels]) => (
+                    <CategoryGroup key={neighborhood} title={neighborhood}>
+                      <ItemGrid columns={3}>
+                        {hotels?.map((hotel, index) => (
+                          <ItemCard
+                            key={index}
+                            title={hotel.name}
+                            subtitle={hotel.priceRange}
+                            description={hotel.description}
+                            searchLink={generateGoogleMapsLink(hotel.name)}
+                            tags={hotel.amenities}
+                          />
+                        ))}
+                      </ItemGrid>
+                    </CategoryGroup>
+                  ));
+                })()}
+              </TravelPlanSection>
             )}
 
             {/* Places to Visit */}
-            <div className="bg-card rounded-lg shadow p-6">
-              <h4 className="mb-6 flex items-center">
-                <MapPin className="mr-2" /> Recommended Places
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {plan.placesToVisit.map((place, index) => (
-                  <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <h3 className="text-lg font-semibold text-foreground">{place.name}</h3>
-                    <p className="text-muted-foreground text-sm mt-1">{place.category}</p>
-                    <p className="text-foreground/90 mt-2">{place.description}</p>
-                  </div>
+            <TravelPlanSection>
+              <SectionHeader icon={MapPin} title="Recommended Places" />
+              {(() => {
+                // Group places by category
+                const placesByCategory = plan.placesToVisit?.reduce((acc, place) => {
+                  const category = place.category || 'Other';
+                  if (!acc[category]) {
+                    acc[category] = [];
+                  }
+                  acc[category].push(place);
+                  return acc;
+                }, {} as Record<string, typeof plan.placesToVisit>);
+
+                return Object.entries(placesByCategory || {}).map(([category, places]) => (
+                  <CategoryGroup key={category} title={category}>
+                    <ItemGrid columns={2}>
+                      {places?.map((place, index) => (
+                        <ItemCard
+                          key={index}
+                          title={place.name}
+                          description={place.description}
+                          searchLink={generateGoogleMapsLink(place.name)}
+                        />
+                      ))}
+                    </ItemGrid>
+                  </CategoryGroup>
+                ));
+              })()}
+            </TravelPlanSection>
+
+            {/* Restaurants */}
+            <TravelPlanSection>
+              <SectionHeader icon={Utensils} title="Recommended Restaurants" />
+              <div className="space-y-4">
+                {plan.restaurants.map((restaurant, index) => (
+                  <RestaurantItem
+                    key={index}
+                    name={restaurant.name}
+                    cuisine={restaurant.cuisine}
+                    priceRange={restaurant.priceRange}
+                    neighborhood={restaurant.neighborhood}
+                    description={restaurant.description}
+                    specialDishes={restaurant.specialDishes}
+                    searchLink={generateGoogleSearchLink(restaurant.name, 'restaurant')}
+                  />
                 ))}
               </div>
-            </div>
+            </TravelPlanSection>
 
-            {/* Food & Drinks */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Restaurants */}
-              <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6 flex items-center">
-                  <Utensils className="mr-2" /> Recommended Restaurants
-                </h4>
+            {/* Bars & Nightlife */}
+            {plan.bars && plan.bars.length > 0 && (
+              <TravelPlanSection>
+                <SectionHeader icon={Utensils} title="Recommended Nightlife" />
                 <div className="space-y-4">
-                  {plan.restaurants.map((restaurant, index) => (
-                    <div key={index} className="border-b border-border pb-4 last:border-0 last:pb-0">
-                      <h6 className="font-medium text-foreground">{restaurant.name}</h6>
-                      <p className="text-sm text-muted-foreground">{restaurant.cuisine} • {restaurant.priceRange}</p>
-                      <p className="text-foreground/90 mt-1 text-sm">{restaurant.description}</p>
-                    </div>
+                  {plan.bars.map((bar, index) => (
+                    <RestaurantItem
+                      key={index}
+                      name={bar.name}
+                      cuisine={bar.category}
+                      priceRange={bar.atmosphere}
+                      description={bar.description}
+                      searchLink={generateGoogleSearchLink(bar.name, 'bar')}
+                    />
                   ))}
                 </div>
-              </div>
-
-              {/* Bars */}
-              {plan.bars && plan.bars.length > 0 && (
-                <div className="bg-card rounded-lg shadow p-6">
-                  <h4 className="mb-6 flex items-center">
-                    <Utensils className="mr-2" /> Recommended Nightlife
-                  </h4>
-                  <div className="space-y-4">
-                    {plan.bars.map((bar, index) => (
-                      <div key={index} className="border-b border-border pb-4 last:border-0 last:pb-0">
-                        <h6 className="font-medium text-foreground">{bar.name}</h6>
-                        <p className="text-sm text-muted-foreground">{bar.category} • {bar.atmosphere}</p>
-                        <p className="text-foreground/90 mt-1 text-sm">{bar.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+              </TravelPlanSection>
+            )}
 
             {/* Weather Information */}
             {plan.weatherInfo && (
-              <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6 flex items-center">
-                  <Compass className="mr-2" /> Weather Analysis
-                </h4>
+              <TravelPlanSection>
+                <SectionHeader icon={Compass} title="Weather Analysis" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h6 className="mb-2 font-medium">Conditions</h6>
@@ -344,58 +341,57 @@ export function AITravelPlan({
                     </div>
                   </div>
                 </div>
-              </div>
+              </TravelPlanSection>
             )}
 
             {/* Must-Try Local Food */}
-            {plan.mustTryFood && (
-              <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6 flex items-center">
-                  <Utensils className="mr-2" /> Food Recommendations
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <h6 className="mb-3 font-medium">Main Dishes</h6>
-                    <ul className="space-y-2">
-                      {plan.mustTryFood.mainDishes?.map((dish, index) => (
-                        <li key={index} className="bg-background-muted rounded p-3 text-sm">
-                          {dish}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h6 className="mb-3 font-medium">Desserts</h6>
-                    <ul className="space-y-2">
-                      {plan.mustTryFood.desserts?.map((dessert, index) => (
-                        <li key={index} className="bg-background-muted rounded p-3 text-sm">
-                          {dessert}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h6 className="mb-3 font-medium">Local Drinks</h6>
-                    <ul className="space-y-2">
-                      {plan.mustTryFood.localAlcohol?.map((drink, index) => (
-                        <li key={index} className="bg-background-muted rounded p-3 text-sm">
-                          {drink}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
+            {plan.mustTryFood && plan.mustTryFood.items && (
+              <TravelPlanSection>
+                <SectionHeader icon={Utensils} title="Food Recommendations" />
+                {(() => {
+                  // Group food items by category
+                  const foodByCategory = plan.mustTryFood.items.reduce((acc, item) => {
+                    const category = item.category;
+                    if (!acc[category]) {
+                      acc[category] = [];
+                    }
+                    acc[category].push(item);
+                    return acc;
+                  }, {} as Record<string, typeof plan.mustTryFood.items>);
+
+                  const categoryTitles: Record<string, string> = {
+                    main: 'Main Dishes',
+                    dessert: 'Desserts',
+                    drink: 'Local Drinks',
+                    snack: 'Snacks'
+                  };
+
+                  return Object.entries(foodByCategory).map(([category, items]) => (
+                    <CategoryGroup key={category} title={categoryTitles[category] || category}>
+                      <div className="space-y-4">
+                        {items.map((item, index) => (
+                          <RestaurantItem
+                            key={index}
+                            name={item.name}
+                            cuisine={item.priceRange || ''}
+                            priceRange={item.whereToFind || ''}
+                            description={item.description}
+                            searchLink={generateGoogleSearchLink(item.name, 'food')}
+                          />
+                        ))}
+                      </div>
+                    </CategoryGroup>
+                  ));
+                })()}
+              </TravelPlanSection>
             )}
 
             {/* Safety & Etiquette */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Safety Tips */}
               {plan.safetyTips && (
-                <div className="bg-card rounded-lg shadow p-6">
-                  <h4 className="mb-6 flex items-center">
-                    <Shield className="mr-2" /> Safety Analysis
-                  </h4>
+                <TravelPlanSection>
+                  <SectionHeader icon={Shield} title="Safety Analysis" />
                   <ul className="space-y-3">
                     {plan.safetyTips.map((tip, index) => (
                       <li key={index} className="flex items-start">
@@ -404,14 +400,12 @@ export function AITravelPlan({
                       </li>
                     ))}
                   </ul>
-                </div>
+                </TravelPlanSection>
               )}
 
               {/* Social Etiquette */}
-              <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6 flex items-center">
-                  <BookOpen className="mr-2" /> Cultural Insights
-                </h4>
+              <TravelPlanSection>
+                <SectionHeader icon={BookOpen} title="Cultural Insights" />
                 <ul className="space-y-3">
                   {plan.socialEtiquette.map((tip, index) => (
                     <li key={index} className="flex items-start">
@@ -420,88 +414,102 @@ export function AITravelPlan({
                     </li>
                   ))}
                 </ul>
-              </div>
+              </TravelPlanSection>
             </div>
 
             {/* Transportation */}
-            <div className="bg-card rounded-lg shadow p-6">
-              <h4 className="mb-6 flex items-center">
-                <Compass className="mr-2" /> Transportation Guide
-              </h4>
-              <div className="space-y-6">
-                <div>
-                  <h6 className="mb-2 font-medium">Public Transportation</h6>
-                  <p className="text-foreground/90 text-sm">{plan.transportationInfo.publicTransport}</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Credit card payments: {plan.transportationInfo.creditCardPayment ? 'Accepted' : 'Not accepted'}
-                  </p>
-                </div>
-                <div>
-                  <h6 className="mb-2 font-medium">Airport Transportation</h6>
-                  <p className="text-sm text-muted-foreground mb-2">{plan.transportationInfo.airportTransport?.mainAirport} - {plan.transportationInfo.airportTransport?.distanceToCity}</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {plan.transportationInfo.airportTransport?.transportOptions?.map((option, index) => (
-                      <div key={index} className="bg-background-muted rounded p-3">
-                        <h6 className="font-medium text-sm">{option.type}</h6>
-                        <p className="text-xs text-muted-foreground">{option.cost} • {option.duration}</p>
-                        <p className="text-xs text-foreground/80 mt-1">{option.description}</p>
-                      </div>
-                    ))}
+            <TravelPlanSection>
+              <SectionHeader icon={Compass} title="Transportation Guide" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Left Column */}
+                <div className="space-y-6">
+                  <div>
+                    <h6 className="mb-2 font-medium">Public Transportation</h6>
+                    <p className="text-foreground/90 text-sm">{plan.transportationInfo.publicTransport}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Credit card payments: {plan.transportationInfo.creditCardPayment ? 'Accepted' : 'Not accepted'}
+                    </p>
+                  </div>
+                  <div>
+                    <h6 className="mb-2 font-medium">Taxis & Rideshares</h6>
+                    <p className="text-foreground/90 text-sm">{plan.transportationInfo.ridesharing}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Average cost: {plan.transportationInfo.taxiInfo?.averageCost}
+                    </p>
+                    {plan.transportationInfo.taxiInfo?.tips && (
+                      <ul className="mt-2 space-y-1">
+                        {plan.transportationInfo.taxiInfo.tips.map((tip, index) => (
+                          <li key={index} className="flex items-start text-xs">
+                            <span className="text-primary mr-1">•</span>
+                            <span className="text-foreground/80">{tip}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </div>
+                
+                {/* Right Column */}
                 <div>
-                  <h6 className="mb-2 font-medium">Taxis & Rideshares</h6>
-                  <p className="text-foreground/90 text-sm">{plan.transportationInfo.ridesharing}</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Average cost: {plan.transportationInfo.taxiInfo?.averageCost}
-                  </p>
-                  {plan.transportationInfo.taxiInfo?.tips && (
-                    <ul className="mt-2 space-y-1">
-                      {plan.transportationInfo.taxiInfo.tips.map((tip, index) => (
-                        <li key={index} className="flex items-start text-xs">
-                          <span className="text-primary mr-1">•</span>
-                          <span className="text-foreground/80">{tip}</span>
-                        </li>
+                  <div>
+                    <h6 className="mb-2 font-medium">Airport Transportation</h6>
+                    <p className="text-sm text-muted-foreground mb-2">{plan.transportationInfo.airportTransport?.mainAirport} - {plan.transportationInfo.airportTransport?.distanceToCity}</p>
+                    <div className="grid grid-cols-1 gap-3">
+                      {plan.transportationInfo.airportTransport?.transportOptions?.map((option, index) => (
+                        <div key={index} className="bg-background-muted rounded p-3">
+                          <h6 className="font-medium text-sm">{option.type}</h6>
+                          <p className="text-xs text-muted-foreground">{option.cost} • {option.duration}</p>
+                          <p className="text-xs text-foreground/80 mt-1">{option.description}</p>
+                        </div>
                       ))}
-                    </ul>
-                  )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </TravelPlanSection>
 
             {/* Currency & Payments */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Local Currency */}
-              <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6 flex items-center">
-                  <CreditCard className="mr-2" /> Payment Guide
-                </h4>
+              <TravelPlanSection>
+                <SectionHeader icon={CreditCard} title="Payment Guide" />
                 <p className="text-foreground">
                   The local currency is <span className="font-medium">{plan.localCurrency.currency}</span>.
                   {plan.localCurrency.cashNeeded ? ' Cash is recommended for some purchases.' : ' Credit cards are widely accepted.'}
                 </p>
-                <p className="text-sm text-foreground/80 mt-2">{plan.localCurrency.creditCardUsage}</p>
+                {plan.localCurrency.exchangeRate && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                    <h6 className="text-sm font-medium text-blue-800">Current Exchange Rate</h6>
+                    <p className="text-sm text-blue-700">
+                      1 {plan.localCurrency.exchangeRate.from} = {plan.localCurrency.exchangeRate.rate} {plan.localCurrency.exchangeRate.to}
+                    </p>
+                  </div>
+                )}
                 {plan.localCurrency.tips && plan.localCurrency.tips.length > 0 && (
                   <div className="mt-4">
                     <h6 className="mb-2 font-medium">Money Tips:</h6>
                     <ul className="space-y-2">
+                      <li className="flex items-start">
+                        <span className="text-sm mr-2">•</span>
+                        <span className="text-sm mr-2">Credit card widely accepted?</span>
+
+                      </li>
+                      <span className="text-sm ml-4">{plan.localCurrency.creditCardUsage}</span>
                       {plan.localCurrency.tips.map((tip, index) => (
                         <li key={index} className="flex items-start">
-                          <span className="text-primary mr-2">•</span>
-                          <span className="text-foreground text-sm">{tip}</span>
+                          <span className="text-sm mr-2">•</span>
+                          <span className="text-sm">{tip}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
-              </div>
+              </TravelPlanSection>
 
               {/* Tipping Etiquette */}
               {plan.tipEtiquette && (
-                <div className="bg-card rounded-lg shadow p-6">
-                  <h4 className="mb-6 flex items-center">
-                    <CreditCard className="mr-2" /> Tipping Guide
-                  </h4>
+                <TravelPlanSection>
+                  <SectionHeader icon={CreditCard} title="Tipping Guide" />
                   <div className="space-y-3">
                     {Object.entries(plan.tipEtiquette).map(([category, tip], index) => (
                       <div key={index}>
@@ -510,16 +518,14 @@ export function AITravelPlan({
                       </div>
                     ))}
                   </div>
-                </div>
+                </TravelPlanSection>
               )}
             </div>
 
             {/* Tap Water Safety */}
             {plan.tapWaterSafe && (
-              <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6 flex items-center">
-                  <Droplets className="mr-2" /> Water Safety
-                </h4>
+              <TravelPlanSection>
+                <SectionHeader icon={Droplets} title="Water Safety" />
                 <div className="flex items-start">
                   <div className={`flex-shrink-0 h-6 w-6 ${plan.tapWaterSafe.safe ? 'text-green-500' : 'text-yellow-500'}`}>
                     {plan.tapWaterSafe.safe ? (
@@ -533,65 +539,65 @@ export function AITravelPlan({
                     )}
                   </div>
                   <div className="ml-3">
-                    <h3 className="text-lg font-medium text-foreground">
+                    <p>
                       {plan.tapWaterSafe.safe ? 'Tap water is safe to drink' : 'Tap water is not recommended for drinking'}
-                    </h3>
-                    <p className="mt-1 text-foreground/80">{plan.tapWaterSafe.details}</p>
+                    </p>
                   </div>
                 </div>
-              </div>
+              </TravelPlanSection>
             )}
 
             {/* Local Events */}
             {plan.localEvents && plan.localEvents.length > 0 && (
-              <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6 flex items-center">
-                  <Calendar className="mr-2" /> Local Events During Your Visit
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <TravelPlanSection>
+                <SectionHeader icon={Calendar} title="Local Events During Your Visit" />
+                <ItemGrid columns={3}>
                   {plan.localEvents.map((event, index) => (
-                    <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <h3 className="text-lg font-semibold text-foreground">{event.name}</h3>
-                      <p className="text-muted-foreground text-sm mt-1">{event.type} • {event.dates}</p>
-                      <p className="text-foreground/90 mt-2 text-sm">{event.description}</p>
-                      <p className="text-xs text-muted-foreground mt-2">📍 {event.location}</p>
-                    </div>
+                    <ItemCard
+                      key={index}
+                      title={event.name}
+                      subtitle={`${event.type} • ${event.dates}`}
+                      description={event.description}
+                      metadata={`📍 ${event.location}`}
+                    />
                   ))}
-                </div>
-              </div>
+                </ItemGrid>
+              </TravelPlanSection>
             )}
 
             {/* Historical Context */}
             {plan.history && (
-              <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6 flex items-center">
-                  <BookOpen className="mr-2" /> Historical Context
-                </h4>
+              <TravelPlanSection>
+                <SectionHeader icon={BookOpen} title="Historical Context" />
                 <p className="text-foreground/90">{plan.history}</p>
-              </div>
+              </TravelPlanSection>
             )}
 
             {/* Local Activities */}
             {plan.activities && (
-              <div className="bg-card rounded-lg shadow p-6">
-                <h4 className="mb-6 flex items-center">
-                  <Compass className="mr-2" /> Curated Local Experiences
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {plan.activities.map((activity, index) => (
-                    <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <h3 className="text-lg font-semibold text-foreground">{activity.name}</h3>
-                      <p className="text-muted-foreground text-sm mt-1">{activity.type} • {activity.duration}</p>
-                      <p className="text-foreground/90 mt-2 text-sm">{activity.description}</p>
-                      {activity.localSpecific && (
-                        <span className="inline-block mt-2 px-2 py-1 bg-primary/10 text-primary text-xs rounded">
-                          Local Specialty
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <TravelPlanSection>
+                <SectionHeader icon={Compass} title="Curated Local Experiences" />
+                <ItemGrid columns={2}>
+                  {plan.activities.map((activity, index) => {
+                    const tags = [];
+                    if (activity.localSpecific) tags.push('Local Specialty');
+                    if (activity.experienceType && activity.experienceType !== 'other') {
+                      tags.push(activity.experienceType.charAt(0).toUpperCase() + activity.experienceType.slice(1));
+                    }
+                    
+                    return (
+                      <ItemCard
+                        key={index}
+                        title={activity.name}
+                        subtitle={`${activity.type} • ${activity.duration}`}
+                        description={activity.description}
+                        searchLink={activity.bookingLink}
+                        tags={tags}
+                      />
+                    );
+                  })}
+                </ItemGrid>
+              </TravelPlanSection>
             )}
           </div>
         )}

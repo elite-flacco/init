@@ -55,7 +55,7 @@
 
   /* Links */
   a {
-    @apply font-medium text-primary hover:text-primary transition-colors duration-150;
+    @apply font-medium text-primary hover:text-primary-dark transition-colors duration-150;
   }
 
   /* Forms */
