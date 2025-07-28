@@ -359,32 +359,69 @@ export const generateTransportationInfo = (): TransportationInfo => ({
   publicTransport: 'Efficient metro and bus system covering the entire city with frequent service.',
   creditCardPayment: true,
   airportTransport: {
-    mainAirport: 'Main International Airport',
-    distanceToCity: '25 km (15 miles) from city center',
-    transportOptions: [
+    airports: [
       {
-        type: 'Airport Express Train',
-        cost: '$12-15',
-        duration: '30 minutes',
-        description: 'Fastest option, runs every 15 minutes'
+        name: 'Main International Airport',
+        code: 'MIA',
+        distanceToCity: '25 km (15 miles) from city center',
+        transportOptions: [
+          {
+            type: 'Airport Express Train',
+            cost: '$12-15',
+            duration: '30 minutes',
+            description: 'Fastest option, runs every 15 minutes',
+            notes: ['Purchase tickets at machines or online', 'Connects directly to city center']
+          },
+          {
+            type: 'Airport Bus',
+            cost: '$5-8',
+            duration: '45-60 minutes',
+            description: 'Budget-friendly, multiple stops in city',
+            notes: ['Stops at major hotels and landmarks', 'Can be crowded during peak hours']
+          },
+          {
+            type: 'Taxi',
+            cost: '$40-60',
+            duration: '30-45 minutes',
+            description: 'Door-to-door service, price varies with traffic',
+            notes: ['Be careful with unofficial taxis', 'Use only licensed taxi services', 'Price may increase significantly in traffic']
+          },
+          {
+            type: 'Rideshare',
+            cost: '$25-40',
+            duration: '30-45 minutes',
+            description: 'App-based service, price varies with demand',
+            notes: ['Follow pickup instructions carefully', 'Price surge during peak times']
+          }
+        ]
       },
       {
-        type: 'Airport Bus',
-        cost: '$5-8',
-        duration: '45-60 minutes',
-        description: 'Budget-friendly, multiple stops in city'
-      },
-      {
-        type: 'Taxi',
-        cost: '$40-60',
-        duration: '30-45 minutes',
-        description: 'Door-to-door service, price varies with traffic'
-      },
-      {
-        type: 'Rideshare',
-        cost: '$25-40',
-        duration: '30-45 minutes',
-        description: 'App-based service, price varies with demand'
+        name: 'Secondary Regional Airport',
+        code: 'SRA',
+        distanceToCity: '45 km (28 miles) from city center',
+        transportOptions: [
+          {
+            type: 'Airport Shuttle',
+            cost: '$8-12',
+            duration: '60-75 minutes',
+            description: 'Shared shuttle service to city center',
+            notes: ['Book in advance for better rates', 'Multiple pickup points in city']
+          },
+          {
+            type: 'Taxi',
+            cost: '$60-80',
+            duration: '45-60 minutes',
+            description: 'Direct service to destination',
+            notes: ['More expensive due to distance', 'Consider splitting cost with other passengers']
+          },
+          {
+            type: 'Car Rental',
+            cost: '$25-45/day',
+            duration: '45-60 minutes',
+            description: 'Rental car for flexibility',
+            notes: ['International driving permit required', 'Parking can be expensive in city center']
+          }
+        ]
       }
     ]
   },
@@ -825,14 +862,62 @@ export const generateDevMockData = (): {
         publicTransport: 'Excellent rail system',
         creditCardPayment: false,
         airportTransport: {
-          mainAirport: 'Narita International',
-          distanceToCity: '60km from city center',
-          transportOptions: [
+          airports: [
             {
-              type: 'Narita Express',
-              cost: '¥3,070',
-              duration: '60 minutes',
-              description: 'Direct train to central Tokyo'
+              name: 'Narita International Airport',
+              code: 'NRT',
+              distanceToCity: '60km (37 miles) from city center',
+              transportOptions: [
+                {
+                  type: 'Narita Express',
+                  cost: '¥3,070',
+                  duration: '60 minutes',
+                  description: 'Direct train to central Tokyo',
+                  notes: ['Reserve seats in advance', 'Most convenient for luggage']
+                },
+                {
+                  type: 'Airport Limousine Bus',
+                  cost: '¥1,000-1,300',
+                  duration: '60-90 minutes',
+                  description: 'Direct bus to major hotels and areas',
+                  notes: ['Stops at multiple locations', 'Can be slow in traffic']
+                },
+                {
+                  type: 'Taxi',
+                  cost: '¥20,000-30,000',
+                  duration: '60-90 minutes',
+                  description: 'Door-to-door service',
+                  notes: ['Very expensive option', 'Payment by cash or card accepted', 'Price varies with traffic']
+                }
+              ]
+            },
+            {
+              name: 'Haneda Airport',
+              code: 'HND',
+              distanceToCity: '20km (12 miles) from city center',
+              transportOptions: [
+                {
+                  type: 'Tokyo Monorail',
+                  cost: '¥500',
+                  duration: '30 minutes',
+                  description: 'Monorail to Hamamatsucho Station',
+                  notes: ['Transfer required to reach most destinations', 'Scenic route over Tokyo Bay']
+                },
+                {
+                  type: 'Keikyu Line',
+                  cost: '¥300-600',
+                  duration: '30-45 minutes',
+                  description: 'Direct train to various Tokyo stations',
+                  notes: ['Multiple destination options', 'More affordable than monorail']
+                },
+                {
+                  type: 'Taxi',
+                  cost: '¥6,000-8,000',
+                  duration: '30-45 minutes',
+                  description: 'Closest airport to city center',
+                  notes: ['Still expensive but more reasonable than Narita', 'Cash preferred']
+                }
+              ]
             }
           ]
         },

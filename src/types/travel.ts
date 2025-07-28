@@ -144,13 +144,18 @@ export interface HotelRecommendation {
 export interface TransportationInfo {
   publicTransport: string;
   creditCardPayment: boolean;
-  airportTransport: AirportTransport;
+  airportTransport: AirportTransportInfo;
   ridesharing: string;
   taxiInfo: TaxiInfo;
 }
 
-export interface AirportTransport {
-  mainAirport: string;
+export interface AirportTransportInfo {
+  airports: Airport[];
+}
+
+export interface Airport {
+  name: string;
+  code: string;
   distanceToCity: string;
   transportOptions: TransportOption[];
 }
@@ -160,6 +165,7 @@ export interface TransportOption {
   cost: string;
   duration: string;
   description: string;
+  notes?: string[];
 }
 
 export interface TaxiInfo {

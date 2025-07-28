@@ -35,15 +35,15 @@ export const commonDestinationQuestions: Question[] = [
         options: [
             {
                 label: 'Long weekend warrior (3-5 days)',
-                value: 'short trip 3-5 days'
+                value: '3-5 days'
             },
             {
                 label: 'Can only get one week off work',
-                value: 'one week vacation'
+                value: '7-10 days'
             },
             {
                 label: 'I\'ve got time!',
-                value: 'extended travel multiple weeks'
+                value: '10+ days'
             }
         ]
     },

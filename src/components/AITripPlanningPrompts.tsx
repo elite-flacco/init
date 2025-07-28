@@ -86,8 +86,10 @@ export function AITripPlanningPrompts({
         activities: [],
         accommodation: answers.accommodation || '',
         transportation: answers.transportation || '',
-        wantRestaurants: answers.restaurants === 'Yes please! - I live to eat 🤤',
-        wantBars: answers.bars === 'Absolutely! - It\'s 5 o\'clock somewhere! 🍹',
+        // wantRestaurants: answers.restaurants === 'Yes please! - I live to eat 🤤',
+        // wantBars: answers.bars === 'Absolutely! - It\'s 5 o\'clock somewhere! 🍹',
+        wantRestaurants: true,
+        wantBars: true,
         tripType: pickDestinationPreferences?.tripType || 'leisure',
         // Explorer specific answers
         activityLevel: answers.activityLevel,

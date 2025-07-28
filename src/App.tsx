@@ -246,9 +246,14 @@ function App() {
         {currentStep === 'plan' && aiTripPlanningResponse && selectedTravelerType && (
           (() => {
             // Create a default destination if user said they know where to go but no destination was selected
+            // Try to extract destination name from AI response if available
+            const destinationName = aiTripPlanningResponse.plan?.destination?.name || 
+                                   selectedDestination?.name || 
+                                   '';
+            
             const destination = selectedDestination || {
               id: 'user-destination',
-              name: 'Your Destination',
+              name: destinationName,
               country: 'Unknown',
               description: 'Your chosen destination',
               image: '',

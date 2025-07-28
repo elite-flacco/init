@@ -4,7 +4,7 @@ import { Destination, TravelerType, ItineraryDay, Activity } from '../types/trav
 import { AITripPlanningResponse } from '../services/aiTripPlanningService';
 import { TravelPlanSection } from './ui/TravelPlanSection';
 import { SectionHeader } from './ui/SectionHeader';
-import { ItemCard } from './ui/ItemCard';
+import { ItemCard, BookingLink } from './ui/ItemCard';
 import { ItemGrid } from './ui/ItemGrid';
 import { CategoryGroup } from './ui/CategoryGroup';
 
@@ -39,6 +39,24 @@ export function AITravelPlan({
   const generateAirbnbLink = (neighborhood: string) => {
     const query = encodeURIComponent(`${neighborhood} ${destination.name}`);
     return `https://www.airbnb.com/s/${query}/homes`;
+  };
+
+  const generateBookingLinks = (activityName: string): BookingLink[] => {
+    const query = encodeURIComponent(`${activityName} ${destination.name}`);
+    return [
+      {
+        platform: 'airbnb' as const,
+        url: `https://www.airbnb.com/s/experiences?query=${query}`
+      },
+      {
+        platform: 'getyourguide' as const,
+        url: `https://www.getyourguide.com/s/?q=${query}`
+      },
+      {
+        platform: 'viator' as const,
+        url: `https://www.viator.com/searchResults/all?text=${query}`
+      }
+    ];
   };
 
   // Helper function to get icon component based on icon name
@@ -191,14 +209,14 @@ export function AITravelPlan({
                 }, {} as Record<string, typeof plan.placesToVisit>);
 
                 return Object.entries(placesByCategory || {}).map(([category, places]) => (
-                  <CategoryGroup key={category} title={category}>
+                  <CategoryGroup key={category} title={category.charAt(0).toUpperCase() + category.slice(1)}>
                     <ItemGrid columns={2}>
                       {places?.map((place, index) => (
                         <ItemCard
                           key={index}
                           title={place.name}
                           description={place.description}
-                          searchLink={generateGoogleMapsLink(place.name)}
+                          searchLink={generateGoogleSearchLink(place.name)}
                         />
                       ))}
                     </ItemGrid>
@@ -220,7 +238,7 @@ export function AITravelPlan({
                       description={neighborhood.summary}
                     >
                       <div className="mt-4">
-                        <p className="italic mb-2">Best for: {neighborhood.bestFor}</p>
+                        <p className="italic mb-2">Best for: {neighborhood.bestFor.slice(9)}</p>
                         <p className="font-bold text-success mt-4">Pros:</p>
                         <ul className="text-foreground/80">
                           {neighborhood.pros.map((pro, idx) => (
@@ -264,7 +282,7 @@ export function AITravelPlan({
                             title={hotel.name}
                             subtitle={hotel.priceRange}
                             description={hotel.description}
-                            searchLink={generateGoogleMapsLink(hotel.name)}
+                            searchLink={generateGoogleSearchLink(hotel.name)}
                             tags={hotel.amenities}
                           />
                         ))}
@@ -416,7 +434,6 @@ export function AITravelPlan({
                                 <ItemCard
                                   key={index}
                                   title={item.name}
-                                  subtitle={item.priceRange || ''}
                                   description={item.description}
                                   searchLink={generateGoogleSearchLink(item.name, 'food')}
                                   metadata={item.whereToFind ? `📍 ${item.whereToFind}` : undefined}
@@ -488,7 +505,7 @@ export function AITravelPlan({
                         title={activity.name}
                         subtitle={`${activity.type} • ${activity.duration}`}
                         description={activity.description}
-                        searchLink={activity.bookingLink}
+                        bookingLinks={generateBookingLinks(activity.name)}
                         tags={tags}
                       />
                     );
@@ -500,50 +517,81 @@ export function AITravelPlan({
             {/* Transportation */}
             <TravelPlanSection>
               <SectionHeader icon={Compass} title="Transportation Guide" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left Column */}
-                <div className="space-y-6">
-                  <div>
-                    <h6 className="mb-2">Public Transportation</h6>
-                    <p>{plan.transportationInfo.publicTransport}</p>
-                    <p className="mt-1">
-                      Credit card payments: {plan.transportationInfo.creditCardPayment ? 'Accepted' : 'Not accepted'}
-                    </p>
-                  </div>
-                  <div>
-                    <h6 className="mb-2">Taxis & Rideshares</h6>
-                    <p>{plan.transportationInfo.ridesharing}</p>
-                    <p className="mt-1">
-                      Average cost: {plan.transportationInfo.taxiInfo?.averageCost}
-                    </p>
-                    {plan.transportationInfo.taxiInfo?.tips && (
-                      <ul className="mt-2 space-y-1">
-                        {plan.transportationInfo.taxiInfo.tips.map((tip, index) => (
-                          <li key={index} className="flex items-start text-xs">
-                            <p className="text-primary mr-1">•</p>
-                            <p className="text-foreground/80">{tip}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-
-                {/* Right Column */}
+              
+              {/* City Transportation - Balanced 2-column layout */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
-                  <div>
-                    <h6 className="mb-2">Airport Transportation</h6>
-                    <p>{plan.transportationInfo.airportTransport?.mainAirport} - {plan.transportationInfo.airportTransport?.distanceToCity}</p>
-                    <div className="grid grid-cols-1 gap-3">
-                      {plan.transportationInfo.airportTransport?.transportOptions?.map((option, index) => (
-                        <div key={index} className="bg-background-muted rounded p-3 mt-2">
-                          <p className="font-semibold mb-2">{option.type}</p>
-                          <p>{option.cost} • {option.duration}</p>
-                          <p className="mt-1">{option.description}</p>
-                        </div>
+                  <h6 className="mb-3">Public Transportation</h6>
+                  <p className="mb-2">{plan.transportationInfo.publicTransport}</p>
+                  <p className="text-sm">
+                    Credit card payments: <span className="font-medium">{plan.transportationInfo.creditCardPayment ? 'Accepted' : 'Not accepted'}</span>
+                  </p>
+                </div>
+                
+                <div>
+                  <h6 className="mb-3">Taxis & Rideshares</h6>
+                  <p className="mb-2">{plan.transportationInfo.ridesharing}</p>
+                  <p className="mb-2 text-sm">
+                    Average cost: <span className="font-medium">{plan.transportationInfo.taxiInfo?.averageCost}</span>
+                  </p>
+                  {plan.transportationInfo.taxiInfo?.tips && (
+                    <ul className="space-y-1">
+                      {plan.transportationInfo.taxiInfo.tips.map((tip, index) => (
+                        <li key={index} className="flex items-start text-sm">
+                          <span className="text-primary mr-2 mt-0.5">•</span>
+                          <span className="text-foreground/80">{tip}</span>
+                        </li>
                       ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+
+              {/* Airport Transportation - Full width dedicated section */}
+              <div className="border-t border-border pt-6">
+                <h6 className="mb-4">Airport Transportation</h6>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {plan.transportationInfo.airportTransport?.airports?.map((airport, airportIndex) => (
+                    <div key={airportIndex} className="border border-border rounded-lg p-5">
+                      <div className="mb-4">
+                        <h6>{airport.name}</h6>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="bg-primary/10 text-primary text-2xs p-1 rounded">{airport.code}</span>
+                          <span>{airport.distanceToCity}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {airport.transportOptions?.map((option, optionIndex) => (
+                          <div key={optionIndex} className="bg-background-muted rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <p className="font-semibold">{option.type}</p>
+                              <div className="text-right text-sm">
+                                <div className="font-medium">{option.cost}</div>
+                                <div className="text-text-muted">{option.duration}</div>
+                              </div>
+                            </div>
+                            
+                            <span className="mb-3">{option.description}</span>
+                            
+                            {option.notes && option.notes.length > 0 && (
+                              <div className="bg-foreground/5 border rounded p-3 mt-4">
+                                <p className="font-medium mb-2">💡 Important Notes:</p>
+                                <ul className="space-y-1">
+                                  {option.notes.map((note, noteIndex) => (
+                                    <li key={noteIndex} className="flex items-start">
+                                      <span className="mr-2">•</span>
+                                      <span>{note}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </TravelPlanSection>
@@ -552,7 +600,7 @@ export function AITravelPlan({
             {plan.weatherInfo && (
               <TravelPlanSection>
                 <SectionHeader icon={Compass} title="Be Prepared for the Weather" />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
                     <h6 className="mb-2">Conditions</h6>
                     <p>{plan.weatherInfo.temperature} • {plan.weatherInfo.conditions}</p>
@@ -568,7 +616,7 @@ export function AITravelPlan({
                       <ul className="space-y-1 mt-1">
                         {plan.weatherInfo.recommendations?.map((rec, index) => (
                           <li key={index} className="flex items-start text-sm">
-                            <p className="text-primary mr-2">•</p>
+                            <p className="mr-2">•</p>
                             <p className="text-foreground/90">{rec}</p>
                           </li>
                         ))}
@@ -588,7 +636,7 @@ export function AITravelPlan({
                   <ul className="space-y-1">
                     {plan.safetyTips.map((tip, index) => (
                       <li key={index} className="flex items-start">
-                        <p className="text-primary mr-2">•</p>
+                        <p className="mr-2">•</p>
                         <p>{tip}</p>
                       </li>
                     ))}
@@ -602,7 +650,7 @@ export function AITravelPlan({
                 <ul className="space-y-1">
                   {plan.socialEtiquette.map((tip, index) => (
                     <li key={index} className="flex items-start">
-                      <p className="text-primary mr-2">•</p>
+                      <p className="mr-2">•</p>
                       <p>{tip}</p>
                     </li>
                   ))}
@@ -634,14 +682,14 @@ export function AITravelPlan({
                     <h6 className="mb-2">Money Tips:</h6>
                     <ul className="space-y-1">
                       <li className="flex items-start">
-                        <p className="text-sm mr-2">•</p>
+                        <p className="mr-2">•</p>
                         <p>Credit card widely accepted?</p>
 
                       </li>
                       <span className="text-sm ml-4">{plan.localCurrency.creditCardUsage}</span>
                       {plan.localCurrency.tips.map((tip, index) => (
                         <li key={index} className="flex items-start">
-                          <p className="text-sm mr-2">•</p>
+                          <p className="mr-2">•</p>
                           <p>{tip}</p>
                         </li>
                       ))}
@@ -657,7 +705,7 @@ export function AITravelPlan({
                   <div className="space-y-1">
                     {Object.entries(plan.tipEtiquette).map(([category, tip], index) => (
                       <div key={index} className="mb-2">
-                        <p className="font-bold">{category}:</p>
+                        <p className="font-semibold">{category.charAt(0).toUpperCase() + category.slice(1)}:</p>
                         <p>{tip}</p>
                       </div>
                     ))}
@@ -673,7 +721,7 @@ export function AITravelPlan({
                 <div className="flex items-start">
                   <div>
                     <p>
-                      {plan.tapWaterSafe.safe ? 'Tap water is safe to drink' : 'Tap water is not recommended for drinking'}
+                      {plan.tapWaterSafe.safe ? 'Tap water is safe to drink.' : 'Tap water is not recommended for drinking.'}
                     </p>
                   </div>
                 </div>
