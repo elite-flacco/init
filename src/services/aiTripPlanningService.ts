@@ -79,13 +79,21 @@ class AITripPlanningService {
     };
   }
 
-  private async callAI(prompt: string): Promise<string> {
+  private async callAI(prompt: string, request: AITripPlanningRequest): Promise<string> {
     const { provider, apiKey } = this.config;
     
     if (provider === 'mock' || !apiKey) {
-      // Mock response for development
+      // Mock response for development - return valid JSON structure
       await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 3000));
-      return `I've crafted a personalized travel plan that perfectly matches your preferences and travel style. Each recommendation has been carefully selected to ensure you have an authentic and memorable experience while considering your budget, time constraints, and personal interests.`;
+      
+      // Import the mock data generator dynamically to avoid circular imports
+      const { generateTravelPlan } = await import('../data/mock/travelData');
+      
+      // Use the actual request data for mock generation to make it more realistic
+      const mockPlan = generateTravelPlan(request.destination, request.preferences, request.travelerType);
+      
+      // Return as JSON string to match what AI APIs would return
+      return JSON.stringify(mockPlan);
     }
 
     // TODO: Implement actual AI API calls
@@ -470,6 +478,7 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
         itinerary: parsedData.itinerary || []
       };
 
+      // Generate dynamic personalizations based on traveler type and preferences
       const personalizations: string[] = [
         `Generated comprehensive travel plan for ${request.destination.name}`,
         `Tailored recommendations for ${request.travelerType.name} traveler type`,
@@ -477,7 +486,6 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
         'Included local insights and authentic experiences'
       ];
 
-      console.log('Successfully parsed AI response as JSON!');
       return { plan, personalizations };
     } catch (error) {
       console.log('Error parsing AI response as JSON:', error);
@@ -498,7 +506,7 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
   async generateTravelPlan(request: AITripPlanningRequest): Promise<AITripPlanningResponse> {
     try {
       const prompt = this.generatePrompt(request);
-      const aiResponse = await this.callAI(prompt);
+      const aiResponse = await this.callAI(prompt, request);
       
       // Try to parse the AI response as structured JSON - will throw error if parsing fails
       const parsedResult = this.parseAIResponse(aiResponse, request);
