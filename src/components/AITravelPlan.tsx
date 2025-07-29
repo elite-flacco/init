@@ -3,7 +3,7 @@ import { Sparkles, MapPin, Utensils, Compass, Download, Share2, RefreshCw, Home,
 import { Destination, TravelerType, ItineraryDay, Activity } from '../types/travel';
 import { AITripPlanningResponse } from '../services/aiTripPlanningService';
 import { PdfExportService } from '../services/pdfExportService';
-import { KMLExportService } from '../services/kmlExportService';
+// import { KMLExportService } from '../services/kmlExportService';
 import { TravelPlanSection } from './ui/TravelPlanSection';
 import { SectionHeader } from './ui/SectionHeader';
 import { ItemCard, BookingLink } from './ui/ItemCard';
@@ -25,6 +25,8 @@ export function AITravelPlan({
 }: AITravelPlanProps) {
   const [activeTab, setActiveTab] = useState<'itinerary' | 'info'>('itinerary');
   const [isExportingKML, setIsExportingKML] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
 
   const { plan } = aiResponse;
 
@@ -51,16 +53,16 @@ export function AITravelPlan({
       
       // First try with real coordinates, but with a shorter timeout
       try {
-        await KMLExportService.downloadKML(plan, undefined, { 
-          useRealCoordinates: true 
-        });
+        // await KMLExportService.downloadKML(plan, undefined, { 
+        //   useRealCoordinates: true 
+        // });
         console.log('KML export with real coordinates completed successfully');
       } catch (geocodingError) {
         console.warn('Real coordinates failed, falling back to approximate locations:', geocodingError);
         // Fallback to approximate coordinates if geocoding fails
-        await KMLExportService.downloadKML(plan, undefined, { 
-          useRealCoordinates: false 
-        });
+        // await KMLExportService.downloadKML(plan, undefined, { 
+        //   useRealCoordinates: false 
+        // });
         console.log('KML export with approximate coordinates completed successfully');
       }
       
@@ -69,6 +71,50 @@ export function AITravelPlan({
       alert('Failed to generate KML file. Please try again.');
     } finally {
       setIsExportingKML(false);
+    }
+  };
+
+  const handleShare = async () => {
+    setIsSharing(true);
+    try {
+      const response = await fetch('/api/shared-plans', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          destination,
+          travelerType,
+          aiResponse,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create shared plan');
+      }
+
+      const { shareUrl: newShareUrl } = await response.json();
+      setShareUrl(newShareUrl);
+
+      // Copy to clipboard
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(newShareUrl);
+        alert('Share link copied to clipboard!');
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = newShareUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert(`Share link created: ${newShareUrl}`);
+      }
+    } catch (error) {
+      console.error('Error creating share link:', error);
+      alert('Failed to create share link. Please try again.');
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -187,10 +233,16 @@ export function AITravelPlan({
               )}
             </button>
             <button
-              className="flex items-center p-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
-              onClick={() => console.log('Share clicked')}
+              className="flex items-center px-4 py-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleShare}
+              disabled={isSharing}
+              title="Share this travel plan"
             >
-              <Share2 className="w-4 h-4" />
+              {isSharing ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent"></div>
+              ) : (
+                <Share2 className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>

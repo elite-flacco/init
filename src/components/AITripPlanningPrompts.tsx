@@ -65,10 +65,10 @@ export function AITripPlanningPrompts({
       name: answers.destination || 'Your Destination',
       country: 'Unknown',
       description: 'Your chosen destination',
-      image: '',
-      highlights: [],
+      image: '/images/placeholder-destination.jpg',
+      highlights: ['User selected destination'],
       bestTime: 'Year-round',
-      budget: '3-4 days'
+      budget: '$$$'
     } : null);
 
     if (!effectiveDestination) {
@@ -110,6 +110,14 @@ export function AITripPlanningPrompts({
         stressLevel: answers.stressLevel,
       };
 
+      console.log('Calling AI trip planning service with:', {
+        destination: effectiveDestination,
+        preferences,
+        travelerType,
+        destinationKnowledge,
+        pickDestinationPreferences
+      });
+
       const aiResponse = await aiTripPlanningService.generateTravelPlan({
         destination: effectiveDestination,
         preferences,
@@ -117,6 +125,8 @@ export function AITripPlanningPrompts({
         destinationKnowledge,
         pickDestinationPreferences
       });
+
+      console.log('AI response received:', aiResponse);
 
       onComplete(aiResponse);
     } catch (error) {
