@@ -11,7 +11,12 @@ describe('AI Services Integration', () => {
   describe('aiDestinationService', () => {
     it('should return valid recommendations in mock mode', async () => {
       const request = {
-        travelerType: mockTravelerTypes.culture
+        travelerType: mockTravelerTypes.culture,
+        destinationKnowledge: {
+          type: 'no-clue' as const,
+          label: 'No idea where to go',
+          description: 'I want help choosing a destination'
+        }
       }
 
       const response = await aiDestinationService.getDestinationRecommendations(request)
@@ -26,7 +31,12 @@ describe('AI Services Integration', () => {
 
     it('should filter destinations by traveler type', async () => {
       const adventureRequest = {
-        travelerType: mockTravelerTypes.adventure
+        travelerType: mockTravelerTypes.adventure,
+        destinationKnowledge: {
+          type: 'no-clue' as const,
+          label: 'No idea where to go',
+          description: 'I want help choosing a destination'
+        }
       }
 
       const response = await aiDestinationService.getDestinationRecommendations(adventureRequest)
@@ -91,7 +101,12 @@ describe('AI Services Integration', () => {
     it('should handle network errors gracefully', async () => {
       // This test verifies that both services can handle errors without crashing
       const destinationRequest = {
-        travelerType: mockTravelerTypes.culture
+        travelerType: mockTravelerTypes.culture,
+        destinationKnowledge: {
+          type: 'no-clue' as const,
+          label: 'No idea where to go',
+          description: 'I want help choosing a destination'
+        }
       }
 
       const tripRequest = {
