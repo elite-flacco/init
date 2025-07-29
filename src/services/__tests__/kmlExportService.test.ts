@@ -205,6 +205,7 @@ describe('KMLExportService', () => {
     expect(kml).toContain('Day 1: Tokyo National Museum');
     expect(kml).toContain('<Point>');
     expect(kml).toContain('<coordinates>');
+    expect(kml).toContain('Search on Google Maps');
   });
 
   it('should include places to visit placemarks', async () => {
@@ -216,6 +217,7 @@ describe('KMLExportService', () => {
     expect(kml).toContain('Ancient Buddhist temple');
     expect(kml).toContain('<Point>');
     expect(kml).toContain('<coordinates>');
+    expect(kml).toContain('Search on Google Maps');
   });
 
   it('should include restaurant placemarks', async () => {
@@ -227,6 +229,7 @@ describe('KMLExportService', () => {
     expect(kml).toContain('Reservations recommended');
     expect(kml).toContain('<Point>');
     expect(kml).toContain('<coordinates>');
+    expect(kml).toContain('Search on Google Maps');
   });
 
   it('should include bar placemarks', async () => {
@@ -237,6 +240,7 @@ describe('KMLExportService', () => {
     expect(kml).toContain('High-end cocktail bar with city views');
     expect(kml).toContain('<Point>');
     expect(kml).toContain('<coordinates>');
+    expect(kml).toContain('Search on Google Maps');
   });
 
   it('should include hotel placemarks', async () => {
@@ -247,6 +251,7 @@ describe('KMLExportService', () => {
     expect(kml).toContain('Luxury hotel with city views');
     expect(kml).toContain('<Point>');
     expect(kml).toContain('<coordinates>');
+    expect(kml).toContain('Search on Google Maps');
   });
 
   it('should properly escape XML characters', async () => {

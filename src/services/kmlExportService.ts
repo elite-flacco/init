@@ -25,6 +25,14 @@ export class KMLExportService {
       .replace(/'/g, '&#39;');
   }
 
+  /**
+   * Generate Google Maps search link for a place
+   */
+  private static generateGoogleMapsLink(placeName: string, cityName: string, countryName: string): string {
+    const query = encodeURIComponent(`${placeName}, ${cityName}, ${countryName}`);
+    return `https://www.google.com/maps/search/${query}`;
+  }
+
   // Default coordinates for major cities (longitude, latitude)
   private static cityCoordinates: Record<string, Coordinates> = {
     'tokyo': { longitude: 139.6917, latitude: 35.6895 },
@@ -101,11 +109,15 @@ export class KMLExportService {
     for (const day of plan.itinerary) {
       for (const activity of day.activities) {
         const name = `Day ${day.day}: ${activity.title}`;
+        const searchQuery = activity.location || activity.title;
+        const mapsLink = this.generateGoogleMapsLink(searchQuery, plan.destination.name, plan.destination.country);
+        
         const description = `<div>
 <h3>${this.escapeXML(activity.title)}</h3>
 <p><b>Time:</b> ${this.escapeXML(activity.time)}</p>
 ${activity.location ? `<p><b>Location:</b> ${this.escapeXML(activity.location)}</p>` : ''}
 ${activity.description ? `<p>${this.escapeXML(activity.description)}</p>` : ''}
+<p><a href="${mapsLink}" target="_blank">🗺️ Search on Google Maps</a></p>
 </div>`;
         
         let coords: Coordinates;
@@ -141,11 +153,13 @@ ${placemarks}
     const baseCoords = this.getDestinationCoordinates(plan.destination.name);
     
     for (const place of plan.placesToVisit) {
+      const mapsLink = this.generateGoogleMapsLink(place.name, plan.destination.name, plan.destination.country);
+      
       const description = `<div>
 <h3>${this.escapeXML(place.name)}</h3>
 <p><b>Category:</b> ${this.escapeXML(place.category)}</p>
 <p>${this.escapeXML(place.description)}</p>
-<p><b>Priority:</b> ${place.priority}/5</p>
+<p><a href="${mapsLink}" target="_blank">🗺️ Search on Google Maps</a></p>
 </div>`;
       
       let coords: Coordinates;
@@ -180,6 +194,8 @@ ${placemarks}
     const baseCoords = this.getDestinationCoordinates(plan.destination.name);
     
     for (const restaurant of plan.restaurants) {
+      const mapsLink = this.generateGoogleMapsLink(restaurant.name, plan.destination.name, plan.destination.country);
+      
       const description = `<div>
 <h3>${this.escapeXML(restaurant.name)}</h3>
 <p><b>Cuisine:</b> ${this.escapeXML(restaurant.cuisine)}</p>
@@ -188,6 +204,7 @@ ${restaurant.neighborhood ? `<p><b>Neighborhood:</b> ${this.escapeXML(restaurant
 <p>${this.escapeXML(restaurant.description)}</p>
 ${restaurant.specialDishes ? `<p><b>Must Try:</b> ${this.escapeXML(restaurant.specialDishes.join(', '))}</p>` : ''}
 ${restaurant.reservationsRecommended === 'Yes' ? '<p><b>Reservations recommended</b></p>' : ''}
+<p><a href="${mapsLink}" target="_blank">🗺️ Search on Google Maps</a></p>
 </div>`;
       
       let coords: Coordinates;
@@ -222,6 +239,8 @@ ${placemarks}
     const baseCoords = this.getDestinationCoordinates(plan.destination.name);
     
     for (const bar of plan.bars) {
+      const mapsLink = this.generateGoogleMapsLink(bar.name, plan.destination.name, plan.destination.country);
+      
       const description = `<div>
 <h3>${this.escapeXML(bar.name)}</h3>
 <p><b>Type:</b> ${this.escapeXML(bar.type)}</p>
@@ -229,6 +248,7 @@ ${placemarks}
 <p><b>Atmosphere:</b> ${this.escapeXML(bar.atmosphere)}</p>
 ${bar.neighborhood ? `<p><b>Neighborhood:</b> ${this.escapeXML(bar.neighborhood)}</p>` : ''}
 <p>${this.escapeXML(bar.description)}</p>
+<p><a href="${mapsLink}" target="_blank">🗺️ Search on Google Maps</a></p>
 </div>`;
       
       let coords: Coordinates;
@@ -263,12 +283,15 @@ ${placemarks}
     const baseCoords = this.getDestinationCoordinates(plan.destination.name);
     
     for (const hotel of plan.hotelRecommendations) {
+      const mapsLink = this.generateGoogleMapsLink(hotel.name, plan.destination.name, plan.destination.country);
+      
       const description = `<div>
 <h3>${this.escapeXML(hotel.name)}</h3>
 <p><b>Neighborhood:</b> ${this.escapeXML(hotel.neighborhood)}</p>
 <p><b>Price Range:</b> ${this.escapeXML(hotel.priceRange)}</p>
 <p>${this.escapeXML(hotel.description)}</p>
 ${hotel.amenities ? `<p><b>Amenities:</b> ${this.escapeXML(hotel.amenities.join(', '))}</p>` : ''}
+<p><a href="${mapsLink}" target="_blank">🗺️ Search on Google Maps</a></p>
 </div>`;
       
       let coords: Coordinates;
