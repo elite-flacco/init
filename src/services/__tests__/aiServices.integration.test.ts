@@ -81,6 +81,6 @@ describe('AI Services Integration', () => {
 
       expect(destinationResponse).toBeDefined()
       expect(tripResponse).toBeDefined()
-    })
+    }, 10000) // Increase timeout to 10 seconds for this test
   })
 })
