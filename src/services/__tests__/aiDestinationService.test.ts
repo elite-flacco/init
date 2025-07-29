@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi, beforeAll } from 'vitest'
 import { aiDestinationService } from '../aiDestinationService'
-import { mockTravelerTypes, mockDestinationKnowledge, mockPickDestinationPreferences, mockAIResponse, mockFetchResponse, resetMocks } from '../../test/mocks'
+import { mockTravelerTypes, mockDestinationKnowledge, mockPickDestinationPreferences, mockFetchResponse, resetMocks } from '../../test/mocks'
 
 // Type declaration for Node.js global
 declare const global: typeof globalThis & { fetch: typeof globalThis.fetch };
