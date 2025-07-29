@@ -5,28 +5,43 @@ on:
     branches: [ main, master ]
   push:
     branches: [ main, master ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.mdx'
+      - '**/.gitignore'
+      - '**/.gitattributes'
+      - '**/.editorconfig'
 
 jobs:
   test:
+    name: Run Tests
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
-        python-version: '3.11'
+        node-version: '20'
+        cache: 'npm'
     
-    - name: Install uv
-      uses: astral-sh/setup-uv@v3
+    - name: Install Dependencies
+      run: npm ci
     
-    - name: Set up environment
-      run: |
-        uv venv
-        uv pip install -e ".[test]"
+    - name: Run Linter
+      run: npm run lint
     
-    - name: Run tests
-      run: |
-        source .venv/bin/activate
-        uv run pytest --cov=core --cov=. --cov-report=term-missing
+    - name: Run Tests
+      run: npm run test:run
+      
+    - name: Run Test Coverage
+      run: npm run test:coverage
+      
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-report
+        path: coverage/
+        retention-days: 7
