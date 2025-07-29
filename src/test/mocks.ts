@@ -1,68 +1,16 @@
-import { TravelerType, Destination, PickDestinationPreferences, TripPreferences, DestinationKnowledge } from '../types/travel'
+import { Destination, PickDestinationPreferences, TripPreferences, DestinationKnowledge } from '../types/travel'
+import { destinations } from '../data/mock/destinations'
+import { travelerTypesLookup } from '../data/mock/travelerTypes'
+import { generateTravelPlan } from '../data/mock/travelData'
 
-export const mockTravelerTypes: Record<string, TravelerType> = {
-  explorer: {
-    id: 'explorer',
-    name: 'YOLO Traveler',
-    description: 'Spontaneous and adventurous, goes with the flow',
-    icon: '🚀',
-    showPlaceholder: false
-  },
-  adventure: {
-    id: 'adventure',
-    name: 'Adventure Seeker',
-    description: 'Loves outdoor activities and thrilling experiences',
-    icon: '🏔️',
-    showPlaceholder: false
-  },
-  culture: {
-    id: 'culture',
-    name: 'Culture Explorer',
-    description: 'Fascinated by history, art, and local traditions',
-    icon: '🏛️',
-    showPlaceholder: false
-  },
-  relaxation: {
-    id: 'relaxation',
-    name: 'Relaxation Seeker',
-    description: 'Prefers peaceful and rejuvenating experiences',
-    icon: '🧘',
-    showPlaceholder: false
-  }
-}
+// Re-export centralized mock data for tests
+export const mockTravelerTypes = travelerTypesLookup;
 
-export const mockDestinations: Record<string, Destination> = {
-  paris: {
-    id: 'paris',
-    name: 'Paris',
-    country: 'France',
-    description: 'The City of Light, famous for its art, fashion, and cuisine',
-    image: '/images/paris.jpg',
-    highlights: ['Eiffel Tower', 'Louvre Museum', 'Notre-Dame Cathedral'],
-    bestTime: 'April to June, September to October',
-    budget: '€80-150 per day'
-  },
-  tokyo: {
-    id: 'tokyo',
-    name: 'Tokyo',
-    country: 'Japan',
-    description: 'A bustling metropolis blending traditional and modern culture',
-    image: '/images/tokyo.jpg',
-    highlights: ['Shibuya Crossing', 'Senso-ji Temple', 'Tokyo Skytree'],
-    bestTime: 'March to May, September to November',
-    budget: '¥8,000-15,000 per day'
-  },
-  bali: {
-    id: 'bali',
-    name: 'Bali',
-    country: 'Indonesia',
-    description: 'Tropical paradise with beautiful beaches and rich culture',
-    image: '/images/bali.jpg',
-    highlights: ['Uluwatu Temple', 'Rice Terraces', 'Mount Batur'],
-    bestTime: 'April to October',
-    budget: '$30-80 per day'
-  }
-}
+// Use centralized destinations and convert to lookup object
+export const mockDestinations: Record<string, Destination> = destinations.reduce((acc, dest) => {
+  acc[dest.id] = dest;
+  return acc;
+}, {} as Record<string, Destination>);
 
 export const mockDestinationKnowledge: DestinationKnowledge = {
   type: 'no-clue',
@@ -96,24 +44,35 @@ export const mockTripPreferences: TripPreferences = {
   spontaneity: 'planned'
 }
 
-export const mockAIResponse = {
-  openai: {
-    choices: [
-      {
-        message: {
-          content: 'Based on your preferences, I recommend these destinations for cultural exploration with moderate activity levels. Each destination offers rich history and authentic experiences.'
+// Generate dynamic AI response using centralized mock data
+function generateMockAIResponse() {
+  const mockDestination = destinations[0]; // Use first destination
+  const mockTravelerType = mockTravelerTypes.culture;
+  const mockPreferences = mockTripPreferences;
+  
+  const travelPlan = generateTravelPlan(mockDestination, mockPreferences, mockTravelerType);
+  
+  return {
+    openai: {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify(travelPlan)
+          }
         }
-      }
-    ]
-  },
-  anthropic: {
-    content: [
-      {
-        text: 'I\'ve analyzed your travel preferences and created personalized recommendations that match your cultural interests and moderate activity level.'
-      }
-    ]
-  }
+      ]
+    },
+    anthropic: {
+      content: [
+        {
+          text: JSON.stringify(travelPlan)
+        }
+      ]
+    }
+  };
 }
+
+export const mockAIResponse = generateMockAIResponse();
 
 // Helper function to create mock fetch responses
 export const mockFetchResponse = (data: unknown, ok = true, status = 200) => {
