@@ -26,7 +26,6 @@ const destinationOptions: DestinationKnowledge[] = [
 
 export function DestinationKnowledgeSelection({ onSelect }: DestinationKnowledgeSelectionProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   useEffect(() => {
     // Trigger the entrance animation
@@ -71,8 +70,8 @@ export function DestinationKnowledgeSelection({ onSelect }: DestinationKnowledge
                   onSelect(option);
                 }
               }}
-              onMouseEnter={() => setHoveredCard(option.type)}
-              onMouseLeave={() => setHoveredCard(null)}
+              onMouseEnter={() => {}}
+              onMouseLeave={() => {}}
               className="option-card-inner h-full"
               role="button"
               tabIndex={0}

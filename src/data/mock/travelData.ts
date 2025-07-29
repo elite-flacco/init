@@ -10,7 +10,6 @@ import {
   TipEtiquette, 
   RecommendedActivity, 
   MustTryFood, 
-  TapWaterInfo, 
   LocalEvent,
   Bar
 } from '../../types/travel';
@@ -231,7 +230,7 @@ export const generateRestaurants = (destination: Destination, preferences: TripP
   return restaurants;
 };
 
-export const generateBars = (destination: Destination, preferences: TripPreferences): Bar[] => {
+export const generateBars = (destination: Destination): Bar[] => {
   const bars: Bar[] = [
     {
       name: `${destination.name} Craft Brewery`,
@@ -284,7 +283,7 @@ export const generateWeatherInfo = (): WeatherInfo => ({
   recommendations: ['Pack an umbrella', 'Bring a light jacket', 'Stay hydrated', 'Layer your clothing']
 });
 
-export const generateNeighborhoods = (destination: Destination): Neighborhood[] => [
+export const generateNeighborhoods = (): Neighborhood[] => [
   {
     name: 'Historic District',
     summary: 'The heart of the old city with cobblestone streets and historic architecture',
@@ -311,7 +310,7 @@ export const generateNeighborhoods = (destination: Destination): Neighborhood[] 
   }
 ];
 
-export const generateHotelRecommendations = (destination: Destination, preferences: TripPreferences): HotelRecommendation[] => [
+export const generateHotelRecommendations = (destination: Destination): HotelRecommendation[] => [
   {
     name: `${destination.name} Grand Hotel`,
     neighborhood: 'Historic District',
@@ -611,7 +610,7 @@ export const generateItinerary = (destination: Destination, days: number) => {
   return itinerary;
 };
 
-export const generateLocalEvents = (destination: Destination): LocalEvent[] => [
+export const generateLocalEvents = (): LocalEvent[] => [
   {
     name: 'Annual Cultural Festival',
     type: 'Cultural',
@@ -645,10 +644,10 @@ export const generateTravelPlan = (
   return {
     destination,
     placesToVisit: generatePlacesToVisit(destination, preferences),
-    neighborhoods: generateNeighborhoods(destination),
-    hotelRecommendations: generateHotelRecommendations(destination, preferences),
+    neighborhoods: generateNeighborhoods(),
+    hotelRecommendations: generateHotelRecommendations(destination),
     restaurants: generateRestaurants(destination, preferences),
-    bars: preferences.wantBars ? generateBars(destination, preferences) : [],
+    bars: preferences.wantBars ? generateBars(destination) : [],
     weatherInfo: generateWeatherInfo(),
     socialEtiquette: generateSocialEtiquette(),
     safetyTips: generateSafetyTips(destination, travelerType),
@@ -658,7 +657,7 @@ export const generateTravelPlan = (
     activities: generateActivities(destination, travelerType),
     mustTryFood: generateMustTryFood(destination),
     tapWaterSafe: generateTapWaterInfo(destination),
-    localEvents: generateLocalEvents(destination),
+    localEvents: generateLocalEvents(),
     history: `${destination.name} has a rich history spanning centuries, with influences from various cultures and periods. The city has evolved from its ancient origins to become a modern destination while preserving its cultural heritage and traditions.`,
     itinerary: generateItinerary(destination, days)
   };

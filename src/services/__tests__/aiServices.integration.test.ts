@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { aiDestinationService } from '../aiDestinationService'
 import { aiTripPlanningService } from '../aiTripPlanningService'
 import { mockTravelerTypes, mockDestinations, mockTripPreferences, resetMocks } from '../../test/mocks'

@@ -3,10 +3,9 @@ import { TravelerType } from '../types/travel';
 
 interface PlaceholderMessageProps {
   travelerType: TravelerType;
-  onContinue?: () => void;
 }
 
-export function PlaceholderMessage({ travelerType, onContinue }: PlaceholderMessageProps) {
+export function PlaceholderMessage({ travelerType }: PlaceholderMessageProps) {
   if (!travelerType.showPlaceholder || !travelerType.placeholderMessage) {
     return null;
   }

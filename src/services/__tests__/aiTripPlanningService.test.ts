@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { aiTripPlanningService } from '../aiTripPlanningService'
 import { mockTravelerTypes, mockDestinations, mockDestinationKnowledge, mockPickDestinationPreferences, mockTripPreferences, mockAIResponse, mockFetchResponse, resetMocks } from '../../test/mocks'
+import { Destination } from '../../types/travel';
 
 // Mock the AI config
 vi.mock('../config/ai', () => ({
@@ -40,7 +41,7 @@ vi.mock('../../data/mock/travelData', () => ({
       recommendations: ['Pack an umbrella']
     },
     socialEtiquette: ['Greet with a handshake'],
-    hotelRecommendation: {
+    hotelRecommendations: {
       name: 'Grand Hotel',
       area: 'Downtown',
       priceRange: '$$$',
@@ -83,8 +84,8 @@ vi.mock('../../data/mock/travelData', () => ({
     ],
     mustTryFood: ['Local Specialty'],
     safetyTips: ['Be aware of surroundings'],
-    tippingEtiquette: { Restaurants: '10-15%' },
-    tapWater: {
+    tipEtiquette: { Restaurants: '10-15%' },
+    tapWaterSafe: {
       safe: true,
       details: 'Tap water is safe to drink'
     }
@@ -124,15 +125,15 @@ describe('aiTripPlanningService', () => {
         expect(plan.bars).toBeInstanceOf(Array)
         expect(plan.weatherInfo).toBeDefined()
         expect(plan.socialEtiquette).toBeInstanceOf(Array)
-        expect(plan.hotelRecommendation).toBeDefined()
+        expect(plan.hotelRecommendations).toBeDefined()
         expect(plan.transportationInfo).toBeDefined()
         expect(plan.localCurrency).toBeDefined()
         expect(plan.activities).toBeInstanceOf(Array)
         expect(plan.itinerary).toBeInstanceOf(Array)
         expect(plan.mustTryFood).toBeInstanceOf(Array)
         expect(plan.safetyTips).toBeInstanceOf(Array)
-        expect(plan.tippingEtiquette).toBeDefined()
-        expect(plan.tapWater).toBeDefined()
+        expect(plan.tipEtiquette).toBeDefined()
+        expect(plan.tapWaterSafe).toBeDefined()
       })
 
       it('should generate personalizations for YOLO traveler', async () => {
@@ -293,7 +294,7 @@ describe('aiTripPlanningService', () => {
         const mockFetch = vi.fn().mockResolvedValue(
           mockFetchResponse(mockAIResponse.openai)
         )
-        global.fetch = mockFetch
+        globalThis.fetch = mockFetch
 
         const { aiTripPlanningService: mockedService } = await import('../aiTripPlanningService')
 
@@ -321,7 +322,7 @@ describe('aiTripPlanningService', () => {
           status: 429,
           statusText: 'Too Many Requests'
         })
-        global.fetch = mockFetch
+        globalThis.fetch = mockFetch
 
         const { aiTripPlanningService: mockedService } = await import('../aiTripPlanningService')
 
@@ -351,7 +352,7 @@ describe('aiTripPlanningService', () => {
         const mockFetch = vi.fn().mockResolvedValue(
           mockFetchResponse(mockAIResponse.anthropic)
         )
-        global.fetch = mockFetch
+        globalThis.fetch = mockFetch
 
         const { aiTripPlanningService: mockedService } = await import('../aiTripPlanningService')
 
@@ -448,7 +449,7 @@ describe('aiTripPlanningService', () => {
       it('should handle missing destination gracefully', async () => {
         const invalidRequest = {
           ...baseRequest,
-          destination: undefined as any
+          destination: undefined as unknown as Destination
         }
 
         await expect(
@@ -466,7 +467,7 @@ describe('aiTripPlanningService', () => {
         }))
 
         const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'))
-        global.fetch = mockFetch
+        globalThis.fetch = mockFetch
 
         const { aiTripPlanningService: mockedService } = await import('../aiTripPlanningService')
 

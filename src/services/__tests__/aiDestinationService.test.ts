@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { aiDestinationService } from '../aiDestinationService'
-import { mockTravelerTypes, mockDestinations, mockDestinationKnowledge, mockPickDestinationPreferences, mockAIResponse, mockFetchResponse, resetMocks } from '../../test/mocks'
+import { mockTravelerTypes, mockDestinationKnowledge, mockPickDestinationPreferences, mockAIResponse, mockFetchResponse, resetMocks } from '../../test/mocks'
 
 // Mock the AI config
 vi.mock('../config/ai', () => ({

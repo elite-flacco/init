@@ -116,7 +116,7 @@ export const mockAIResponse = {
 }
 
 // Helper function to create mock fetch responses
-export const mockFetchResponse = (data: any, ok = true, status = 200) => {
+export const mockFetchResponse = (data: unknown, ok = true, status = 200) => {
   return Promise.resolve({
     ok,
     status,
@@ -129,6 +129,6 @@ export const mockFetchResponse = (data: any, ok = true, status = 200) => {
 export const resetMocks = () => {
   vi.clearAllMocks()
   if (global.fetch) {
-    (global.fetch as any).mockReset()
+    (global.fetch as unknown).mockReset()
   }
 }

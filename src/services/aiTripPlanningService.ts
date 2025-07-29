@@ -4,7 +4,10 @@ import {
   TravelerType, 
   DestinationKnowledge, 
   PickDestinationPreferences,
-  EnhancedTravelPlan as ImportedEnhancedTravelPlan
+  EnhancedTravelPlan as ImportedEnhancedTravelPlan,
+  HotelRecommendation,
+  Restaurant,
+  Activity
 } from '../types/travel';
 import { getAIConfig } from '../config/ai';
 
@@ -382,7 +385,7 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
           // Strategy 3: Look for JSON starting after common prefixes
           const patterns = [
             /(?:here's the|here is the|response:|plan:)\s*(\{[\s\S]*\})/i,
-            /json\s*[:\-]\s*(\{[\s\S]*\})/i,
+            /json\s*[:-]\s*(\{[\s\S]*\})/i,
             /(\{[\s\S]*\})/
           ];
           
@@ -436,11 +439,11 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
         destination: request.destination,
         placesToVisit: parsedData.placesToVisit || [],
         neighborhoods: parsedData.neighborhoods || [],
-        hotelRecommendations: (parsedData.hotelRecommendations || []).map((hotel: any) => ({
+        hotelRecommendations: (parsedData.hotelRecommendations || []).map((hotel: HotelRecommendation) => ({
           ...hotel,
           airbnbLink: hotel.airbnbLink || this.generateAirbnbLink(hotel.neighborhood, request.destination.name)
         })),
-        restaurants: (parsedData.restaurants || []).map((restaurant: any) => ({
+        restaurants: (parsedData.restaurants || []).map((restaurant: Restaurant) => ({
           ...restaurant,
           specialDishes: restaurant.specialDishes || []
         })),
@@ -454,7 +457,7 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
           exchangeRate: parsedData.localCurrency?.exchangeRate || this.generateExchangeRate(parsedData.localCurrency?.currency)
         },
         tipEtiquette: parsedData.tipEtiquette || {},
-        activities: (parsedData.activities || []).map((activity: any) => ({
+        activities: (parsedData.activities || []).map((activity: Activity) => ({
           ...activity,
           experienceType: activity.experienceType || 'other'
         })),

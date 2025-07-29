@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AITripPlanningPrompts } from '../AITripPlanningPrompts'
 import { mockTravelerTypes, mockDestinations, mockDestinationKnowledge, mockPickDestinationPreferences, resetMocks } from '../../test/mocks'
+import { TripPreferences, WeatherInfo, TransportationInfo, TapWaterInfo, TipEtiquette, CurrencyInfo } from '../../types/travel';
 
 // Mock the AI service
 vi.mock('../../services/aiTripPlanningService', () => ({
@@ -13,7 +14,7 @@ vi.mock('../../services/aiTripPlanningService', () => ({
 
 // Mock the ProgressiveForm component
 vi.mock('../ProgressiveForm', () => ({
-  ProgressiveForm: ({ onComplete, title, subtitle }: any) => (
+  ProgressiveForm: ({ onComplete, title, subtitle }: { onComplete: (answers: TripPreferences) => void; title: string; subtitle: string }) => (
     <div data-testid="progressive-form">
       <h1>{title}</h1>
       <p>{subtitle}</p>
@@ -21,8 +22,13 @@ vi.mock('../ProgressiveForm', () => ({
         onClick={() => onComplete({
           accommodation: 'hotel',
           transportation: 'public transport',
-          restaurants: 'Yes please! - I live to eat 🤤',
-          bars: 'No thanks'
+          wantRestaurants: true,
+          wantBars: false,
+          duration: '7 days',
+          budget: 'mid-range',
+          tripType: 'cultural',
+          timeOfYear: 'Summer',
+          activities: []
         })}
       >
         Complete Form
@@ -42,6 +48,20 @@ const defaultProps = {
   onComplete: mockOnComplete,
   onBack: mockOnBack
 }
+
+// Use mock objects for tipEtiquette and tapWaterSafe:
+const mockTipEtiquette: TipEtiquette = {
+  restaurants: '',
+  bars: '',
+  taxis: '',
+  hotels: '',
+  tours: '',
+  general: ''
+};
+const mockTapWaterSafe: TapWaterInfo = {
+  safe: true,
+  details: '',
+};
 
 describe('AITripPlanningPrompts', () => {
   beforeEach(() => {
@@ -64,7 +84,26 @@ describe('AITripPlanningPrompts', () => {
     // Mock a delayed response
     vi.mocked(aiTripPlanningService.generateTravelPlan).mockImplementation(
       () => new Promise(resolve => setTimeout(() => resolve({
-        plan: {} as any,
+        plan: {
+          destination: mockDestinations.paris,
+          neighborhoods: [],
+          hotelRecommendations: [],
+          tipEtiquette: mockTipEtiquette,
+          placesToVisit: [],
+          restaurants: [],
+          bars: [],
+          weatherInfo: {} as WeatherInfo,
+          socialEtiquette: [],
+          safetyTips: [],
+          transportationInfo: {} as TransportationInfo,
+          localCurrency: {} as CurrencyInfo,
+          activities: [],
+          mustTryFood: { items: [] },
+          tapWaterSafe: mockTapWaterSafe,
+          localEvents: [],
+          history: '',
+          itinerary: []
+        },
         reasoning: 'Generated plan',
         confidence: 0.9,
         personalizations: []
@@ -85,20 +124,24 @@ describe('AITripPlanningPrompts', () => {
     
     const mockResponse = {
       plan: {
-        itinerary: [],
+        destination: mockDestinations.paris,
+        neighborhoods: [],
+        hotelRecommendations: [],
+        tipEtiquette: mockTipEtiquette,
         placesToVisit: [],
         restaurants: [],
         bars: [],
-        weatherInfo: {} as any,
+        weatherInfo: {} as WeatherInfo,
         socialEtiquette: [],
-        hotelRecommendation: {} as any,
-        transportationInfo: {} as any,
-        localCurrency: {} as any,
-        activities: [],
-        mustTryFood: [],
         safetyTips: [],
-        tippingEtiquette: {},
-        tapWater: {} as any
+        transportationInfo: {} as TransportationInfo,
+        localCurrency: {} as CurrencyInfo,
+        activities: [],
+        mustTryFood: { items: [] },
+        tapWaterSafe: mockTapWaterSafe,
+        localEvents: [],
+        history: '',
+        itinerary: []
       },
       reasoning: 'Perfect plan generated',
       confidence: 0.92,
@@ -239,7 +282,26 @@ describe('AITripPlanningPrompts', () => {
     
     vi.mocked(aiTripPlanningService.generateTravelPlan).mockImplementation(
       () => new Promise(resolve => setTimeout(() => resolve({
-        plan: {} as any,
+        plan: {
+          destination: mockDestinations.paris,
+          neighborhoods: [],
+          hotelRecommendations: [],
+          tipEtiquette: mockTipEtiquette,
+          placesToVisit: [],
+          restaurants: [],
+          bars: [],
+          weatherInfo: {} as WeatherInfo,
+          socialEtiquette: [],
+          safetyTips: [],
+          transportationInfo: {} as TransportationInfo,
+          localCurrency: {} as CurrencyInfo,
+          activities: [],
+          mustTryFood: { items: [] },
+          tapWaterSafe: mockTapWaterSafe,
+          localEvents: [],
+          history: '',
+          itinerary: []
+        },
         reasoning: 'Generated',
         confidence: 0.9,
         personalizations: []
@@ -257,7 +319,26 @@ describe('AITripPlanningPrompts', () => {
     const { aiTripPlanningService } = await import('../../services/aiTripPlanningService')
     
     vi.mocked(aiTripPlanningService.generateTravelPlan).mockResolvedValue({
-      plan: {} as any,
+      plan: {
+        destination: mockDestinations.paris,
+        neighborhoods: [],
+        hotelRecommendations: [],
+        tipEtiquette: mockTipEtiquette,
+        placesToVisit: [],
+        restaurants: [],
+        bars: [],
+        weatherInfo: {} as WeatherInfo,
+        socialEtiquette: [],
+        safetyTips: [],
+        transportationInfo: {} as TransportationInfo,
+        localCurrency: {} as CurrencyInfo,
+        activities: [],
+        mustTryFood: { items: [] },
+        tapWaterSafe: mockTapWaterSafe,
+        localEvents: [],
+        history: '',
+        itinerary: []
+      },
       reasoning: 'Perfect',
       confidence: 0.9,
       personalizations: []

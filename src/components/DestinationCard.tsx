@@ -5,11 +5,10 @@ import { Card } from './ui/Card';
 
 interface DestinationCardProps {
   destination: Destination;
-  onSelect: (destination: Destination) => void;
   onViewDetails: (destination: Destination) => void;
 }
 
-export function DestinationCard({ destination, onSelect, onViewDetails }: DestinationCardProps) {
+export function DestinationCard({ destination, onViewDetails }: DestinationCardProps) {
   const handleCardClick = () => {
     onViewDetails(destination);
   };

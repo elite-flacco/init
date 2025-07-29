@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { DestinationCard } from './DestinationCard';
 import { DestinationDetailsModal } from './DestinationDetailsModal';
 import { Destination } from '../types/travel';
@@ -19,7 +19,7 @@ export function AIDestinationRecommendationResults({
 }: AIDestinationRecommendationResultsProps) {
   const [selectedDestinationForModal, setSelectedDestinationForModal] = useState<Destination | null>(null);
 
-  const { destinations, reasoning } = aiResponse;
+  const { destinations } = aiResponse;
 
 
   const handleViewDetails = (destination: Destination) => {

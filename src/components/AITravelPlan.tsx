@@ -26,7 +26,7 @@ export function AITravelPlan({
   const [activeTab, setActiveTab] = useState<'itinerary' | 'info'>('itinerary');
   const [isExportingKML, setIsExportingKML] = useState(false);
 
-  const { plan, reasoning, confidence, personalizations } = aiResponse;
+  const { plan } = aiResponse;
 
   const handleExportToPdf = async () => {
     try {
@@ -73,19 +73,9 @@ export function AITravelPlan({
   };
 
   // Helper functions to generate search links dynamically
-  const generateGoogleMapsLink = (placeName: string) => {
-    const query = encodeURIComponent(`${placeName} ${destination.name}`);
-    return `https://www.google.com/maps/search/${query}`;
-  };
-
   const generateGoogleSearchLink = (itemName: string, type = '') => {
     const query = encodeURIComponent(`${itemName} ${type} ${destination.name}`);
     return `https://www.google.com/search?q=${query}`;
-  };
-
-  const generateAirbnbLink = (neighborhood: string) => {
-    const query = encodeURIComponent(`${neighborhood} ${destination.name}`);
-    return `https://www.airbnb.com/s/${query}/homes`;
   };
 
   const generateBookingLinks = (activityName: string): BookingLink[] => {
