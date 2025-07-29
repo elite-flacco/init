@@ -15,7 +15,12 @@ export class GeocodingService {
   /**
    * Geocode a place name to get real coordinates
    */
-  static async geocodePlace(placeName: string, cityName: string, countryName: string): Promise<GeocodingResult> {
+  static async geocodePlace(
+    placeName: string, 
+    cityName: string, 
+    countryName: string,
+    placeType?: 'restaurant' | 'hotel' | 'attraction' | 'bar' | 'activity'
+  ): Promise<GeocodingResult> {
     const cacheKey = `${placeName}-${cityName}-${countryName}`.toLowerCase();
     
     // Check cache first
@@ -31,14 +36,11 @@ export class GeocodingService {
     }
 
     try {
-      // Try multiple search queries with decreasing specificity
-      const searchQueries = [
-        `${placeName}, ${cityName}, ${countryName}`,
-        `${placeName}, ${cityName}`,
-        `${placeName}, ${countryName}`,
-        placeName
-      ];
+      // Generate search queries based on place type for better accuracy
+      const searchQueries = this.generateSearchQueries(placeName, cityName, countryName, placeType);
 
+      const cityCoords = this.getCityFallbackCoordinates(cityName);
+      
       for (const query of searchQueries) {
         // Add timeout to prevent hanging
         const result = await Promise.race([
@@ -49,8 +51,14 @@ export class GeocodingService {
         ]);
         
         if (result.found) {
-          this.cache.set(cacheKey, result);
-          return result;
+          // Validate that the result is geographically reasonable (within ~100km of city center)
+          if (this.isCoordinateReasonable(result.coordinates, cityCoords, cityName)) {
+            this.cache.set(cacheKey, result);
+            return result;
+          } else {
+            console.warn(`Geocoding result for "${placeName}" is too far from ${cityName}:`, result.coordinates);
+            // Continue to next query instead of using this result
+          }
         }
       }
 
@@ -76,6 +84,48 @@ export class GeocodingService {
       this.cache.set(cacheKey, fallbackResult);
       return fallbackResult;
     }
+  }
+
+  /**
+   * Generate search queries optimized for different place types
+   */
+  private static generateSearchQueries(
+    placeName: string, 
+    cityName: string, 
+    countryName: string,
+    placeType?: string
+  ): string[] {
+    const baseQueries = [
+      `${placeName}, ${cityName}, ${countryName}`,
+      `${placeName} ${cityName} ${countryName}`, // Try without commas
+      `${placeName}, ${cityName}`,
+    ];
+
+    // Add type-specific queries for better accuracy
+    if (placeType) {
+      const typeKeywords = {
+        restaurant: ['restaurant', 'dining', 'food'],
+        hotel: ['hotel', 'accommodation', 'lodging'],
+        attraction: ['attraction', 'tourist site', 'landmark'],
+        bar: ['bar', 'pub', 'nightlife'],
+        activity: ['activity', 'tour', 'experience']
+      };
+
+      const keywords = typeKeywords[placeType as keyof typeof typeKeywords] || [];
+      
+      // Add type-specific queries at the beginning (higher priority)
+      keywords.forEach(keyword => {
+        baseQueries.unshift(`${placeName} ${keyword}, ${cityName}, ${countryName}`);
+      });
+    }
+
+    // Add fallback queries
+    baseQueries.push(
+      `${placeName} near ${cityName}, ${countryName}`, // Add "near" for better context
+      `${placeName}, ${countryName}` // Only try country if city-specific searches fail
+    );
+
+    return baseQueries;
   }
 
   private static async performGeocodingRequest(query: string): Promise<GeocodingResult> {
@@ -121,6 +171,69 @@ export class GeocodingService {
       displayName: query,
       found: false
     };
+  }
+
+  /**
+   * Check if coordinates are geographically reasonable for the given city
+   */
+  private static isCoordinateReasonable(
+    coords: Coordinates, 
+    cityCoords: Coordinates, 
+    cityName: string
+  ): boolean {
+    // If city coordinates are not available (0,0), accept any non-zero coordinates
+    if (cityCoords.latitude === 0 && cityCoords.longitude === 0) {
+      return coords.latitude !== 0 || coords.longitude !== 0;
+    }
+
+    // Calculate distance between coordinates using Haversine formula
+    const distance = this.calculateDistance(coords, cityCoords);
+    
+    // Set reasonable distance limits based on city size
+    const maxDistance = this.getMaxDistanceForCity(cityName);
+    
+    const isReasonable = distance <= maxDistance;
+    
+    if (!isReasonable) {
+      console.log(`Distance check: ${distance.toFixed(2)}km from ${cityName} center (max: ${maxDistance}km)`);
+    }
+    
+    return isReasonable;
+  }
+
+  /**
+   * Calculate distance between two coordinates in kilometers
+   */
+  private static calculateDistance(coord1: Coordinates, coord2: Coordinates): number {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (coord2.latitude - coord1.latitude) * Math.PI / 180;
+    const dLon = (coord2.longitude - coord1.longitude) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(coord1.latitude * Math.PI / 180) * Math.cos(coord2.latitude * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  /**
+   * Get maximum reasonable distance from city center based on city size
+   */
+  private static getMaxDistanceForCity(cityName: string): number {
+    const city = cityName.toLowerCase();
+    
+    // Large metropolitan areas
+    if (['tokyo', 'new york', 'london', 'paris', 'los angeles', 'chicago', 'houston'].includes(city)) {
+      return 50; // 50km radius for major metropolitan areas
+    }
+    
+    // Medium cities
+    if (['amsterdam', 'berlin', 'barcelona', 'rome', 'sydney', 'singapore'].includes(city)) {
+      return 30; // 30km radius for medium cities
+    }
+    
+    // Default for other cities
+    return 25; // 25km radius for smaller cities
   }
 
   /**

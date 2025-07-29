@@ -22,7 +22,7 @@ describe('GeocodingService', () => {
       json: async () => mockResponse
     });
 
-    const result = await GeocodingService.geocodePlace('Senso-ji Temple', 'Tokyo', 'Japan');
+    const result = await GeocodingService.geocodePlace('Senso-ji Temple', 'Tokyo', 'Japan', 'attraction');
 
     expect(result.found).toBe(true);
     expect(result.coordinates.latitude).toBe(35.7148);
@@ -133,5 +133,55 @@ describe('GeocodingService', () => {
     await GeocodingService.geocodePlace('Senso-ji Temple', 'Tokyo', 'Japan');
 
     expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('should reject coordinates too far from city center', async () => {
+    // Mock response with coordinates in New York (far from Tokyo)
+    const mockResponse = [{
+      lat: '40.7128',
+      lon: '-74.0060',
+      display_name: 'Some Place, New York, USA'
+    }];
+
+    // Mock multiple responses: first with bad coordinates, then empty results
+    (global.fetch as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse
+      })
+      .mockResolvedValue({
+        ok: true,
+        json: async () => []
+      });
+
+    const result = await GeocodingService.geocodePlace('Test Place', 'Tokyo', 'Japan');
+
+    // Should fallback to Tokyo coordinates since NYC is too far
+    expect(result.found).toBe(false);
+    expect(result.coordinates.latitude).toBe(35.6895); // Tokyo fallback
+    expect(result.coordinates.longitude).toBe(139.6917);
+  });
+
+  it('should use place type for better search queries', async () => {
+    const mockResponse = [{
+      lat: '35.7148',
+      lon: '139.7967',
+      display_name: 'Restaurant Name, Tokyo, Japan'
+    }];
+
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockResponse
+    });
+
+    await GeocodingService.geocodePlace('Restaurant Name', 'Tokyo', 'Japan', 'restaurant');
+
+    // Should have been called with a type-specific query first
+    const firstCall = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    const url = new URL(firstCall[0]);
+    const query = url.searchParams.get('q');
+    
+    // Should include either 'restaurant', 'dining', or 'food' (from the type keywords)
+    expect(query && (query.includes('restaurant') || query.includes('dining') || query.includes('food'))).toBe(true);
   });
 });

@@ -113,7 +113,8 @@ ${activity.description ? `<p>${this.escapeXML(activity.description)}</p>` : ''}
           const geocodingResult = await GeocodingService.geocodePlace(
             activity.location,
             plan.destination.name,
-            plan.destination.country
+            plan.destination.country,
+            'attraction'
           );
           coords = geocodingResult.coordinates;
         } else {
@@ -152,7 +153,8 @@ ${placemarks}
         const geocodingResult = await GeocodingService.geocodePlace(
           place.name,
           plan.destination.name,
-          plan.destination.country
+          plan.destination.country,
+          'attraction'
         );
         coords = geocodingResult.coordinates;
       } else {
@@ -193,7 +195,8 @@ ${restaurant.reservationsRecommended === 'Yes' ? '<p><b>Reservations recommended
         const geocodingResult = await GeocodingService.geocodePlace(
           restaurant.name,
           plan.destination.name,
-          plan.destination.country
+          plan.destination.country,
+          'restaurant'
         );
         coords = geocodingResult.coordinates;
       } else {
@@ -233,7 +236,8 @@ ${bar.neighborhood ? `<p><b>Neighborhood:</b> ${this.escapeXML(bar.neighborhood)
         const geocodingResult = await GeocodingService.geocodePlace(
           bar.name,
           plan.destination.name,
-          plan.destination.country
+          plan.destination.country,
+          'bar'
         );
         coords = geocodingResult.coordinates;
       } else {
@@ -272,7 +276,8 @@ ${hotel.amenities ? `<p><b>Amenities:</b> ${this.escapeXML(hotel.amenities.join(
         const geocodingResult = await GeocodingService.geocodePlace(
           hotel.name,
           plan.destination.name,
-          plan.destination.country
+          plan.destination.country,
+          'hotel'
         );
         coords = geocodingResult.coordinates;
       } else {
