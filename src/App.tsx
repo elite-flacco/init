@@ -11,6 +11,7 @@ import { TravelerType, Destination, DestinationKnowledge, PickDestinationPrefere
 import { AITripPlanningResponse } from './services/aiTripPlanningService';
 import { AIDestinationResponse, aiDestinationService } from './services/aiDestinationService';
 import { generateDevMockData, generateDevMockDestinationData } from './data/mock/travelData';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 type AppStep = 'traveler-type' | 'destination-knowledge' | 'pick-destination' | 'destination-recommendations' | 'planning' | 'plan' | 'placeholder';
 
@@ -81,8 +82,14 @@ function App() {
     try {
       const response = await aiDestinationService.getDestinationRecommendations({
         travelerType: selectedTravelerType,
-        preferences: preferences || pickDestinationPreferences,
-        destinationKnowledge
+        preferences: preferences || pickDestinationPreferences || undefined,
+        destinationKnowledge: destinationKnowledge
+          ? {
+              type: destinationKnowledge.type,
+              label: destinationKnowledge.label || '',
+              description: destinationKnowledge.description || ''
+            }
+          : { type: 'no-clue', label: '', description: '' },
       });
       
       setAiDestinationResponse(response);
@@ -238,10 +245,7 @@ function App() {
         )}
 
         {currentStep === 'placeholder' && selectedTravelerType && (
-          <PlaceholderMessage 
-            travelerType={selectedTravelerType}
-            onContinue={() => setCurrentStep('destination-knowledge')}
-          />
+          <PlaceholderMessage travelerType={selectedTravelerType} />
         )}
 
         {currentStep === 'destination-knowledge' && (
@@ -339,12 +343,14 @@ function App() {
             };
             
             return (
-              <AITravelPlan
-                destination={destination}
-                travelerType={selectedTravelerType}
-                aiResponse={aiTripPlanningResponse}
-                onRegeneratePlan={handleRegeneratePlan}
-              />
+              <ErrorBoundary>
+                <AITravelPlan
+                  destination={destination}
+                  travelerType={selectedTravelerType}
+                  aiResponse={aiTripPlanningResponse}
+                  onRegeneratePlan={handleRegeneratePlan}
+                />
+              </ErrorBoundary>
             );
           })()
         )}
