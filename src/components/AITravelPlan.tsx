@@ -152,28 +152,26 @@ export function AITravelPlan({
           <div className="flex space-x-3 mt-4 md:mt-0">
             <button
               onClick={onRegeneratePlan}
-              className="flex items-center px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors"
+              className="flex items-center p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
             <button
-              className="flex items-center px-4 py-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
+              className="flex items-center p-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
               onClick={handleExportToPdf}
               title="Export to PDF"
             >
-              <FileText className="w-4 h-4 mr-2" />
-              <span className="text-sm">PDF</span>
+              <FileText className="w-4 h-4 " />
             </button>
             <button
-              className="flex items-center px-4 py-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
+              className="flex items-center p-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
               onClick={handleExportToGoogleMaps}
               title="Export to Google Maps (KML)"
             >
-              <Download className="w-4 h-4 mr-2" />
-              <span className="text-sm">KML</span>
+              <Download className="w-4 h-4" />
             </button>
             <button
-              className="flex items-center px-4 py-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
+              className="flex items-center p-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
               onClick={() => console.log('Share clicked')}
             >
               <Share2 className="w-4 h-4" />
