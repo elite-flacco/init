@@ -7,9 +7,9 @@ describe('Basic Service Tests', () => {
     expect(mockTravelerTypes.culture.id).toBe('culture')
     expect(mockTravelerTypes.culture.name).toBe('Culture Explorer')
     
-    expect(mockDestinations.paris).toBeDefined()
-    expect(mockDestinations.paris.id).toBe('paris')
-    expect(mockDestinations.paris.name).toBe('Paris')
+    expect(mockDestinations.tokyo).toBeDefined()
+    expect(mockDestinations.tokyo.id).toBe('tokyo')
+    expect(mockDestinations.tokyo.name).toBe('Tokyo')
     
     expect(mockTripPreferences.duration).toBe('7 days')
     expect(mockTripPreferences.budget).toBe('mid-range')

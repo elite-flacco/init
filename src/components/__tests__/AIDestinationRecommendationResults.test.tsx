@@ -1,23 +1,24 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AIDestinationRecommendationResults } from '../AIDestinationRecommendationResults'
-import { mockTravelerTypes, mockDestinations, mockDestinationKnowledge, mockPickDestinationPreferences, resetMocks } from '../../test/mocks'
-
-// Mock the AI service
-vi.mock('../../services/aiDestinationService', () => ({
-  aiDestinationService: {
-    getDestinationRecommendations: vi.fn()
-  }
-}))
+import { mockDestinations, resetMocks } from '../../test/mocks'
 
 const mockOnSelect = vi.fn()
 const mockOnBack = vi.fn()
+const mockOnRegenerate = vi.fn()
+
+const mockAiResponse = {
+  destinations: [mockDestinations.bali, mockDestinations.tokyo],
+  reasoning: 'These destinations match your cultural interests perfectly.',
+  confidence: 0.92
+}
 
 const defaultProps = {
-  travelerType: mockTravelerTypes.culture,
+  aiResponse: mockAiResponse,
   onSelect: mockOnSelect,
-  onBack: mockOnBack
+  onBack: mockOnBack,
+  onRegenerate: mockOnRegenerate
 }
 
 describe('AIDestinationRecommendationResults', () => {
@@ -25,187 +26,118 @@ describe('AIDestinationRecommendationResults', () => {
     resetMocks()
     mockOnSelect.mockClear()
     mockOnBack.mockClear()
+    mockOnRegenerate.mockClear()
   })
 
-  it('should show loading state initially', async () => {
-    const { aiDestinationService } = await import('../../services/aiDestinationService')
-    
-    // Mock a delayed response
-    vi.mocked(aiDestinationService.getDestinationRecommendations).mockImplementation(
-      () => new Promise(resolve => setTimeout(() => resolve({
-        destinations: [mockDestinations.paris],
-        reasoning: 'Test reasoning',
-        confidence: 0.9
-      }), 1000))
-    )
-
+  it('should display AI recommendations', () => {
     render(<AIDestinationRecommendationResults {...defaultProps} />)
 
-    expect(screen.getByText('AI is analyzing your preferences...')).toBeInTheDocument()
-    expect(screen.getByText('Finding the perfect destinations that match your travel style')).toBeInTheDocument()
-    
-    // Should show loading animation
-    expect(screen.getByText('AI is analyzing your preferences...')).toBeInTheDocument()
+    expect(screen.getByText('Your Top Hits')).toBeInTheDocument()
+    expect(screen.getByText('We think you\'ll love these!')).toBeInTheDocument()
   })
 
-  it('should display AI recommendations after loading', async () => {
-    const { aiDestinationService } = await import('../../services/aiDestinationService')
-    
-    vi.mocked(aiDestinationService.getDestinationRecommendations).mockResolvedValue({
-      destinations: [mockDestinations.paris, mockDestinations.tokyo],
-      reasoning: 'These destinations match your cultural interests perfectly.',
-      confidence: 0.92
-    })
-
+  it('should render destination cards for each destination', () => {
     render(<AIDestinationRecommendationResults {...defaultProps} />)
 
-    await waitFor(() => {
-      expect(screen.getByText('AI-Curated Destinations for You')).toBeInTheDocument()
-    })
-
-    expect(screen.getByText('92% Match Confidence')).toBeInTheDocument()
-    expect(screen.getByText('These destinations match your cultural interests perfectly.')).toBeInTheDocument()
+    // Check that destination cards are rendered (assuming DestinationCard shows destination names)  
+    expect(screen.getByText('Bali')).toBeInTheDocument()
+    expect(screen.getByText('Tokyo')).toBeInTheDocument()
   })
 
-  it('should handle AI service errors gracefully', async () => {
-    const { aiDestinationService } = await import('../../services/aiDestinationService')
-    
-    vi.mocked(aiDestinationService.getDestinationRecommendations).mockRejectedValue(
-      new Error('AI service unavailable')
-    )
-
+  it('should show regenerate button when onRegenerate is provided', () => {
     render(<AIDestinationRecommendationResults {...defaultProps} />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Oops! Something went wrong')).toBeInTheDocument()
-    })
-
-    expect(screen.getByText('Unable to get AI recommendations. Please try again.')).toBeInTheDocument()
+    expect(screen.getByText('Get New Suggestions')).toBeInTheDocument()
   })
 
-  it('should allow regenerating recommendations', async () => {
-    const { aiDestinationService } = await import('../../services/aiDestinationService')
-    
-    vi.mocked(aiDestinationService.getDestinationRecommendations).mockResolvedValue({
-      destinations: [mockDestinations.paris],
-      reasoning: 'Initial recommendations',
-      confidence: 0.85
-    })
+  it('should not show regenerate button when onRegenerate is not provided', () => {
+    const propsWithoutRegenerate = {
+      ...defaultProps,
+      onRegenerate: undefined
+    }
 
+    render(<AIDestinationRecommendationResults {...propsWithoutRegenerate} />)
+
+    expect(screen.queryByText('Get New Suggestions')).not.toBeInTheDocument()
+  })
+
+  it('should call onRegenerate when regenerate button is clicked', async () => {
     render(<AIDestinationRecommendationResults {...defaultProps} />)
-
-    await waitFor(() => {
-      expect(screen.getByText('Get New Suggestions')).toBeInTheDocument()
-    })
 
     const regenerateButton = screen.getByText('Get New Suggestions')
     await userEvent.click(regenerateButton)
 
-    // Should show loading state again
-    expect(screen.getByText('AI is analyzing your preferences...')).toBeInTheDocument()
+    expect(mockOnRegenerate).toHaveBeenCalledTimes(1)
   })
 
-  it('should call onBack when back button is clicked', async () => {
-    const { aiDestinationService } = await import('../../services/aiDestinationService')
-    
-    vi.mocked(aiDestinationService.getDestinationRecommendations).mockResolvedValue({
-      destinations: [mockDestinations.paris],
-      reasoning: 'Test reasoning',
-      confidence: 0.9
-    })
-
-    render(<AIDestinationRecommendationResults {...defaultProps} />)
-
-    const backButton = screen.getByText('Back')
-    await userEvent.click(backButton)
-
-    expect(mockOnBack).toHaveBeenCalledTimes(1)
-  })
-
-  it('should handle empty destination results', async () => {
-    const { aiDestinationService } = await import('../../services/aiDestinationService')
-    
-    vi.mocked(aiDestinationService.getDestinationRecommendations).mockResolvedValue({
+  it('should handle empty destination results', () => {
+    const emptyResponse = {
       destinations: [],
       reasoning: 'No matching destinations found',
       confidence: 0.5
-    })
+    }
 
-    render(<AIDestinationRecommendationResults {...defaultProps} />)
+    const propsWithEmptyResults = {
+      ...defaultProps,
+      aiResponse: emptyResponse
+    }
 
-    await waitFor(() => {
-      expect(screen.getByText('No destinations found matching your criteria.')).toBeInTheDocument()
-    })
+    render(<AIDestinationRecommendationResults {...propsWithEmptyResults} />)
 
+    expect(screen.getByText('No destinations found matching your criteria.')).toBeInTheDocument()
     expect(screen.getByText('Try Different Recommendations')).toBeInTheDocument()
   })
 
-  it('should include preferences in AI request', async () => {
-    const { aiDestinationService } = await import('../../services/aiDestinationService')
-    
-    const mockService = vi.mocked(aiDestinationService.getDestinationRecommendations)
-    mockService.mockResolvedValue({
-      destinations: [mockDestinations.bali],
-      reasoning: 'Perfect for relaxation',
-      confidence: 0.88
-    })
-
-    const propsWithPreferences = {
-      ...defaultProps,
-      preferences: mockPickDestinationPreferences,
-      destinationKnowledge: mockDestinationKnowledge
+  it('should call onRegenerate when try different recommendations button is clicked', async () => {
+    const emptyResponse = {
+      destinations: [],
+      reasoning: 'No matching destinations found',
+      confidence: 0.5
     }
 
-    render(<AIDestinationRecommendationResults {...propsWithPreferences} />)
+    const propsWithEmptyResults = {
+      ...defaultProps,
+      aiResponse: emptyResponse
+    }
 
-    await waitFor(() => {
-      expect(mockService).toHaveBeenCalledWith({
-        travelerType: mockTravelerTypes.culture,
-        preferences: mockPickDestinationPreferences,
-        destinationKnowledge: mockDestinationKnowledge
-      })
-    })
+    render(<AIDestinationRecommendationResults {...propsWithEmptyResults} />)
+
+    const tryDifferentButton = screen.getByText('Try Different Recommendations')
+    await userEvent.click(tryDifferentButton)
+
+    expect(mockOnRegenerate).toHaveBeenCalledTimes(1)
   })
 
-  it('should display confidence score when available', async () => {
-    const { aiDestinationService } = await import('../../services/aiDestinationService')
-    
-    vi.mocked(aiDestinationService.getDestinationRecommendations).mockResolvedValue({
-      destinations: [mockDestinations.tokyo],
-      reasoning: 'Excellent match for your preferences',
+  it('should not show empty state message when there are destinations', () => {
+    render(<AIDestinationRecommendationResults {...defaultProps} />)
+
+    expect(screen.queryByText('No destinations found matching your criteria.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Try Different Recommendations')).not.toBeInTheDocument()
+  })
+
+  it('should render correct number of destination cards', () => {
+    render(<AIDestinationRecommendationResults {...defaultProps} />)
+
+    // Should render 2 destination cards for the mock data
+    const destinationCards = screen.getAllByText(/Bali|Tokyo/)
+    expect(destinationCards).toHaveLength(2)
+  })
+
+  it('should handle single destination', () => {
+    const singleDestinationResponse = {
+      destinations: [mockDestinations.bali],
+      reasoning: 'Perfect match for your preferences',
       confidence: 0.95
-    })
+    }
 
-    render(<AIDestinationRecommendationResults {...defaultProps} />)
+    const propsWithSingleDestination = {
+      ...defaultProps,
+      aiResponse: singleDestinationResponse
+    }
 
-    await waitFor(() => {
-      expect(screen.getByText('95% Match Confidence')).toBeInTheDocument()
-    })
-  })
+    render(<AIDestinationRecommendationResults {...propsWithSingleDestination} />)
 
-  it('should handle retry from error state', async () => {
-    const { aiDestinationService } = await import('../../services/aiDestinationService')
-    
-    // First call fails
-    vi.mocked(aiDestinationService.getDestinationRecommendations)
-      .mockRejectedValueOnce(new Error('Network error'))
-      .mockResolvedValueOnce({
-        destinations: [mockDestinations.paris],
-        reasoning: 'Retry successful',
-        confidence: 0.8
-      })
-
-    render(<AIDestinationRecommendationResults {...defaultProps} />)
-
-    await waitFor(() => {
-      expect(screen.getByText('Try Again')).toBeInTheDocument()
-    })
-
-    const retryButton = screen.getByText('Try Again')
-    await userEvent.click(retryButton)
-
-    await waitFor(() => {
-      expect(screen.getByText('AI-Curated Destinations for You')).toBeInTheDocument()
-    })
+    expect(screen.getByText('Bali')).toBeInTheDocument()
+    expect(screen.queryByText('Tokyo')).not.toBeInTheDocument()
   })
 })

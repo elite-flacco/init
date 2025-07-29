@@ -22,8 +22,8 @@ export const destinations: Destination[] = [
     budget: '$120-180/day'
   },
   {
-    id: 'japan',
-    name: 'Japan',
+    id: 'tokyo',
+    name: 'Tokyo',
     country: 'Japan',
     description: 'Perfect blend of traditional culture and modern innovation',
     image: 'https://images.pexels.com/photos/161251/senso-ji-temple-japan-kyoto-landmark-161251.jpeg?auto=compress&cs=tinysrgb&w=800',

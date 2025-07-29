@@ -15,6 +15,7 @@ import {
 } from '../../types/travel';
 import { AITripPlanningResponse } from '../../services/aiTripPlanningService';
 import { destinations } from './destinations';
+import { travelerTypesLookup } from './travelerTypes';
 
 // Generate tap water safety information
 const generateTapWaterInfo = (destination: Destination) => {
@@ -669,381 +670,30 @@ export const generateDevMockData = (): {
   destination: Destination;
   response: AITripPlanningResponse;
 } => {
-  const mockTravelerType: TravelerType = {
-    id: 'explorer',
-    name: 'Explorer',
-    description: 'Love spontaneous adventures',
-    icon: '🎒',
-    showPlaceholder: false
+  // Use centralized traveler type
+  const mockTravelerType = travelerTypesLookup.explorer;
+  
+  // Use existing destinations instead of hardcoded data
+  const mockDestination = destinations.find(d => d.id === 'japan') || destinations[0];
+  
+  const mockPreferences = {
+    timeOfYear: 'Spring',
+    duration: '7 days',
+    budget: 'mid-range' as const,
+    activities: ['sightseeing', 'food'],
+    accommodation: 'hotel' as const,
+    transportation: 'public transport' as const,
+    wantRestaurants: true,
+    wantBars: false,
+    tripType: 'cultural' as const,
+    activityLevel: 'moderate' as const
   };
   
-  const mockDestination: Destination = {
-    id: 'tokyo',
-    name: 'Tokyo',
-    country: 'Japan',
-    description: 'A vibrant metropolis blending tradition and modernity',
-    image: '/images/tokyo.jpg',
-    highlights: ['Temples', 'Food scene', 'Technology'],
-    bestTime: 'Spring & Fall',
-    budget: '$$-$$$'
-  };
+  // Use the main travel plan generator instead of hardcoded data
+  const plan = generateTravelPlan(mockDestination, mockPreferences, mockTravelerType);
   
   const mockResponse: AITripPlanningResponse = {
-    plan: {
-      destination: mockDestination,
-      placesToVisit: [
-        {
-          name: 'Senso-ji Temple',
-          description: 'Ancient Buddhist temple in Asakusa',
-          category: 'Cultural',
-          priority: 1,
-        },
-        {
-          name: 'Tokyo Skytree',
-          description: 'Iconic broadcasting tower with city views',
-          category: 'Entertainment',
-          priority: 2,
-        },
-        {
-          name: 'Imperial Palace Gardens',
-          description: 'Beautiful gardens surrounding the Imperial Palace',
-          category: 'Natural',
-          priority: 3,
-        },
-        {
-          name: 'Meiji Shrine',
-          description: 'Peaceful Shinto shrine in the heart of Tokyo',
-          category: 'Cultural',
-          priority: 4,
-        },
-        {
-          name: 'Shibuya Crossing',
-          description: 'Famous busy intersection with neon lights',
-          category: 'Entertainment',
-          priority: 5,
-        }
-      ],
-      neighborhoods: [
-        {
-          name: 'Shibuya',
-          summary: 'Famous for the crossing and nightlife',
-          vibe: 'Energetic and bustling',
-          pros: ['Great nightlife', 'Shopping', 'Central location'],
-          cons: ['Very crowded', 'Can be noisy'],
-          bestFor: 'Tourists'
-        },
-        {
-          name: 'Asakusa',
-          summary: 'Traditional area with temples and old-town feel',
-          vibe: 'Traditional and cultural',
-          pros: ['Rich history', 'Great food', 'Less crowded'],
-          cons: ['Further from modern areas', 'Limited nightlife'],
-          bestFor: 'Tourists'
-        },
-        {
-          name: 'Ginza',
-          summary: 'Upscale shopping and dining district',
-          vibe: 'Luxury and sophistication',
-          pros: ['High-end shopping', 'Fine dining', 'Beautiful architecture'],
-          cons: ['Very expensive', 'Formal atmosphere', 'Less local culture'],
-          bestFor: 'Tourists'
-        }
-      ],
-      hotelRecommendations: [
-        {
-          name: 'Hotel Gracery Shinjuku',
-          neighborhood: 'Shinjuku',
-          priceRange: '$$$',
-          description: 'Modern hotel with Godzilla theme',
-          amenities: ['WiFi', 'Restaurant', 'Fitness Center'],
-          // airbnbLink: 'https://www.airbnb.com/s/Shinjuku+Tokyo/homes'
-        },
-        {
-          name: 'Richmond Hotel Asakusa',
-          neighborhood: 'Asakusa',
-          priceRange: '$$',
-          description: 'Comfortable hotel near traditional sites',
-          amenities: ['WiFi', 'Breakfast', 'Laundry'],
-          // googleMapsLink: 'https://www.google.com/maps/search/Richmond+Hotel+Asakusa+Tokyo',
-          airbnbLink: 'https://www.airbnb.com/s/Asakusa+Tokyo/homes'
-        },
-        {
-          name: 'Park Hotel Tokyo',
-          neighborhood: 'Ginza',
-          priceRange: '$$$$',
-          description: 'Luxury hotel with artist-designed rooms',
-          amenities: ['Spa', 'Multiple Restaurants', 'Concierge', 'Art Gallery'],
-          // googleMapsLink: 'https://www.google.com/maps/search/Park+Hotel+Tokyo+Ginza',
-          airbnbLink: 'https://www.airbnb.com/s/Ginza+Tokyo/homes'
-        },
-        {
-          name: 'Capsule Hotel Anshin Oyado',
-          neighborhood: 'Shinjuku',
-          priceRange: '$',
-          description: 'Modern capsule hotel experience',
-          amenities: ['Shared Bath', 'Lockers', 'WiFi'],
-          // googleMapsLink: 'https://www.google.com/maps/search/Capsule+Hotel+Anshin+Oyado+Shinjuku',
-          airbnbLink: 'https://www.airbnb.com/s/Shinjuku+Tokyo/homes'
-        }
-      ],
-      restaurants: [
-        {
-          name: 'Sukiyabashi Jiro',
-          cuisine: 'Sushi',
-          priceRange: '$$$$',
-          description: 'World-famous sushi restaurant',
-          neighborhood: 'Ginza',
-          specialDishes: ['Omakase tasting menu', 'Fresh tuna']
-        },
-        {
-          name: 'Ramen Yashichi',
-          cuisine: 'Ramen',
-          priceRange: '$',
-          description: 'Authentic local ramen shop',
-          neighborhood: 'Shibuya',
-          specialDishes: ['Tonkotsu ramen', 'Gyoza']
-        },
-        {
-          name: 'Tempura Kondo',
-          cuisine: 'Tempura',
-          priceRange: '$$$',
-          description: 'Michelin-starred tempura restaurant',
-          neighborhood: 'Ginza',
-          specialDishes: ['Vegetable tempura', 'Sweet potato tempura']
-        },
-        {
-          name: 'Daiwa Sushi',
-          cuisine: 'Sushi',
-          priceRange: '$$',
-          description: 'Popular sushi spot at Tsukiji Outer Market',
-          neighborhood: 'Tsukiji',
-          specialDishes: ['Fresh tuna sashimi', 'Chirashi bowl']
-        },
-        {
-          name: 'Kozasa',
-          cuisine: 'Traditional Japanese',
-          priceRange: '$$$',
-          description: 'Traditional kaiseki dining experience',
-          neighborhood: 'Asakusa',
-          specialDishes: ['Seasonal kaiseki course', 'Traditional sweets']
-        }
-      ],
-      bars: [
-        {
-          name: 'Golden Gai',
-          type: 'other',
-          atmosphere: 'Intimate and traditional',
-          description: 'Famous narrow alley with tiny bars',
-          category: 'Traditional',
-          neighborhood: 'Asakusa'
-        },
-        {
-          name: 'New York Grill',
-          type: 'cocktail',
-          atmosphere: 'Upscale with city views',
-          description: 'High-end bar with panoramic Tokyo views',
-          category: 'Rooftop',
-          neighborhood: 'Shibuya'
-        }
-      ],
-      weatherInfo: {
-        season: 'Spring',
-        temperature: '15-25°C (59-77°F)',
-        conditions: 'Mild and pleasant',
-        humidity: 'Moderate',
-        dayNightTempDifference: '10°C difference',
-        airQuality: 'Good',
-        feelsLikeWarning: 'Pack layers',
-        recommendations: ['Light jacket', 'Comfortable shoes']
-      },
-      socialEtiquette: ['Bow when greeting', 'Remove shoes indoors'],
-      safetyTips: ['Very safe city', 'Keep cash handy'],
-      transportationInfo: {
-        publicTransport: 'Excellent rail system',
-        creditCardPayment: false,
-        airportTransport: {
-          airports: [
-            {
-              name: 'Narita International Airport',
-              code: 'NRT',
-              distanceToCity: '60km (37 miles) from city center',
-              transportOptions: [
-                {
-                  type: 'Narita Express',
-                  cost: '¥3,070',
-                  duration: '60 minutes',
-                  description: 'Direct train to central Tokyo',
-                  notes: ['Reserve seats in advance', 'Most convenient for luggage']
-                },
-                {
-                  type: 'Airport Limousine Bus',
-                  cost: '¥1,000-1,300',
-                  duration: '60-90 minutes',
-                  description: 'Direct bus to major hotels and areas',
-                  notes: ['Stops at multiple locations', 'Can be slow in traffic']
-                },
-                {
-                  type: 'Taxi',
-                  cost: '¥20,000-30,000',
-                  duration: '60-90 minutes',
-                  description: 'Door-to-door service',
-                  notes: ['Very expensive option', 'Payment by cash or card accepted', 'Price varies with traffic']
-                }
-              ]
-            },
-            {
-              name: 'Haneda Airport',
-              code: 'HND',
-              distanceToCity: '20km (12 miles) from city center',
-              transportOptions: [
-                {
-                  type: 'Tokyo Monorail',
-                  cost: '¥500',
-                  duration: '30 minutes',
-                  description: 'Monorail to Hamamatsucho Station',
-                  notes: ['Transfer required to reach most destinations', 'Scenic route over Tokyo Bay']
-                },
-                {
-                  type: 'Keikyu Line',
-                  cost: '¥300-600',
-                  duration: '30-45 minutes',
-                  description: 'Direct train to various Tokyo stations',
-                  notes: ['Multiple destination options', 'More affordable than monorail']
-                },
-                {
-                  type: 'Taxi',
-                  cost: '¥6,000-8,000',
-                  duration: '30-45 minutes',
-                  description: 'Closest airport to city center',
-                  notes: ['Still expensive but more reasonable than Narita', 'Cash preferred']
-                }
-              ]
-            }
-          ]
-        },
-        ridesharing: 'Limited Uber, use taxis',
-        taxiInfo: {
-          available: true,
-          averageCost: '¥500-1000 for short trips',
-          tips: ['Cash only', 'Doors open automatically']
-        }
-      },
-      localCurrency: {
-        currency: 'Japanese Yen (JPY)',
-        cashNeeded: true,
-        creditCardUsage: 'Limited acceptance',
-        tips: ['Withdraw from 7-Eleven ATMs'],
-        exchangeRate: {
-          from: 'USD',
-          to: 'JPY',
-          rate: 150,
-          lastUpdated: new Date().toISOString().split('T')[0]
-        }
-      },
-      tipEtiquette: {
-        restaurants: 'No tipping required',
-        bars: 'No tipping required',
-        taxis: 'No tipping required',
-        hotels: 'No tipping required',
-        tours: 'No tipping required',
-        general: 'Tipping is not part of Japanese culture'
-      },
-      activities: [
-        {
-          name: 'Sushi Making Class',
-          type: 'Cooking Class',
-          description: 'Learn to make authentic sushi',
-          duration: '3 hours',
-          localSpecific: true,
-          bookingLink: 'https://www.airbnb.com/s/experiences?query=sushi+making+Tokyo',
-          experienceType: 'airbnb'
-        },
-        {
-          name: 'Tsukiji Fish Market Tour',
-          type: 'Cultural Tour',
-          description: 'Early morning fish market experience',
-          duration: '4 hours',
-          localSpecific: true,
-          bookingLink: 'https://www.getyourguide.com/s/?q=Tsukiji+Fish+Market+Tokyo',
-          experienceType: 'getyourguide'
-        },
-        {
-          name: 'Tea Ceremony Experience',
-          type: 'Cultural Workshop',
-          description: 'Traditional Japanese tea ceremony',
-          duration: '2 hours',
-          localSpecific: true,
-          bookingLink: 'https://www.viator.com/searchResults/all?text=tea+ceremony+Tokyo',
-          experienceType: 'viator'
-        }
-      ],
-      mustTryFood: {
-        items: [
-          {
-            name: 'Sushi',
-            description: 'Fresh fish and vegetables',
-            category: 'main',
-            whereToFind: 'Local restaurants',
-              priceRange: '$$'
-          },
-          {
-            name: 'Ramen',
-            description: 'Thick noodles in flavorful broth',
-            category: 'main',
-            whereToFind: 'Street vendors',
-            priceRange: '$'
-          },
-          {
-            name: 'Mochi',
-            description: 'Sweet rice cake',
-            category: 'dessert',
-            whereToFind: 'Local bakeries',
-            priceRange: '$'
-          },
-          {
-            name: 'Sake',
-            description: 'Traditional Japanese alcohol',
-            category: 'drink',
-            whereToFind: 'Bars',
-            priceRange: '$$'
-          }
-        ]
-      },
-      tapWaterSafe: {
-        safe: true,
-        details: 'Tokyo tap water is safe to drink'
-      },
-      localEvents: [{
-        name: 'Tokyo Marathon',
-        type: 'Marathon',
-        description: 'Annual marathon event',
-        dates: 'March',
-        location: 'Tokyo Marathon Course'
-      }],
-      history: 'Tokyo, originally named Edo, has been Japan\'s capital since 1868. The city has transformed from a feudal castle town into a modern metropolis, surviving earthquakes, wars, and rapid modernization. Today it stands as a unique blend of ancient traditions and cutting-edge technology, where centuries-old shrines coexist with futuristic skyscrapers. The city\'s evolution reflects Japan\'s journey from isolation to becoming a global economic powerhouse, while maintaining its distinct cultural identity. From the Meiji Restoration through post-war reconstruction to hosting the Olympics, Tokyo continues to reinvent itself while honoring its rich cultural heritage.',
-      itinerary: [
-        {
-          day: 1,
-          title: 'Day 1: Traditional Tokyo',
-          activities: [
-            {
-              time: '9:00 AM',
-              title: 'Senso-ji Temple',
-              description: 'Visit Tokyo\'s oldest temple',
-              location: 'Asakusa',
-              icon: 'map'
-            },
-            {
-              time: '12:00 PM',
-              title: 'Lunch in Asakusa',
-              description: 'Try traditional Japanese cuisine',
-              location: 'Asakusa',
-              icon: 'utensils'
-            }
-          ]
-        }
-      ]
-    },
+    plan,
     reasoning: 'Mock data for development testing',
     confidence: 0.95,
     personalizations: [
@@ -1062,18 +712,13 @@ export const generateDevMockData = (): {
 
 // Generate mock destination recommendations response for dev mode
 export const generateDevMockDestinationData = () => {
-  const mockTravelerType: TravelerType = {
-    id: 'explorer',
-    name: 'Explorer',
-    description: 'Love spontaneous adventures',
-    icon: '🎒',
-    showPlaceholder: false
-  };
+  // Use centralized traveler type
+  const mockTravelerType = travelerTypesLookup.explorer;
 
   return {
     travelerType: mockTravelerType,
     destinationResponse: {
-      destinations: destinations,
+      destinations: destinations, // Already using centralized destinations
       reasoning: 'Mock destinations loaded for development',
       confidence: 1.0
     }
