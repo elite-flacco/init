@@ -3,7 +3,7 @@ import { aiDestinationService } from '../aiDestinationService'
 import { mockTravelerTypes, mockDestinationKnowledge, mockPickDestinationPreferences, mockAIResponse, mockFetchResponse, resetMocks } from '../../test/mocks'
 
 // Mock the AI config
-vi.mock('../config/ai', () => ({
+vi.mock('../../config/ai', () => ({
   getAIConfig: () => ({
     provider: 'mock',
     apiKey: undefined,
@@ -160,7 +160,7 @@ describe('aiDestinationService', () => {
 
     describe('OpenAI mode', () => {
       beforeEach(() => {
-        vi.doMock('../config/ai', () => ({
+        vi.doMock('../../config/ai', () => ({
           getAIConfig: () => ({
             provider: 'openai',
             apiKey: 'test-api-key',
@@ -226,7 +226,7 @@ describe('aiDestinationService', () => {
 
     describe('Anthropic mode', () => {
       beforeEach(() => {
-        vi.doMock('../config/ai', () => ({
+        vi.doMock('../../config/ai', () => ({
           getAIConfig: () => ({
             provider: 'anthropic',
             apiKey: 'test-anthropic-key',

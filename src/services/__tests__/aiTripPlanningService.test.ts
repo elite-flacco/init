@@ -4,7 +4,7 @@ import { mockTravelerTypes, mockDestinations, mockDestinationKnowledge, mockPick
 import { Destination } from '../../types/travel';
 
 // Mock the AI config
-vi.mock('../config/ai', () => ({
+vi.mock('../../config/ai', () => ({
   getAIConfig: () => ({
     provider: 'mock',
     apiKey: undefined,
@@ -279,7 +279,7 @@ describe('aiTripPlanningService', () => {
 
     describe('OpenAI mode', () => {
       beforeEach(() => {
-        vi.doMock('../config/ai', () => ({
+        vi.doMock('../../config/ai', () => ({
           getAIConfig: () => ({
             provider: 'openai',
             apiKey: 'test-api-key',
@@ -337,7 +337,7 @@ describe('aiTripPlanningService', () => {
 
     describe('Anthropic mode', () => {
       beforeEach(() => {
-        vi.doMock('../config/ai', () => ({
+        vi.doMock('../../config/ai', () => ({
           getAIConfig: () => ({
             provider: 'anthropic',
             apiKey: 'test-anthropic-key',
@@ -458,7 +458,7 @@ describe('aiTripPlanningService', () => {
       })
 
       it('should handle network errors gracefully', async () => {
-        vi.doMock('../config/ai', () => ({
+        vi.doMock('../../config/ai', () => ({
           getAIConfig: () => ({
             provider: 'openai',
             apiKey: 'test-key',
