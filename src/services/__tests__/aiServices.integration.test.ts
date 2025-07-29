@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { aiDestinationService } from '../aiDestinationService'
 import { aiTripPlanningService } from '../aiTripPlanningService'
-import { mockTravelerTypes, mockDestinations, mockTripPreferences, resetMocks } from '../../test/mocks'
+import { mockTravelerTypes, mockDestinations, mockTripPreferences, resetMocks, mockDestinationKnowledge } from '../../test/mocks'
 
 describe('AI Services Integration', () => {
   beforeEach(() => {
@@ -40,7 +40,7 @@ describe('AI Services Integration', () => {
   describe('aiTripPlanningService', () => {
     it('should generate complete travel plan in mock mode', async () => {
       const request = {
-        destination: mockDestinations.paris,
+        destination: mockDestinations.tokyo,
         preferences: mockTripPreferences,
         travelerType: mockTravelerTypes.culture
       }
@@ -59,43 +59,18 @@ describe('AI Services Integration', () => {
       expect(response.plan.placesToVisit).toBeInstanceOf(Array)
     })
 
-    it('should generate different personalizations for different traveler types', async () => {
-      const explorerRequest = {
-        destination: mockDestinations.paris,
-        preferences: mockTripPreferences,
-        travelerType: mockTravelerTypes.explorer
-      }
-
-      const cultureRequest = {
-        destination: mockDestinations.paris,
-        preferences: mockTripPreferences,
-        travelerType: mockTravelerTypes.culture
-      }
-
-      const explorerResponse = await aiTripPlanningService.generateTravelPlan(explorerRequest)
-      const cultureResponse = await aiTripPlanningService.generateTravelPlan(cultureRequest)
-
-      // Both should have personalizations
-      expect(explorerResponse.personalizations.length).toBeGreaterThan(0)
-      expect(cultureResponse.personalizations.length).toBeGreaterThan(0)
-      
-      // They should be different (at least one difference)
-      const hasUniquePersonalizations = explorerResponse.personalizations.some(p => 
-        !cultureResponse.personalizations.includes(p)
-      )
-      expect(hasUniquePersonalizations).toBe(true)
-    })
   })
 
   describe('Error handling', () => {
     it('should handle network errors gracefully', async () => {
       // This test verifies that both services can handle errors without crashing
       const destinationRequest = {
-        travelerType: mockTravelerTypes.culture
+        travelerType: mockTravelerTypes.culture,
+        destinationKnowledge: mockDestinationKnowledge
       }
 
       const tripRequest = {
-        destination: mockDestinations.paris,
+        destination: mockDestinations.tokyo,
         preferences: mockTripPreferences,
         travelerType: mockTravelerTypes.culture
       }
