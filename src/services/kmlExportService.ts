@@ -1,4 +1,5 @@
-import { EnhancedTravelPlan, ItineraryDay, Activity } from '../types/travel';
+import { EnhancedTravelPlan } from '../types/travel';
+import { GeocodingService } from './geocodingService';
 
 export interface KMLExportOptions {
   includeItinerary?: boolean;
@@ -6,6 +7,7 @@ export interface KMLExportOptions {
   includeRestaurants?: boolean;
   includeBars?: boolean;
   includeHotels?: boolean;
+  useRealCoordinates?: boolean;
 }
 
 export interface Coordinates {
@@ -88,7 +90,7 @@ export class KMLExportService {
     </Placemark>`;
   }
 
-  private static generateItineraryPlacemarks(plan: EnhancedTravelPlan): string {
+  private static async generateItineraryPlacemarks(plan: EnhancedTravelPlan, useRealCoordinates: boolean = false): Promise<string> {
     if (!plan.itinerary || plan.itinerary.length === 0) {
       return '';
     }
@@ -96,8 +98,8 @@ export class KMLExportService {
     let placemarks = '';
     const baseCoords = this.getDestinationCoordinates(plan.destination.name);
     
-    plan.itinerary.forEach((day: ItineraryDay) => {
-      day.activities.forEach((activity: Activity) => {
+    for (const day of plan.itinerary) {
+      for (const activity of day.activities) {
         const name = `Day ${day.day}: ${activity.title}`;
         const description = `<div>
 <h3>${this.escapeXML(activity.title)}</h3>
@@ -106,10 +108,21 @@ ${activity.location ? `<p><b>Location:</b> ${this.escapeXML(activity.location)}<
 ${activity.description ? `<p>${this.escapeXML(activity.description)}</p>` : ''}
 </div>`;
         
-        const coords = this.generateRandomNearbyCoordinates(baseCoords, 15);
+        let coords: Coordinates;
+        if (useRealCoordinates && activity.location) {
+          const geocodingResult = await GeocodingService.geocodePlace(
+            activity.location,
+            plan.destination.name,
+            plan.destination.country
+          );
+          coords = geocodingResult.coordinates;
+        } else {
+          coords = this.generateRandomNearbyCoordinates(baseCoords, 15);
+        }
+        
         placemarks += this.generatePlacemark(name, description, coords, 'itinerary-style');
-      });
-    });
+      }
+    }
 
     return `  <Folder>
     <name>Daily Itinerary</name>
@@ -118,7 +131,7 @@ ${placemarks}
   </Folder>`;
   }
 
-  private static generatePlacesToVisitPlacemarks(plan: EnhancedTravelPlan): string {
+  private static async generatePlacesToVisitPlacemarks(plan: EnhancedTravelPlan, useRealCoordinates: boolean = false): Promise<string> {
     if (!plan.placesToVisit || plan.placesToVisit.length === 0) {
       return '';
     }
@@ -126,7 +139,7 @@ ${placemarks}
     let placemarks = '';
     const baseCoords = this.getDestinationCoordinates(plan.destination.name);
     
-    plan.placesToVisit.forEach((place) => {
+    for (const place of plan.placesToVisit) {
       const description = `<div>
 <h3>${this.escapeXML(place.name)}</h3>
 <p><b>Category:</b> ${this.escapeXML(place.category)}</p>
@@ -134,9 +147,20 @@ ${placemarks}
 <p><b>Priority:</b> ${place.priority}/5</p>
 </div>`;
       
-      const coords = this.generateRandomNearbyCoordinates(baseCoords, 20);
+      let coords: Coordinates;
+      if (useRealCoordinates) {
+        const geocodingResult = await GeocodingService.geocodePlace(
+          place.name,
+          plan.destination.name,
+          plan.destination.country
+        );
+        coords = geocodingResult.coordinates;
+      } else {
+        coords = this.generateRandomNearbyCoordinates(baseCoords, 20);
+      }
+      
       placemarks += this.generatePlacemark(place.name, description, coords, 'attraction-style');
-    });
+    }
 
     return `  <Folder>
     <name>Places to Visit</name>
@@ -145,7 +169,7 @@ ${placemarks}
   </Folder>`;
   }
 
-  private static generateRestaurantPlacemarks(plan: EnhancedTravelPlan): string {
+  private static async generateRestaurantPlacemarks(plan: EnhancedTravelPlan, useRealCoordinates: boolean = false): Promise<string> {
     if (!plan.restaurants || plan.restaurants.length === 0) {
       return '';
     }
@@ -153,7 +177,7 @@ ${placemarks}
     let placemarks = '';
     const baseCoords = this.getDestinationCoordinates(plan.destination.name);
     
-    plan.restaurants.forEach((restaurant) => {
+    for (const restaurant of plan.restaurants) {
       const description = `<div>
 <h3>${this.escapeXML(restaurant.name)}</h3>
 <p><b>Cuisine:</b> ${this.escapeXML(restaurant.cuisine)}</p>
@@ -164,9 +188,20 @@ ${restaurant.specialDishes ? `<p><b>Must Try:</b> ${this.escapeXML(restaurant.sp
 ${restaurant.reservationsRecommended === 'Yes' ? '<p><b>Reservations recommended</b></p>' : ''}
 </div>`;
       
-      const coords = this.generateRandomNearbyCoordinates(baseCoords, 18);
+      let coords: Coordinates;
+      if (useRealCoordinates) {
+        const geocodingResult = await GeocodingService.geocodePlace(
+          restaurant.name,
+          plan.destination.name,
+          plan.destination.country
+        );
+        coords = geocodingResult.coordinates;
+      } else {
+        coords = this.generateRandomNearbyCoordinates(baseCoords, 18);
+      }
+      
       placemarks += this.generatePlacemark(restaurant.name, description, coords, 'restaurant-style');
-    });
+    }
 
     return `  <Folder>
     <name>Restaurants</name>
@@ -175,7 +210,7 @@ ${placemarks}
   </Folder>`;
   }
 
-  private static generateBarPlacemarks(plan: EnhancedTravelPlan): string {
+  private static async generateBarPlacemarks(plan: EnhancedTravelPlan, useRealCoordinates: boolean = false): Promise<string> {
     if (!plan.bars || plan.bars.length === 0) {
       return '';
     }
@@ -183,7 +218,7 @@ ${placemarks}
     let placemarks = '';
     const baseCoords = this.getDestinationCoordinates(plan.destination.name);
     
-    plan.bars.forEach((bar) => {
+    for (const bar of plan.bars) {
       const description = `<div>
 <h3>${this.escapeXML(bar.name)}</h3>
 <p><b>Type:</b> ${this.escapeXML(bar.type)}</p>
@@ -193,9 +228,20 @@ ${bar.neighborhood ? `<p><b>Neighborhood:</b> ${this.escapeXML(bar.neighborhood)
 <p>${this.escapeXML(bar.description)}</p>
 </div>`;
       
-      const coords = this.generateRandomNearbyCoordinates(baseCoords, 16);
+      let coords: Coordinates;
+      if (useRealCoordinates) {
+        const geocodingResult = await GeocodingService.geocodePlace(
+          bar.name,
+          plan.destination.name,
+          plan.destination.country
+        );
+        coords = geocodingResult.coordinates;
+      } else {
+        coords = this.generateRandomNearbyCoordinates(baseCoords, 16);
+      }
+      
       placemarks += this.generatePlacemark(bar.name, description, coords, 'bar-style');
-    });
+    }
 
     return `  <Folder>
     <name>Bars and Nightlife</name>
@@ -204,7 +250,7 @@ ${placemarks}
   </Folder>`;
   }
 
-  private static generateHotelPlacemarks(plan: EnhancedTravelPlan): string {
+  private static async generateHotelPlacemarks(plan: EnhancedTravelPlan, useRealCoordinates: boolean = false): Promise<string> {
     if (!plan.hotelRecommendations || plan.hotelRecommendations.length === 0) {
       return '';
     }
@@ -212,7 +258,7 @@ ${placemarks}
     let placemarks = '';
     const baseCoords = this.getDestinationCoordinates(plan.destination.name);
     
-    plan.hotelRecommendations.forEach((hotel) => {
+    for (const hotel of plan.hotelRecommendations) {
       const description = `<div>
 <h3>${this.escapeXML(hotel.name)}</h3>
 <p><b>Neighborhood:</b> ${this.escapeXML(hotel.neighborhood)}</p>
@@ -221,9 +267,20 @@ ${placemarks}
 ${hotel.amenities ? `<p><b>Amenities:</b> ${this.escapeXML(hotel.amenities.join(', '))}</p>` : ''}
 </div>`;
       
-      const coords = this.generateRandomNearbyCoordinates(baseCoords, 12);
+      let coords: Coordinates;
+      if (useRealCoordinates) {
+        const geocodingResult = await GeocodingService.geocodePlace(
+          hotel.name,
+          plan.destination.name,
+          plan.destination.country
+        );
+        coords = geocodingResult.coordinates;
+      } else {
+        coords = this.generateRandomNearbyCoordinates(baseCoords, 12);
+      }
+      
       placemarks += this.generatePlacemark(hotel.name, description, coords, 'hotel-style');
-    });
+    }
 
     return `  <Folder>
     <name>Accommodation</name>
@@ -232,36 +289,37 @@ ${placemarks}
   </Folder>`;
   }
 
-  static generateKML(plan: EnhancedTravelPlan, options: KMLExportOptions = {}): string {
+  static async generateKML(plan: EnhancedTravelPlan, options: KMLExportOptions = {}): Promise<string> {
     const defaultOptions: KMLExportOptions = {
       includeItinerary: true,
       includePlaces: true,
       includeRestaurants: true,
       includeBars: true,
       includeHotels: true,
+      useRealCoordinates: true,
       ...options
     };
 
     const folders = [];
 
     if (defaultOptions.includeItinerary) {
-      folders.push(this.generateItineraryPlacemarks(plan));
+      folders.push(await this.generateItineraryPlacemarks(plan, defaultOptions.useRealCoordinates));
     }
 
     if (defaultOptions.includePlaces) {
-      folders.push(this.generatePlacesToVisitPlacemarks(plan));
+      folders.push(await this.generatePlacesToVisitPlacemarks(plan, defaultOptions.useRealCoordinates));
     }
 
     if (defaultOptions.includeRestaurants) {
-      folders.push(this.generateRestaurantPlacemarks(plan));
+      folders.push(await this.generateRestaurantPlacemarks(plan, defaultOptions.useRealCoordinates));
     }
 
     if (defaultOptions.includeBars) {
-      folders.push(this.generateBarPlacemarks(plan));
+      folders.push(await this.generateBarPlacemarks(plan, defaultOptions.useRealCoordinates));
     }
 
     if (defaultOptions.includeHotels) {
-      folders.push(this.generateHotelPlacemarks(plan));
+      folders.push(await this.generateHotelPlacemarks(plan, defaultOptions.useRealCoordinates));
     }
 
     const kml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -317,19 +375,42 @@ ${folders.filter(folder => folder.trim()).join('\n')}
     return kml;
   }
 
-  static downloadKML(plan: EnhancedTravelPlan, filename?: string, options?: KMLExportOptions): void {
-    const kmlContent = this.generateKML(plan, options);
+  static async downloadKML(plan: EnhancedTravelPlan, filename?: string, options?: KMLExportOptions): Promise<void> {
+    // console.log('Generating KML content...');
+    const kmlContent = await this.generateKML(plan, options);
+    // console.log('KML content generated, size:', kmlContent.length);
+    
     const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
     const url = URL.createObjectURL(blob);
     
     const defaultFilename = `${plan.destination.name.replace(/[^a-zA-Z0-9]/g, '_')}_travel_plan.kml`;
+    // console.log('Creating download link for:', defaultFilename);
     
+    // Try multiple download methods to ensure compatibility
     const link = document.createElement('a');
     link.href = url;
     link.download = filename || defaultFilename;
+    link.style.display = 'none';
+    
+    // Add to DOM temporarily to ensure it works in all browsers
     document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    
+    // Force click event
+    const clickEvent = new MouseEvent('click', {
+      view: window,
+      bubbles: true,
+      cancelable: true
+    });
+    
+    link.dispatchEvent(clickEvent);
+    
+    // Clean up after a short delay
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      // console.log('Download cleanup completed');
+    }, 100);
+    
+    console.log('KML file download initiated');
   }
 }

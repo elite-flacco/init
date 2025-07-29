@@ -185,8 +185,8 @@ describe('KMLExportService', () => {
     ],
   };
 
-  it('should generate valid KML content', () => {
-    const kml = KMLExportService.generateKML(mockTravelPlan);
+  it('should generate valid KML content', async () => {
+    const kml = await KMLExportService.generateKML(mockTravelPlan, { useRealCoordinates: false });
     
     expect(kml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
     expect(kml).toContain('<kml xmlns="http://www.opengis.net/kml/2.2">');
@@ -197,8 +197,8 @@ describe('KMLExportService', () => {
     expect(kml).toContain('</kml>');
   });
 
-  it('should include itinerary placemarks', () => {
-    const kml = KMLExportService.generateKML(mockTravelPlan, { includeItinerary: true });
+  it('should include itinerary placemarks', async () => {
+    const kml = await KMLExportService.generateKML(mockTravelPlan, { includeItinerary: true, useRealCoordinates: false });
     
     expect(kml).toContain('<name>Daily Itinerary</name>');
     expect(kml).toContain('Day 1: Visit Senso-ji Temple');
@@ -207,8 +207,8 @@ describe('KMLExportService', () => {
     expect(kml).toContain('<coordinates>');
   });
 
-  it('should include places to visit placemarks', () => {
-    const kml = KMLExportService.generateKML(mockTravelPlan, { includePlaces: true });
+  it('should include places to visit placemarks', async () => {
+    const kml = await KMLExportService.generateKML(mockTravelPlan, { includePlaces: true, useRealCoordinates: false });
     
     expect(kml).toContain('<name>Places to Visit</name>');
     expect(kml).toContain('Senso-ji Temple');
@@ -218,8 +218,8 @@ describe('KMLExportService', () => {
     expect(kml).toContain('<coordinates>');
   });
 
-  it('should include restaurant placemarks', () => {
-    const kml = KMLExportService.generateKML(mockTravelPlan, { includeRestaurants: true });
+  it('should include restaurant placemarks', async () => {
+    const kml = await KMLExportService.generateKML(mockTravelPlan, { includeRestaurants: true, useRealCoordinates: false });
     
     expect(kml).toContain('<name>Restaurants</name>');
     expect(kml).toContain('Sukiyabashi Jiro');
@@ -229,8 +229,8 @@ describe('KMLExportService', () => {
     expect(kml).toContain('<coordinates>');
   });
 
-  it('should include bar placemarks', () => {
-    const kml = KMLExportService.generateKML(mockTravelPlan, { includeBars: true });
+  it('should include bar placemarks', async () => {
+    const kml = await KMLExportService.generateKML(mockTravelPlan, { includeBars: true, useRealCoordinates: false });
     
     expect(kml).toContain('<name>Bars and Nightlife</name>');
     expect(kml).toContain('New York Bar');
@@ -239,8 +239,8 @@ describe('KMLExportService', () => {
     expect(kml).toContain('<coordinates>');
   });
 
-  it('should include hotel placemarks', () => {
-    const kml = KMLExportService.generateKML(mockTravelPlan, { includeHotels: true });
+  it('should include hotel placemarks', async () => {
+    const kml = await KMLExportService.generateKML(mockTravelPlan, { includeHotels: true, useRealCoordinates: false });
     
     expect(kml).toContain('<name>Accommodation</name>');
     expect(kml).toContain('Park Hyatt Tokyo');
@@ -249,7 +249,7 @@ describe('KMLExportService', () => {
     expect(kml).toContain('<coordinates>');
   });
 
-  it('should properly escape XML characters', () => {
+  it('should properly escape XML characters', async () => {
     const mockPlanWithSpecialChars: EnhancedTravelPlan = {
       ...mockTravelPlan,
       placesToVisit: [
@@ -262,20 +262,21 @@ describe('KMLExportService', () => {
       ],
     };
 
-    const kml = KMLExportService.generateKML(mockPlanWithSpecialChars);
+    const kml = await KMLExportService.generateKML(mockPlanWithSpecialChars, { useRealCoordinates: false });
     
     expect(kml).toContain('Place with &lt;special&gt; &amp; &quot;characters&quot;');
     expect(kml).toContain('<![CDATA[');
     expect(kml).toContain('Description with &lt;tags&gt; &amp; &quot;quotes&quot;');
   });
 
-  it('should respect export options', () => {
-    const kml = KMLExportService.generateKML(mockTravelPlan, {
+  it('should respect export options', async () => {
+    const kml = await KMLExportService.generateKML(mockTravelPlan, {
       includeItinerary: false,
       includePlaces: false,
       includeRestaurants: true,
       includeBars: false,
       includeHotels: false,
+      useRealCoordinates: false,
     });
     
     expect(kml).not.toContain('<name>Daily Itinerary</name>');

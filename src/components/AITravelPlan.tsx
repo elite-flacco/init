@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, MapPin, Utensils, Compass, Download, Share2, RefreshCw, Home, Shield, CreditCard, Droplets, Calendar, BookOpen, BeerIcon, FileText } from 'lucide-react';
+import { Sparkles, MapPin, Utensils, Compass, Download, Share2, RefreshCw, Home, Shield, CreditCard, Droplets, Calendar, BookOpen, BeerIcon, FileText, Loader2 } from 'lucide-react';
 import { Destination, TravelerType, ItineraryDay, Activity } from '../types/travel';
 import { AITripPlanningResponse } from '../services/aiTripPlanningService';
 import { PdfExportService } from '../services/pdfExportService';
@@ -24,6 +24,7 @@ export function AITravelPlan({
   onRegeneratePlan
 }: AITravelPlanProps) {
   const [activeTab, setActiveTab] = useState<'itinerary' | 'info'>('itinerary');
+  const [isExportingKML, setIsExportingKML] = useState(false);
 
   const { plan, reasoning, confidence, personalizations } = aiResponse;
 
@@ -42,12 +43,32 @@ export function AITravelPlan({
     }
   };
 
-  const handleExportToGoogleMaps = () => {
+  const handleExportToGoogleMaps = async () => {
+    setIsExportingKML(true);
+    
     try {
-      KMLExportService.downloadKML(plan);
+      console.log('Starting KML export...');
+      
+      // First try with real coordinates, but with a shorter timeout
+      try {
+        await KMLExportService.downloadKML(plan, undefined, { 
+          useRealCoordinates: true 
+        });
+        console.log('KML export with real coordinates completed successfully');
+      } catch (geocodingError) {
+        console.warn('Real coordinates failed, falling back to approximate locations:', geocodingError);
+        // Fallback to approximate coordinates if geocoding fails
+        await KMLExportService.downloadKML(plan, undefined, { 
+          useRealCoordinates: false 
+        });
+        console.log('KML export with approximate coordinates completed successfully');
+      }
+      
     } catch (error) {
       console.error('Error exporting to KML:', error);
       alert('Failed to generate KML file. Please try again.');
+    } finally {
+      setIsExportingKML(false);
     }
   };
 
@@ -164,11 +185,16 @@ export function AITravelPlan({
               <FileText className="w-4 h-4 " />
             </button>
             <button
-              className="flex items-center p-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
+              className="flex items-center p-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleExportToGoogleMaps}
+              disabled={isExportingKML}
               title="Export to Google Maps (KML)"
             >
-              <Download className="w-4 h-4" />
+              {isExportingKML ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
             </button>
             <button
               className="flex items-center p-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
