@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Sparkles, MapPin, Utensils, Compass, Download, Share2, RefreshCw, Home, Shield, CreditCard, Droplets, Calendar, BookOpen, BeerIcon } from 'lucide-react';
+import { Sparkles, MapPin, Utensils, Compass, Download, Share2, RefreshCw, Home, Shield, CreditCard, Droplets, Calendar, BookOpen, BeerIcon, FileText } from 'lucide-react';
 import { Destination, TravelerType, ItineraryDay, Activity } from '../types/travel';
 import { AITripPlanningResponse } from '../services/aiTripPlanningService';
+import { PdfExportService } from '../services/pdfExportService';
+import { KMLExportService } from '../services/kmlExportService';
 import { TravelPlanSection } from './ui/TravelPlanSection';
 import { SectionHeader } from './ui/SectionHeader';
 import { ItemCard, BookingLink } from './ui/ItemCard';
@@ -24,6 +26,30 @@ export function AITravelPlan({
   const [activeTab, setActiveTab] = useState<'itinerary' | 'info'>('itinerary');
 
   const { plan, reasoning, confidence, personalizations } = aiResponse;
+
+  const handleExportToPdf = async () => {
+    try {
+      await PdfExportService.exportTravelPlanToPdf({
+        destination,
+        travelerType,
+        plan,
+        includeItinerary: true,
+        includeInfo: true
+      });
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
+
+  const handleExportToGoogleMaps = () => {
+    try {
+      KMLExportService.downloadKML(plan);
+    } catch (error) {
+      console.error('Error exporting to KML:', error);
+      alert('Failed to generate KML file. Please try again.');
+    }
+  };
 
   // Helper functions to generate search links dynamically
   const generateGoogleMapsLink = (placeName: string) => {
@@ -132,9 +158,19 @@ export function AITravelPlan({
             </button>
             <button
               className="flex items-center px-4 py-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
-              onClick={() => console.log('Download clicked')}
+              onClick={handleExportToPdf}
+              title="Export to PDF"
             >
-              <Download className="w-4 h-4" />
+              <FileText className="w-4 h-4 mr-2" />
+              <span className="text-sm">PDF</span>
+            </button>
+            <button
+              className="flex items-center px-4 py-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
+              onClick={handleExportToGoogleMaps}
+              title="Export to Google Maps (KML)"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              <span className="text-sm">KML</span>
             </button>
             <button
               className="flex items-center px-4 py-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
