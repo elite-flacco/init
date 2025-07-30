@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { TravelerType, Destination, TripPreferences } from '../../../../src/types/travel'
 import { getAIConfig } from '../config'
+import { generateDevMockData } from '../../../../src/data/mock/travelData'
 
 export interface AITripPlanningRequest {
   destination: Destination
@@ -15,8 +16,8 @@ async function callAI(prompt: string): Promise<string> {
   if (provider === 'mock' || !apiKey) {
     // Mock response for development
     await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 3000))
-    const mockPlan = await generateMockTripPlan()
-    return JSON.stringify(mockPlan)
+    const mockData = generateDevMockData()
+    return JSON.stringify(mockData.response)
   }
 
   // Real AI API calls
@@ -79,211 +80,6 @@ async function callAI(prompt: string): Promise<string> {
   throw new Error(`Unsupported AI provider: ${provider}`)
 }
 
-// Mock trip planning response - will replace with real AI calls
-async function generateMockTripPlan(): Promise<any> {
-  return {
-    plan: {
-      placesToVisit: [
-        {
-          name: "Central Market",
-          description: "Bustling local market with fresh produce and street food",
-          category: "Market",
-          priority: 1
-        },
-        {
-          name: "Historic Cathedral",
-          description: "Beautiful 16th century cathedral with stunning architecture",
-          category: "Historical",
-          priority: 2
-        }
-      ],
-      neighborhoods: [
-        {
-          name: "Old Town",
-          summary: "Historic center with cobblestone streets and traditional architecture",
-          vibe: "Historic and charming",
-          pros: ["Rich history", "Walkable", "Great restaurants"],
-          cons: ["Can be crowded", "Limited parking"],
-          bestFor: "History buffs and culture enthusiasts"
-        }
-      ],
-      hotelRecommendations: [
-        {
-          name: "Historic Hotel Plaza",
-          neighborhood: "Old Town",
-          priceRange: "$150-250/night",
-          description: "Elegant historic hotel in the heart of the city",
-          amenities: ["WiFi", "Restaurant", "Gym"]
-        }
-      ],
-      restaurants: [
-        {
-          name: "Local Bistro",
-          cuisine: "Traditional",
-          priceRange: "$$",
-          description: "Authentic local cuisine in cozy setting",
-          neighborhood: "Old Town",
-          specialDishes: ["Signature stew", "Fresh bread"],
-          reservationsRecommended: "Yes"
-        }
-      ],
-      bars: [
-        {
-          name: "Rooftop Lounge",
-          type: "cocktail" as const,
-          atmosphere: "Upscale",
-          description: "Panoramic city views with craft cocktails",
-          category: "Cocktail Bar",
-          neighborhood: "Old Town"
-        }
-      ],
-      weatherInfo: {
-        season: "Spring",
-        temperature: "18-24°C (64-75°F)",
-        conditions: "Mild with occasional rain",
-        humidity: "Moderate (60-70%)",
-        dayNightTempDifference: "6-8°C difference",
-        airQuality: "Good",
-        feelsLikeWarning: "None",
-        recommendations: ["Pack layers", "Bring light rain jacket", "Comfortable walking shoes"]
-      },
-      socialEtiquette: [
-        "Greet with a handshake",
-        "Tipping 10-15% is customary",
-        "Dress modestly when visiting religious sites"
-      ],
-      safetyTips: [
-        "Keep valuables secure",
-        "Be aware of pickpockets in tourist areas",
-        "Emergency number: 112"
-      ],
-      transportationInfo: {
-        publicTransport: "Excellent metro and bus system with day passes available",
-        creditCardPayment: true,
-        ridesharing: "Uber and local apps available",
-        taxiInfo: {
-          available: true,
-          averageCost: "$8-15 for city center trips",
-          tips: ["Most accept credit cards", "Agree on fare beforehand"]
-        },
-        airportTransport: {
-          airports: [
-            {
-              name: "International Airport",
-              code: "ABC",
-              distanceToCity: "25km from city center",
-              transportOptions: [
-                {
-                  type: "Express Train",
-                  cost: "$12",
-                  duration: "35 minutes",
-                  description: "Direct connection to city center",
-                  notes: ["Runs every 15 minutes", "Credit cards accepted"]
-                }
-              ]
-            }
-          ]
-        }
-      },
-      localCurrency: {
-        currency: "Local Dollar (LD)",
-        cashNeeded: false,
-        creditCardUsage: "Widely accepted",
-        tips: ["Notify bank of travel", "ATMs widely available"],
-        exchangeRate: {
-          from: "USD",
-          to: "LD",
-          rate: 1.2,
-          lastUpdated: "2024-01-15"
-        }
-      },
-      tipEtiquette: {
-        restaurants: "10-15% if service charge not included",
-        bars: "Round up or 10%",
-        taxis: "Round up to nearest dollar",
-        hotels: "$2-5 per night for housekeeping",
-        tours: "10-15% for guides",
-        general: "Tipping is appreciated but not mandatory"
-      },
-      activities: [
-        {
-          name: "Walking Food Tour",
-          type: "Food & Culture",
-          description: "Guided tour of local markets and traditional eateries",
-          duration: "3 hours",
-          localSpecific: true,
-          experienceType: "getyourguide" as const
-        }
-      ],
-      mustTryFood: {
-        items: [
-          {
-            name: "Traditional Stew",
-            description: "Hearty local stew with seasonal vegetables",
-            category: "main" as const,
-            whereToFind: "Local Bistro"
-          },
-          {
-            name: "Sweet Pastry",
-            description: "Flaky pastry with local honey",
-            category: "dessert" as const,
-            whereToFind: "Bakeries throughout Old Town"
-          }
-        ]
-      },
-      tapWaterSafe: {
-        safe: true,
-        details: "Tap water is safe to drink throughout the city"
-      },
-      localEvents: [
-        {
-          name: "Spring Festival",
-          type: "Cultural",
-          description: "Annual celebration with music and food",
-          dates: "April 15-17",
-          location: "City Center"
-        }
-      ],
-      history: "Founded in the 12th century, this city has been a major trading hub for centuries...",
-      itinerary: [
-        {
-          day: 1,
-          title: "Arrival & Old Town Exploration",
-          activities: [
-            {
-              time: "10:00 AM",
-              title: "Arrive and Check-in",
-              description: "Check into your hotel and get oriented",
-              location: "Historic Hotel Plaza",
-              icon: "map"
-            },
-            {
-              time: "2:00 PM",
-              title: "Historic Cathedral Visit",
-              description: "Explore the beautiful 16th century cathedral",
-              location: "Cathedral Square",
-              icon: "compass"
-            },
-            {
-              time: "6:00 PM",
-              title: "Welcome Dinner",
-              description: "Traditional dinner at Local Bistro",
-              location: "Local Bistro",
-              icon: "utensils"
-            }
-          ]
-        }
-      ]
-    },
-    reasoning: `This itinerary is designed specifically for your traveler type, balancing cultural experiences with comfort and local authenticity.`,
-    confidence: 92,
-    personalizations: [
-      "Accommodations selected based on your preferences",
-      "Restaurant recommendations focus on authentic local cuisine",
-      "Activities balanced between must-see attractions and local experiences"
-    ]
-  }
-}
 
 function generateTripPlanningPrompt(request: AITripPlanningRequest): string {
   const { destination, travelerType, preferences } = request
