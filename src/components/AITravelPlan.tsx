@@ -279,7 +279,7 @@ export function AITravelPlan({
             {/* Itinerary */}
             <TravelPlanSection>
               <h4 className="mb-6">Just some food for thought</h4>
-              {plan.itinerary.length > 0 ? (
+              {plan.itinerary && plan.itinerary.length > 0 ? (
                 <div className="space-y-6">
                   {plan.itinerary.map((day) => (
                     renderDayItinerary(day)

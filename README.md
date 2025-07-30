@@ -87,8 +87,7 @@ src/                               # Shared frontend code
 │   ├── PlaceholderMessage.tsx
 │   ├── ProgressiveForm.tsx        # Progressive multi-step form
 │   ├── QuestionStep.tsx           # Individual question component
-│   ├── TravelerTypeSelection.tsx
-│   └── TripPlanningPrompts.tsx
+│   └── TravelerTypeSelection.tsx
 ├── data/                          # Static data and mocks
 │   ├── mock/
 │   │   ├── destinations.ts

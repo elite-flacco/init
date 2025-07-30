@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Start development server**: `npm run dev`
 - **Build for production**: `npm run build`
+- **Start production server**: `npm start`
 - **Lint code**: `npm run lint`
 - **Preview production build**: `npm run preview`
 
@@ -34,24 +35,27 @@ Tests are configured to:
 
 ## Project Architecture
 
-This is a React + TypeScript travel planning application built with Vite. The app follows a multi-step wizard pattern where users progress through different phases of travel planning.
+This is a **Next.js 15 full-stack application** using the App Router with React 19 + TypeScript. The app follows a multi-step wizard pattern where users progress through different phases of travel planning with AI-powered recommendations and plan sharing capabilities.
 
 ### Core Application Flow
 
 The app uses a state-machine-like approach with an `AppStep` type that controls navigation:
 1. **traveler-type**: User selects their travel personality (YOLO, Type A, Boogey, Chill)
 2. **destination-knowledge**: User indicates if they know where they want to go
-3. **pick-destination**: Destination selection flow (if they don't know where to go)
-4. **destination-recommendations**: AI-generated destination suggestions
-5. **planning**: Trip planning questionnaire
-6. **plan**: Final travel plan display
+3. **destination-input**: Manual destination input (if they know where to go)
+4. **pick-destination**: Destination selection flow (if they don't know where to go)
+5. **destination-recommendations**: AI-generated destination suggestions
+6. **planning**: Trip planning questionnaire
+7. **plan**: Final travel plan display with sharing and export options
 
 ### Key Architecture Patterns
 
+- **Next.js App Router**: Full-stack architecture with frontend in `app/page.tsx` and backend API routes in `app/api/`
 - **Component-based structure**: Each step is its own component in `src/components/`
-- **Centralized state management**: All state is managed in the main `App.tsx` component and passed down as props
+- **Centralized state management**: All state is managed in the main `app/page.tsx` component and passed down as props
 - **Type safety**: Strong TypeScript interfaces defined in `src/types/travel.ts`
-- **Data layer**: Static data stored in `src/data/` directory
+- **API Services**: Backend API routes handle AI integration and plan sharing
+- **Data layer**: Static data stored in `src/data/` directory with mock data for development
 - **Conditional rendering**: Components are conditionally rendered based on `currentStep` state
 
 ### Type System
@@ -66,8 +70,9 @@ The application heavily relies on TypeScript interfaces:
 
 - **Static data**: Destinations and traveler types are hardcoded in `src/data/`
 - **Dynamic data**: User selections and preferences flow through component props
-- **AI Integration**: AI-powered destination recommendations via `src/services/aiDestinationService.ts`
-- **No backend**: Currently a frontend-only application with optional AI API integration
+- **AI Integration**: AI-powered services via `src/services/aiDestinationService.ts` and `src/services/aiTripPlanningService.ts`
+- **Backend API**: Next.js API routes in `app/api/` handle AI requests and plan sharing
+- **Plan Storage**: Shared plans are stored server-side with unique URLs for sharing
 
 ### Component Organization
 
@@ -113,6 +118,26 @@ The AI services are used in two main flows:
 4. AI returns detailed travel plans with itineraries, recommendations, and cultural insights
 5. `AITravelPlan` component displays the AI-generated plan with personalization explanations
 
+### API Routes
+
+The Next.js backend provides several API endpoints:
+- **POST /api/ai/destinations** - Generate AI destination recommendations
+- **POST /api/ai/trip-planning** - Generate comprehensive AI travel plans
+- **GET /api/ai/test** - Test AI service connectivity
+- **POST /api/shared-plans** - Create shareable plan with unique URL
+- **GET /api/shared-plans/[id]** - Retrieve shared plan by ID
+
+### Plan Sharing & Export
+
+The app includes advanced sharing and export capabilities:
+- **URL Sharing**: Plans can be shared via unique URLs (`/share/[id]`)
+- **PDF Export**: Generate PDF documents of travel plans using `src/services/pdfExportService.ts`
+- **KML Export**: Export itineraries as KML files for Google Maps using `src/services/kmlExportService.ts`
+
 ### Development Mode
 
 By default, the app runs in mock mode with simulated AI responses. To enable real AI integration, set the appropriate environment variables and API keys.
+
+**Development Shortcuts**: The app supports URL parameters for quick development:
+- `?dev=plan` - Jump directly to plan view with mock data
+- `?dev=destinations` - Jump to destination recommendations with mock data

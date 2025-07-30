@@ -84,6 +84,7 @@ export function AITripPlanningPrompts({
         timeOfYear: pickDestinationPreferences?.timeOfYear || answers.timeOfYear || '',
         duration: pickDestinationPreferences?.duration || answers.duration || '',
         budget: pickDestinationPreferences?.budget || answers.budget || '',
+        specialActivities: answers.specialActivities || '',
         activities: [],
         accommodation: answers.accommodation || '',
         transportation: answers.transportation || '',
