@@ -3,7 +3,7 @@ import { TravelerType, PickDestinationPreferences, Destination } from '../types/
 export interface AIDestinationRequest {
   travelerType: TravelerType;
   preferences?: PickDestinationPreferences;
-  destinationKnowledge: {
+  destinationKnowledge?: {
     type: 'yes' | 'country' | 'no-clue';
     label: string;
     description: string;

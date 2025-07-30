@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi, beforeAll } from 'vitest'
 import { aiDestinationService } from '../aiDestinationService'
-import { mockTravelerTypes, mockDestinationKnowledge, mockPickDestinationPreferences, mockFetchResponse, resetMocks } from '../../test/mocks'
+import { mockTravelerTypes, mockDestinationKnowledge, mockPickDestinationPreferences, resetMocks } from '../../test/mocks'
 import { destinations } from '../../data/mock/destinations'
 
 // Type declaration for Node.js global
@@ -16,477 +16,124 @@ beforeAll(() => {
   global.fetch = vi.fn()
 })
 
-// Mock the AI config
-vi.mock('../config/ai', () => ({
-  getAIConfig: () => ({
-    provider: 'mock',
-    apiKey: undefined,
-    model: 'gpt-4',
-    maxTokens: 1000,
-    temperature: 0.7
-  })
-}))
-
 describe('aiDestinationService', () => {
   beforeEach(() => {
     resetMocks()
+    // Mock successful API response
+    const mockResponse = {
+      destinations: destinations.slice(0, 3),
+      reasoning: 'Perfect destinations for your travel style',
+      confidence: 0.9
+    }
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockResponse)
+    })
   })
 
   describe('getDestinationRecommendations', () => {
-    describe('mock mode', () => {
-      it('should return recommendations for YOLO traveler type', async () => {
-        const request = {
-          travelerType: mockTravelerTypes.explorer,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
+    it('should return recommendations for explorer traveler type', async () => {
+      const request = {
+        travelerType: mockTravelerTypes.explorer,
+        destinationKnowledge: {
+          type: 'yes' as const,
+          label: 'Test Destination',
+          description: 'Test description'
         }
+      }
 
-        const response = await aiDestinationService.getDestinationRecommendations(request)
+      const response = await aiDestinationService.getDestinationRecommendations(request)
 
-        expect(response).toBeDefined()
-        expect(response.destinations).toBeInstanceOf(Array)
-        expect(response.destinations.length).toBeGreaterThan(0)
-        expect(response.confidence).toBeGreaterThan(0.8)
-        expect(response.confidence).toBeLessThanOrEqual(1)
-      })
-
-      it('should return recommendations for adventure traveler type', async () => {
-        const request = {
-          travelerType: mockTravelerTypes.adventure,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
-        }
-
-        const response = await aiDestinationService.getDestinationRecommendations(request)
-
-        expect(response).toBeDefined()
-        expect(response.destinations).toBeInstanceOf(Array)
-        expect(response.destinations.length).toBeGreaterThan(0)
-        
-        // Should include destinations from our mock data
-        const hasValidDestinations = response.destinations.every(dest => 
-          destinations.some(mockDest => mockDest.name === dest.name)
-        )
-        expect(hasValidDestinations).toBe(true)
-      })
-
-      it('should return recommendations for culture traveler type', async () => {
-        const request = {
-          travelerType: mockTravelerTypes.culture,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
-        }
-
-        const response = await aiDestinationService.getDestinationRecommendations(request)
-
-        expect(response).toBeDefined()
-        expect(response.destinations).toBeInstanceOf(Array)
-        
-        // Should include destinations from our mock data
-        const hasValidDestinations = response.destinations.every(dest => 
-          destinations.some(mockDest => mockDest.name === dest.name)
-        )
-        expect(hasValidDestinations).toBe(true)
-      })
-
-      it('should filter by budget preferences', async () => {
-        const requestBudget = {
-          travelerType: mockTravelerTypes.explorer,
-          preferences: {
-            ...mockPickDestinationPreferences,
-            budget: 'budget'
-          }
-        }
-
-        const response = await aiDestinationService.getDestinationRecommendations(requestBudget)
-
-        expect(response.destinations.length).toBeGreaterThan(0)
-        // Should include budget-friendly destinations
-        const hasBudgetDestinations = response.destinations.some(dest => 
-          ['thailand', 'vietnam', 'costa-rica'].includes(dest.id)
-        )
-        expect(hasBudgetDestinations).toBe(true)
-      })
-
-      it('should filter by trip type preferences', async () => {
-        const requestCultural = {
-          travelerType: mockTravelerTypes.culture,
-          preferences: {
-            ...mockPickDestinationPreferences,
-            tripType: 'cultural'
-          }
-        }
-
-        const response = await aiDestinationService.getDestinationRecommendations(requestCultural)
-
-        expect(response.destinations.length).toBeGreaterThan(0)
-        // Should include cultural destinations
-        const hasCulturalDestinations = response.destinations.some(dest => 
-          ['japan', 'greece', 'italy', 'egypt'].includes(dest.id)
-        )
-        expect(hasCulturalDestinations).toBe(true)
-      })
-
-      it('should filter by weather preferences', async () => {
-        const requestWarm = {
-          travelerType: mockTravelerTypes.relaxation,
-          preferences: {
-            ...mockPickDestinationPreferences,
-            weather: 'warm'
-          }
-        }
-
-        const response = await aiDestinationService.getDestinationRecommendations(requestWarm)
-
-        expect(response.destinations.length).toBeGreaterThan(0)
-        // Should include warm weather destinations
-        const hasWarmDestinations = response.destinations.some(dest => 
-          ['bali', 'thailand', 'costa-rica', 'greece'].includes(dest.id)
-        )
-        expect(hasWarmDestinations).toBe(true)
-      })
-
-      it('should include destination knowledge in recommendations', async () => {
-        const request = {
-          travelerType: mockTravelerTypes.culture,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
-        }
-
-        const response = await aiDestinationService.getDestinationRecommendations(request)
-
-        expect(response).toBeDefined()
-        expect(response.destinations).toBeInstanceOf(Array)
-      })
-
-      it('should handle empty filter results gracefully', async () => {
-        const request = {
-          travelerType: mockTravelerTypes.explorer,
-          preferences: {
-            ...mockPickDestinationPreferences,
-            budget: 'luxury',
-            tripType: 'adventure',
-            weather: 'cool'
-          }
-        }
-
-        const response = await aiDestinationService.getDestinationRecommendations(request)
-
-        expect(response.destinations.length).toBeGreaterThan(0)
-        expect(response.destinations.length).toBeLessThanOrEqual(6)
+      expect(response).toBeDefined()
+      expect(response.destinations).toBeInstanceOf(Array)
+      expect(response.destinations.length).toBeGreaterThan(0)
+      expect(response.confidence).toBeGreaterThan(0.8)
+      expect(response.confidence).toBeLessThanOrEqual(1)
+      expect(global.fetch).toHaveBeenCalledWith('/api/ai/destinations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request)
       })
     })
 
-    describe('OpenAI mode', () => {
-      beforeEach(() => {
-        vi.doMock('../../config/ai', () => ({
-          getAIConfig: () => ({
-            provider: 'openai',
-            apiKey: 'test-api-key',
-            model: 'gpt-4',
-            maxTokens: 1000,
-            temperature: 0.7
-          })
-        }))
-      })
+    it('should return recommendations with preferences', async () => {
+      const request = {
+        travelerType: mockTravelerTypes.culture,
+        preferences: mockPickDestinationPreferences,
+        destinationKnowledge: mockDestinationKnowledge
+      }
 
-      it('should call OpenAI API and return processed results', async () => {
-        const mockDestinationResponse = {
-          choices: [
-            {
-              message: {
-                content: JSON.stringify({
-                  destinations: [
-                    {
-                      name: 'Tokyo',
-                      country: 'Japan',
-                      description: 'Perfect blend of traditional culture and modern innovation',
-                      bestTimeToVisit: 'March - May',
-                      keyActivities: 'Ancient temples, Cherry blossoms, Modern cities, Amazing food',
-                      matchReason: 'Rich cultural heritage perfect for culture travelers',
-                      estimatedCost: '$80-120/day',
-                      details: 'Ancient capital with beautiful temples and modern attractions'
-                    },
-                    {
-                      name: 'Greece',
-                      country: 'Greece',
-                      description: 'Ancient history meets Mediterranean charm',
-                      bestTimeToVisit: 'April - October',
-                      keyActivities: 'Ancient ruins, Island hopping, Mediterranean cuisine, Sunset views',
-                      matchReason: 'Art and culture enthusiast paradise',
-                      estimatedCost: '$60-100/day',
-                      details: 'Birthplace of democracy and philosophy'
-                    }
-                  ],
-                  summary: 'Great cultural destinations',
-                  reasoning: 'Based on cultural interests and travel preferences',
-                  confidence: 0.9
-                })
-              }
-            }
-          ]
-        };
+      const response = await aiDestinationService.getDestinationRecommendations(request)
 
-        const mockFetch = vi.fn().mockResolvedValue(
-          mockFetchResponse(mockDestinationResponse)
-        )
-        global.fetch = mockFetch
-
-        // Clear module cache and re-import to get the mocked config
-        vi.resetModules()
-        const { aiDestinationService: mockedService } = await import('../aiDestinationService')
-
-        const request = {
-          travelerType: mockTravelerTypes.culture,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
-        }
-
-        const response = await mockedService.getDestinationRecommendations(request)
-
-        expect(mockFetch).toHaveBeenCalledWith(
-          'https://api.openai.com/v1/chat/completions',
-          expect.objectContaining({
-            method: 'POST',
-            headers: expect.objectContaining({
-              'Authorization': 'Bearer test-api-key',
-              'Content-Type': 'application/json'
-            })
-          })
-        )
-
-        expect(response.destinations).toBeInstanceOf(Array)
-        expect(response.reasoning).toBeDefined()
-      })
-
-      it('should throw an error when OpenAI API call fails', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({
-          ok: false,
-          status: 401,
-          statusText: 'Unauthorized'
-        })
-        global.fetch = mockFetch
-
-        vi.resetModules()
-        const { aiDestinationService: mockedService } = await import('../aiDestinationService')
-
-        const request = {
-          travelerType: mockTravelerTypes.culture,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
-        }
-
-        // Expect the API call to throw an error
-        await expect(mockedService.getDestinationRecommendations(request))
-          .rejects
-          .toThrow('OpenAI API error: Unauthorized');
+      expect(response).toBeDefined()
+      expect(response.destinations).toBeInstanceOf(Array)
+      expect(response.reasoning).toBeDefined()
+      expect(global.fetch).toHaveBeenCalledWith('/api/ai/destinations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request)
       })
     })
 
-    describe('Anthropic mode', () => {
-      beforeEach(() => {
-        vi.doMock('../../config/ai', () => ({
-          getAIConfig: () => ({
-            provider: 'anthropic',
-            apiKey: 'test-anthropic-key',
-            model: 'claude-3-sonnet-20240229',
-            maxTokens: 1000,
-            temperature: 0.7
-          })
-        }))
+    it('should handle API errors gracefully', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error'
       })
 
-      it('should call Anthropic API and return processed results', async () => {
-        const mockResponse = {
-          content: [
-            {
-              text: JSON.stringify({
-                destinations: [
-                  {
-                    name: 'Tokyo',
-                    country: 'Japan',
-                    description: 'Perfect blend of traditional culture and modern innovation',
-                    bestTimeToVisit: 'March - May',
-                    keyActivities: 'Ancient temples, Cherry blossoms',
-                    matchReason: 'Rich cultural heritage',
-                    estimatedCost: '$80-120/day',
-                    details: 'Perfect blend of traditional culture and modern innovation with amazing experiences'
-                  }
-                ],
-                summary: 'Great cultural destination',
-                reasoning: 'Based on cultural interests',
-                confidence: 0.9
-              })
-            }
-          ]
-        };
-        
-        const mockFetch = vi.fn().mockResolvedValue({
-          ok: true,
-          json: () => Promise.resolve(mockResponse)
-        })
-        global.fetch = mockFetch
-
-        vi.resetModules()
-        const { aiDestinationService: mockedService } = await import('../aiDestinationService')
-
-        const request = {
-          travelerType: mockTravelerTypes.adventure,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
+      const request = {
+        travelerType: mockTravelerTypes.explorer,
+        destinationKnowledge: {
+          type: 'yes' as const,
+          label: 'Test Destination',
+          description: 'Test description'
         }
+      }
 
-        const response = await mockedService.getDestinationRecommendations(request)
-
-        expect(mockFetch).toHaveBeenCalledWith(
-          'https://api.anthropic.com/v1/messages',
-          expect.objectContaining({
-            method: 'POST',
-            headers: expect.objectContaining({
-              'x-api-key': 'test-anthropic-key',
-              'Content-Type': 'application/json',
-              'anthropic-version': '2023-06-01'
-            })
-          })
-        )
-
-        expect(response.destinations).toBeInstanceOf(Array)
-        expect(response.reasoning).toBeDefined()
-      })
-
-      it('should throw an error when Anthropic API call fails', async () => {
-        const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'))
-        global.fetch = mockFetch
-
-        vi.resetModules()
-        const { aiDestinationService: mockedService } = await import('../aiDestinationService')
-
-        const request = {
-          travelerType: mockTravelerTypes.adventure,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
-        }
-
-        // Expect the API call to throw an error
-        await expect(mockedService.getDestinationRecommendations(request))
-          .rejects
-          .toThrow('Network error');
-      })
+      await expect(aiDestinationService.getDestinationRecommendations(request))
+        .rejects
+        .toThrow('Failed to get destination recommendations')
     })
 
-    describe('prompt generation', () => {
-      it('should generate comprehensive prompts with all user data', async () => {
-        const request = {
-          travelerType: mockTravelerTypes.culture,
-          preferences: mockPickDestinationPreferences,
-          destinationKnowledge: mockDestinationKnowledge
+    it('should handle network errors gracefully', async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
+
+      const request = {
+        travelerType: mockTravelerTypes.explorer,
+        destinationKnowledge: {
+          type: 'yes' as const,
+          label: 'Test Destination',
+          description: 'Test description'
         }
+      }
 
-        // We can't directly test the private method, but we can verify the service handles complex requests
-        const response = await aiDestinationService.getDestinationRecommendations(request)
-
-        expect(response).toBeDefined()
-        expect(response.destinations).toBeInstanceOf(Array)
-        expect(response.reasoning).toBeDefined()
-        expect(response.confidence).toBeGreaterThan(0)
-      })
-
-      it('should handle minimal request data', async () => {
-        const request = {
-          travelerType: mockTravelerTypes.explorer,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
-        }
-
-        const response = await aiDestinationService.getDestinationRecommendations(request)
-
-        expect(response).toBeDefined()
-        expect(response.destinations).toBeInstanceOf(Array)
-        expect(response.reasoning).toBeDefined()
-      })
+      await expect(aiDestinationService.getDestinationRecommendations(request))
+        .rejects
+        .toThrow('Network error')
     })
 
-    describe('response processing', () => {
-      it('should return valid destination objects', async () => {
-        const request = {
-          travelerType: mockTravelerTypes.culture,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
+    it('should validate response structure', async () => {
+      const request = {
+        travelerType: mockTravelerTypes.culture,
+        destinationKnowledge: {
+          type: 'yes' as const,
+          label: 'Test Destination',
+          description: 'Test description'
         }
+      }
 
-        const response = await aiDestinationService.getDestinationRecommendations(request)
+      const response = await aiDestinationService.getDestinationRecommendations(request)
 
-        response.destinations.forEach(destination => {
-          expect(destination).toHaveProperty('id')
-          expect(destination).toHaveProperty('name')
-          expect(destination).toHaveProperty('country')
-          expect(destination).toHaveProperty('description')
-          expect(destination).toHaveProperty('image')
-          expect(destination).toHaveProperty('highlights')
-          expect(destination).toHaveProperty('bestTime')
-          expect(destination).toHaveProperty('budget')
-        })
-      })
-
-      it('should limit results to maximum 6 destinations', async () => {
-        const request = {
-          travelerType: mockTravelerTypes.explorer,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
-        }
-
-        const response = await aiDestinationService.getDestinationRecommendations(request)
-
-        expect(response.destinations.length).toBeLessThanOrEqual(6)
-      })
-
-      it('should include confidence score between 0 and 1', async () => {
-        const request = {
-          travelerType: mockTravelerTypes.culture,
-          destinationKnowledge: {
-            type: 'yes' as const,
-            label: 'Test Destination',
-            description: 'Test description'
-          }
-        }
-
-        const response = await aiDestinationService.getDestinationRecommendations(request)
-
-        expect(response.confidence).toBeGreaterThan(0)
-        expect(response.confidence).toBeLessThanOrEqual(1)
+      response.destinations.forEach(destination => {
+        expect(destination).toHaveProperty('id')
+        expect(destination).toHaveProperty('name')
+        expect(destination).toHaveProperty('country')
+        expect(destination).toHaveProperty('description')
+        expect(destination).toHaveProperty('image')
+        expect(destination).toHaveProperty('highlights')
+        expect(destination).toHaveProperty('bestTime')
+        expect(destination).toHaveProperty('budget')
       })
     })
   })

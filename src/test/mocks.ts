@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { Destination, PickDestinationPreferences, TripPreferences, DestinationKnowledge } from '../types/travel'
 import { destinations } from '../data/mock/destinations'
 import { travelerTypesLookup } from '../data/mock/travelerTypes'
@@ -52,12 +53,24 @@ function generateMockAIResponse() {
   
   const travelPlan = generateTravelPlan(mockDestination, mockPreferences, mockTravelerType);
   
+  // Create the complete response structure expected by the trip planning service
+  const tripPlanningResponse = {
+    plan: travelPlan,
+    reasoning: `Generated a comprehensive travel plan for ${mockDestination.name} based on your ${mockTravelerType.name} travel style and preferences.`,
+    confidence: 0.9,
+    personalizations: [
+      `Customized for ${mockTravelerType.name} travel style`,
+      `${mockPreferences.budget} budget accommodations and activities`,
+      `${mockPreferences.activityLevel} activity level itinerary`,
+    ]
+  };
+  
   return {
     openai: {
       choices: [
         {
           message: {
-            content: JSON.stringify(travelPlan)
+            content: JSON.stringify(tripPlanningResponse)
           }
         }
       ]
@@ -65,7 +78,7 @@ function generateMockAIResponse() {
     anthropic: {
       content: [
         {
-          text: JSON.stringify(travelPlan)
+          text: JSON.stringify(tripPlanningResponse)
         }
       ]
     }
@@ -87,7 +100,7 @@ export const mockFetchResponse = (data: unknown, ok = true, status = 200) => {
 // Reset all mocks
 export const resetMocks = () => {
   vi.clearAllMocks()
-  if (global.fetch) {
-    (global.fetch as unknown).mockReset()
+  if (global.fetch && typeof (global.fetch as any).mockReset === 'function') {
+    (global.fetch as any).mockReset()
   }
 }
