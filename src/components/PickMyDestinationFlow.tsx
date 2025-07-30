@@ -15,16 +15,46 @@ export function PickMyDestinationFlow({
   travelerType,
   onComplete 
 }: PickMyDestinationFlowProps) {
+  console.log('PickMyDestinationFlow rendering with:', { destinationKnowledge, travelerType });
+  
+  // Safety check - should not happen with proper App.tsx logic, but just in case
+  if (!destinationKnowledge) {
+    console.error('PickMyDestinationFlow called without destinationKnowledge');
+    return (
+      <div className="min-h-screen">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-16">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
+              Something went wrong
+            </h2>
+            <p className="text-foreground-secondary">
+              Missing destination knowledge data. Please go back and try again.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   const getQuestions = (): Question[] => {
-    // Get base questions for the traveler type
-    let questions = [...getQuestionsByTravelerType(travelerType.id)];
+    try {
+      // Get base questions for the traveler type
+      console.log('Getting questions for traveler type:', travelerType.id);
+      let questions = [...getQuestionsByTravelerType(travelerType.id)];
+      console.log('Base questions:', questions);
 
-    // Add region question if they know the country
-    if (destinationKnowledge.type === 'country') {
-      questions = [regionQuestion, ...questions];
+      // Add region question if they know the country
+      if (destinationKnowledge.type === 'country') {
+        console.log('Adding region question');
+        questions = [regionQuestion, ...questions];
+      }
+
+      console.log('Final questions:', questions);
+      return questions;
+    } catch (error) {
+      console.error('Error getting questions:', error);
+      return [];
     }
-
-    return questions;
   };
 
   const handleFormComplete = (answers: Record<string, string>) => {
@@ -42,11 +72,30 @@ export function PickMyDestinationFlow({
     onComplete(preferences);
   };
 
+  const questions = getQuestions();
+  
+  if (questions.length === 0) {
+    return (
+      <div className="min-h-screen">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-16">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
+              Loading questions...
+            </h2>
+            <p className="text-foreground-secondary">
+              Preparing your destination selection form
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <ProgressiveForm
-          questions={getQuestions()}
+          questions={questions}
           onComplete={handleFormComplete}
           title="Let's Find Your Perfect Destination"
           subtitle="Answer each question to help us create your dream travel experience ✈️"

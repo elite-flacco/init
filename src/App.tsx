@@ -57,12 +57,14 @@ function App() {
   };
 
   const handleDestinationKnowledgeSelect = (knowledge: DestinationKnowledge) => {
+    console.log('Destination knowledge selected:', knowledge);
     setDestinationKnowledge(knowledge);
     if (knowledge.type === 'yes') {
       // Skip to planning if they already know where to go
       setCurrentStep('planning');
     } else {
       // Go to pick destination flow
+      console.log('Setting step to pick-destination');
       setCurrentStep('pick-destination');
     }
   };
@@ -255,11 +257,14 @@ function App() {
         )}
 
         {currentStep === 'pick-destination' && destinationKnowledge && selectedTravelerType && (
-          <PickMyDestinationFlow
-            destinationKnowledge={destinationKnowledge}
-            travelerType={selectedTravelerType}
-            onComplete={handlePickDestinationComplete}
-          />
+          <>
+            {console.log('Rendering PickMyDestinationFlow with:', { destinationKnowledge, selectedTravelerType })}
+            <PickMyDestinationFlow
+              destinationKnowledge={destinationKnowledge}
+              travelerType={selectedTravelerType}
+              onComplete={handlePickDestinationComplete}
+            />
+          </>
         )}
 
         {currentStep === 'destination-recommendations' && (

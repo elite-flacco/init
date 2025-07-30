@@ -18,32 +18,28 @@ async function callAI(prompt: string): Promise<string> {
   const { provider, apiKey } = config
   
   if (provider === 'mock' || !apiKey) {
-    // Mock response for development
+    // Mock response for development using actual destinations data
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000))
+    
+    // Select 2-3 random destinations from our mock data
+    const shuffledDestinations = [...destinations].sort(() => 0.5 - Math.random())
+    const selectedDestinations = shuffledDestinations.slice(0, 3)
+    
+    // Transform destinations to match AI response format
+    const transformedDestinations = selectedDestinations.map(dest => ({
+      name: dest.name,
+      country: dest.country,
+      description: dest.description,
+      bestTimeToVisit: dest.bestTime,
+      keyActivities: dest.highlights.join(', '),
+      matchReason: `Perfect match for your travel style with ${dest.highlights[0].toLowerCase()} and authentic experiences`,
+      estimatedCost: dest.budget,
+      details: `${dest.description}. This destination offers amazing experiences including ${dest.highlights.join(', ').toLowerCase()}.`
+    }))
+    
     return JSON.stringify({
-      destinations: [
-        {
-          name: "Kyoto",
-          country: "Japan",
-          description: "Perfect blend of traditional culture and modern convenience - a classic must-see destination",
-          bestTimeToVisit: "Spring (March-May) for cherry blossoms",
-          keyActivities: "Temple visits, traditional tea ceremonies, bamboo forest walks",
-          matchReason: "Iconic destination that combines cultural immersion with well-organized infrastructure",
-          estimatedCost: "$$$",
-          details: "Kyoto is Japan's cultural heart and one of the world's most beloved tourist destinations..."
-        },
-        {
-          name: "Faroe Islands",
-          country: "Denmark", 
-          description: "Hidden Nordic gem with dramatic landscapes and authentic local culture",
-          bestTimeToVisit: "Summer (June-August) for hiking and mild weather",
-          keyActivities: "Dramatic cliff hikes, grass-roof village exploration, puffin watching",
-          matchReason: "Perfect off-the-beaten-path destination with untouched nature and authentic experiences",
-          estimatedCost: "$$$",
-          details: "The Faroe Islands are one of Europe's best-kept secrets..."
-        }
-      ],
-      reasoning: "Based on your preferences for authentic experiences and moderate adventure level, I've selected destinations that offer the perfect balance of cultural immersion and natural beauty.",
+      destinations: transformedDestinations,
+      reasoning: "Based on your preferences for authentic experiences and adventure level, I've selected destinations that offer the perfect balance of cultural immersion and natural beauty from our curated collection.",
       confidence: 85
     })
   }

@@ -15,6 +15,7 @@ interface AIDestinationRecommendationResultsProps {
 export function AIDestinationRecommendationResults({
   aiResponse,
   onSelect,
+  onBack,
   onRegenerate
 }: AIDestinationRecommendationResultsProps) {
   const [selectedDestinationForModal, setSelectedDestinationForModal] = useState<Destination | null>(null);
