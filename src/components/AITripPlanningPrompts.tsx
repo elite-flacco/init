@@ -153,13 +153,13 @@ export function AITripPlanningPrompts({
                 setIsFormCompleted(false);
                 // Go back to form
               }}
-              className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+              className="btn-primary"
             >
               Let's Give This Another Shot
             </button>
             <button
               onClick={onBack}
-              className="inline-flex items-center justify-center px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              className="btn-outline"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Go Back

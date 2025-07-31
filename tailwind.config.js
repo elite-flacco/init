@@ -16,9 +16,9 @@ module.exports = {
       colors: {
         // 🌅 Sunset Citrus (Primary) - Enhanced with more shades
         primary: {
-          DEFAULT: '#f97316',
-          light: '#fdba74',
-          dark: '#ea580c',
+          DEFAULT: '#06b6d4',  // cyan-500 (brighter, tropical)
+          light: '#22d3ee',    // cyan-400
+          dark: '#0891b2',     // cyan-600
         },
   
         // 🌊 Coastal Breeze (Accent) - Enhanced with full spectrum
@@ -30,9 +30,9 @@ module.exports = {
   
         // Secondary (Enhanced amber palette)
         secondary: {
-          DEFAULT: '#06b6d4',  // cyan-500 (brighter, tropical)
-          light: '#22d3ee',    // cyan-400
-          dark: '#0891b2',     // cyan-600
+          DEFAULT: '#f97316',
+          light: '#fdba74',
+          dark: '#ea580c',
         },
   
         // Enhanced semantic colors with proper shades

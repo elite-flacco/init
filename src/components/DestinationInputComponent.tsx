@@ -78,7 +78,7 @@ export function DestinationInputComponent({ travelerType, onSubmit }: Destinatio
           <button
             type="submit"
             disabled={!destination.trim()}
-            className="w-full bg-primary text-white py-4 px-6 rounded-lg text-lg font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full btn-primary"
           >
             Let's Plan This Trip
           </button>
