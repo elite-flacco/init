@@ -1,5 +1,5 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 /**
  * Combines multiple class names and merges Tailwind CSS classes
@@ -16,9 +16,12 @@ export function cn(...inputs: ClassValue[]) {
  * @param currency - The currency code (default: 'USD')
  * @returns Formatted currency string
  */
-export function formatCurrency(amount: number, currency: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
+export function formatCurrency(
+  amount: number,
+  currency: string = "USD",
+): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
     currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
@@ -42,7 +45,7 @@ export function truncateString(str: string, length: number = 100): string {
  * @returns Promise that resolves after the delay
  */
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -50,7 +53,7 @@ export function sleep(ms: number): Promise<void> {
  * @param prefix - Optional prefix for the ID
  * @returns A unique ID string
  */
-export function generateId(prefix: string = 'id'): string {
+export function generateId(prefix: string = "id"): string {
   return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
@@ -60,8 +63,8 @@ export function generateId(prefix: string = 'id'): string {
  */
 export function isDarkMode(): boolean {
   return (
-    window.matchMedia && 
-    window.matchMedia('(prefers-color-scheme: dark)').matches
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
   );
 }
 
@@ -70,10 +73,10 @@ export function isDarkMode(): boolean {
  * @param force - Optional boolean to force dark mode on/off
  */
 export function toggleDarkMode(force?: boolean): void {
-  if (typeof force === 'boolean') {
-    document.documentElement.classList.toggle('dark', force);
+  if (typeof force === "boolean") {
+    document.documentElement.classList.toggle("dark", force);
   } else {
-    document.documentElement.classList.toggle('dark');
+    document.documentElement.classList.toggle("dark");
   }
 }
 
@@ -85,20 +88,20 @@ export function toggleDarkMode(force?: boolean): void {
  */
 export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout> | null = null;
-  
-  return function(...args: Parameters<T>) {
+
+  return function (...args: Parameters<T>) {
     const later = () => {
       timeout = null;
       func(...args);
     };
-    
+
     if (timeout !== null) {
       clearTimeout(timeout);
     }
-    
+
     timeout = setTimeout(later, wait);
   };
 }
@@ -111,11 +114,11 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  */
 export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
-  limit: number
+  limit: number,
 ): (...args: Parameters<T>) => void {
   let inThrottle = false;
-  
-  return function(...args: Parameters<T>) {
+
+  return function (...args: Parameters<T>) {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
