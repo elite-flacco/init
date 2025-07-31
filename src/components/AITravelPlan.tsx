@@ -150,17 +150,16 @@ export function AITravelPlan({
       case 'compass':
         return <Compass className="w-5 h-5 text-purple-500" />;
       default:
-        return <MapPin className="w-5 h-5 text-gray-500" />;
-    }
+        return <MapPin className="w-5 h-5 text-gray" />;
+    } 
   };
 
   // Render a single activity item
   const renderActivity = (activity: Activity, index: number) => (
-    <div key={index} className="relative pl-6">
-      <div className="absolute left-0 top-2 w-2 h-2 rounded-full bg-primary"></div>
+    <div key={index} className="relative pl-2">
       <div className="flex items-start">
         <div className="flex-shrink-0 mt-1 mr-3">
-          {activity.icon ? getIconComponent(activity.icon) : <MapPin className="w-5 h-5 text-gray-500" />}
+          {activity.icon ? getIconComponent(activity.icon) : <MapPin className="w-5 h-5 text-gray" />}
         </div>
         <div>
           <div className="text-sm font-medium text-muted-foreground">{activity.time}</div>
@@ -205,19 +204,19 @@ export function AITravelPlan({
           <div className="flex space-x-3 mt-4 md:mt-0">
             <button
               onClick={onRegeneratePlan}
-              className="flex items-center p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors"
+              className="flex items-center p-2 btn-secondary"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
             <button
-              className="flex items-center p-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors"
+              className="flex items-center p-2 btn-secondary"
               onClick={handleExportToPdf}
               title="Export to PDF"
             >
               <FileText className="w-4 h-4 " />
             </button>
             <button
-              className="flex items-center p-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center p-2 btn-secondary"
               onClick={handleExportToGoogleMaps}
               disabled={isExportingKML}
               title="Export to Google Maps (KML)"
@@ -229,7 +228,7 @@ export function AITravelPlan({
               )}
             </button>
             <button
-              className="flex items-center px-4 py-2 bg-background-muted hover:bg-background-muted/80 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center p-2 btn-secondary"
               onClick={handleShare}
               disabled={isSharing}
               title="Share this travel plan"
@@ -459,7 +458,7 @@ export function AITravelPlan({
                                 tags={restaurant.specialDishes}
                               >
                                 {restaurant.reservationsRecommended === "Yes" && (
-                                  <div className="mt-3 text-sm text-amber-600 font-medium">
+                                  <div className="mt-3 text-sm text-amber font-medium">
                                     💡 Reservations recommended
                                   </div>
                                 )}

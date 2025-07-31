@@ -13,6 +13,7 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [editingStep, setEditingStep] = useState<number | null>(null);
+  const [isCompleting, setIsCompleting] = useState(false);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Initialize answers
@@ -97,7 +98,9 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
         setCurrentStep(nextUnansweredStep);
       } else {
         // All questions are answered, complete the form
-        onComplete(answers);
+        setIsCompleting(true);
+        setCurrentStep(questions.length); // Show completion message
+        setTimeout(() => onComplete(answers), 2500);
       }
       return;
     }
@@ -106,7 +109,9 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
       setCurrentStep(currentStep + 1);
     } else {
       // All questions completed
-      onComplete(answers);
+      setIsCompleting(true);
+      setCurrentStep(questions.length); // Show completion message
+      setTimeout(() => onComplete(answers), 2500);
     }
   };
 
@@ -279,10 +284,10 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
               <div className="bg-success/10 minimal-card border-2 border-success/30 rounded-2xl p-8">
                 <div className="text-6xl mb-4">🎉</div>
                 <h2 className="text-2xl font-bold text-foreground mb-2">
-                  All done!
+                  Perfect! We've got everything we need
                 </h2>
                 <p className="text-foreground-secondary">
-                  Thanks for completing the form. Processing your answers...
+                  Thanks for the details. Now let's find you something amazing...
                 </p>
               </div>
             </motion.div>
@@ -297,7 +302,7 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
             className="fixed bottom-6 left-1/2 transform -translate-x-1/2"
           >
             <div className="bg-white shadow-lg rounded-full px-4 py-2 text-sm text-foreground-secondary border">
-              💡 Scroll up to edit previous answers
+              💡 Scroll up to change any answers
             </div>
           </motion.div>
         )}

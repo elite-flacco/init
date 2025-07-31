@@ -40,7 +40,7 @@ This is a **Next.js 15 full-stack application** using the App Router with React 
 ### Core Application Flow
 
 The app uses a state-machine-like approach with an `AppStep` type that controls navigation:
-1. **traveler-type**: User selects their travel personality (YOLO, Type A, Boogey, Chill)
+1. **traveler-type**: User selects their travel personality (Explorer, Type A, Overthinker, Chill)
 2. **destination-knowledge**: User indicates if they know where they want to go
 3. **destination-input**: Manual destination input (if they know where to go)
 4. **pick-destination**: Destination selection flow (if they don't know where to go)

@@ -60,9 +60,6 @@ export function AITripPlanningPrompts({
   };
 
   const handleFormComplete = async (answers: Record<string, string>) => {
-    // Immediately set form as completed to prevent flash
-    setIsFormCompleted(true);
-    
     // If no destination is selected but user said they know where to go, create a destination from their input
     const effectiveDestination = destination || (destinationKnowledge?.type === 'yes' ? {
       id: 'user-destination',
@@ -77,7 +74,6 @@ export function AITripPlanningPrompts({
 
     if (!effectiveDestination) {
       setGenerationError('No destination selected');
-      setIsFormCompleted(false);
       return;
     }
 
@@ -125,14 +121,12 @@ export function AITripPlanningPrompts({
         pickDestinationPreferences
       });
 
-
       onComplete(aiResponse);
     } catch (error) {
       console.error('Failed to generate AI travel plan:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please give it another go.';
+      const errorMessage = error instanceof Error ? error.message : 'Our AI had a brain freeze. Mind giving it another shot?';
       setGenerationError(errorMessage);
       setIsGeneratingPlan(false);
-      setIsFormCompleted(false);
     }
   };
 
@@ -147,7 +141,7 @@ export function AITripPlanningPrompts({
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-foreground mb-4">
-            Oops! Something went wrong
+            Houston, we have a problem...
           </h2>
           <p className="text-foreground-secondary mb-8">
             {generationError}
@@ -161,7 +155,7 @@ export function AITripPlanningPrompts({
               }}
               className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
             >
-              Try Again
+              Let's Give This Another Shot
             </button>
             <button
               onClick={onBack}
@@ -176,8 +170,8 @@ export function AITripPlanningPrompts({
     );
   }
 
-  // If form is completed, show loading state immediately
-  if (isFormCompleted || isGeneratingPlan) {
+  // If generating plan, show loading state
+  if (isGeneratingPlan) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center p-8 max-w-lg">
@@ -185,10 +179,10 @@ export function AITripPlanningPrompts({
             <Sparkles className="w-10 h-10 text-primary animate-pulse" />
           </div>
           <h2 className="text-3xl font-bold text-foreground mb-4">
-            AI is Crafting Your Perfect Trip
+            Cooking Up Something Amazing
           </h2>
           <p className="text-foreground-secondary mb-8 text-lg">
-            Our AI is analyzing your preferences and creating a personalized travel plan for {getDestinationName()}. This might take a moment...
+            Our AI is putting together the perfect {getDestinationName()} experience just for you. Grab a coffee, this might take a while...
           </p>
           <div className="flex justify-center mb-6">
             <div className="flex space-x-2">
@@ -213,10 +207,10 @@ export function AITripPlanningPrompts({
             </div>
           </div>
           <h1 className="text-3xl font-bold text-center mb-4">
-            Let's plan your epic trip to {getDestinationName()}!
+            Time to plan something awesome for {getDestinationName()}
           </h1>
           <p className="text-center text-foreground-secondary max-w-2xl mx-auto">
-            Our AI will use your answers to create a personalized travel plan that matches your style, budget, and preferences. Answer each question and we'll automatically move to the next one ✨
+            We'll use your answers to craft a travel plan that's perfectly you.
           </p>
         </div>
 

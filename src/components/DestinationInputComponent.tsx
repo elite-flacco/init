@@ -15,12 +15,12 @@ export function DestinationInputComponent({ travelerType, onSubmit }: Destinatio
     e.preventDefault()
     
     if (!destination.trim()) {
-      setError('Please enter a destination')
+      setError('Come on, give us something to work with!')
       return
     }
     
     if (destination.length < 2) {
-      setError('Please enter a valid destination')
+      setError('That\'s a bit too short - try something like "Paris" or "Tokyo"')
       return
     }
     
@@ -40,15 +40,15 @@ export function DestinationInputComponent({ travelerType, onSubmit }: Destinatio
         </div>
         
         <h1 className="text-3xl font-bold text-foreground mb-4">
-          Where are you planning to go?
+          Alright, spill the beans - where to?
         </h1>
         
         <p className="text-lg text-foreground-secondary max-w-2xl mx-auto">
-          {travelerType.name === 'YOLO' && "Let's plan an epic adventure! "}
-          {travelerType.name === 'Type A' && "Perfect! Let's get your itinerary organized. "}
-          {travelerType.name === 'Boogey' && "Great! We'll make sure you're well-prepared. "}
-          {travelerType.name === 'Chill' && "Awesome! Let's plan something relaxing. "}
-          Tell us your dream destination and we'll create the perfect travel plan for you.
+          {travelerType.name === 'Explorer' && "Let's plan something unforgettable. "}
+          {travelerType.name === 'Type A' && "Perfect! Let's get this trip meticulously planned. "}
+          {travelerType.name === 'Typical Overthinker' && "Great choice! We'll handle the details so you can close some tabs. "}
+          {travelerType.name === 'Just Here to Chill' && "Excellent! Let's craft the perfect chill escape. "}
+          Drop your dream destination here and we'll build you the perfect trip.
         </p>
       </div>
 
@@ -56,17 +56,17 @@ export function DestinationInputComponent({ travelerType, onSubmit }: Destinatio
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+              <Search className="h-5 w-5 text-gray" />
             </div>
             <input
               type="text"
               value={destination}
               onChange={handleInputChange}
-              placeholder="e.g. Tokyo, Paris, New York, Bali..."
-              className={`block w-full pl-10 pr-3 py-4 border rounded-lg text-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
+              placeholder="e.g. Tokyo, Paris, Bali, somewhere with great tacos..."
+              className={`block w-full pl-4 pr-3 py-4 border rounded-lg text-sm placeholder-gray focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
                 error 
                   ? 'border-red-300 bg-red-50' 
-                  : 'border-gray-300 bg-white hover:border-gray-400'
+                  : 'border-gray-300 bg-white hover:border-gray'
               }`}
               autoFocus
             />
@@ -80,13 +80,13 @@ export function DestinationInputComponent({ travelerType, onSubmit }: Destinatio
             disabled={!destination.trim()}
             className="w-full bg-primary text-white py-4 px-6 rounded-lg text-lg font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Continue to Planning
+            Let's Plan This Trip
           </button>
         </form>
 
         <div className="mt-8 text-center">
           <p className="text-sm text-foreground-secondary">
-            💡 Tip: Be as specific as you like! You can enter a city, country, or even a specific area like "Tokyo, Japan" or "Tuscany, Italy"
+            💡 Pro tip: Get as specific as you want - "Tokyo ramen district" hits different than just "Japan"
           </p>
         </div>
       </div>

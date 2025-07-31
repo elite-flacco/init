@@ -46,7 +46,7 @@ export function AIDestinationRecommendationResults({
           Your Top Hits
         </h1>
         <p className="text-xl text-foreground-secondary max-w-3xl mx-auto leading-relaxed mb-6">
-          We think you'll love these!
+          Based on your vibe, we're pretty confident one of these will make you go "YES, this is it!"
         </p>
         <div className="flex justify-center m-4">
           {onRegenerate && (
@@ -55,7 +55,7 @@ export function AIDestinationRecommendationResults({
               className="btn-primary"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Get New Suggestions
+              Show Me More Options
             </button>
           )}
         </div>
@@ -84,7 +84,7 @@ export function AIDestinationRecommendationResults({
               className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Try Different Recommendations
+              Give Me Something Else
             </button>
           )}
         </div>

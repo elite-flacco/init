@@ -41,7 +41,7 @@ npx vitest src/services/__tests__/basic.test.ts
 
 ### Mock Data
 The test suite includes comprehensive mock data for:
-- Traveler types (YOLO, Adventure, Culture, Relaxation)
+- Traveler types (Explorer, Type A, Overthinker, Chill)
 - Destinations (Paris, Tokyo, Bali, etc.)
 - Trip preferences and configurations
 - AI API responses (OpenAI and Anthropic formats)

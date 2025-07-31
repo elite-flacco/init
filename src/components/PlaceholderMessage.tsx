@@ -3,9 +3,10 @@ import { TravelerType } from '../types/travel';
 
 interface PlaceholderMessageProps {
   travelerType: TravelerType;
+  onContinue?: () => void;
 }
 
-export function PlaceholderMessage({ travelerType }: PlaceholderMessageProps) {
+export function PlaceholderMessage({ travelerType, onContinue }: PlaceholderMessageProps) {
   if (!travelerType.showPlaceholder || !travelerType.placeholderMessage) {
     return null;
   }
@@ -17,7 +18,7 @@ export function PlaceholderMessage({ travelerType }: PlaceholderMessageProps) {
           {travelerType.icon}
         </div>
         <h3 className="mb-12">{travelerType.greeting}</h3>
-        <h6 className="mb-6 text-foreground-secondary">
+        <h6 className="mb-8 text-foreground-secondary">
           {travelerType.placeholderMessage}
         </h6>
       </Card>

@@ -3,28 +3,28 @@ import { TravelerType } from '../../types/travel';
 export const travelerTypes: TravelerType[] = [
   {
     id: 'explorer',
-    name: 'YOLO Traveler',
+    name: 'Explorer',
     description: 'Spontaneous and adventurous, goes with the flow',
     icon: '🚀',
     showPlaceholder: false
   },
   {
     id: 'adventure',
-    name: 'Adventure Seeker',
+    name: 'Type A',
     description: 'Loves outdoor activities and thrilling experiences',
     icon: '🏔️',
     showPlaceholder: false
   },
   {
     id: 'culture',
-    name: 'Culture Explorer',
+    name: 'Typical Overthinker',
     description: 'Fascinated by history, art, and local traditions',
     icon: '🏛️',
     showPlaceholder: false
   },
   {
     id: 'relaxation',
-    name: 'Relaxation Seeker',
+    name: 'Just Here to Chill',
     description: 'Prefers peaceful and rejuvenating experiences',
     icon: '🧘',
     showPlaceholder: false

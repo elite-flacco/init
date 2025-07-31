@@ -61,7 +61,7 @@ export const commonDestinationQuestions: Question[] = [
                 value: 'mid-range budget comfortable'
             },
             {
-                label: '🤑 Money is no object',
+                label: '🤑 Money is no object, let\'s go all out',
                 value: 'luxury travel high budget'
             }
         ]
@@ -92,7 +92,7 @@ export const commonDestinationQuestions: Question[] = [
                 value: 'urban exploration nightlife city experiences'
             },
             {
-                label: 'Can\'t decide, surprise me!',
+                label: 'Mix it all up - I\'m here for whatever!',
                 value: 'variety mixed experiences open to anything'
             }
         ]
@@ -100,18 +100,18 @@ export const commonDestinationQuestions: Question[] = [
     {
         id: 'weather',
         type: 'select',
-        question: 'How do you want to feel temperature-wise? 🌡️',
+        question: 'What\'s your ideal weather vibe? 🌡️',
         options: [
             {
-                label: 'Don\'t want to get toasted',
+                label: 'Keep me cool - I\'m not trying to melt',
                 value: 'prefer cooler weather'
             },
             {
-                label: 'Don\'t want to freeze my ass off',
+                label: 'Warm me up - I hate being cold',
                 value: 'prefer warm weather'
             },
             {
-                label: 'Weather is whatever',
+                label: 'Weather\'s weather - I\'ll adapt',
                 value: 'no weather preference'
             }
         ]
@@ -119,7 +119,7 @@ export const commonDestinationQuestions: Question[] = [
     {
         id: 'priority',
         type: 'select',
-        question: 'What matters most to you? 🎯',
+        question: 'What\'s your main priority on this trip? 🎯',
         options: [
             {
                 label: '🍽️ Incredible food & drinks',
@@ -130,7 +130,7 @@ export const commonDestinationQuestions: Question[] = [
                 value: 'prioritize nightlife and social activities'
             },
             {
-                label: '🛍️ Shopping until I\'m broke',
+                label: '🛍️ Shopping (sorry, credit card)',
                 value: 'prioritize shopping and retail experiences'
             },
             {
@@ -150,18 +150,18 @@ export const commonDestinationQuestions: Question[] = [
     {
         id: 'destinationType',
         type: 'select',
-        question: 'What kind of destination vibe are you going for? 🗺️',
+        question: 'What kind of destination speaks to you? 🗺️',
         options: [
             {
                 label: '🏛️ Major hits - I don\'t mind tourists. Give me the classics.',
                 value: 'major tourist destinations popular attractions'
             },
             {
-                label: '🌲 Off the beaten path - I want hidden gems',
+                label: '🌲 Hidden gems - take me off the beaten path',
                 value: 'off beaten path hidden gems remote destinations'
             },
             {
-                label: '🚀 Up and coming - Let me go before it gets too popular',
+                label: '🚀 The next big thing - before everyone else finds it',
                 value: 'up and coming trending emerging destinations'
             }
         ]
@@ -169,7 +169,7 @@ export const commonDestinationQuestions: Question[] = [
     {
         id: 'specialActivities',
         type: 'textarea',
-        question: 'Lastly...Any bucket list items we should know about?',
+        question: 'Lastly... any wild dreams or bucket list items we should know about?',
         placeholder: 'e.g., swim with sharks, learn to make pasta in Italy, see the Northern Lights, or just \'surprise me!\''
     },
 ];
@@ -274,7 +274,7 @@ const explorerTripPlanningQuestions: Question[] = [
     {
         id: 'activityLevel',
         type: 'select',
-        question: 'What\'s your adventure energy level? ⚡',
+        question: 'What\'s your adventure energy looking like? ⚡',
         options: [
             {
                 label: 'High - Go go go! I want to do EVERYTHING!',
@@ -531,7 +531,7 @@ export const commonTripPlanningQuestions: Question[] = [
     {
         id: 'budget',
         type: 'select',
-        question: 'What\'s your wallet situation looking like? 💰',
+        question: 'What\'s your wallet situation? 💰',
         options: [
             {
                 label: '💸 I\'m broke but determined',
@@ -542,7 +542,7 @@ export const commonTripPlanningQuestions: Question[] = [
                 value: 'mid-range budget comfortable'
             },
             {
-                label: '🤑 Money is no object',
+                label: '🤑 Money is no object, let\'s go all out',
                 value: 'luxury travel high budget'
             }
         ]

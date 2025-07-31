@@ -23,10 +23,10 @@ export function PickMyDestinationFlow({
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-16">
             <h2 className="text-2xl font-bold text-foreground mb-4">
-              Something went wrong
+              Oops, we hit a snag
             </h2>
             <p className="text-foreground-secondary">
-              Missing destination knowledge data. Please go back and try again.
+              Looks like some info got lost along the way. Mind going back and starting fresh?
             </p>
           </div>
         </div>
@@ -73,10 +73,10 @@ export function PickMyDestinationFlow({
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-16">
             <h2 className="text-2xl font-bold text-foreground mb-4">
-              Loading questions...
+              Getting things ready...
             </h2>
             <p className="text-foreground-secondary">
-              Preparing your destination selection form
+              Just prepping some questions that'll help us find your perfect spot
             </p>
           </div>
         </div>
@@ -90,8 +90,8 @@ export function PickMyDestinationFlow({
         <ProgressiveForm
           questions={questions}
           onComplete={handleFormComplete}
-          title="Let's Find Your Perfect Destination"
-          subtitle="Answer each question to help us create your dream travel experience ✈️"
+          title="Let's Find Your Perfect Spot"
+          subtitle="A few quick questions and we'll find destinations that'll make you want to book flights immediately ✈️"
         />
       </div>
     </div>

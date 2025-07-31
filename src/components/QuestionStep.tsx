@@ -97,7 +97,7 @@ export function QuestionStep({
                     // Use a longer delay to ensure React state updates are processed
                     setTimeout(() => onComplete(), 100);
                   }}
-                  className="btn-primary"
+                  className="btn-outline"
                   disabled={isCompleted && !isEditing}
                 >
                   {label}
@@ -155,9 +155,9 @@ export function QuestionStep({
             <button
               type="submit"
               disabled={!localValue.trim()}
-              className="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="btn-primary"
             >
-              Continue
+              Let's go
             </button>
           </div>
         )}

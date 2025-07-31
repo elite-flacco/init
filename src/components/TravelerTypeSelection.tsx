@@ -18,22 +18,22 @@ export function TravelerTypeSelection({ onSelect }: TravelerTypeSelectionProps) 
     <div className="container mx-auto px-4 py-8">
       {/* Header Section */}
       <div 
-        className={`page-header ${
-          isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        className={`page-header transition-all duration-700 ${
+          isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
         }`}
         role="banner"
         aria-labelledby="step-title"
       >
-        <h1 id="step-title" className="page-title">
-          How do you roll?
+        <h1 id="step-title" className="page-title mb-6">
+          What's your travel vibe?
         </h1>
-        {/* <p className="page-subtitle">
-          Let's start by understanding your travel style. This helps us curate the perfect destinations and experiences just for you.
-        </p> */}
+        <p className="page-subtitle max-w-2xl mx-auto mb-4 opacity-90">
+          Choose the style that speaks to your wanderlust soul. We'll craft the perfect adventure just for you.
+        </p>
       </div>
 
       {/* Traveler Type Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto" role="group" aria-labelledby="step-title">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto" role="group" aria-labelledby="step-title">
         {travelerTypes.map((type, index) => (
           <div
             key={type.id}
@@ -44,31 +44,40 @@ export function TravelerTypeSelection({ onSelect }: TravelerTypeSelectionProps) 
                 onSelect(type);
               }
             }}
-            className={`traveler-card group ${
-              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-            }`}
+            className={`group relative cursor-pointer transition-all duration-500 ${
+              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'
+            } hover:scale-[1.02] hover:-translate-y-2`}
             style={{ 
-              transitionDelay: `${100 + index * 100}ms`
+              transitionDelay: `${150 + index * 150}ms`
             }}
             role="button"
             tabIndex={0}
             aria-label={`Select ${type.name} traveler type: ${type.description}`}
           >
-            <div className="h-full">
-              <Card className="traveler-card-inner">
-                <div className="relative z-10 flex flex-col items-center h-full">
-                  {/* Icon */}
-                  <div className="traveler-card-icon" aria-hidden="true">
+            <div className="h-full relative">
+              {/* Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 scale-110"></div>
+              
+              <Card className="h-full p-8 bg-white/80 backdrop-blur-xl border-2 border-border/30 hover:border-primary/40 rounded-3xl shadow-card hover:shadow-2xl transition-all duration-500 relative overflow-hidden group-hover:bg-white/90">
+                {/* Subtle background pattern */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                {/* Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out opacity-0 group-hover:opacity-100"></div>
+                
+                <div className="relative z-10 flex flex-col items-center h-full text-center space-y-6">
+                  {/* Icon with enhanced styling */}
+                  <div className="text-7xl lg:text-8xl transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 filter drop-shadow-lg group-hover:drop-shadow-2xl" aria-hidden="true">
                     {type.icon}
                   </div>
                   
-                  {/* Title */}
-                  <h3 className="traveler-card-title">
+                  {/* Title with gradient */}
+                  <h3 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent group-hover:from-primary group-hover:to-accent transition-all duration-500 tracking-tight">
                     {type.name}
                   </h3>
                   
                   {/* Description */}
-                  <p className="traveler-card-description">
+                  <p className="text-base lg:text-lg text-foreground-secondary leading-relaxed flex-grow font-medium group-hover:text-foreground transition-colors duration-500">
                     {type.description}
                   </p>
                   

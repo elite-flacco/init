@@ -12,49 +12,83 @@ module.exports = {
   // Theme configuration
   theme: {
     extend: {
-      // Color palette - semantic naming for better maintainability
+      // Enhanced color palette with more sophisticated variants
       colors: {
-        // Primary brand colors
+        // 🌅 Sunset Citrus (Primary) - Enhanced with more shades
         primary: {
-          DEFAULT: '#0e7c86', // teal-600
-          light: '#14b8a6',   // teal-500
-          dark: '#0d9488',    // teal-600
+          DEFAULT: '#f97316',
+          light: '#fdba74',
+          dark: '#ea580c',
         },
-        
-        // Secondary brand colors
+  
+        // 🌊 Coastal Breeze (Accent) - Enhanced with full spectrum
+        accent: {
+          DEFAULT: '#0ea5e9',
+          light: '#38bdf8',
+          dark: '#0284c7',
+        },
+  
+        // Secondary (Enhanced amber palette)
         secondary: {
-          DEFAULT: '#f59e0b', // amber-500
-          light: '#fbbf24',   // amber-400
-          dark: '#d97706',    // amber-600
+          DEFAULT: '#06b6d4',  // cyan-500 (brighter, tropical)
+          light: '#22d3ee',    // cyan-400
+          dark: '#0891b2',     // cyan-600
         },
-        
-        // Accent color (for variety in gradients and highlights)
-        accent: '#6d28d9', // violet-500
-
-        // Semantic colors
-        success: '#10b981',
-        warning: '#facc15',
-        error: '#ef4444',
-        info: '#3b82f6',
-
-        // Theme semantic colors for consistent foreground/background
+  
+        // Enhanced semantic colors with proper shades
+        success: {
+          DEFAULT: '#10b981',
+        },
+        warning: {
+          DEFAULT: '#facc15',
+        },
+        error: {
+          DEFAULT: '#ef4444',
+        },
+        info: {
+          DEFAULT: '#3b82f6',
+        },
+  
+        // Enhanced UI background/foreground with better contrast
         background: {
-          DEFAULT: '#f9fafb',      // gray-50
-          muted: '#f3f4f6',         // gray-100
+          DEFAULT: '#fefefe',      // Pure white with warmth
+          muted: '#f8fafc',        // Cooler muted background
+          soft: '#fafafa',         // Soft neutral
+          card: '#ffffff',         // Card backgrounds
         },
         foreground: {
-          DEFAULT: '#111827',      // gray-900
-          secondary: '#4a5568',    // gray-700
-          dim: '#9ca3af',        // gray-400
+          DEFAULT: '#0f172a',      // slate-900
+          secondary: '#475569',    // slate-600
+          muted: '#64748b',        // slate-500
+          dim: '#94a3b8',          // slate-400
+          ghost: '#cbd5e1',        // slate-300
         },
         border: {
-          DEFAULT: '#e5e7eb',      // gray-200
-          secondary: '#d1d5db',    // gray-300
+          DEFAULT: '#e2e8f0',      // slate-200
+          secondary: '#cbd5e1',    // slate-300
+          muted: '#f1f5f9',        // slate-100
         },
-        ring: '#3B82F6',
+        ring: {
+          DEFAULT: '#f97316',      // accent blue
+          primary: '#f97316',      // orange focus
+          muted: '#cbd5e1',        // subtle focus
+        },
+        
+        // Glass morphism colors
+        glass: {
+          white: 'rgba(255, 255, 255, 0.25)',
+          dark: 'rgba(0, 0, 0, 0.25)',
+        },
+        
+        // Gradient stops for modern effects
+        gradient: {
+          from: '#f97316',
+          via: '#fb923c',
+          to: '#8b5cf6',
+        },
       },
       
-      // Typography
+      // Enhanced Typography with better scales and spacing
       fontFamily: {
         // System font stack with fallbacks
         sans: [
@@ -65,6 +99,13 @@ module.exports = {
           'Roboto',
           'Helvetica Neue',
           'Arial',
+          'sans-serif',
+        ],
+        // Display font for headings
+        display: [
+          'Inter',
+          'system-ui',
+          '-apple-system',
           'sans-serif',
         ],
         // Monospace font stack
@@ -80,31 +121,59 @@ module.exports = {
         ],
       },
       
-      // Container configuration
+      // Enhanced font sizes with better mobile scaling
+      fontSize: {
+        '2xs': ['0.625rem', { lineHeight: '0.75rem' }],
+      },
+      lineHeight: {
+        'extra-tight': '1.1',
+      },
       container: {
         center: true,
         padding: {
           DEFAULT: '1rem',
-          sm: '2rem',
-          lg: '4rem',
-          xl: '5rem',
-          '2xl': '6rem',
+          sm: '1.5rem',
+          md: '2rem',
+          lg: '3rem',
+          xl: '4rem',
+          '2xl': '5rem',
+        },
+        screens: {
+          sm: '640px',
+          md: '768px',
+          lg: '1024px',
+          xl: '1280px',
+          '2xl': '1400px',
         },
       },
-      
-      // Extend default spacing
       spacing: {
-        128: '32rem',
-        144: '36rem',
+        '18': '4.5rem',
+        '88': '22rem',
+        '128': '32rem',
+        '144': '36rem',
+        '160': '40rem',
+        '176': '44rem',
+        '192': '48rem',
       },
-      
-      // Border radius
       borderRadius: {
         '4xl': '2rem',
+        '5xl': '2.5rem',
+        '6xl': '3rem',
       },
-      
-      // Custom keyframe animations
+      boxShadow: {
+        glow: '0 0 20px rgba(249, 115, 22, 0.3)',
+        'glow-lg': '0 0 40px rgba(249, 115, 22, 0.4)',
+        card: '0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 8px -2px rgba(0, 0, 0, 0.04)',
+        'card-hover': '0 8px 24px -4px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.08)',
+        glass: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+      },
+      backdropBlur: {
+        '2xl': '24px',
+        '3xl': '40px',
+      },
+      // Enhanced keyframe animations for micro-interactions
       keyframes: {
+        // Entrance animations
         'fade-in': {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
@@ -113,12 +182,100 @@ module.exports = {
           '0%': { transform: 'translateY(20px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
+        'slide-down': {
+          '0%': { transform: 'translateY(-20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        'slide-in-left': {
+          '0%': { transform: 'translateX(-20px)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        'slide-in-right': {
+          '0%': { transform: 'translateX(20px)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        
+        // Sophisticated hover and interaction animations
+        'scale-in': {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'bounce-subtle': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-2px)' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(249, 115, 22, 0.3)' },
+          '50%': { boxShadow: '0 0 30px rgba(249, 115, 22, 0.5)' },
+        },
+        'shimmer': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        'wiggle': {
+          '0%, 100%': { transform: 'rotate(-3deg)' },
+          '50%': { transform: 'rotate(3deg)' },
+        },
+        'card-hover': {
+          '0%': { transform: 'translateY(0) scale(1)' },
+          '100%': { transform: 'translateY(-4px) scale(1.02)' },
+        },
+        
+        // Loading and progress animations
+        'spin-slow': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'pulse-slow': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.8' },
+        },
       },
       
-      // Custom animations
+      // Enhanced custom animations with better timing
       animation: {
-        'fade-in': 'fade-in 0.3s ease-out',
-        'slide-up': 'slide-up 0.3s ease-out',
+        // Entrance animations
+        'fade-in': 'fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+        'fade-in-fast': 'fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-up': 'slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-up-fast': 'slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-down': 'slide-down 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-in-left': 'slide-in-left 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-in-right': 'slide-in-right 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        'scale-in': 'scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        
+        // Interaction animations
+        'bounce-subtle': 'bounce-subtle 0.6s ease-in-out',
+        'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+        'shimmer': 'shimmer 2s linear infinite',
+        'float': 'float 3s ease-in-out infinite',
+        'wiggle': 'wiggle 1s ease-in-out infinite',
+        'card-hover': 'card-hover 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+        
+        // Loading animations
+        'spin-slow': 'spin-slow 3s linear infinite',
+        'pulse-slow': 'pulse-slow 3s ease-in-out infinite',
+      },
+      
+      // Custom transition timing functions
+      transitionTimingFunction: {
+        'bounce-in': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+        'smooth': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        'snappy': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      
+      // Enhanced transition durations
+      transitionDuration: {
+        '250': '250ms',
+        '350': '350ms',
+        '400': '400ms',
+        '600': '600ms',
+        '800': '800ms',
+        '1200': '1200ms',
       },
     },
   },

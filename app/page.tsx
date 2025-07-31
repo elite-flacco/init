@@ -245,22 +245,41 @@ export default function HomePage() {
         if (isLoadingDestinations) {
           return (
             <div className="max-w-7xl mx-auto p-6">
-              <div className="text-center py-16">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full mb-6">
-                  <span className="w-8 h-8 text-primary animate-pulse">✨</span>
-                </div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">
-                  AI is analyzing your preferences...
-                </h2>
-                <p className="text-foreground-secondary mb-8">
-                  Finding the perfect destinations that match your travel style
-                </p>
-                <div className="flex justify-center">
-                  <div className="flex space-x-2">
-                    <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="text-center py-20">
+                {/* Enhanced loading animation */}
+                <div className="relative inline-flex items-center justify-center w-24 h-24 mb-8">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-full animate-spin opacity-20"></div>
+                  <div className="absolute inset-2 bg-gradient-to-r from-primary to-accent rounded-full animate-spin opacity-40" style={{ animationDirection: 'reverse', animationDuration: '3s' }}></div>
+                  <div className="relative w-12 h-12 bg-gradient-to-br from-primary to-primary rounded-full flex items-center justify-center shadow-glow animate-pulse">
+                    <span className="text-2xl animate-bounce">✨</span>
                   </div>
+                </div>
+                
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-4">
+                  AI is working its magic...
+                </h2>
+                <p className="text-lg text-foreground-secondary mb-8 max-w-md mx-auto">
+                  Sifting through thousands of destinations to find the perfect ones for you
+                </p>
+                
+                {/* Enhanced loading dots */}
+                <div className="flex justify-center items-center space-x-3 mb-8">
+                  <div className="w-4 h-4 bg-gradient-to-r from-primary to-primary rounded-full animate-bounce shadow-lg" style={{ animationDelay: '0ms' }} />
+                  <div className="w-4 h-4 bg-gradient-to-r from-accent to-accent rounded-full animate-bounce shadow-lg" style={{ animationDelay: '150ms' }} />
+                  <div className="w-4 h-4 bg-gradient-to-r from-secondary to-secondary rounded-full animate-bounce shadow-lg" style={{ animationDelay: '300ms' }} />
+                </div>
+                
+                {/* Progress indicator */}
+                <div className="max-w-sm mx-auto">
+                  <div className="bg-border/30 rounded-full h-2 overflow-hidden">
+                    <div className="bg-gradient-to-r from-primary to-accent h-full rounded-full animate-pulse shadow-glow" 
+                         style={{ 
+                           width: '70%',
+                           animation: 'pulse 2s ease-in-out infinite alternate'
+                         }}>
+                    </div>
+                  </div>
+                  <p className="text-sm text-foreground-muted mt-3 font-medium">Analyzing your preferences...</p>
                 </div>
               </div>
             </div>
@@ -270,18 +289,29 @@ export default function HomePage() {
         if (destinationError) {
           return (
             <div className="max-w-7xl mx-auto p-6">
-              <div className="text-center py-16">
+              <div className="text-center py-20">
                 <div className="max-w-2xl mx-auto">
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
-                    Oops! Something went wrong
+                  {/* Error icon */}
+                  <div className="relative inline-flex items-center justify-center w-20 h-20 mb-8">
+                    <div className="absolute inset-0 bg-gradient-to-r from-error/20 to-warning/20 rounded-full animate-pulse"></div>
+                    <div className="relative w-12 h-12 bg-gradient-to-br from-error/10 to-warning/10 rounded-full flex items-center justify-center border border-error/30">
+                      <span className="text-2xl">😅</span>
+                    </div>
+                  </div>
+                  
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-error bg-clip-text text-transparent mb-4">
+                    Well, this is awkward...
                   </h2>
-                  <p className="text-foreground-secondary mb-8">{destinationError}</p>
+                  <p className="text-lg text-foreground-secondary mb-8 leading-relaxed">Our AI took a little coffee break. {destinationError}</p>
+                  
                   <button
                     onClick={() => generateDestinationRecommendations()}
-                    className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                    className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary-700 text-white rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 font-medium"
                   >
-                    <span className="w-4 h-4 mr-2">↻</span>
-                    Try Again
+                    <svg className="w-5 h-5 mr-3 group-hover:rotate-180 transition-transform duration" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Let's Try This Again
                   </button>
                 </div>
               </div>
@@ -334,19 +364,25 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-white to-background-muted">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background-soft to-background-muted relative overflow-hidden">
+      {/* Enhanced Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-3xl pointer-events-none animate-float"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-accent/10 to-transparent rounded-full blur-3xl pointer-events-none animate-float" style={{ animationDelay: '1s' }}></div>
+      
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-border">
-        <div className="container mx-auto px-4 py-3 sm:px-6">
+      <header className="bg-white/70 backdrop-blur-xl shadow-card sticky top-0 z-50 border-b border-border/50 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 pointer-events-none"></div>
+        <div className="container mx-auto px-4 py-4 sm:px-6 relative">
           <div className="flex items-center justify-between relative">
             {/* Logo and Brand */}
-            <div className="flex items-center space-x-3">
-              <div className="bg-primary p-2 rounded-lg shadow-md">
-                <Plane className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-4">
+              <div className="bg-gradient-to-br from-primary to-primary p-3 rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:scale-105 group">
+                <Plane className="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">TravelAI</h1>
-                <p className="text-sm text-foreground-secondary">AI-Powered Travel Planning</p>
+              <div className="space-y-1">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">TravelAI</h1>
+                <p className="text-sm text-foreground-secondary font-medium">AI-Powered Travel Planning</p>
               </div>
             </div>
             
@@ -355,31 +391,31 @@ export default function HomePage() {
               {currentStep !== 'traveler-type' && (
                 <button 
                   onClick={handleBack}
-                  className="back-button group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary flex items-center text-foreground-muted hover:text-foreground transition-colors"
+                  className="group inline-flex items-center px-4 py-2 text-sm font-medium text-foreground-muted hover:text-primary bg-white/60 hover:bg-white/80 backdrop-blur-sm border border-border/50 hover:border-primary/30 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   aria-label="Go back to previous step"
                 >
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
-                    width="20" 
-                    height="20" 
+                    width="16" 
+                    height="16" 
                     viewBox="0 0 24 24" 
                     fill="none" 
                     stroke="currentColor" 
                     strokeWidth="2" 
                     strokeLinecap="round" 
                     strokeLinejoin="round"
-                    className="w-5 h-5 mr-1"
+                    className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300"
                   >
                     <path d="m12 19-7-7 7-7"></path>
                     <path d="M19 12H5"></path>
                   </svg>
-                  <span className="text-sm font-medium">Back</span>
+                  <span>Back</span>
                 </button>
               )}
             </div>
             
             {/* Progress Indicator */}
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden md:flex items-center space-x-8">
               {[
                 { step: 'traveler-type', label: 'You', 
                   active: currentStep === 'traveler-type',
@@ -398,14 +434,23 @@ export default function HomePage() {
                   completed: false
                 }
               ].map(({ step, label, active, completed }) => (
-                <div key={step} className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-full transition-colors ${
-                    active ? 'bg-primary' : 
-                    completed ? 'bg-success' : 'bg-border'
-                  }`} />
-                  <span className={`text-sm font-medium transition-colors ${
-                    active ? 'text-primary-dark' : 
-                    completed ? 'text-success' : 'text-foreground-muted'
+                <div key={step} className="flex items-center space-x-3 group">
+                  <div className={`relative w-4 h-4 rounded-full transition-all duration-300 ${
+                    active ? 'bg-gradient-to-r from-primary to-primary shadow-glow scale-110' : 
+                    completed ? 'bg-gradient-to-r from-success to-success shadow-lg' : 'bg-border/60 hover:bg-border'
+                  }`}>
+                    {completed && (
+                      <svg className="w-3 h-3 text-white absolute inset-0 m-auto" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                    {active && (
+                      <div className="absolute inset-0 rounded-full bg-primary animate-pulse opacity-40"></div>
+                    )}
+                  </div>
+                  <span className={`text-sm font-medium transition-all duration-300 ${
+                    active ? 'text-primary font-semibold' : 
+                    completed ? 'text-success font-medium' : 'text-foreground-muted group-hover:text-foreground-secondary'
                   }`}>
                     {label}
                   </span>
@@ -417,9 +462,11 @@ export default function HomePage() {
       </header>
       
       {/* Main content */}
-      <main className="py-8 pb-32 px-4 sm:px-6">
-        <div className="container mx-auto">
-          {renderCurrentStep()}
+      <main className="relative py-12 pb-32 px-4 sm:px-6">
+        <div className="container mx-auto relative z-10">
+          <div className="relative">
+            {renderCurrentStep()}
+          </div>
         </div>
       </main>
     </div>

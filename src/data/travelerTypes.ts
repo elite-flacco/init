@@ -14,8 +14,8 @@ export const travelerTypes: TravelerType[] = [
     description: 'I have spreadsheets for my spreadsheets. Every minute planned, every detail covered.',
     icon: '📋',
     showPlaceholder: true,
-    placeholderMessage: 'We\'re deep in the spreadsheets building this feature. For now, keep rocking yours.',
-    greeting: 'Hello Type A friend!'
+    placeholderMessage: 'We\'re currently deep in the spreadsheets perfecting this feature. Keep being your organized self - we\'ll have something amazing for you soon.',
+    greeting: 'Hey there, fellow planner!'
   },
   {
     id: 'overthinker',
@@ -24,15 +24,15 @@ export const travelerTypes: TravelerType[] = [
     icon: '🧠',
     showPlaceholder: true,
     placeholderMessage: 'We are overthinking on how to help you beat the analysis paralysis - stay tuned.',
-    greeting: 'Hey overthinker, we see you.'
+    greeting: 'We see those 47+ tabs, friend.'
   },
   {
     id: 'chill',
     name: 'Just Here to Chill',
-    description: 'Beach, spa, nap, repeat. My biggest decision should be piña colada or mojito.',
+    description: 'Beach, spa, nap, repeat. My toughest decision should be piña colada or mojito.',
     icon: '🌴',
     showPlaceholder: true,
-    placeholderMessage: 'We aren\'t slacking off at the beach - chill mode support is coming soon. In the meantime, Netflix and Chill.',
-    greeting: 'Hello chill soul.'
+    placeholderMessage: 'We aren\'t slacking off at the beach - chill mode support is coming soon. In the meantime, Netflix and wait?',
+    greeting: 'Hi there, relaxation expert.'
   }
 ];

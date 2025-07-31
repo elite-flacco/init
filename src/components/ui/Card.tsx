@@ -4,19 +4,39 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   as?: React.ElementType;
   className?: string;
   children: React.ReactNode;
+  variant?: 'default' | 'glass' | 'elevated' | 'flat' | 'gradient';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
+
+const cardVariants = {
+  default: 'bg-background-card border border-border/50 shadow-card',
+  glass: 'bg-white/10 border border-white/20 backdrop-blur-xl shadow-glass',
+  elevated: 'bg-background-card border border-border/30 shadow-card-hover',
+  flat: 'bg-background-muted border border-border/30 shadow-none',
+  gradient: 'bg-gradient-to-br from-primary/5 via-background-card to-accent/5 border border-primary/20 shadow-card'
+};
+
+const cardSizes = {
+  sm: 'p-4 rounded-xl',
+  md: 'p-6 rounded-2xl',
+  lg: 'p-8 rounded-3xl',
+  xl: 'p-12 rounded-3xl'
+};
 
 export function Card({ 
   as: Component = 'div', 
   className, 
-  children, 
+  children,
+  variant = 'default',
+  size = 'md',
   ...props 
 }: CardProps) {
   return (
     <Component
       className={cn(
-        'rounded-xl border bg-card text-card-foreground shadow-sm',
-        'transition-colors duration-200',
+        'transition-all duration-300 hover:shadow-card-hover',
+        cardVariants[variant],
+        cardSizes[size],
         className
       )}
       {...props}
@@ -34,7 +54,7 @@ interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
 export function CardHeader({ className, children, ...props }: CardHeaderProps) {
   return (
     <div 
-      className={cn('flex flex-col space-y-1.5 p-6', className)} 
+      className={cn('flex flex-col space-y-2 p-6 border-b border-border/20', className)} 
       {...props}
     >
       {children}
@@ -57,7 +77,7 @@ export function CardTitle({
   return (
     <Component
       className={cn(
-        'text-2xl font-semibold leading-none tracking-tight',
+        'text-xl font-bold leading-tight tracking-tight',
         'text-foreground',
         className
       )}
@@ -81,7 +101,7 @@ export function CardDescription({
   return (
     <p
       className={cn(
-        'text-sm text-foreground-muted',
+        'text-sm text-foreground-secondary leading-relaxed',
         className
       )}
       {...props}
