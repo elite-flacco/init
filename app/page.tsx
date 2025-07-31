@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { Plane } from 'lucide-react'
 import { TravelerTypeSelection } from '../src/components/TravelerTypeSelection'
 import { DestinationKnowledgeSelection } from '../src/components/DestinationKnowledgeSelection'
@@ -14,6 +15,7 @@ import { TravelerType, Destination, DestinationKnowledge, PickDestinationPrefere
 import { AITripPlanningResponse } from '../src/services/aiTripPlanningService'
 import { AIDestinationResponse, aiDestinationService } from '../src/services/aiDestinationService'
 import { generateDevMockData, generateDevMockDestinationData } from '../src/data/mock/travelData'
+import { DestinationLoading } from '../src/components/ui/DestinationLoading'
 
 type AppStep = 'traveler-type' | 'destination-knowledge' | 'destination-input' | 'pick-destination' | 'destination-recommendations' | 'planning' | 'plan' | 'placeholder'
 
@@ -83,10 +85,10 @@ export default function HomePage() {
 
   const handlePickDestinationComplete = (preferences: PickDestinationPreferences) => {
     setPickDestinationPreferences(preferences)
-    // Use setTimeout to ensure state updates are processed before async operation
+    // Add delay to allow form transition to complete and fade out before showing loading
     setTimeout(() => {
       generateDestinationRecommendations(preferences)
-    }, 0)
+    }, 2100)
   }
 
   const generateDestinationRecommendations = async (preferences?: PickDestinationPreferences) => {
@@ -244,45 +246,13 @@ export default function HomePage() {
       case 'destination-recommendations':
         if (isLoadingDestinations) {
           return (
-            <div className="max-w-7xl mx-auto p-6">
-              <div className="text-center py-20">
-                {/* Enhanced loading animation */}
-                <div className="relative inline-flex items-center justify-center w-24 h-24 mb-8">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-full animate-spin opacity-20"></div>
-                  <div className="absolute inset-2 bg-gradient-to-r from-primary to-accent rounded-full animate-spin opacity-40" style={{ animationDirection: 'reverse', animationDuration: '3s' }}></div>
-                  <div className="relative w-12 h-12 bg-gradient-to-br from-primary to-primary rounded-full flex items-center justify-center shadow-glow animate-pulse">
-                    <span className="text-2xl animate-bounce">✨</span>
-                  </div>
-                </div>
-                
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-4">
-                  AI is working its magic...
-                </h2>
-                <p className="text-lg text-foreground-secondary mb-8 max-w-md mx-auto">
-                  Sifting through thousands of destinations to find the perfect ones for you
-                </p>
-                
-                {/* Enhanced loading dots */}
-                <div className="flex justify-center items-center space-x-3 mb-8">
-                  <div className="w-4 h-4 bg-gradient-to-r from-primary to-primary rounded-full animate-bounce shadow-lg" style={{ animationDelay: '0ms' }} />
-                  <div className="w-4 h-4 bg-gradient-to-r from-accent to-accent rounded-full animate-bounce shadow-lg" style={{ animationDelay: '150ms' }} />
-                  <div className="w-4 h-4 bg-gradient-to-r from-secondary to-secondary rounded-full animate-bounce shadow-lg" style={{ animationDelay: '300ms' }} />
-                </div>
-                
-                {/* Progress indicator */}
-                <div className="max-w-sm mx-auto">
-                  <div className="bg-border/30 rounded-full h-2 overflow-hidden">
-                    <div className="bg-gradient-to-r from-primary to-accent h-full rounded-full animate-pulse shadow-glow" 
-                         style={{ 
-                           width: '70%',
-                           animation: 'pulse 2s ease-in-out infinite alternate'
-                         }}>
-                    </div>
-                  </div>
-                  <p className="text-sm text-foreground-muted mt-3 font-medium">Analyzing your preferences...</p>
-                </div>
-              </div>
-            </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            >
+              <DestinationLoading isVisible={true} />
+            </motion.div>
           )
         }
         

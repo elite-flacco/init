@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Sparkles, ArrowLeft } from 'lucide-react';
 import { Destination, TripPreferences, TravelerType, DestinationKnowledge, PickDestinationPreferences } from '../types/travel';
 import { ProgressiveForm } from './ProgressiveForm';
 import { Question } from './QuestionStep';
 import { getTripPlanningQuestionsByTravelerType, commonTripPlanningQuestions, destinationInputQuestion } from '../data/travelQuestions';
 import { aiTripPlanningService, AITripPlanningResponse } from '../services/aiTripPlanningService';
+import { TravelPlanLoading } from './ui/TravelPlanLoading';
 
 interface AITripPlanningPromptsProps {
   destination: Destination | null;
@@ -77,57 +79,60 @@ export function AITripPlanningPrompts({
       return;
     }
 
-    setIsGeneratingPlan(true);
     setGenerationError(null);
+    
+    // Add delay to allow the form's transition to complete and fade out
+    setTimeout(async () => {
+      setIsGeneratingPlan(true);
 
-    try {
-      const preferences: TripPreferences = {
-        timeOfYear: pickDestinationPreferences?.timeOfYear || answers.timeOfYear || '',
-        duration: pickDestinationPreferences?.duration || answers.duration || '',
-        budget: pickDestinationPreferences?.budget || answers.budget || '',
-        specialActivities: answers.specialActivities || '',
-        activities: [],
-        accommodation: answers.accommodation || '',
-        transportation: answers.transportation || '',
-        // wantRestaurants: answers.restaurants === 'Yes please! - I live to eat 🤤',
-        // wantBars: answers.bars === 'Absolutely! - It\'s 5 o\'clock somewhere! 🍹',
-        wantRestaurants: true,
-        wantBars: true,
-        tripType: pickDestinationPreferences?.tripType || 'leisure',
-        // Explorer specific answers
-        activityLevel: answers.activityLevel,
-        riskTolerance: answers.riskTolerance,
-        spontaneity: answers.spontaneity,
-        // Type A specific answers
-        scheduleDetail: answers.scheduleDetail,
-        bookingPreference: answers.bookingPreference,
-        backupPlans: answers.backupPlans,
-        // Bougie specific answers
-        luxuryLevel: answers.luxuryLevel,
-        serviceLevel: answers.serviceLevel,
-        exclusivity: answers.exclusivity,
-        // Chill specific answers
-        relaxationStyle: answers.relaxationStyle,
-        pacePreference: answers.pacePreference,
-        stressLevel: answers.stressLevel,
-      };
+      try {
+        const preferences: TripPreferences = {
+          timeOfYear: pickDestinationPreferences?.timeOfYear || answers.timeOfYear || '',
+          duration: pickDestinationPreferences?.duration || answers.duration || '',
+          budget: pickDestinationPreferences?.budget || answers.budget || '',
+          specialActivities: answers.specialActivities || '',
+          activities: [],
+          accommodation: answers.accommodation || '',
+          transportation: answers.transportation || '',
+          // wantRestaurants: answers.restaurants === 'Yes please! - I live to eat 🤤',
+          // wantBars: answers.bars === 'Absolutely! - It\'s 5 o\'clock somewhere! 🍹',
+          wantRestaurants: true,
+          wantBars: true,
+          tripType: pickDestinationPreferences?.tripType || 'leisure',
+          // Explorer specific answers
+          activityLevel: answers.activityLevel,
+          riskTolerance: answers.riskTolerance,
+          spontaneity: answers.spontaneity,
+          // Type A specific answers
+          scheduleDetail: answers.scheduleDetail,
+          bookingPreference: answers.bookingPreference,
+          backupPlans: answers.backupPlans,
+          // Bougie specific answers
+          luxuryLevel: answers.luxuryLevel,
+          serviceLevel: answers.serviceLevel,
+          exclusivity: answers.exclusivity,
+          // Chill specific answers
+          relaxationStyle: answers.relaxationStyle,
+          pacePreference: answers.pacePreference,
+          stressLevel: answers.stressLevel,
+        };
 
+        const aiResponse = await aiTripPlanningService.generateTravelPlan({
+          destination: effectiveDestination,
+          preferences,
+          travelerType,
+          destinationKnowledge,
+          pickDestinationPreferences
+        });
 
-      const aiResponse = await aiTripPlanningService.generateTravelPlan({
-        destination: effectiveDestination,
-        preferences,
-        travelerType,
-        destinationKnowledge,
-        pickDestinationPreferences
-      });
-
-      onComplete(aiResponse);
-    } catch (error) {
-      console.error('Failed to generate AI travel plan:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Our AI had a brain freeze. Mind giving it another shot?';
-      setGenerationError(errorMessage);
-      setIsGeneratingPlan(false);
-    }
+        onComplete(aiResponse);
+      } catch (error) {
+        console.error('Failed to generate AI travel plan:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Our AI had a brain freeze. Mind giving it another shot?';
+        setGenerationError(errorMessage);
+        setIsGeneratingPlan(false);
+      }
+    }, 2100);
   };
 
 
@@ -170,29 +175,16 @@ export function AITripPlanningPrompts({
     );
   }
 
-  // If generating plan, show loading state
+  // If generating plan, show enhanced loading state with fade in
   if (isGeneratingPlan) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center p-8 max-w-lg">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/20 rounded-full mb-6">
-            <Sparkles className="w-10 h-10 text-primary animate-pulse" />
-          </div>
-          <h2 className="text-3xl font-bold text-foreground mb-4">
-            Cooking Up Something Amazing
-          </h2>
-          <p className="text-foreground-secondary mb-8 text-lg">
-            Our AI is putting together the perfect {getDestinationName()} experience just for you. Grab a coffee, this might take a while...
-          </p>
-          <div className="flex justify-center mb-6">
-            <div className="flex space-x-2">
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <TravelPlanLoading isVisible={true} destinationName={getDestinationName()} />
+      </motion.div>
     );
   }
 

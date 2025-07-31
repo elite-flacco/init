@@ -9,6 +9,7 @@ import { SectionHeader } from './ui/SectionHeader';
 import { ItemCard, BookingLink } from './ui/ItemCard';
 import { ItemGrid } from './ui/ItemGrid';
 import { CategoryGroup } from './ui/CategoryGroup';
+import { KMLExportLoading } from './ui/KMLExportLoading';
 
 interface AITravelPlanProps {
   destination: Destination;
@@ -837,6 +838,9 @@ export function AITravelPlan({
           </div>
         )}
       </div>
+
+      {/* KML Export Loading Overlay */}
+      <KMLExportLoading isVisible={isExportingKML} />
     </div>
   );
 }

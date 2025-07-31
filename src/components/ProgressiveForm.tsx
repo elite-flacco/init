@@ -13,7 +13,7 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [editingStep, setEditingStep] = useState<number | null>(null);
-  const [isCompleting, setIsCompleting] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Initialize answers
@@ -97,10 +97,9 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
       if (nextUnansweredStep !== -1) {
         setCurrentStep(nextUnansweredStep);
       } else {
-        // All questions are answered, complete the form
-        setIsCompleting(true);
-        setCurrentStep(questions.length); // Show completion message
-        setTimeout(() => onComplete(answers), 2500);
+        // All questions are answered, show smooth transition
+        setIsTransitioning(true);
+        setTimeout(() => onComplete(answers), 2000);
       }
       return;
     }
@@ -108,10 +107,9 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // All questions completed
-      setIsCompleting(true);
-      setCurrentStep(questions.length); // Show completion message
-      setTimeout(() => onComplete(answers), 2500);
+      // All questions completed, show smooth transition
+      setIsTransitioning(true);
+      setTimeout(() => onComplete(answers), 2000);
     }
   };
 
@@ -222,7 +220,7 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
 
           {/* Current Question (full viewport height) */}
           <AnimatePresence mode="wait">
-            {currentStep < questions.length && editingStep === null && (
+            {currentStep < questions.length && editingStep === null && !isTransitioning && (
               <motion.div
                 key={`current-${questions[currentStep].id}`}
                 initial={{ opacity: 0, y: 1200, scale: 0.8, rotateX: 15 }}
@@ -274,24 +272,75 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
             )}
           </AnimatePresence>
 
-          {/* Completion Message */}
-          {currentStep >= questions.length && (
+          {/* Smooth Transition Animation */}
+          {isTransitioning && (
             <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-12"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ 
+                duration: 0.8,
+              }}
+              className="min-h-screen flex items-center justify-center"
             >
-              <div className="bg-success/10 minimal-card border-2 border-success/30 rounded-2xl p-8">
-                <div className="text-6xl mb-4">🎉</div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">
-                  Perfect! We've got everything we need
-                </h2>
-                <p className="text-foreground-secondary">
-                  Thanks for the details. Now let's find you something amazing...
-                </p>
-              </div>
+              <motion.div
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ 
+                  delay: 0.2, 
+                  duration: 0.8,
+                }}
+                className="text-center"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ 
+                    delay: 0.1, 
+                    duration: 0.6, 
+                    type: "spring", 
+                    stiffness: 200, 
+                    damping: 12,
+                  }}
+                  className="inline-flex items-center justify-center w-20 h-20 bg-success/20 rounded-full mb-6 shadow-lg"
+                >
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ 
+                      duration: 2, 
+                      repeat: Infinity, 
+                      ease: "linear" 
+                    }}
+                    className="text-2xl"
+                  >
+                    ✨
+                  </motion.div>
+                </motion.div>
+                <motion.h3
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    delay: 0.4, 
+                    duration: 0.6,
+                  }}
+                  className="text-2xl font-bold text-foreground mb-3"
+                >
+                  Perfect! 🎉We've got everything we need.
+                </motion.h3>
+                <motion.p
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    delay: 0.6, 
+                    duration: 0.6,
+                  }}
+                  className="text-lg text-foreground-secondary"
+                >
+                  Let's create something amazing for you...
+                </motion.p>
+              </motion.div>
             </motion.div>
           )}
+
         </div>
 
         {/* Scroll Hint */}
