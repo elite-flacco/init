@@ -46,7 +46,7 @@ export class SharedPlanService {
       })
 
     if (error) {
-      throw new Error(`Failed to create shared plan: ${error.message}`)
+      throw new Error(`Failed to create shared plan.`)
     }
 
     return sharedPlan
@@ -72,7 +72,7 @@ export class SharedPlanService {
         // No rows found
         return null
       }
-      throw new Error(`Failed to fetch shared plan: ${error.message}`)
+      throw new Error(`Failed to fetch shared plan.`)
     }
 
     if (!data) {

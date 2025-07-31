@@ -23,7 +23,7 @@ async function callAI(prompt: string): Promise<string> {
   if (provider === "mock" || !apiKey) {
     // Mock response for development using actual destinations data
     await new Promise((resolve) =>
-      setTimeout(resolve, 1000 + Math.random() * 2000)
+      setTimeout(resolve, 1000)
     );
 
     // Select 2-3 random destinations from our mock data

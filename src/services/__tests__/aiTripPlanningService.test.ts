@@ -163,5 +163,14 @@ describe('aiTripPlanningService', () => {
       expect(response.confidence).toBeGreaterThan(0)
       expect(response.confidence).toBeLessThanOrEqual(1)
     })
+
+    it('should include destination in the plan response', async () => {
+      const response = await aiTripPlanningService.generateTravelPlan(baseRequest)
+
+      expect(response.plan.destination).toBeDefined()
+      expect(response.plan.destination.name).toBe(baseRequest.destination.name)
+      expect(response.plan.destination.country).toBe(baseRequest.destination.country)
+      expect(response.plan.destination.id).toBe(baseRequest.destination.id)
+    })
   })
 })

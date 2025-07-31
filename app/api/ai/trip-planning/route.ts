@@ -15,7 +15,7 @@ async function callAI(prompt: string): Promise<string> {
 
   if (provider === 'mock' || !apiKey) {
     // Mock response for development
-    await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 3000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
     const mockData = generateDevMockData()
     return JSON.stringify(mockData.response.plan)
   }
@@ -330,7 +330,10 @@ export async function POST(request: NextRequest) {
 
     // Wrap the response in the expected AITripPlanningResponse format
     const wrappedResponse = {
-      plan: parsedResponse,
+      plan: {
+        destination: body.destination, // Include the destination from the request
+        ...parsedResponse
+      },
       reasoning: 'AI-generated travel plan based on your preferences and destination',
       confidence: 0.9,
       personalizations: [

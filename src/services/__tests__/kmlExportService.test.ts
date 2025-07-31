@@ -290,4 +290,30 @@ describe('KMLExportService', () => {
     expect(kml).not.toContain('<name>Bars and Nightlife</name>');
     expect(kml).not.toContain('<name>Accommodation</name>');
   });
+
+  it('should throw error when plan is null or undefined', async () => {
+    await expect(KMLExportService.generateKML(null as any)).rejects.toThrow('Travel plan is required for KML export');
+    await expect(KMLExportService.generateKML(undefined as any)).rejects.toThrow('Travel plan is required for KML export');
+  });
+
+  it('should throw error when destination is missing', async () => {
+    const planWithoutDestination = {
+      ...mockTravelPlan,
+      destination: undefined as any
+    };
+    
+    await expect(KMLExportService.generateKML(planWithoutDestination)).rejects.toThrow('Travel plan must include destination with name and country');
+  });
+
+  it('should throw error when destination name is missing', async () => {
+    const planWithIncompleteDestination = {
+      ...mockTravelPlan,
+      destination: {
+        ...mockTravelPlan.destination,
+        name: undefined as any
+      }
+    };
+    
+    await expect(KMLExportService.generateKML(planWithIncompleteDestination)).rejects.toThrow('Travel plan must include destination with name and country');
+  });
 });
