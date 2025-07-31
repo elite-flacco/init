@@ -34,7 +34,7 @@ export const commonDestinationQuestions: Question[] = [
     question: "How long can you escape reality? ⏰",
     options: [
       {
-        label: "Long weekend warrior (3-5 days)",
+        label: "Quick escape (3-5 days)",
         value: "3-5 days",
       },
       {
@@ -57,7 +57,7 @@ export const commonDestinationQuestions: Question[] = [
         value: "budget travel low cost",
       },
       {
-        label: "💰 I can afford to be comfortable",
+        label: "💰 I can afford to be comfortable but not crazy",
         value: "mid-range budget comfortable",
       },
       {
@@ -103,7 +103,7 @@ export const commonDestinationQuestions: Question[] = [
     question: "What's your ideal weather vibe? 🌡️",
     options: [
       {
-        label: "Keep me cool - I'm not trying to melt",
+        label: "Keep it cool - I don't do well in heat",
         value: "prefer cooler weather",
       },
       {
@@ -153,7 +153,7 @@ export const commonDestinationQuestions: Question[] = [
     question: "What kind of destination speaks to you? 🗺️",
     options: [
       {
-        label: "🏛️ Major hits - I don't mind tourists. Give me the classics.",
+        label: "🏛️ The classics - I don't mind crowds if it's worth it",
         value: "major tourist destinations popular attractions",
       },
       {
@@ -519,7 +519,7 @@ export const commonTripPlanningQuestions: Question[] = [
     question: "How long can you escape reality? ⏰",
     options: [
       {
-        label: "Long weekend warrior (3-5 days)",
+        label: "Quick escape (3-5 days)",
         value: "3-5 days",
       },
       {
@@ -542,7 +542,7 @@ export const commonTripPlanningQuestions: Question[] = [
         value: "budget travel low cost",
       },
       {
-        label: "💰 I can afford to be comfortable",
+        label: "💰 I can afford to be comfortable but not crazy",
         value: "mid-range budget comfortable",
       },
       {

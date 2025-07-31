@@ -116,11 +116,11 @@ export function QuestionStep({
                   </div>
 
                   {/* Selection Arrow */}
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                  {/* <div className="absolute right-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
                     <div className="w-6 h-6 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
                       <span className="text-white text-sm">→</span>
                     </div>
-                  </div>
+                  </div> */}
                 </button>
               );
             })}
@@ -214,12 +214,12 @@ export function QuestionStep({
                 <button
                   type="submit"
                   disabled={!localValue.trim()}
-                  className="group relative overflow-hidden bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-xl shadow-glow hover:shadow-glow-lg transition-all duration-300 hover:scale-[1.05] hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:translate-y-0"
+                  className="group relative overflow-hidden border-0 bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-xl shadow-glow hover:shadow-glow-lg transition-all duration-300 hover:scale-[1.05] hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:translate-y-0"
                 >
                   <span className="relative z-10 flex items-center">
-                    <span className="mr-2">Continue Adventure</span>
-                    <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center transform group-hover:translate-x-1 transition-transform duration-300">
-                      <span className="text-sm">→</span>
+                    <span className="text-white mr-2">Continue</span>
+                    <div className="p-2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center transform group-hover:translate-x-1 transition-transform duration-300">
+                      <span className="text-white text-sm">→</span>
                     </div>
                   </span>
 

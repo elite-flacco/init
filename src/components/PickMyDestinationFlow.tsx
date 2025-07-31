@@ -30,8 +30,7 @@ export function PickMyDestinationFlow({
           <div className="text-center py-16">
             <h3 className="mb-4">Oops, we hit a snag</h3>
             <p>
-              Looks like some info got lost along the way. Mind going back and
-              starting fresh?
+              Looks like something got lost along the way. Mind going back and trying again?
             </p>
           </div>
         </div>
@@ -79,8 +78,7 @@ export function PickMyDestinationFlow({
           <div className="text-center py-16">
             <h3 className="mb-4">Getting things ready...</h3>
             <p>
-              Just prepping some questions that'll help us find your perfect
-              spot
+              Just prepping some questions to help us find your perfect spot
             </p>
           </div>
         </div>
@@ -89,13 +87,13 @@ export function PickMyDestinationFlow({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background-soft to-background-muted">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <ProgressiveForm
           questions={questions}
           onComplete={handleFormComplete}
-          title="🗺️ Chart Your Adventure Course"
-          subtitle="Share your travel dreams with us, and we'll uncover destinations that match your wanderlust spirit perfectly. Every answer brings you closer to your next great adventure!"
+          title="What kind of trip are you craving?"
+          // subtitle="Answer a few questions and we'll help you find your next destination"
         />
       </div>
     </div>

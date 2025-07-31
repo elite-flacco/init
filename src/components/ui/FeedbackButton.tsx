@@ -19,15 +19,10 @@ const FeedbackButton = () => {
       onClick={handleFeedbackClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="fixed bottom-6 right-6 btn-primary z-50"
+      className="fixed bottom-6 right-6 btn-primary z-50 p-2"
       aria-label="Submit feedback"
     >
-      <span
-        className={`transition-all duration-200 ${isHovered ? "opacity-100 w-auto ml-2" : "opacity-0 w-0 overflow-hidden"}`}
-      >
-        Feedback
-      </span>
-      <MessageSquare className={`w-5 h-5 ${isHovered ? "ml-2" : "m-0"}`} />
+      <MessageSquare className={`w-4 h-4`} />
     </button>
   );
 };

@@ -77,7 +77,7 @@ module.exports = {
 
         // 🏖️ Adventure Backgrounds - Warm, inviting travel vibes
         background: {
-          DEFAULT: "#FFFEF9", // Warm off-white (like sand)
+          DEFAULT: "#F7FAFC", // Warm off-white (like sand)
           muted: "#FFF8F0", // Soft cream (like morning light)
           soft: "#FEFCF7", // General UI background
           card: "#FFFFFF", // Card backgrounds

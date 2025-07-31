@@ -50,55 +50,20 @@ export function ProgressiveForm({
   useEffect(() => {
     const timer = setTimeout(() => {
       const currentStepElement = stepRefs.current[currentStep];
-      if (currentStepElement) {
-        // Scroll to the current question with smooth behavior
+      if (currentStepElement && editingStep === null) {
+        // Scroll to the current question with smooth behavior, ensuring it's centered in viewport
         currentStepElement.scrollIntoView({
           behavior: "smooth",
           block: "center",
+          inline: "center",
         });
       }
-    }, 300); // Delay to allow animations to settle
+    }, 50); // Very quick delay for immediate responsiveness
 
     return () => clearTimeout(timer);
   }, [currentStep, editingStep]);
 
-  // Make questions automatically editable when they come into view
-  useEffect(() => {
-    let scrollTimeout: ReturnType<typeof setTimeout>;
-
-    const handleScroll = () => {
-      // Debounce scroll events for better performance
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        stepRefs.current.forEach((element, index) => {
-          if (
-            element &&
-            isStepCompleted(index) &&
-            !isStepActive(index) &&
-            editingStep === null
-          ) {
-            const rect = element.getBoundingClientRect();
-            // More generous detection - if any part is in the viewport center area
-            const isInViewCenter =
-              rect.top < window.innerHeight * 0.6 &&
-              rect.bottom > window.innerHeight * 0.4;
-
-            // If a completed question is in the center of view, auto-edit it
-            if (isInViewCenter) {
-              setEditingStep(index);
-              // Don't change currentStep - keep it at the current progress
-            }
-          }
-        });
-      }, 150);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      clearTimeout(scrollTimeout);
-    };
-  }, [editingStep, currentStep, isStepActive, isStepCompleted]);
+  // Removed buggy auto-editing scroll behavior - users can simply click to edit
 
   const handleAnswerChange = (questionId: string, value: string) => {
     setAnswers((prev) => ({
@@ -114,6 +79,17 @@ export function ProgressiveForm({
       const nextUnansweredStep = findNextUnansweredStep(editingStep);
       if (nextUnansweredStep !== -1) {
         setCurrentStep(nextUnansweredStep);
+        // Ensure the new question scrolls into view after state update
+        setTimeout(() => {
+          const nextStepElement = stepRefs.current[nextUnansweredStep];
+          if (nextStepElement) {
+            nextStepElement.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+              inline: "center",
+            });
+          }
+        }, 200);
       } else {
         // All questions are answered, show smooth transition
         setIsTransitioning(true);
@@ -123,7 +99,19 @@ export function ProgressiveForm({
     }
 
     if (currentStep < questions.length - 1) {
-      setCurrentStep(currentStep + 1);
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      // Ensure the new question scrolls into view after state update and animation
+      setTimeout(() => {
+        const nextStepElement = stepRefs.current[nextStep];
+        if (nextStepElement) {
+          nextStepElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+            inline: "center",
+          });
+        }
+      }, 1200); // Wait for animation to complete (0.8s animation + 0.1s buffer)
     } else {
       // All questions completed, show smooth transition
       setIsTransitioning(true);
@@ -153,12 +141,6 @@ export function ProgressiveForm({
           🧭
         </div>
         <div
-          className="absolute top-40 right-20 text-3xl opacity-15 animate-pulse-slow"
-          style={{ animationDelay: "1s" }}
-        >
-          ⭐
-        </div>
-        <div
           className="absolute bottom-40 left-24 text-5xl opacity-10 animate-bounce-subtle"
           style={{ animationDelay: "2s" }}
         >
@@ -169,12 +151,6 @@ export function ProgressiveForm({
           style={{ animationDelay: "0.5s" }}
         >
           ✈️
-        </div>
-        <div
-          className="absolute top-60 left-1/3 text-2xl opacity-15 animate-spin-slow"
-          style={{ animationDelay: "3s" }}
-        >
-          🌟
         </div>
       </div>
 
@@ -187,20 +163,14 @@ export function ProgressiveForm({
             className="relative mb-16 py-12"
           >
             {title && (
-              <div className="ml-8 md:ml-16 lg:ml-24 mb-8">
-                {/* Floating icon - positioned asymmetrically */}
-                <div className="absolute -top-8 -right-4 md:-right-8 lg:-right-12">
-                  <div className="bg-gradient-to-r from-primary to-secondary p-4 rounded-full shadow-glow animate-glow-pulse">
-                    <span className="text-3xl">🚀</span>
-                  </div>
-                </div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent leading-tight max-w-4xl">
+              <div className="text-center ml-8 md:ml-16 lg:ml-24 mb-8">
+                <h1 className=" mb-6 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent leading-tight max-w-4xl">
                   {title}
                 </h1>
               </div>
             )}
             {subtitle && (
-              <div className="ml-8 md:ml-16 lg:ml-32 max-w-2xl">
+              <div className="text-center ml-8 md:ml-16 lg:ml-32 max-w-2xl">
                 <p className="text-lg md:text-xl text-foreground-secondary leading-relaxed font-medium">
                   {subtitle}
                 </p>
@@ -237,41 +207,40 @@ export function ProgressiveForm({
                     ease: [0.25, 0.46, 0.45, 0.94],
                     delay: index * 0.15,
                   }}
-                  className="flex justify-center"
+                  className="flex justify-center items-center py-4"
                   ref={(el) => (stepRefs.current[index] = el)}
                 >
                   {/* Asymmetrical question layout */}
                   <motion.div
-                    className={`w-full max-w-3xl transition-all duration-150 cursor-pointer mb-8 ${
-                      index % 2 === 0 ? "ml-8 lg:ml-16" : "mr-8 lg:mr-16"
-                    }`}
+                    className={`w-full max-w-3xl transition-all duration-150 cursor-pointer ${index % 2 === 0 ? "ml-8 lg:ml-16" : "mr-8 lg:mr-16"
+                      }`}
                     whileHover={
                       !isCurrentlyEditing
                         ? {
-                            scale: 1.03,
-                            transition: {
-                              duration: 0.3,
-                              ease: [0.25, 0.46, 0.45, 0.94],
-                            },
-                          }
+                          scale: 1.03,
+                          transition: {
+                            duration: 0.3,
+                            ease: [0.25, 0.46, 0.45, 0.94],
+                          },
+                        }
                         : {}
                     }
                     animate={
                       isCurrentlyEditing
                         ? {
-                            scale: 1.05,
-                            transition: {
-                              duration: 0.5,
-                              ease: [0.25, 0.46, 0.45, 0.94],
-                            },
-                          }
+                          scale: 1.05,
+                          transition: {
+                            duration: 0.5,
+                            ease: [0.25, 0.46, 0.45, 0.94],
+                          },
+                        }
                         : {
-                            scale: 1,
-                            transition: {
-                              duration: 0.3,
-                              ease: [0.25, 0.46, 0.45, 0.94],
-                            },
-                          }
+                          scale: 1,
+                          transition: {
+                            duration: 0.3,
+                            ease: [0.25, 0.46, 0.45, 0.94],
+                          },
+                        }
                     }
                     onClick={() => !isCurrentlyEditing && handleStepEdit(index)}
                   >
@@ -313,61 +282,67 @@ export function ProgressiveForm({
             {currentStep < questions.length &&
               editingStep === null &&
               !isTransitioning && (
-                <motion.div
-                  key={`current-${questions[currentStep].id}`}
-                  initial={{ opacity: 0, y: 1200, scale: 0.8, rotateX: 15 }}
-                  animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-                  exit={{ opacity: 0, y: -200, scale: 0.95, rotateX: -10 }}
-                  transition={{
-                    duration: 1.2,
-                    ease: [0.16, 1, 0.3, 1],
-                    opacity: { duration: 0.8 },
-                    scale: { duration: 1.0, ease: [0.2, 0, 0.2, 1] },
-                  }}
-                  className="min-h-screen flex items-center justify-center"
-                  ref={(el) => (stepRefs.current[currentStep] = el)}
-                >
-                  <div className="w-full max-w-3xl">
-                    <motion.div
-                      whileHover={{
-                        scale: 1.02,
-                        transition: {
-                          duration: 0.3,
-                          ease: [0.25, 0.46, 0.45, 0.94],
-                        },
-                      }}
-                      initial={{
-                        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                      }}
-                      animate={{
-                        boxShadow: [
-                          "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                          "0 20px 25px -5px rgba(0, 0, 0, 0.15)",
-                          "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                        ],
-                        transition: {
-                          duration: 4,
-                          repeat: Infinity,
-                          ease: [0.25, 0.46, 0.45, 0.94],
-                          times: [0, 0.5, 1],
-                        },
-                      }}
-                    >
-                      <QuestionStep
-                        question={questions[currentStep]}
-                        value={answers[questions[currentStep].id] || ""}
-                        onChange={(value) =>
-                          handleAnswerChange(questions[currentStep].id, value)
-                        }
-                        isActive={true}
-                        isCompleted={isStepCompleted(currentStep)}
-                        isEditing={false}
-                        onComplete={handleStepComplete}
-                        onEdit={() => handleStepEdit(currentStep)}
-                      />
-                    </motion.div>
-                  </div>
-                </motion.div>
+                <div className="min-h-screen flex items-center justify-center">
+                  <motion.div
+                    key={`current-${questions[currentStep].id}`}
+                    initial={{ opacity: 0, y: 400, scale: 0.8, rotateX: 15 }}
+                    animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+                    exit={{ opacity: 0, y: -100, scale: 0.98, rotateX: -10 }}
+                    transition={{
+                      // type: "spring",
+                      // stiffness: 10,    // moderate stiffness
+                      // damping: 100,      // higher damping = less bounce
+                      // mass: 2,
+                      duration: 1.0,           // total time of the animation
+                      ease: [0.25, 0.46, 0.45, 0.94], // smooth ease-out cubic-bezier
+                      opacity: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
+                      scale: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
+                      y: { duration: 1.0, ease: [0.25, 0.46, 0.45, 0.94] },
+                    }}
+                    ref={(el) => (stepRefs.current[currentStep] = el)}
+                  >
+                    <div className="w-full max-w-3xl">
+                      <motion.div
+                        whileHover={{
+                          scale: 1.02,
+                          transition: {
+                            duration: 0.3,
+                            ease: [0.25, 0.46, 0.45, 0.94],
+                          },
+                        }}
+                        initial={{
+                          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                        }}
+                        animate={{
+                          boxShadow: [
+                            "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                            "0 20px 25px -5px rgba(0, 0, 0, 0.15)",
+                            "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                          ],
+                          transition: {
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: [0.25, 0.46, 0.45, 0.94],
+                            times: [0, 0.5, 1],
+                          },
+                        }}
+                      >
+                        <QuestionStep
+                          question={questions[currentStep]}
+                          value={answers[questions[currentStep].id] || ""}
+                          onChange={(value) =>
+                            handleAnswerChange(questions[currentStep].id, value)
+                          }
+                          isActive={true}
+                          isCompleted={isStepCompleted(currentStep)}
+                          isEditing={false}
+                          onComplete={handleStepComplete}
+                          onEdit={() => handleStepEdit(currentStep)}
+                        />
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                </div>
               )}
           </AnimatePresence>
 
@@ -437,9 +412,9 @@ export function ProgressiveForm({
                   }}
                   className="text-3xl font-display font-bold text-foreground mb-4 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent"
                 >
-                  🚀 Adventure Course Plotted!
+                  🎯 Got it! Looking for your perfect trip
                 </motion.h3>
-                <motion.p
+                {/* <motion.p
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
@@ -448,8 +423,8 @@ export function ProgressiveForm({
                   }}
                   className="text-xl text-foreground-secondary font-medium"
                 >
-                  We're crafting your perfect destination matches...
-                </motion.p>
+                  Finding destinations that match what you're looking for...
+                </motion.p> */}
               </motion.div>
             </motion.div>
           )}
@@ -463,8 +438,8 @@ export function ProgressiveForm({
             className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
           >
             <div className="bg-gradient-to-r from-primary/90 to-secondary/90 backdrop-blur-md shadow-glow rounded-full px-6 py-3 text-sm text-white font-medium border border-white/20 animate-bounce-subtle">
-              <span className="mr-2">🗺️</span>
-              Scroll up to edit your adventure course
+              <span className="mr-2">✏️</span>
+              Scroll up to edit your answers
             </div>
           </motion.div>
         )}

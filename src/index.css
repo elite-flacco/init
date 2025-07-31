@@ -70,7 +70,7 @@
   }
 
   h1 {
-    @apply text-4xl font-display font-bold leading-extra-tight sm:text-5xl md:text-6xl lg:text-7xl bg-gradient-to-r from-primary via-primary-dark to-secondary bg-clip-text text-transparent;
+    @apply text-4xl font-display font-bold leading-extra-tight sm:text-5xl md:text-6xl lg:text-7xl bg-gradient-to-r from-foreground via-foreground-muted to-foreground-secondary bg-clip-text text-transparent;
   }
 
   h2 {
@@ -94,12 +94,12 @@
   }
 
   p {
-    @apply text-sm sm:text-base font-body text-foreground-secondary leading-relaxed;
+    @apply text-sm sm:text-base font-body text-foreground-secondary;
     text-wrap: pretty;
   }
 
   li {
-    @apply text-sm sm:text-base text-foreground-secondary leading-relaxed;
+    @apply text-sm sm:text-base text-foreground-secondary;
   }
 
   /* Enhanced links with better interactions */
@@ -128,7 +128,7 @@
   /* Base Button */
   button,
   .btn {
-    @apply inline-flex items-center justify-center relative overflow-hidden gap-2 px-5 py-2.5 text-base font-semibold rounded-xl transition-all duration-300 border border-transparent shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center relative overflow-hidden gap-2 px-5 py-2.5 text-base font-semibold rounded-xl transition-all duration-300 border border-transparent shadow-sm focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed outline-none focus:outline-none focus-visible:outline-none;
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -171,16 +171,6 @@
     transform: translateY(-2px);
   }
 
-  .btn-adventure {
-    @apply btn text-white font-bold bg-gradient-to-r from-primary via-accent to-secondary relative overflow-hidden shadow-glow;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .btn-adventure:hover {
-    @apply shadow-primary/30 shadow-glow;
-    transform: translateY(-3px) scale(1.02);
-  }
-
   .btn-outline {
     @apply btn bg-background/80 backdrop-blur-sm text-primary font-semibold border-2 border-primary/30 hover:border-primary hover:bg-primary/5 hover:shadow-travel-card;
   }
@@ -206,12 +196,12 @@
   }
 
   .page-title {
-    @apply text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-8 text-center leading-extra-tight bg-gradient-to-br from-primary via-primary-dark to-secondary bg-clip-text text-transparent;
+    @apply text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-8 text-center leading-extra-tight bg-gradient-to-br from-foreground via-foreground-muted to-foreground-secondary bg-clip-text text-transparent;
     animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
   }
 
   .page-subtitle {
-    @apply text-base md:text-lg lg:text-xl font-body text-foreground-secondary max-w-3xl mx-auto text-center leading-relaxed;
+    @apply text-base md:text-lg lg:text-xl font-body text-foreground-muted max-w-3xl mx-auto text-center leading-relaxed;
     animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
     text-wrap: balance;
   }
@@ -909,29 +899,6 @@
     @apply translate-x-1;
   }
 
-  /* Enhanced card patterns */
-  .card-pattern::before {
-    content: "";
-    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
-    @apply bg-gradient-to-r from-primary/[3%] via-transparent to-secondary/[3%];
-  }
-
-  .group:hover .card-pattern::before {
-    @apply opacity-100;
-  }
-
-  /* Adventure-themed components */
-  .adventure-badge {
-    @apply inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 text-primary-dark border border-primary/20;
-    @apply bg-gradient-to-br from-primary/10 to-secondary/10;
-  }
-
-  .adventure-badge:hover {
-    @apply border-primary/30;
-    @apply bg-gradient-to-br from-primary/[15%] to-secondary/[15%];
-    transform: translateY(-1px);
-  }
-
   .travel-step-indicator {
     @apply relative flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm transition-all duration-300;
   }
@@ -948,60 +915,5 @@
 
   .travel-step-indicator.pending {
     @apply bg-background/80 border-2 border-primary/20 text-muted-foreground;
-  }
-
-  /* Adventure loading animations */
-  .adventure-spinner {
-    @apply w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin;
-  }
-
-  .travel-pulse {
-    animation: travel-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  @keyframes travel-pulse {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.7;
-      transform: scale(1.05);
-    }
-  }
-
-  /* Special adventure highlight boxes */
-  .adventure-highlight {
-    @apply p-6 rounded-2xl border relative overflow-hidden border-primary/15;
-    @apply bg-gradient-to-br from-primary/[5%] via-accent/[3%] to-secondary/[5%];
-  }
-
-  .adventure-highlight::before {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: conic-gradient(
-      from 0deg,
-      transparent,
-      theme(colors.primary / 10%),
-      transparent,
-      theme(colors.secondary / 10%),
-      transparent
-    );
-    animation: adventure-float 8s linear infinite;
-    opacity: 0.3;
-  }
-
-  /* Travel-themed form elements */
-  .travel-input {
-    @apply form-input bg-background/90 border-border-warm focus:border-primary focus:ring-primary/20 shadow-glow;
-  }
-
-  .travel-input:focus {
-    @apply shadow-glow;
   }
 }

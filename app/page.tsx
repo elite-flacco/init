@@ -311,7 +311,7 @@ export default function HomePage() {
                   </div>
 
                   <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-error bg-clip-text text-transparent mb-4">
-                    Well, this is awkward...
+                    Oops, we hit a snag
                   </h2>
                   <p className="text-lg text-foreground-secondary mb-8 leading-relaxed">
                     Our AI took a little coffee break. {destinationError}
@@ -380,6 +380,7 @@ export default function HomePage() {
             travelerType={selectedTravelerType!}
             aiResponse={aiTripPlanningResponse!}
             onRegeneratePlan={handleRegeneratePlan}
+            onBack={handleBack}
           />
         );
 
@@ -398,60 +399,58 @@ export default function HomePage() {
         style={{ animationDelay: "1s" }}
       ></div>
 
-      {/* Header - Compressed */}
-      <header className="bg-white/70 backdrop-blur-xl shadow-card sticky top-0 z-50 border-b border-border/50 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 pointer-events-none"></div>
-        <div className="container mx-auto px-4 py-2.5 sm:px-6 relative">
-          <div className="flex items-center justify-between relative">
-            {/* Logo and Brand - Compact */}
-            <div className="flex items-center space-x-3">
-              {/* Back Button integrated with logo */}
-              {currentStep !== "traveler-type" && (
-                <button
-                  onClick={handleBack}
-                  className="group inline-flex items-center p-2 text-sm font-medium text-foreground-muted hover:text-primary bg-white/60 hover:bg-white/80 backdrop-blur-sm border border-border/50 hover:border-primary/30 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-                  aria-label="Go back to previous step"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300"
-                  >
-                    <path d="m12 19-7-7 7-7"></path>
-                    <path d="M19 12H5"></path>
-                  </svg>
-                </button>
-              )}
-              <div className="bg-gradient-to-br from-primary to-primary p-2 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:scale-105 group">
-                <Plane className="w-5 h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-                  TravelAI
-                </h1>
-                <p className="text-xs text-foreground-secondary font-medium hidden sm:block">
-                  AI-Powered Travel Planning
-                </p>
-              </div>
-            </div>
-
-            {/* Progress Indicator - Smaller on final step */}
-            {currentStep !== "plan" && (
-              <TravelProgressIndicator currentStep={currentStep} />
-            )}
+      {/* Logo - Top Left */}
+      <div className="fixed top-6 left-6 z-50">
+        <div className="flex items-center space-x-3">
+          <div className="bg-gradient-to-br from-primary to-primary p-2 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:scale-105 group">
+            <Plane className="w-5 h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+              TravelAI
+            </h1>
+            <p className="text-xs text-foreground-secondary font-medium hidden sm:block">
+              AI-Powered Travel Planning
+            </p>
           </div>
         </div>
-      </header>
+      </div>
+
+      {/* Navigation Elements - Right Side */}
+      {currentStep !== "plan" && (
+        <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center space-y-4">
+          {/* Back Button */}
+          {currentStep !== "traveler-type" && (
+            <button
+              onClick={handleBack}
+              className="group inline-flex items-center p-3 text-sm font-medium text-foreground-muted hover:text-primary bg-white/80 hover:bg-white/90 backdrop-blur-sm border border-border/50 hover:border-primary/30 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+              aria-label="Go back to previous step"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
+              >
+                <path d="m12 19-7-7 7-7"></path>
+                <path d="M19 12H5"></path>
+              </svg>
+            </button>
+          )}
+          
+          {/* Progress Indicator */}
+          <TravelProgressIndicator currentStep={currentStep} vertical={true} />
+        </div>
+      )}
 
       {/* Main content */}
-      <main className="relative py-6 pb-20 px-4 sm:px-6">
+      <main className="relative p-20 px-4 sm:px-6">
         <div className="container mx-auto relative z-10">
           <div className="relative">{renderCurrentStep()}</div>
         </div>

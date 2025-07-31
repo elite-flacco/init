@@ -10,6 +10,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Lint code**: `npm run lint`
 - **Preview production build**: `npm run preview`
 
+## Development Workflow Notes
+
+- Don't need to run npm run dev, it's usually already running.
+
 ## Testing
 
 - **Run tests**: `npm test`

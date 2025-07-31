@@ -1,5 +1,5 @@
 import React from "react";
-import { X, MapPin, Calendar, DollarSign, ArrowRight } from "lucide-react";
+import { X, MapPin, ArrowRight } from "lucide-react";
 import { Destination } from "../types/travel";
 
 interface DestinationDetailsModalProps {
@@ -63,7 +63,7 @@ export function DestinationDetailsModal({
 
           {/* Title */}
           <div className="absolute bottom-6 left-6 right-6">
-            <h1 className="mb-4">{destination.name}</h1>
+            <h1 className="mb-4 text-white">{destination.name}</h1>
             <p className="max-w-2xl text-white">{destination.description}</p>
           </div>
         </div>
@@ -75,8 +75,8 @@ export function DestinationDetailsModal({
             <div className="flex items-center">
               {/* <Calendar className="w-5 h-5 text-primary mr-3" /> */}
               <div>
-                <p>📅 Best Time to Visit</p>
-                <p className="font-medium text-foreground ml-6">
+                <p className="font-semibold">📅 Best Time to Visit</p>
+                <p className="font-sm text-foreground ml-6">
                   {destination.bestTime}
                 </p>
               </div>
@@ -84,8 +84,8 @@ export function DestinationDetailsModal({
             <div className="flex items-center">
               {/* <DollarSign className="w-5 h-5 text-primary mr-3" /> */}
               <div>
-                <p>💰 Estimated Cost</p>
-                <p className="font-medium text-foreground ml-6">
+                <p className="font-semibold">💰 Estimated Cost</p>
+                <p className="font-sm text-foreground ml-6">
                   {destination.estimatedCost}
                 </p>
               </div>
@@ -94,12 +94,12 @@ export function DestinationDetailsModal({
 
           {/* Highlights */}
           <div className="mb-8">
-            <h5 className="mb-4">Highlights</h5>
+            <h6 className="mb-4">Highlights</h6>
             <div className="flex flex-wrap gap-3">
               {destination.highlights.map((highlight, index) => (
                 <span
                   key={index}
-                  className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium"
+                  className="px-4 py-2 bg-secondary/10 text-secondary rounded-full text-sm font-medium"
                 >
                   {highlight}
                 </span>
@@ -109,7 +109,7 @@ export function DestinationDetailsModal({
 
           {/* Key Activities */}
           <div className="mb-8">
-            <h5 className="mb-4">Key Activities</h5>
+            <h6 className="mb-4">Key Activities</h6>
             <div className="flex flex-wrap gap-3">
               {destination.keyActivities.map((activity, index) => (
                 <span
@@ -125,7 +125,7 @@ export function DestinationDetailsModal({
           {/* Detailed Information */}
           {destination.details && (
             <div className="mb-8">
-              <h5 className="mb-4">About This Destination</h5>
+              <h6 className="mb-4">About This Destination</h6>
               <div className="prose prose-gray max-w-none">
                 {destination.details.split("\n\n").map((paragraph, index) => (
                   <p
@@ -141,11 +141,8 @@ export function DestinationDetailsModal({
 
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-border">
-            <button onClick={onClose} className="btn-outline">
-              Close
-            </button>
             <button onClick={handleSelectForPlanning} className="btn-primary">
-              Plan My Trip Here
+              Let's Plan This Thing
               <ArrowRight className="w-4 h-4 ml-2" />
             </button>
           </div>

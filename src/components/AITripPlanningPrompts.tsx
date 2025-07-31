@@ -1,31 +1,28 @@
-import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Sparkles,
   ArrowLeft,
-  Map,
   Compass,
-  Globe,
-  Navigation,
+  Map,
 } from "lucide-react";
+import React, { useState } from "react";
+import {
+  commonTripPlanningQuestions,
+  destinationInputQuestion,
+  getTripPlanningQuestionsByTravelerType,
+} from "../data/travelQuestions";
+import {
+  AITripPlanningResponse,
+  aiTripPlanningService,
+} from "../services/aiTripPlanningService";
 import {
   Destination,
-  TripPreferences,
-  TravelerType,
   DestinationKnowledge,
   PickDestinationPreferences,
+  TravelerType,
+  TripPreferences,
 } from "../types/travel";
 import { ProgressiveForm } from "./ProgressiveForm";
 import { Question } from "./QuestionStep";
-import {
-  getTripPlanningQuestionsByTravelerType,
-  commonTripPlanningQuestions,
-  destinationInputQuestion,
-} from "../data/travelQuestions";
-import {
-  aiTripPlanningService,
-  AITripPlanningResponse,
-} from "../services/aiTripPlanningService";
 import { TravelPlanLoading } from "./ui/TravelPlanLoading";
 
 interface AITripPlanningPromptsProps {
@@ -106,6 +103,9 @@ export function AITripPlanningPrompts({
             highlights: ["User selected destination"],
             bestTime: "Year-round",
             budget: "$$$",
+            estimatedCost: "",
+            matchReason: "",
+            keyActivities: [],
           }
         : null);
 
@@ -200,7 +200,7 @@ export function AITripPlanningPrompts({
               </div>
 
               <h3 className="text-2xl lg:text-3xl font-display font-bold mb-4 bg-gradient-to-br from-primary via-accent to-secondary bg-clip-text text-transparent">
-                Adventure Planning Hiccup!
+                Houston, we have a problem...
               </h3>
 
               <p className="text-lg text-foreground-secondary mb-8 leading-relaxed">
@@ -217,7 +217,7 @@ export function AITripPlanningPrompts({
                 >
                   <div className="flex items-center justify-center">
                     <Compass className="w-5 h-5 mr-3 group-hover:rotate-45 transition-transform duration-500" />
-                    Let's Replot This Adventure
+                    Give It Another Shot
                   </div>
                 </button>
 
@@ -227,7 +227,7 @@ export function AITripPlanningPrompts({
                 >
                   <div className="flex items-center justify-center">
                     <ArrowLeft className="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform duration-300" />
-                    Return to Base Camp
+                    Go Back
                   </div>
                 </button>
               </div>
@@ -281,23 +281,13 @@ export function AITripPlanningPrompts({
               {/* Adventure Glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary/30 rounded-3xl blur-xl opacity-50 -z-10 animate-adventure-float"></div>
 
-              {/* Planning Badge */}
-              <div className="flex items-center justify-center mb-6">
-                <div className="inline-flex items-center bg-primary/20 text-primary px-6 py-3 rounded-full font-bold text-lg mr-4 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
-                  <Map className="w-5 h-5 mr-3" />
-                  Expedition Planning HQ
-                </div>
-                <div className="text-3xl animate-bounce-subtle">📋</div>
-              </div>
-
               <h2 className="text-4xl lg:text-5xl font-display font-bold mb-6 bg-gradient-to-br from-primary via-accent to-secondary bg-clip-text text-transparent leading-tight">
-                Let's Plan Your Epic {getDestinationName()} Adventure!
+                Let's Plan Your {getDestinationName()} Trip!
               </h2>
 
               <p className="text-lg lg:text-xl text-foreground-secondary max-w-3xl mx-auto leading-relaxed">
-                Time to craft the perfect expedition plan tailored just for you.
-                Answer a few quick questions and we'll build your ultimate
-                adventure roadmap!
+                Time to plan something awesome for {getDestinationName()}.
+                Just answer a few quick questions and we'll craft a travel plan that's perfectly you.
               </p>
             </div>
           </div>

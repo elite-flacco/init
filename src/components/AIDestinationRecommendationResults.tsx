@@ -41,20 +41,17 @@ export function AIDestinationRecommendationResults({
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <div className="text-center mb-12">
-        <h1 className="mb-6">Your Top Hits</h1>
-        <p className="max-w-3xl mx-auto mb-6">
-          Based on your vibe, we're pretty confident one of these will make you
-          go "YES, this is it!"
-        </p>
-        <div className="flex justify-center m-4">
-          {onRegenerate && (
-            <button onClick={onRegenerate} className="btn-primary">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Show Me More Options
-            </button>
-          )}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h3 className="mb-2 page-title">Your Top Hits</h3>
+          <p className="page-subtitle text-left">We think you'll love these 😉</p>
         </div>
+        {onRegenerate && destinations.length > 0 && (
+          <button onClick={onRegenerate} className="btn-primary">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Show Me More
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -62,7 +59,6 @@ export function AIDestinationRecommendationResults({
           <div key={destination.id}>
             <DestinationCard
               destination={destination}
-              onSelect={onSelect}
               onViewDetails={handleViewDetails}
             />
           </div>
@@ -71,11 +67,11 @@ export function AIDestinationRecommendationResults({
 
       {destinations.length === 0 && (
         <div className="text-center py-16">
-          <p className="mb-4">No destinations found matching your criteria.</p>
+          <h6 className="mb-4">Hmm, our AI is having a moment. Let's try this again.</h6>
           {onRegenerate && (
             <button onClick={onRegenerate} className="btn-primary">
               <RefreshCw className="w-4 h-4 mr-2" />
-              Give Me Something Else
+              Try Again
             </button>
           )}
         </div>

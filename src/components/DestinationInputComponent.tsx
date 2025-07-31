@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { MapPin, Search } from "lucide-react";
 import { TravelerType } from "../types/travel";
 
 interface DestinationInputComponentProps {
@@ -23,13 +22,13 @@ export function DestinationInputComponent({
     e.preventDefault();
 
     if (!destination.trim()) {
-      setError("Come on, give us something to work with!");
+      setError("Come on, throw us a bone here.");
       return;
     }
 
     if (destination.length < 2) {
       setError(
-        'That\'s a bit too short - try something like "Paris" or "Tokyo"',
+        'That\'s a bit short — try something like "Paris" or "Tokyo".',
       );
       return;
     }
@@ -42,47 +41,15 @@ export function DestinationInputComponent({
     if (error) setError("");
   };
 
-  // Adventure-themed messaging based on traveler type
-  const getExpeditionMessage = () => {
-    const messages = {
-      Explorer: "Time to chart unknown territories! Where shall we venture?",
-      "Type A":
-        "Perfect planning starts with the perfect destination. Where's your target?",
-      "Typical Overthinker":
-        "Stop overthinking - just tell us where your heart wants to go!",
-      "Just Here to Chill":
-        "Let's find your paradise. What destination calls to your soul?",
-    };
-    return (
-      messages[travelerType.name as keyof typeof messages] ||
-      "Where shall we begin this adventure?"
-    );
-  };
-
-  const getExpeditionSubtext = () => {
-    const subtexts = {
-      Explorer: "🗺️ We'll uncover hidden gems and secret spots just for you.",
-      "Type A": "📋 Every detail will be perfectly organized and optimized.",
-      "Typical Overthinker":
-        "🧠 We'll make all the tough choices so you can just enjoy.",
-      "Just Here to Chill":
-        "🌊 Pure relaxation mode activated - stress-free planning ahead.",
-    };
-    return (
-      subtexts[travelerType.name as keyof typeof subtexts] ||
-      "✨ Your perfect adventure awaits."
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background-soft to-background-muted relative overflow-hidden">
+    <div className="container overflow-hidden">
       {/* Adventure Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-16 left-12 text-4xl opacity-10 animate-float">
           🧭
         </div>
         <div
-          className="absolute top-32 right-16 text-3xl opacity-15 animate-pulse-slow"
+          className="absolute top-32 right-16 text-3xl opacity-20 animate-pulse-slow"
           style={{ animationDelay: "1s" }}
         >
           📍
@@ -101,54 +68,35 @@ export function DestinationInputComponent({
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-16 relative z-10 flex items-center min-h-screen">
+      <div className="container mx-auto px-4 relative z-10 flex items-center">
         <div className="w-full max-w-4xl mx-auto">
           {/* Expedition Header */}
           <div
-            className={`text-center mb-16 transition-all duration-1000 ${
-              isAnimated
+            className={`text-center mb-16 transition-all duration-1000 ${isAnimated
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-12"
-            }`}
+              }`}
           >
-            {/* Adventure Icon */}
-            <div className="inline-flex items-center justify-center mb-8">
-              <div className="relative">
-                <div className="bg-gradient-to-br from-primary to-secondary p-6 rounded-full shadow-glow animate-glow-pulse">
-                  <MapPin className="w-10 h-10 text-white" />
-                </div>
-                <div
-                  className="absolute -top-2 -right-2 text-2xl animate-bounce-subtle"
-                  style={{ animationDelay: "1s" }}
-                >
-                  🎯
-                </div>
-              </div>
-            </div>
 
             {/* Expedition Title */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-8 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent leading-tight">
-              Plot Your Course
+            <h1 className="page-title">
+              Alright, spill it — where to?
             </h1>
 
             {/* Personalized Adventure Message */}
             <div className="max-w-3xl mx-auto space-y-4">
-              <p className="text-xl md:text-2xl text-foreground-secondary leading-relaxed font-semibold">
-                {getExpeditionMessage()}
-              </p>
-              <p className="text-lg md:text-xl text-foreground-muted leading-relaxed">
-                {getExpeditionSubtext()}
+              <p className="page-subtitle">
+                Tell us where your heart wants to go and we'll build you the perfect trip.
               </p>
             </div>
           </div>
 
           {/* Expedition Planning Interface */}
           <div
-            className={`max-w-2xl mx-auto transition-all duration-1000 delay-300 ${
-              isAnimated
+            className={`max-w-2xl mx-auto transition-all duration-1000 delay-300 ${isAnimated
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-8"
-            }`}
+              }`}
           >
             {/* Adventure Form Card */}
             <div className="relative">
@@ -156,17 +104,10 @@ export function DestinationInputComponent({
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 rounded-3xl blur-xl opacity-50 animate-glow-pulse"></div>
 
               <div className="relative bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/50 rounded-3xl shadow-adventure-float p-8 lg:p-12">
-                {/* Expedition Pattern */}
-                <div className="absolute top-4 right-4 text-xl opacity-20 animate-spin-slow">
-                  🧭
-                </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                   {/* Destination Input */}
                   <div className="relative">
-                    <label className="block text-lg font-semibold text-foreground mb-4">
-                      🌍 Destination Command Center
-                    </label>
 
                     <div className="relative">
                       <input
@@ -174,18 +115,13 @@ export function DestinationInputComponent({
                         value={destination}
                         onChange={handleInputChange}
                         placeholder="Tokyo ramen district, Santorini sunset spots, Bali rice terraces..."
-                        className={`w-full px-6 py-4 text-lg bg-background/80 backdrop-blur-sm border-2 rounded-xl shadow-card transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:border-primary focus:shadow-card-hover focus:bg-background ${
-                          error
+                        className={`w-full px-6 py-4 text-sm bg-background/80 backdrop-blur-sm border-2 rounded-xl shadow-card transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:border-primary focus:shadow-card-hover focus:bg-background ${error
                             ? "border-red-300 bg-red-50/80"
                             : "border-border hover:border-border-secondary"
-                        }`}
+                          }`}
                         autoFocus
                       />
 
-                      {/* Search Icon */}
-                      <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                        <Search className="w-6 h-6 text-foreground-muted" />
-                      </div>
                     </div>
 
                     {error && (
@@ -204,9 +140,9 @@ export function DestinationInputComponent({
                     className="w-full group relative overflow-hidden bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-8 rounded-xl shadow-glow hover:shadow-glow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:translate-y-0"
                   >
                     <span className="relative z-10 flex items-center justify-center">
-                      <span className="mr-3">🚀 Launch Expedition</span>
+                      <span className="mr-3 text-white">🚀 Let's Go</span>
                       <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center transform group-hover:translate-x-2 transition-transform duration-300">
-                        <span className="text-sm">→</span>
+                        <span className="text-sm text-white">→</span>
                       </div>
                     </span>
 

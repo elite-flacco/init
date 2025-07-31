@@ -7,14 +7,14 @@ interface KMLExportLoadingProps {
 }
 
 const loadingMessages = [
-  "🗺️ Mapping out your adventure...",
-  "✨ Sprinkling some travel magic...",
-  "📍 Pinpointing perfect locations...",
+  "🗺️ Creating your map...",
+  "✨ Getting locations ready...",
+  "📍 Finding exact coordinates...",
   "🧳 Packing your digital itinerary...",
   "🌍 Geocoding destinations...",
-  "🗺️ Creating your personalized map...",
+  "🗺️ Building your personalized map...",
   "📱 Preparing for Google Maps...",
-  "🚀 Almost ready for takeoff!",
+  "🚀 Almost ready!",
 ];
 
 export function KMLExportLoading({ isVisible }: KMLExportLoadingProps) {

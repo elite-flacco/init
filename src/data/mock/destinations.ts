@@ -19,6 +19,7 @@ export const destinations: Destination[] = [
     estimatedCost: "$50-80/day",
     keyActivities: ["Beach", "Temple", "Rice Terrace", "Yoga Retreat"],
     matchReason: "Perfect for those interested in beaches and temples",
+    details: "bali details",
   },
   {
     id: "iceland",
@@ -33,6 +34,7 @@ export const destinations: Destination[] = [
     estimatedCost: "$120-180/day",
     keyActivities: ["Northern Lights", "Geysers", "Waterfalls", "Blue Lagoon"],
     matchReason: "Perfect for those interested in nature and adventure",
+    details: "iceland details",
   },
   {
     id: "tokyo",
@@ -56,6 +58,7 @@ export const destinations: Destination[] = [
       "Amazing food",
     ],
     matchReason: "Perfect for those interested in culture and food",
+    details: "tokyo details",
   },
   {
     id: "costa-rica",
@@ -80,6 +83,7 @@ export const destinations: Destination[] = [
       "Pristine beaches",
     ],
     matchReason: "Perfect for those interested in nature and adventure",
+    details: "costa rica details",
   },
   {
     id: "greece",
@@ -104,6 +108,7 @@ export const destinations: Destination[] = [
       "Sunset views",
     ],
     matchReason: "Perfect for those interested in culture and food",
+    details: "greece details",
   },
   {
     id: "new-zealand",
@@ -128,5 +133,6 @@ export const destinations: Destination[] = [
       "Milford Sound",
     ],
     matchReason: "Perfect for those interested in nature and adventure",
+    details: "new zealand details",
   },
 ];

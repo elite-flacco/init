@@ -16,8 +16,9 @@ import {
   BeerIcon,
   FileText,
   Loader2,
-  Globe,
   ChevronDown,
+  Edit,
+  Coffee,
 } from "lucide-react";
 import {
   Destination,
@@ -41,6 +42,7 @@ interface AITravelPlanProps {
   travelerType: TravelerType;
   aiResponse: AITripPlanningResponse;
   onRegeneratePlan: () => void;
+  onBack?: () => void;
 }
 
 export function AITravelPlan({
@@ -48,8 +50,11 @@ export function AITravelPlan({
   travelerType,
   aiResponse,
   onRegeneratePlan,
+  onBack,
 }: AITravelPlanProps) {
-  const [activeTab, setActiveTab] = useState<"itinerary" | "info">("itinerary");
+  const [activeTab, setActiveTab] = useState<
+    "itinerary" | "info" | "practical"
+  >("itinerary");
   const [isExportingKML, setIsExportingKML] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [, setShareUrl] = useState<string | null>(null);
@@ -87,7 +92,7 @@ export function AITravelPlan({
       });
     } catch (error) {
       console.error("Error exporting to PDF:", error);
-      alert("Failed to generate PDF. Please try again.");
+      alert("Couldn't create the PDF. Give it another shot?");
     }
   };
 
@@ -108,7 +113,7 @@ export function AITravelPlan({
       }
     } catch (error) {
       console.error("Error exporting to KML:", error);
-      alert("Failed to generate KML file. Please try again.");
+      alert("Couldn't create the map file. Try again?");
     } finally {
       setIsExportingKML(false);
     }
@@ -139,7 +144,7 @@ export function AITravelPlan({
       // Copy to clipboard
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(newShareUrl);
-        alert("Share link copied to clipboard!");
+        alert("Share link copied! Send it around!");
       } else {
         // Fallback for older browsers
         const textArea = document.createElement("textarea");
@@ -148,11 +153,11 @@ export function AITravelPlan({
         textArea.select();
         document.execCommand("copy");
         document.body.removeChild(textArea);
-        alert(`Share link created: ${newShareUrl}`);
+        alert(`Got your share link: ${newShareUrl}`);
       }
     } catch (error) {
       console.error("Error creating share link:", error);
-      alert("Failed to create share link. Please try again.");
+      alert("Couldn't create the share link. Try again?");
     } finally {
       setIsSharing(false);
     }
@@ -182,49 +187,39 @@ export function AITravelPlan({
     ];
   };
 
-  // Helper function to get adventure icon component based on icon name
+  // Helper function to get icon component based on icon name
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
       case "coffee":
-        return (
-          <Sparkles className="w-6 h-6 text-amber-500 animate-pulse-slow" />
-        );
+        return <Coffee className="w-6 h-6 animate-pulse-slow" />;
       case "map":
-        return (
-          <MapPin className="w-6 h-6 text-blue-500 animate-bounce-subtle" />
-        );
+        return <MapPin className="w-6 h-6 animate-bounce-subtle" />;
       case "utensils":
-        return (
-          <Utensils className="w-6 h-6 text-green-500 animate-pulse-slow" />
-        );
+        return <Utensils className="w-6 h-6 animate-pulse-slow" />;
       case "compass":
-        return (
-          <Compass className="w-6 h-6 text-purple-500 animate-spin-slow" />
-        );
+        return <Compass className="w-6 h-6 animate-spin-slow" />;
       default:
-        return (
-          <Compass className="w-6 h-6 text-primary animate-bounce-subtle" />
-        );
+        return <Compass className="w-6 h-6 animate-bounce-subtle" />;
     }
   };
 
-  // Render a single adventure activity
+  // Render a single activity
   const renderActivity = (activity: Activity, index: number) => (
     <div key={index} className="relative group">
       <div className="transform hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300">
         <div className="bg-gradient-to-br from-background/80 to-background-card/70 backdrop-blur-sm border-2 border-border/30 hover:border-primary/40 rounded-2xl p-6 shadow-card hover:shadow-adventure-float transition-all duration-300 relative overflow-hidden">
-          {/* Activity Glow */}
+          {/* Activity Highlight */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-2xl"></div>
 
           <div className="flex items-start relative z-10">
-            {/* Adventure Time Badge */}
+            {/* Time Badge */}
             <div className="flex-shrink-0 mr-4">
               <div className="inline-flex items-center bg-primary/20 text-primary px-3 py-2 rounded-full font-bold text-sm transform -rotate-1 group-hover:rotate-0 transition-transform duration-300">
                 {activity.time}
               </div>
             </div>
 
-            {/* Adventure Content */}
+            {/* Activity Content */}
             <div className="flex-1">
               <div className="flex items-center mb-2">
                 <div className="flex-shrink-0 mr-3">
@@ -241,8 +236,8 @@ export function AITravelPlan({
 
               {activity.location && (
                 <div className="flex items-center text-sm text-foreground-secondary mb-3 ml-9">
-                  <MapPin className="w-4 h-4 mr-2 text-secondary" />
-                  <span className="font-medium">{activity.location}</span>
+                  <MapPin className="w-3 h-3 mr-1" />
+                  <span className="font-medium text-xs">{activity.location}</span>
                 </div>
               )}
 
@@ -260,34 +255,24 @@ export function AITravelPlan({
     </div>
   );
 
-  // Render a single day's adventure expedition
+  // Render a single day's itinerary
   const renderDayItinerary = (day: ItineraryDay) => (
     <div key={day.day} className="mb-12 relative">
-      {/* Adventure Day Card */}
+      {/* Daily Itinerary Card */}
       <div className="transform hover:-rotate-1 transition-transform duration-500">
         <div className="bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 hover:border-primary/50 rounded-3xl p-8 lg:p-10 shadow-card hover:shadow-adventure-float transition-all duration-500 relative overflow-hidden">
-          {/* Adventure Glow */}
+          {/* Card Highlight */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 rounded-3xl blur-xl opacity-0 hover:opacity-100 transition-all duration-700 -z-10"></div>
 
-          {/* Day Pattern */}
-          <div className="absolute top-6 right-6 text-3xl opacity-20 hover:opacity-40 transition-opacity duration-500 animate-bounce-subtle">
-            📍
-          </div>
-
-          {/* Adventure Day Header */}
+          {/* Day Header */}
           <div className="flex items-center mb-8">
-            <div className="inline-flex items-center bg-primary/20 text-primary px-6 py-3 rounded-full font-bold text-xl mr-4 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+            <div className="inline-flex items-center bg-secondary/20 text-secondary px-6 py-3 rounded-full font-bold text-xl mr-4 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
               <Calendar className="w-5 h-5 mr-3" />
-              Quest Day {day.day}
+              {day.title}
             </div>
-            <div className="text-2xl animate-pulse-slow">🗓️</div>
           </div>
 
-          <h2 className="text-3xl font-display font-bold text-foreground mb-8 ml-4 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-            {day.title}
-          </h2>
-
-          {/* Adventure Activities */}
+          {/* Daily Activities */}
           <div className="space-y-6 ml-8 mr-4">
             {day.activities.map((activity, index) =>
               renderActivity(activity, index),
@@ -304,9 +289,9 @@ export function AITravelPlan({
         {/* Header - Compact */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="mb-3 sm:mb-0">
-            <div className="flex items-center">
-              <Sparkles className="w-5 h-5 text-primary mr-2" />
-              <h1 className="text-2xl font-bold text-foreground">
+            <div className="flex items-start">
+              <Sparkles className="w-16 h-16 text-primary mr-2" />
+              <h1 className="page-title">
                 Your Travel Plan
               </h1>
             </div>
@@ -422,93 +407,64 @@ export function AITravelPlan({
           </div>
         </div>
 
-        {/* Adventure Navigation Tabs */}
+        {/* Navigation Tabs */}
         <div className="mb-8 relative">
-          {/* Floating background elements */}
-          <div className="absolute -top-4 -left-8 text-4xl opacity-10 animate-float-slow">
-            🗺️
-          </div>
-          <div
-            className="absolute -top-2 -right-6 text-3xl opacity-15 animate-bounce-subtle"
-            style={{ animationDelay: "1s" }}
-          >
-            🧭
-          </div>
+          <div className="flex flex-col xl:flex-row justify-center items-center gap-4 xl:gap-4 px-4 max-w-none mx-auto">
+            <button
+              onClick={() => setActiveTab("itinerary")}
+              className={`group transition-all duration-300 transform hover:scale-105 w-full xl:w-auto border-0 shadow-none ${activeTab === "itinerary" ? "scale-110" : "hover:-translate-y-1"
+                }`}
+            >
+              <div className={`inline-flex items-center justify-center px-6 py-4 rounded-full font-bold text-lg transform transition-all duration-300 whitespace-nowrap ${activeTab === "itinerary"
+                  ? "bg-primary/20 text-primary -rotate-1 shadow-glow"
+                  : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-primary/10 hover:to-primary/5 hover:text-primary hover:border-primary/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
+                }`}>
+                <span className="w-5 h-5 mr-3 flex-shrink-0">🗺️</span>
+                <span>Adventure Blueprint</span>
+              </div>
+            </button>
 
-          <div className="bg-gradient-to-br from-background-card/80 to-background/70 backdrop-blur-xl border-2 border-border/30 rounded-2xl p-3 shadow-adventure-float relative">
-            {/* Adventure glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-2xl blur-lg opacity-50"></div>
+            <button
+              onClick={() => setActiveTab("info")}
+              className={`group transition-all duration-300 transform hover:scale-105 w-full xl:w-auto border-0 shadow-none ${activeTab === "info" ? "scale-110" : "hover:-translate-y-1"
+                }`}
+            >
+              <div className={`inline-flex items-center justify-center px-6 py-4 rounded-full font-bold text-lg transform transition-all duration-300 whitespace-nowrap ${activeTab === "info"
+                  ? "bg-secondary/20 text-secondary -rotate-2 shadow-glow-teal"
+                  : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-secondary/10 hover:to-secondary/5 hover:text-secondary hover:border-secondary/20 rotate-2 hover:rotate-0 shadow-card hover:shadow-adventure-float"
+                }`}>
+                <span className="w-5 h-5 mr-3 flex-shrink-0">🕵️‍♂️</span>
+                <span>Intelligence Briefing</span>
+              </div>
+            </button>
 
-            <nav className="flex space-x-3 relative z-10">
-              <button
-                onClick={() => setActiveTab("itinerary")}
-                className={`group flex-1 py-4 px-6 font-bold text-sm rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 relative overflow-hidden ${activeTab === "itinerary"
-                  ? "bg-gradient-to-r from-primary to-secondary text-white shadow-glow"
-                  : "bg-background/80 text-foreground hover:bg-background border border-border/50 hover:border-primary/30"
-                  }`}
-              >
-                <span className="relative z-10 flex items-center justify-center">
-                  📅 Daily Expedition Log
-                </span>
-                {activeTab === "itinerary" && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab("info")}
-                className={`group flex-1 py-4 px-6 font-bold text-sm rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 relative overflow-hidden ${activeTab === "info"
-                  ? "bg-gradient-to-r from-secondary to-accent text-white shadow-glow"
-                  : "bg-background/80 text-foreground hover:bg-background border border-border/50 hover:border-secondary/30"
-                  }`}
-              >
-                <span className="relative z-10 flex items-center justify-center">
-                  🎯 Adventure Intel
-                </span>
-                {activeTab === "info" && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
-                )}
-              </button>
-            </nav>
+            <button
+              onClick={() => setActiveTab("practical")}
+              className={`group transition-all duration-300 transform hover:scale-105 w-full xl:w-auto border-0 shadow-none ${activeTab === "practical" ? "scale-110" : "hover:-translate-y-1"
+                }`}
+            >
+              <div className={`inline-flex items-center justify-center px-6 py-4 rounded-full font-bold text-lg transform transition-all duration-300 whitespace-nowrap ${activeTab === "practical"
+                  ? "bg-accent/20 text-accent -rotate-2 shadow-glow-coral"
+                  : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-accent/10 hover:to-accent/5 hover:text-accent hover:border-accent/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
+                }`}>
+                <span className="w-5 h-5 mr-3 flex-shrink-0">🛠️</span>
+                <span>Practical Guide</span>
+              </div>
+            </button>
           </div>
         </div>
 
-        {/* Adventure Tab Content */}
+        {/* Tab Content */}
         {activeTab === "itinerary" && (
           <div className="space-y-8 relative">
-            {/* Floating background elements */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div
-                className="absolute top-20 left-12 text-5xl opacity-5 animate-float"
-                style={{ animationDelay: "2s" }}
-              >
-                🏔️
-              </div>
-              <div
-                className="absolute top-80 right-16 text-4xl opacity-8 animate-pulse-slow"
-                style={{ animationDelay: "3s" }}
-              >
-                🎒
-              </div>
-              <div
-                className="absolute bottom-40 left-20 text-6xl opacity-5 animate-bounce-subtle"
-                style={{ animationDelay: "1s" }}
-              >
-                ⛰️
-              </div>
-            </div>
-
-            {/* Adventure Expedition Itinerary */}
+            {/* Travel Itinerary */}
             <div className="relative z-10">
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center bg-primary/20 text-primary px-6 py-3 rounded-full font-bold text-xl mb-4 transform -rotate-1 hover:rotate-0 transition-transform duration-300">
-                  <BookOpen className="w-5 h-5 mr-3" />
-                  Adventure Blueprint
-                </div>
+              {/* <div className="text-center mb-12">
                 <p className="text-lg text-foreground-secondary ml-8 max-w-2xl mx-auto leading-relaxed">
-                  Your personalized expedition roadmap - crafted to match your
-                  explorer spirit! 🗺️
+                  Your personalized travel roadmap - crafted to match your
+                  travel style! 🗺️
                 </p>
-              </div>
+              </div> */}
 
               {plan.itinerary && plan.itinerary.length > 0 ? (
                 <div className="space-y-8">
@@ -535,27 +491,20 @@ export function AITravelPlan({
 
         {activeTab === "info" && (
           <div className="space-y-12">
-            {/* Adventure Intel Header */}
-            <div className="text-center mb-12">
-              <div className="flex items-center justify-center mb-6">
-                <div className="inline-flex items-center bg-secondary/20 text-secondary px-6 py-3 rounded-full font-bold text-lg mr-4 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
-                  <Globe className="w-5 h-5 mr-3" />
-                  Adventure Intelligence Briefing
-                </div>
-                <div className="text-3xl animate-bounce-subtle">🕵️‍♂️</div>
-              </div>
+            {/* Travel Info Header */}
+            {/* <div className="text-center mb-12">
               <p className="text-lg text-foreground-secondary max-w-3xl mx-auto leading-relaxed">
                 Everything you need to know for a successful expedition \u2014
                 from must-see landmarks to local secrets that'll make your
                 adventure legendary!
               </p>
-            </div>
+            </div> */}
 
-            {/* Epic Discoveries */}
+            {/* Top Attractions */}
             <TravelPlanSection rotation="right" glowColor="primary">
               <SectionHeader
                 icon={MapPin}
-                title="Epic Discoveries"
+                title="Must-See Spots"
                 emoji="🏛️"
                 badgeColor="primary"
               />
@@ -597,7 +546,7 @@ export function AITravelPlan({
               })()}
             </TravelPlanSection>
 
-            {/* Base Camp Neighborhoods */}
+            {/* Best Neighborhoods */}
             {plan.neighborhoods && (
               <TravelPlanSection rotation="left" glowColor="accent">
                 <SectionHeader
@@ -618,16 +567,16 @@ export function AITravelPlan({
                         <p className="italic mb-2">
                           Best for: {neighborhood.bestFor.slice(9)}
                         </p>
-                        <p className="font-bold text-success mt-4">Pros:</p>
+                        <p className="inline-block bg-success/10 border border-success/20 rounded-lg p-1 font-medium text-sm text-success mt-4 mb-2">Pros</p>
                         <ul className="text-foreground/80">
                           {neighborhood.pros.map((pro, idx) => (
-                            <li key={idx}>• {pro}</li>
+                            <li className="mr-2" key={idx}>• {pro}</li>
                           ))}
                         </ul>
-                        <p className="font-bold text-error mt-4">Cons:</p>
+                        <p className="inline-block bg-error/10 border border-error/20 rounded-lg p-1 font-medium text-sm text-error mt-4 mb-2">Cons</p>
                         <ul className="text-foreground/80">
                           {neighborhood.cons.map((con, idx) => (
-                            <li key={idx}>• {con}</li>
+                            <li className="mr-2" key={idx}>• {con}</li>
                           ))}
                         </ul>
                       </div>
@@ -637,12 +586,12 @@ export function AITravelPlan({
               </TravelPlanSection>
             )}
 
-            {/* Adventure Lodgings */}
+            {/* Hotel Recommendations */}
             {plan.hotelRecommendations && (
               <TravelPlanSection rotation="right" glowColor="secondary">
                 <SectionHeader
                   icon={Home}
-                  title="Epic Adventure Lodgings"
+                  title="Great Places to Stay"
                   emoji="🛏️"
                   badgeColor="secondary"
                 />
@@ -688,11 +637,11 @@ export function AITravelPlan({
               </TravelPlanSection>
             )}
 
-            {/* Culinary Adventures */}
+            {/* Dining & Nightlife */}
             <TravelPlanSection rotation="left" glowColor="primary">
               <SectionHeader
                 icon={Utensils}
-                title="Epic Culinary Adventures"
+                title="Where to Eat & Drink"
                 emoji="🍴"
                 badgeColor="primary"
               />
@@ -760,10 +709,10 @@ export function AITravelPlan({
                       {restaurantsByNeighborhood[neighborhood] &&
                         restaurantsByNeighborhood[neighborhood].length > 0 && (
                           <div>
-                            <h4 className="mb-3 flex items-center">
+                            <h5 className="mb-3 flex items-center">
                               <Utensils className="w-5 h-5 mr-2 text-primary" />
                               Restaurants
-                            </h4>
+                            </h5>
                             <div className="space-y-4">
                               {restaurantsByNeighborhood[neighborhood].map(
                                 (restaurant, index) => (
@@ -795,10 +744,10 @@ export function AITravelPlan({
                       {barsByNeighborhood[neighborhood] &&
                         barsByNeighborhood[neighborhood].length > 0 && (
                           <div>
-                            <h4 className="mb-3 flex items-center">
+                            <h5 className="mb-3 flex items-center">
                               <BeerIcon className="w-5 h-5 mr-2 text-secondary" />
                               Bars & Nightlife
-                            </h4>
+                            </h5>
                             <div className="space-y-4">
                               {barsByNeighborhood[neighborhood].map(
                                 (bar, index) => (
@@ -823,12 +772,12 @@ export function AITravelPlan({
               })()}
             </TravelPlanSection>
 
-            {/* Legendary Local Flavors */}
+            {/* Local Specialties */}
             {plan.mustTryFood && plan.mustTryFood.items && (
               <TravelPlanSection rotation="right" glowColor="accent">
                 <SectionHeader
                   icon={Utensils}
-                  title="Legendary Local Flavors"
+                  title="Must-Try Local Flavors"
                   emoji="🤤"
                   badgeColor="accent"
                 />
@@ -921,12 +870,12 @@ export function AITravelPlan({
               </TravelPlanSection>
             )}
 
-            {/* Adventure Events */}
+            {/* Local Events */}
             {plan.localEvents && plan.localEvents.length > 0 && (
               <TravelPlanSection rotation="left" glowColor="primary">
                 <SectionHeader
                   icon={Calendar}
-                  title="Epic Local Festivities"
+                  title="Local Festivities"
                   emoji="🎪"
                   badgeColor="primary"
                 />
@@ -944,20 +893,19 @@ export function AITravelPlan({
               </TravelPlanSection>
             )}
 
-            {/* Adventure Experiences */}
+            {/* Activities & Experiences */}
             {plan.activities && (
               <TravelPlanSection rotation="right" glowColor="accent">
                 <SectionHeader
                   icon={Compass}
-                  title="Legendary Local Quests"
+                  title="Cool Local Experiences"
                   emoji="⚡"
                   badgeColor="accent"
                 />
                 <ItemGrid columns={2}>
                   {plan.activities.map((activity, index) => {
                     const tags = [];
-                    if (activity.localSpecific)
-                      tags.push("Local Specialty");
+                    if (activity.localSpecific) tags.push("Local Specialty");
                     if (
                       activity.experienceType &&
                       activity.experienceType !== "other"
@@ -983,29 +931,44 @@ export function AITravelPlan({
               </TravelPlanSection>
             )}
 
-            {/* Adventure Transport Command */}
+
+          </div>
+        )}
+
+        {activeTab === "practical" && (
+          <div className="space-y-12">
+            {/* Practical Guide Header */}
+            {/* <div className="text-center mb-12">
+              <p className="text-lg text-foreground-secondary max-w-3xl mx-auto leading-relaxed">
+                Essential practical information to make your adventure smooth
+                and worry-free \u2014 from weather tips to safety guidelines and
+                local customs!
+              </p>
+            </div> */}
+
+            {/* Getting Around */}
             <TravelPlanSection rotation="left" glowColor="primary">
               <SectionHeader
                 icon={Compass}
-                title="Adventure Transport HQ"
+                title="Getting Around"
                 emoji="🚌"
                 badgeColor="primary"
               />
 
-              {/* City Transportation - Adventure styled 2-column layout */}
+              {/* City Transportation - 2-column layout */}
               <ContentGrid columns={2} className="mb-8">
-                <ContentCard title="Public Transport Quest" icon="🚇">
+                <ContentCard title="Public Transport" icon="🚇">
                   <p className="text-foreground-secondary mb-3">
                     {plan.transportationInfo.publicTransport}
                   </p>
                   <div className="flex items-center">
-                    <span className="text-sm text-foreground-muted mr-2">
+                    <span className="text-sm text-foreground-secondary mr-2">
                       💳 Credit cards:
                     </span>
                     <span
                       className={`text-sm font-medium px-2 py-1 rounded-full ${plan.transportationInfo.creditCardPayment
-                        ? "bg-green-100 text-green-700"
-                        : "bg-amber-100 text-amber-700"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-amber-100 text-amber-700"
                         }`}
                     >
                       {plan.transportationInfo.creditCardPayment
@@ -1015,12 +978,12 @@ export function AITravelPlan({
                   </div>
                 </ContentCard>
 
-                <ContentCard title="Taxi & Rideshare Command" icon="🚕">
+                <ContentCard title="Taxis & Rideshare" icon="🚕">
                   <p className="text-foreground-secondary mb-3">
                     {plan.transportationInfo.ridesharing}
                   </p>
                   <div className="flex items-center mb-3">
-                    <span className="text-sm text-foreground-muted mr-2">
+                    <span className="text-sm text-foreground-secondary mr-2">
                       💰 Average cost:
                     </span>
                     <span className="text-sm font-bold text-primary">
@@ -1030,9 +993,9 @@ export function AITravelPlan({
                   {plan.transportationInfo.taxiInfo?.tips && (
                     <div>
                       <div className="flex items-center mb-2">
-                        <span className="text-sm mr-2">💡</span>
-                        <span className="text-sm font-medium text-foreground">
-                          Pro Tips:
+                        {/* <span className="text-sm mr-2">💡</span> */}
+                        <span className="text-sm font-medium text-foreground-secondary">
+                        💡 Pro Tips:
                         </span>
                       </div>
                       <ul className="space-y-1">
@@ -1042,7 +1005,7 @@ export function AITravelPlan({
                               key={index}
                               className="flex items-start text-sm"
                             >
-                              <span className="text-primary mr-2 mt-0.5">
+                              <span className="text-primary mr-2">
                                 •
                               </span>
                               <span className="text-foreground-secondary">
@@ -1057,12 +1020,12 @@ export function AITravelPlan({
                 </ContentCard>
               </ContentGrid>
 
-              {/* Airport Adventure Hub - Full width dedicated section */}
+              {/* Airport Transportation - Full width dedicated section */}
+              
               <div className="border-t border-border/30 pt-8">
                 <div className="flex items-center mb-6">
-                  <span className="text-2xl mr-3">✈️</span>
-                  <h6 className="font-bold text-foreground text-xl">
-                    Airport Adventure Hub
+                  <h6>
+                  ✈️ Airport Transportation
                   </h6>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -1074,8 +1037,7 @@ export function AITravelPlan({
                       >
                         <div className="mb-6">
                           <div className="flex items-center mb-2">
-                            <span className="text-xl mr-2">🏢</span>
-                            <h6 className="font-bold text-foreground">
+                            <h6 className="font-medium text-foreground">
                               {airport.name}
                             </h6>
                           </div>
@@ -1083,7 +1045,7 @@ export function AITravelPlan({
                             <span className="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full">
                               {airport.code}
                             </span>
-                            <span className="text-foreground-secondary">
+                            <span className="text-foreground-secondary text-sm">
                               📍 {airport.distanceToCity}
                             </span>
                           </div>
@@ -1101,49 +1063,41 @@ export function AITravelPlan({
                                     {option.type}
                                   </p>
                                   <div className="text-right">
-                                    <div className="font-bold text-primary">
+                                    <div className="font-semibold text-primary text-xs">
                                       {option.cost}
                                     </div>
-                                    <div className="text-sm text-foreground-muted">
+                                    <div className="text-xs text-foreground-muted">
                                       ⏱️ {option.duration}
                                     </div>
                                   </div>
                                 </div>
 
-                                <p className="text-foreground-secondary mb-3">
+                                <p className="mb-3">
                                   {option.description}
                                 </p>
 
-                                {option.notes &&
-                                  option.notes.length > 0 && (
-                                    <div className="bg-accent/10 border border-accent/20 rounded-lg p-3">
-                                      <div className="flex items-center mb-2">
-                                        <span className="text-lg mr-2">
-                                          💡
-                                        </span>
-                                        <p className="font-bold text-foreground">
-                                          Adventure Notes:
-                                        </p>
-                                      </div>
-                                      <ul className="space-y-1">
-                                        {option.notes.map(
-                                          (note, noteIndex) => (
-                                            <li
-                                              key={noteIndex}
-                                              className="flex items-start"
-                                            >
-                                              <span className="text-accent mr-2 mt-1">
-                                                •
-                                              </span>
-                                              <span className="text-foreground-secondary">
-                                                {note}
-                                              </span>
-                                            </li>
-                                          ),
-                                        )}
-                                      </ul>
+                                {option.notes && option.notes.length > 0 && (
+                                  <div className="flex items-start bg-accent/10 border border-accent/20 rounded-lg p-3">
+                                    <div className="flex items-center mb-2">
+                                      <span className="text-lg mr-2">💡</span>
                                     </div>
-                                  )}
+                                    <ul className="space-y-1">
+                                      {option.notes.map((note, noteIndex) => (
+                                        <li
+                                          key={noteIndex}
+                                          className="flex items-start"
+                                        >
+                                          <span className="text-accent mr-2 text-xs">
+                                            •
+                                          </span>
+                                          <span className="text-sm">
+                                            {note}
+                                          </span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
                               </div>
                             ),
                           )}
@@ -1153,81 +1107,68 @@ export function AITravelPlan({
                   )}
                 </div>
               </div>
-
+              
             </TravelPlanSection>
 
-
-            {/* Adventure Weather Intel */}
+            {/* Weather Information */}
             {plan.weatherInfo && (
-              <TravelPlanSection rotation="left" glowColor="primary">
+              <TravelPlanSection rotation="right" glowColor="secondary">
                 <SectionHeader
                   icon={Calendar}
-                  title="Adventure Weather Intel"
+                  title="Weather Info"
                   emoji="☀️"
-                  badgeColor="primary"
+                  badgeColor="secondary"
                 />
 
                 <ContentGrid columns={2}>
                   <ContentCard
                     title="Current Conditions"
                     icon="🌡️"
-                    className="bg-gradient-to-br from-background/60 to-background-card/50 backdrop-blur-sm border border-border/30 rounded-2xl"
                   >
-                    <p className="text-lg font-medium text-primary mb-2">
+                    <p className="font-medium text-primary mb-2">
                       {plan.weatherInfo.temperature} •{" "}
                       {plan.weatherInfo.conditions}
                     </p>
                     <p className="text-foreground-secondary mb-1">
-                      💧 Humidity: {plan.weatherInfo.humidity}
+                      Humidity: {plan.weatherInfo.humidity}
                     </p>
                     <p className="text-foreground-secondary">
-                      🌅 Day/Night Variance:{" "}
-                      {plan.weatherInfo.dayNightTempDifference}
+                      Day/Night Temp Difference: {plan.weatherInfo.dayNightTempDifference}
                     </p>
                   </ContentCard>
                   <ContentCard
-                    title="Adventure Gear Tips:"
+                    title="What to Pack:"
                     icon="🎒"
-                    className="bg-gradient-to-br from-background/60 to-background-card/50 backdrop-blur-sm border border-border/30 rounded-2xl"
                   >
                     <ul className="space-y-2">
-                      {plan.weatherInfo.recommendations?.map(
-                        (rec, index) => (
-                          <li key={index} className="flex items-start">
-                            <span className="text-primary mr-2 mt-1">
-                              •
-                            </span>
-                            <p className="text-foreground-secondary">
-                              {rec}
-                            </p>
-                          </li>
-                        ),
-                      )}
+                      {plan.weatherInfo.recommendations?.map((rec, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-primary mr-2">•</span>
+                          <p className="text-foreground-secondary">{rec}</p>
+                        </li>
+                      ))}
                     </ul>
                   </ContentCard>
                 </ContentGrid>
               </TravelPlanSection>
             )}
 
-            {/* Adventure Safety & Cultural Intel */}
+            {/* Safety & Cultural Tips */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Safety Command */}
+              {/* Safety Tips */}
               {plan.safetyTips && (
                 <TravelPlanSection rotation="left" glowColor="primary">
                   <SectionHeader
                     icon={Shield}
-                    title="Adventure Safety Command"
+                    title="Safety Tips"
                     emoji="⚠️"
                     badgeColor="primary"
                   />
 
                   <ul className="space-y-1">
                     {plan.safetyTips.map((tip, index) => (
-                      <li
-                        key={index}
-                        className="flex items-start px-4"
-                      >
-                        <span className="text-secondary mr-3 mt-1 text-lg">
+                      <li key={index} className="flex items-start">
+                        <span className="text-secondary mr-2">
                           •
                         </span>
                         <p className="text-foreground-secondary">{tip}</p>
@@ -1241,19 +1182,14 @@ export function AITravelPlan({
               <TravelPlanSection rotation="left" glowColor="primary">
                 <SectionHeader
                   icon={BookOpen}
-                  title="Adventure Cultural Quest Guide"
+                  title="Cultural Insights"
                   emoji="🏹"
                   badgeColor="primary"
                 />
                 <ul className="space-y-1">
                   {plan.socialEtiquette.map((tip, index) => (
-                    <li
-                      key={index}
-                      className="flex items-start px-4"
-                    >
-                      <span className="text-accent mr-3 mt-1 text-lg">
-                        •
-                      </span>
+                    <li key={index} className="flex items-start">
+                      <span className="text-accent mr-2">•</span>
                       <p className="text-foreground-secondary">{tip}</p>
                     </li>
                   ))}
@@ -1265,10 +1201,15 @@ export function AITravelPlan({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Local Currency */}
               <TravelPlanSection>
-                <SectionHeader icon={CreditCard} title="Payment Guide" emoji="💰" badgeColor="primary" />
+                <SectionHeader
+                  icon={CreditCard}
+                  title="Payment Guide"
+                  emoji="💰"
+                  badgeColor="primary"
+                />
                 <p>
                   The local currency is{" "}
-                  <span className="font-medium">
+                  <span className="font-semibold">
                     {plan.localCurrency.currency}
                   </span>
                   .
@@ -1292,7 +1233,7 @@ export function AITravelPlan({
                       <h6 className="mb-2">Money Tips:</h6>
                       <ul className="space-y-1">
                         <li className="flex items-start">
-                          <p className="mr-2">•</p>
+                          <p className="text-accent mr-2">•</p>
                           <p>Credit card usage</p>
                         </li>
                         <span className="text-sm ml-4">
@@ -1300,7 +1241,7 @@ export function AITravelPlan({
                         </span>
                         {plan.localCurrency.tips.map((tip, index) => (
                           <li key={index} className="flex items-start">
-                            <p className="mr-2">•</p>
+                            <p className="text-accent mr-2">•</p>
                             <p>{tip}</p>
                           </li>
                         ))}
@@ -1312,8 +1253,13 @@ export function AITravelPlan({
               {/* Tipping Etiquette */}
               {plan.tipEtiquette && (
                 <TravelPlanSection>
-                  <SectionHeader icon={CreditCard} title="Tipping Etiquette" emoji="💰" badgeColor="primary" />
-                  <div className="space-y-1">
+                  <SectionHeader
+                    icon={CreditCard}
+                    title="Tipping Etiquette"
+                    emoji="💰"
+                    badgeColor="primary"
+                  />
+                  <div className="space-y-3">
                     {Object.entries(plan.tipEtiquette).map(
                       ([category, tip], index) => (
                         <div key={index} className="mb-2">
@@ -1331,25 +1277,24 @@ export function AITravelPlan({
               )}
             </div>
 
-            {/* Adventure Hydration HQ */}
+            {/* Drinking Water */}
             {plan.tapWaterSafe && (
               <TravelPlanSection rotation="left" glowColor="primary">
                 <SectionHeader
                   icon={Droplets}
-                  title="Hydration Command"
-                  emoji="🍿"
+                  title="Drinking Water"
+                  emoji="💧"
                   badgeColor="primary"
                 />
-                <ContentCard>
-                  <div className="flex items-start">
+                <div className="flex items-start">
                     <span
-                      className={`text-2xl mr-4 ${plan.tapWaterSafe.safe ? "animate-bounce-subtle" : "animate-pulse-slow"}`}
+                      className={`mr-2 ${plan.tapWaterSafe.safe ? "animate-bounce-subtle" : "animate-pulse-slow"}`}
                     >
                       {plan.tapWaterSafe.safe ? "✅" : "⚠️"}
                     </span>
                     <div>
                       <p
-                        className={`text-lg font-bold ${plan.tapWaterSafe.safe ? "text-green-600" : "text-amber-600"}`}
+                        className={`${plan.tapWaterSafe.safe ? "text-green-600" : "text-amber-600"}`}
                       >
                         {plan.tapWaterSafe.safe
                           ? "Tap water is safe to drink!"
@@ -1357,25 +1302,22 @@ export function AITravelPlan({
                       </p>
                     </div>
                   </div>
-                </ContentCard>
               </TravelPlanSection>
             )}
 
-            {/* Adventure Chronicles */}
+            {/* Local History */}
             {plan.history && (
               <TravelPlanSection rotation="right" glowColor="secondary">
                 <SectionHeader
                   icon={BookOpen}
-                  title="Adventure Chronicles"
+                  title="Local History"
                   emoji="🏰"
                   badgeColor="secondary"
                 />
 
-                <ContentCard>
-                  <p className="text-foreground-secondary leading-relaxed">
-                    {plan.history}
-                  </p>
-                </ContentCard>
+                <p className="text-foreground-secondary leading-relaxed">
+                  {plan.history}
+                </p>
               </TravelPlanSection>
             )}
           </div>
@@ -1384,6 +1326,17 @@ export function AITravelPlan({
 
       {/* KML Export Loading Overlay */}
       <KMLExportLoading isVisible={isExportingKML} />
+
+      {/* Back/Edit Button - Bottom Right */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="fixed bottom-18 right-6 btn-primary z-50 flex items-center p-2"
+          aria-label="Go back to edit plan"
+        >
+          <Edit className="w-4 h-4" />
+        </button>
+      )}
     </div>
   );
 }
