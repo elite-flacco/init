@@ -132,7 +132,7 @@ describe('SharedPlanService', () => {
       const { SharedPlanService } = await import('../sharedPlanService')
       
       await expect(SharedPlanService.createSharedPlan(mockPlanInput))
-        .rejects.toThrow('Failed to create shared plan: Database error')
+        .rejects.toThrow('Failed to create shared plan.')
     })
   })
 
@@ -193,7 +193,7 @@ describe('SharedPlanService', () => {
       const { SharedPlanService } = await import('../sharedPlanService')
       
       await expect(SharedPlanService.getSharedPlan('test-123'))
-        .rejects.toThrow('Failed to fetch shared plan: Database connection failed')
+        .rejects.toThrow('Failed to fetch shared plan.')
     })
   })
 

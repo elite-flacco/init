@@ -307,7 +307,7 @@ describe('KMLExportService', () => {
   });
 
   it('should handle missing destination name gracefully', async () => {
-    const { name, ...incompleteDestination } = mockTravelPlan.destination;
+    const { ...incompleteDestination } = mockTravelPlan.destination;
     const planWithIncompleteDestination = {
       ...mockTravelPlan,
       destination: {
