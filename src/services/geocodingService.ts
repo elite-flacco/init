@@ -56,7 +56,6 @@ export class GeocodingService {
             this.cache.set(cacheKey, result);
             return result;
           } else {
-            console.warn(`Geocoding result for "${placeName}" is too far from ${cityName}:`, result.coordinates);
             // Continue to next query instead of using this result
           }
         }
@@ -72,8 +71,7 @@ export class GeocodingService {
       this.cache.set(cacheKey, fallbackResult);
       return fallbackResult;
 
-    } catch (error) {
-      console.warn(`Geocoding failed for ${placeName}:`, error);
+    } catch {
       
       const fallbackResult: GeocodingResult = {
         coordinates: this.getCityFallbackCoordinates(cityName),
@@ -137,7 +135,6 @@ export class GeocodingService {
     url.searchParams.set('limit', '1');
     url.searchParams.set('addressdetails', '1');
 
-    // console.log('Geocoding request for:', query);
 
     const response = await fetch(url.toString(), {
       headers: {
@@ -146,7 +143,6 @@ export class GeocodingService {
     });
 
     if (!response.ok) {
-      console.warn(`Geocoding request failed: ${response.status}`);
       throw new Error(`Geocoding request failed: ${response.status}`);
     }
 
@@ -154,7 +150,6 @@ export class GeocodingService {
     
     if (data && data.length > 0) {
       const result = data[0];
-      // console.log('Geocoding success for:', query, 'coords:', result.lat, result.lon);
       return {
         coordinates: {
           latitude: parseFloat(result.lat),
@@ -165,7 +160,6 @@ export class GeocodingService {
       };
     }
 
-    // console.log('No geocoding results for:', query);
     return {
       coordinates: { latitude: 0, longitude: 0 },
       displayName: query,
@@ -194,9 +188,6 @@ export class GeocodingService {
     
     const isReasonable = distance <= maxDistance;
     
-    if (!isReasonable) {
-      console.log(`Distance check: ${distance.toFixed(2)}km from ${cityName} center (max: ${maxDistance}km)`);
-    }
     
     return isReasonable;
   }

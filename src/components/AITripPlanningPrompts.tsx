@@ -25,6 +25,7 @@ export function AITripPlanningPrompts({
 }: AITripPlanningPromptsProps) {
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
+  const [isFormCompleted, setIsFormCompleted] = useState(false);
 
   const getDestinationName = () => {
     if (destination) return destination.name;
@@ -59,20 +60,24 @@ export function AITripPlanningPrompts({
   };
 
   const handleFormComplete = async (answers: Record<string, string>) => {
+    // Immediately set form as completed to prevent flash
+    setIsFormCompleted(true);
+    
     // If no destination is selected but user said they know where to go, create a destination from their input
     const effectiveDestination = destination || (destinationKnowledge?.type === 'yes' ? {
       id: 'user-destination',
       name: answers.destination || 'Your Destination',
       country: 'Unknown',
       description: 'Your chosen destination',
-      image: '',
-      highlights: [],
+      image: '/images/placeholder-destination.jpg',
+      highlights: ['User selected destination'],
       bestTime: 'Year-round',
-      budget: '3-4 days'
+      budget: '$$$'
     } : null);
 
     if (!effectiveDestination) {
       setGenerationError('No destination selected');
+      setIsFormCompleted(false);
       return;
     }
 
@@ -84,6 +89,7 @@ export function AITripPlanningPrompts({
         timeOfYear: pickDestinationPreferences?.timeOfYear || answers.timeOfYear || '',
         duration: pickDestinationPreferences?.duration || answers.duration || '',
         budget: pickDestinationPreferences?.budget || answers.budget || '',
+        specialActivities: answers.specialActivities || '',
         activities: [],
         accommodation: answers.accommodation || '',
         transportation: answers.transportation || '',
@@ -110,6 +116,7 @@ export function AITripPlanningPrompts({
         stressLevel: answers.stressLevel,
       };
 
+
       const aiResponse = await aiTripPlanningService.generateTravelPlan({
         destination: effectiveDestination,
         preferences,
@@ -118,39 +125,17 @@ export function AITripPlanningPrompts({
         pickDestinationPreferences
       });
 
+
       onComplete(aiResponse);
     } catch (error) {
       console.error('Failed to generate AI travel plan:', error);
       const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please give it another go.';
       setGenerationError(errorMessage);
       setIsGeneratingPlan(false);
+      setIsFormCompleted(false);
     }
   };
 
-  if (isGeneratingPlan) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center p-8 max-w-lg">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/20 rounded-full mb-6">
-            <Sparkles className="w-10 h-10 text-primary animate-pulse" />
-          </div>
-          <h2 className="text-3xl font-bold text-foreground mb-4">
-            AI is Crafting Your Perfect Trip
-          </h2>
-          <p className="text-foreground-secondary mb-8 text-lg">
-            Our AI is analyzing your preferences and creating a personalized travel plan for {getDestinationName()}. This might take a moment...
-          </p>
-          <div className="flex justify-center mb-6">
-            <div className="flex space-x-2">
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (generationError) {
     return (
@@ -171,6 +156,7 @@ export function AITripPlanningPrompts({
             <button
               onClick={() => {
                 setGenerationError(null);
+                setIsFormCompleted(false);
                 // Go back to form
               }}
               className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
@@ -184,6 +170,32 @@ export function AITripPlanningPrompts({
               <ArrowLeft className="w-4 h-4 mr-2" />
               Go Back
             </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If form is completed, show loading state immediately
+  if (isFormCompleted || isGeneratingPlan) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center p-8 max-w-lg">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/20 rounded-full mb-6">
+            <Sparkles className="w-10 h-10 text-primary animate-pulse" />
+          </div>
+          <h2 className="text-3xl font-bold text-foreground mb-4">
+            AI is Crafting Your Perfect Trip
+          </h2>
+          <p className="text-foreground-secondary mb-8 text-lg">
+            Our AI is analyzing your preferences and creating a personalized travel plan for {getDestinationName()}. This might take a moment...
+          </p>
+          <div className="flex justify-center mb-6">
+            <div className="flex space-x-2">
+              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
           </div>
         </div>
       </div>

@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { aiDestinationService } from '../aiDestinationService'
 import { aiTripPlanningService } from '../aiTripPlanningService'
 import { mockTravelerTypes, mockDestinations, mockTripPreferences, resetMocks, mockDestinationKnowledge } from '../../test/mocks'
+import { destinations } from '../../data/mock/destinations'
+import { generateTravelPlan } from '../../data/mock/travelData'
 
 describe('AI Services Integration', () => {
   beforeEach(() => {
@@ -9,9 +11,25 @@ describe('AI Services Integration', () => {
   })
 
   describe('aiDestinationService', () => {
-    it('should return valid recommendations in mock mode', async () => {
+    it('should return valid recommendations', async () => {
+      const mockResponse = {
+        destinations: destinations.slice(0, 3),
+        reasoning: 'Perfect destinations for your travel style',
+        confidence: 0.9
+      }
+      
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse)
+      })
+
       const request = {
-        travelerType: mockTravelerTypes.culture
+        travelerType: mockTravelerTypes.culture,
+        destinationKnowledge: {
+          type: 'yes' as const,
+          label: 'I know where I want to go',
+          description: 'I have a specific destination in mind'
+        }
       }
 
       const response = await aiDestinationService.getDestinationRecommendations(request)
@@ -25,22 +43,52 @@ describe('AI Services Integration', () => {
     })
 
     it('should filter destinations by traveler type', async () => {
+      const mockResponse = {
+        destinations: destinations.slice(0, 2),
+        reasoning: 'Adventure destinations for your travel style',
+        confidence: 0.85
+      }
+      
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse)
+      })
+
       const adventureRequest = {
-        travelerType: mockTravelerTypes.adventure
+        travelerType: mockTravelerTypes.adventure,
+        destinationKnowledge: {
+          type: 'no-clue' as const,
+          label: 'No idea where to go',
+          description: 'I want help choosing a destination'
+        }
       }
 
       const response = await aiDestinationService.getDestinationRecommendations(adventureRequest)
 
       expect(response.destinations).toBeInstanceOf(Array)
-      // Should include adventure-oriented destinations
       expect(response.destinations.length).toBeGreaterThan(0)
     })
   })
 
   describe('aiTripPlanningService', () => {
-    it('should generate complete travel plan in mock mode', async () => {
+    it('should generate complete travel plan', async () => {
+      const mockDestination = mockDestinations.tokyo || destinations[0]
+      const mockPlan = generateTravelPlan(mockDestination, mockTripPreferences, mockTravelerTypes.culture)
+      
+      const mockResponse = {
+        plan: mockPlan,
+        reasoning: 'Generated comprehensive travel plan',
+        confidence: 0.9,
+        personalizations: ['Customized for culture traveler']
+      }
+      
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse)
+      })
+
       const request = {
-        destination: mockDestinations.tokyo,
+        destination: mockDestination,
         preferences: mockTripPreferences,
         travelerType: mockTravelerTypes.culture
       }
@@ -58,29 +106,29 @@ describe('AI Services Integration', () => {
       expect(response.plan.restaurants).toBeInstanceOf(Array)
       expect(response.plan.placesToVisit).toBeInstanceOf(Array)
     })
-
   })
 
   describe('Error handling', () => {
     it('should handle network errors gracefully', async () => {
-      // This test verifies that both services can handle errors without crashing
+      globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
+
       const destinationRequest = {
         travelerType: mockTravelerTypes.culture,
         destinationKnowledge: mockDestinationKnowledge
       }
 
       const tripRequest = {
-        destination: mockDestinations.tokyo,
+        destination: mockDestinations.tokyo || destinations[0],
         preferences: mockTripPreferences,
         travelerType: mockTravelerTypes.culture
       }
 
-      // These should not throw errors even if AI calls fail
-      const destinationResponse = await aiDestinationService.getDestinationRecommendations(destinationRequest)
-      const tripResponse = await aiTripPlanningService.generateTravelPlan(tripRequest)
-
-      expect(destinationResponse).toBeDefined()
-      expect(tripResponse).toBeDefined()
+      // These should throw errors
+      await expect(aiDestinationService.getDestinationRecommendations(destinationRequest))
+        .rejects.toThrow('Network error')
+      
+      await expect(aiTripPlanningService.generateTravelPlan(tripRequest))
+        .rejects.toThrow('Network error')
     }, 10000) // Increase timeout to 10 seconds for this test
   })
 })

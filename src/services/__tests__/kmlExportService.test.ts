@@ -290,4 +290,33 @@ describe('KMLExportService', () => {
     expect(kml).not.toContain('<name>Bars and Nightlife</name>');
     expect(kml).not.toContain('<name>Accommodation</name>');
   });
+
+  it('should handle null or undefined plan gracefully', async () => {
+    await expect(KMLExportService.generateKML(null as unknown as EnhancedTravelPlan))
+      .rejects.toThrow();
+      
+    await expect(KMLExportService.generateKML(undefined as unknown as EnhancedTravelPlan))
+      .rejects.toThrow();
+  });
+
+  it('should handle missing destination gracefully', async () => {
+    const { destination, ...planWithoutDestination } = mockTravelPlan;
+    
+    await expect(KMLExportService.generateKML(planWithoutDestination as EnhancedTravelPlan))
+      .rejects.toThrow();
+  });
+
+  it('should handle missing destination name gracefully', async () => {
+    const { ...incompleteDestination } = mockTravelPlan.destination;
+    const planWithIncompleteDestination = {
+      ...mockTravelPlan,
+      destination: {
+        ...incompleteDestination,
+        name: undefined as unknown as string
+      }
+    };
+    
+    await expect(KMLExportService.generateKML(planWithIncompleteDestination))
+      .rejects.toThrow();
+  });
 });
