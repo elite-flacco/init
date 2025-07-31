@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { SharedPlanData, sharedPlans } from '../storage'
+import { SharedPlanService } from '../../../../src/services/sharedPlanService'
+import { SecurityMiddleware } from '../../../../src/lib/security'
 
 // GET /api/shared-plans/[id] - Retrieve a shared plan by ID
 export async function GET(
@@ -7,42 +8,42 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Apply security middleware (more lenient for GET requests)
+    await SecurityMiddleware.validateRequest(request, {
+      rateLimit: {
+        maxRequests: 30, // Allow 30 plan views per 15 minutes
+        windowMs: 15 * 60 * 1000
+      },
+      requireValidPlan: false // No body validation for GET
+    })
+
     const shareId = params.id
-    console.log('Looking for share ID:', shareId)
-    console.log('Current storage keys:', Array.from(sharedPlans.keys()))
-    console.log('Storage size:', sharedPlans.size)
 
     if (!shareId) {
-      return NextResponse.json(
+      return SecurityMiddleware.createSecureResponse(
         { error: 'Share ID is required' },
-        { status: 400 }
+        400
       )
     }
 
-    const sharedPlan = sharedPlans.get(shareId)
-    console.log('Found shared plan:', !!sharedPlan)
+    // Validate shareId format (should be hex string)
+    if (!/^[a-f0-9]+$/i.test(shareId)) {
+      return SecurityMiddleware.createSecureResponse(
+        { error: 'Invalid share ID format' },
+        400
+      )
+    }
+
+    const sharedPlan = await SharedPlanService.getSharedPlan(shareId)
 
     if (!sharedPlan) {
-      return NextResponse.json(
-        { error: 'Shared plan not found' },
-        { status: 404 }
+      return SecurityMiddleware.createSecureResponse(
+        { error: 'Shared plan not found or has expired' },
+        404
       )
     }
 
-    // Check if the plan has expired
-    const now = new Date()
-    const expiresAt = new Date(sharedPlan.expiresAt)
-
-    if (now > expiresAt) {
-      // Clean up expired plan
-      sharedPlans.delete(shareId)
-      return NextResponse.json(
-        { error: 'Shared plan has expired' },
-        { status: 410 }
-      )
-    }
-
-    return NextResponse.json({
+    return SecurityMiddleware.createSecureResponse({
       destination: sharedPlan.destination,
       travelerType: sharedPlan.travelerType,
       aiResponse: sharedPlan.aiResponse
@@ -50,9 +51,6 @@ export async function GET(
 
   } catch (error) {
     console.error('Error retrieving shared plan:', error)
-    return NextResponse.json(
-      { error: 'Failed to retrieve shared plan' },
-      { status: 500 }
-    )
+    return SecurityMiddleware.handleSecurityError(error as Error)
   }
 }

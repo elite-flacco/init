@@ -26,7 +26,7 @@ export function AITravelPlan({
   const [activeTab, setActiveTab] = useState<'itinerary' | 'info'>('itinerary');
   const [isExportingKML, setIsExportingKML] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
-  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [, setShareUrl] = useState<string | null>(null);
 
   const { plan } = aiResponse;
 

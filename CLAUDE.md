@@ -93,12 +93,12 @@ The app includes AI-powered destination recommendations using the `aiDestination
 ### Configuration
 
 AI settings can be configured via environment variables:
-- `REACT_APP_AI_PROVIDER`: Set to 'openai', 'anthropic', or 'mock' (default: 'mock')
-- `REACT_APP_OPENAI_API_KEY`: Your OpenAI API key
-- `REACT_APP_ANTHROPIC_API_KEY`: Your Anthropic API key
-- `REACT_APP_AI_MODEL`: AI model to use (default: 'gpt-4')
-- `REACT_APP_AI_MAX_TOKENS`: Maximum tokens for AI responses (default: 1000)
-- `REACT_APP_AI_TEMPERATURE`: AI temperature setting (default: 0.7)
+- `AI_PROVIDER`: Set to 'openai', 'anthropic', or 'mock' (default: 'mock')
+- `OPENAI_API_KEY`: Your OpenAI API key (for server-side usage)
+- `ANTHROPIC_API_KEY`: Your Anthropic API key (for server-side usage)
+- `AI_MODEL`: AI model to use (default: 'gpt-4')
+- `AI_MAX_TOKENS`: Maximum tokens for AI responses (default: 1000)
+- `AI_TEMPERATURE`: AI temperature setting (default: 0.7)
 
 ### Usage
 
@@ -131,8 +131,42 @@ The Next.js backend provides several API endpoints:
 
 The app includes advanced sharing and export capabilities:
 - **URL Sharing**: Plans can be shared via unique URLs (`/share/[id]`)
+- **Database Storage**: Shared plans are stored in Supabase PostgreSQL database
 - **PDF Export**: Generate PDF documents of travel plans using `src/services/pdfExportService.ts`
 - **KML Export**: Export itineraries as KML files for Google Maps using `src/services/kmlExportService.ts`
+
+#### Database Configuration
+
+The app uses Supabase for persistent storage of shared plans. Required environment variables:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+```
+
+The service role key is used server-side for admin operations and bypassing Row Level Security (RLS).
+
+**Supabase Database Schema:**
+```sql
+CREATE TABLE shared_plans (
+  id TEXT PRIMARY KEY,
+  destination JSONB NOT NULL,
+  traveler_type JSONB NOT NULL,
+  ai_response JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NOT NULL
+);
+
+-- Index for efficient cleanup of expired plans
+CREATE INDEX idx_shared_plans_expires_at ON shared_plans(expires_at);
+```
+
+**Database Service:**
+- `SharedPlanService.createSharedPlan()` - Create new shared plan
+- `SharedPlanService.getSharedPlan()` - Retrieve plan by ID (auto-expires)
+- `SharedPlanService.cleanupExpiredPlans()` - Remove expired plans
+- `SharedPlanService.getStats()` - Get usage statistics
 
 ### Development Mode
 
@@ -141,3 +175,31 @@ By default, the app runs in mock mode with simulated AI responses. To enable rea
 **Development Shortcuts**: The app supports URL parameters for quick development:
 - `?dev=plan` - Jump directly to plan view with mock data
 - `?dev=destinations` - Jump to destination recommendations with mock data
+
+## Security Features
+
+The app includes comprehensive security measures in `src/lib/security.ts`:
+
+### Rate Limiting
+- Per-IP rate limiting with configurable limits (default: 100 requests per 15 minutes)
+- Memory-based storage with automatic cleanup (production should use Redis/database)
+
+### Request Validation
+- Origin validation to prevent CSRF attacks
+- Request body validation for travel plan data
+- Content filtering to block suspicious patterns
+- Data size limits (100KB max payload)
+
+### Security Headers
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: DENY
+- X-XSS-Protection: 1; mode=block
+- Referrer-Policy: strict-origin-when-cross-origin
+
+### IP Detection
+- Multi-header IP detection for proxied environments
+- Support for X-Forwarded-For, X-Real-IP, CF-Connecting-IP headers
+
+### Development Mode
+- More permissive CORS handling in development
+- Automatic localhost origin allowance
