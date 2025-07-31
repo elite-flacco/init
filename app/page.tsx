@@ -14,7 +14,6 @@ import { TravelerType, Destination, DestinationKnowledge, PickDestinationPrefere
 import { AITripPlanningResponse } from '../src/services/aiTripPlanningService'
 import { AIDestinationResponse, aiDestinationService } from '../src/services/aiDestinationService'
 import { generateDevMockData, generateDevMockDestinationData } from '../src/data/mock/travelData'
-import { destinations } from '../src/data/mock/destinations'
 
 type AppStep = 'traveler-type' | 'destination-knowledge' | 'destination-input' | 'pick-destination' | 'destination-recommendations' | 'planning' | 'plan' | 'placeholder'
 
@@ -44,8 +43,8 @@ export default function HomePage() {
         setSelectedDestination(destination)
         setAiTripPlanningResponse(response)
         setCurrentStep('plan')
-      } catch (error) {
-        console.error('Error loading dev mock data:', error)
+      } catch {
+        // Failed to load dev mock data - continue normally
       }
     } else if (devMode === 'destinations') {
       try {
@@ -54,8 +53,8 @@ export default function HomePage() {
         setSelectedTravelerType(travelerType)
         setAiDestinationResponse(destinationResponse)
         setCurrentStep('destination-recommendations')
-      } catch (error) {
-        console.error('Error loading dev destination data:', error)
+      } catch {
+        // Failed to load dev mock data - continue normally
       }
     }
   }, [])
@@ -92,7 +91,6 @@ export default function HomePage() {
 
   const generateDestinationRecommendations = async (preferences?: PickDestinationPreferences) => {
     if (!selectedTravelerType || !destinationKnowledge) {
-      console.error('Missing required data for destination recommendations')
       return
     }
     
@@ -108,8 +106,7 @@ export default function HomePage() {
       })
       
       setAiDestinationResponse(response)
-    } catch (error) {
-      console.error('Error getting destination recommendations:', error)
+    } catch {
       setDestinationError('Failed to get destination recommendations. Please try again.')
     } finally {
       setIsLoadingDestinations(false)
@@ -123,11 +120,9 @@ export default function HomePage() {
 
   const handleTripPlanningComplete = (response: AITripPlanningResponse) => {
     try {
-      console.log('Trip planning complete:', response)
       setAiTripPlanningResponse(response)
       setCurrentStep('plan')
-    } catch (error) {
-      console.error('Error handling trip planning completion:', error)
+    } catch {
       // Stay on planning step if there's an error
     }
   }

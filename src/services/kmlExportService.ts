@@ -439,6 +439,5 @@ ${folders.filter(folder => folder.trim()).join('\n')}
       // console.log('Download cleanup completed');
     }, 100);
     
-    console.log('KML file download initiated');
   }
 }

@@ -4,10 +4,7 @@ import {
   TravelerType, 
   DestinationKnowledge, 
   PickDestinationPreferences,
-  EnhancedTravelPlan as ImportedEnhancedTravelPlan,
-  HotelRecommendation,
-  Restaurant,
-  Activity
+  EnhancedTravelPlan as ImportedEnhancedTravelPlan
 } from '../types/travel';
 
 export interface AITripPlanningRequest {
@@ -44,7 +41,6 @@ class AITripPlanningService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error calling trip planning API:', error);
       throw error instanceof Error ? error : new Error('Failed to generate travel plan');
     }
   }

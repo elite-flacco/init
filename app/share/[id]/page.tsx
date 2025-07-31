@@ -37,8 +37,7 @@ export default function SharedPlanPage() {
 
         const data = await response.json()
         setPlanData(data)
-      } catch (err) {
-        console.error('Error fetching shared plan:', err)
+      } catch {
         setError('Failed to load the shared travel plan.')
       } finally {
         setLoading(false)

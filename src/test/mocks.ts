@@ -100,7 +100,7 @@ export const mockFetchResponse = (data: unknown, ok = true, status = 200) => {
 // Reset all mocks
 export const resetMocks = () => {
   vi.clearAllMocks()
-  if (global.fetch && typeof (global.fetch as any).mockReset === 'function') {
-    (global.fetch as any).mockReset()
+  if (global.fetch && typeof (global.fetch as { mockReset?: () => void }).mockReset === 'function') {
+    (global.fetch as { mockReset: () => void }).mockReset()
   }
 }

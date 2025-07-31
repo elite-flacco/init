@@ -18,24 +18,19 @@ export interface AIDestinationResponse {
 
 class AIDestinationService {
   async getDestinationRecommendations(request: AIDestinationRequest): Promise<AIDestinationResponse> {
-    try {
-      const response = await fetch('/api/ai/destinations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-      });
+    const response = await fetch('/api/ai/destinations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
 
-      if (!response.ok) {
-        throw new Error('Failed to get destination recommendations');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error calling destination API:', error);
-      throw error;
+    if (!response.ok) {
+      throw new Error('Failed to get destination recommendations');
     }
+
+    return await response.json();
   }
 }
 

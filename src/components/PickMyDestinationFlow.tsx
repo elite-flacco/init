@@ -15,11 +15,9 @@ export function PickMyDestinationFlow({
   travelerType,
   onComplete 
 }: PickMyDestinationFlowProps) {
-  console.log('PickMyDestinationFlow rendering with:', { destinationKnowledge, travelerType });
   
   // Safety check - should not happen with proper App.tsx logic, but just in case
   if (!destinationKnowledge) {
-    console.error('PickMyDestinationFlow called without destinationKnowledge');
     return (
       <div className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
@@ -39,20 +37,15 @@ export function PickMyDestinationFlow({
   const getQuestions = (): Question[] => {
     try {
       // Get base questions for the traveler type
-      console.log('Getting questions for traveler type:', travelerType.id);
       let questions = [...getQuestionsByTravelerType(travelerType.id)];
-      console.log('Base questions:', questions);
 
       // Add region question if they know the country
       if (destinationKnowledge.type === 'country') {
-        console.log('Adding region question');
         questions = [regionQuestion, ...questions];
       }
 
-      console.log('Final questions:', questions);
       return questions;
-    } catch (error) {
-      console.error('Error getting questions:', error);
+    } catch {
       return [];
     }
   };

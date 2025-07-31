@@ -42,8 +42,7 @@ export class PdfExportService {
       // Download the PDF
       const fileName = `${destination.name.replace(/\s+/g, '_')}_Travel_Plan.pdf`;
       pdf.save(fileName);
-    } catch (error) {
-      console.error('Error generating PDF:', error);
+    } catch {
       throw new Error('Failed to generate PDF. Please try again.');
     }
   }

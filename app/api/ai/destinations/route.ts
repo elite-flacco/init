@@ -58,62 +58,52 @@ async function callAI(prompt: string): Promise<string> {
 
   // Real AI API calls
   if (provider === "openai") {
-    try {
-      const response = await fetch(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: config.model,
-            messages: [{ role: "user", content: prompt }],
-            max_tokens: config.maxTokens,
-            temperature: config.temperature,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.statusText}`);
+    const response = await fetch(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: config.model,
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: config.maxTokens,
+          temperature: config.temperature,
+        }),
       }
+    );
 
-      const data = await response.json();
-      return data.choices[0]?.message?.content || "No response from AI";
-    } catch (error) {
-      console.error("OpenAI API call failed:", error);
-      throw error;
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.statusText}`);
     }
+
+    const data = await response.json();
+    return data.choices[0]?.message?.content || "No response from AI";
   }
 
   if (provider === "anthropic") {
-    try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": apiKey,
-          "Content-Type": "application/json",
-          "anthropic-version": "2023-06-01",
-        },
-        body: JSON.stringify({
-          model: config.model || "claude-3-sonnet-20240229",
-          max_tokens: config.maxTokens,
-          messages: [{ role: "user", content: prompt }],
-        }),
-      });
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "Content-Type": "application/json",
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: config.model || "claude-3-sonnet-20240229",
+        max_tokens: config.maxTokens,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`Anthropic API error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.content[0]?.text || "No response from AI";
-    } catch (error) {
-      console.error("Anthropic API call failed:", error);
-      throw error;
+    if (!response.ok) {
+      throw new Error(`Anthropic API error: ${response.statusText}`);
     }
+
+    const data = await response.json();
+    return data.content[0]?.text || "No response from AI";
   }
 
   throw new Error(`Unsupported AI provider: ${provider}`);
@@ -210,7 +200,7 @@ export async function POST(request: NextRequest) {
 
     // Map AI response to actual destination objects from our data
     const recommendedDestinations = parsedResponse.destinations.map(
-      (aiDest: any) => {
+      (aiDest: { name: string; details: string; country?: string; description?: string; highlights?: string[]; bestTime?: string; budget?: string }) => {
         // Try to find matching destination in our data, or create a basic one
         const existingDest = destinations.find(
           (dest) => dest.name.toLowerCase() === aiDest.name.toLowerCase()
@@ -246,8 +236,7 @@ export async function POST(request: NextRequest) {
         "AI-generated recommendations",
       confidence: 85, // Default confidence score
     });
-  } catch (error) {
-    console.error("Error in AI destinations API:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to generate destination recommendations" },
       { status: 500 }

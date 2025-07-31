@@ -3,7 +3,7 @@ import { Sparkles, MapPin, Utensils, Compass, Download, Share2, RefreshCw, Home,
 import { Destination, TravelerType, ItineraryDay, Activity } from '../types/travel';
 import { AITripPlanningResponse } from '../services/aiTripPlanningService';
 import { PdfExportService } from '../services/pdfExportService';
-// import { KMLExportService } from '../services/kmlExportService';
+import { KMLExportService } from '../services/kmlExportService';
 import { TravelPlanSection } from './ui/TravelPlanSection';
 import { SectionHeader } from './ui/SectionHeader';
 import { ItemCard, BookingLink } from './ui/ItemCard';
@@ -49,21 +49,17 @@ export function AITravelPlan({
     setIsExportingKML(true);
     
     try {
-      console.log('Starting KML export...');
       
       // First try with real coordinates, but with a shorter timeout
       try {
-        // await KMLExportService.downloadKML(plan, undefined, { 
-        //   useRealCoordinates: true 
-        // });
-        console.log('KML export with real coordinates completed successfully');
-      } catch (geocodingError) {
-        console.warn('Real coordinates failed, falling back to approximate locations:', geocodingError);
+        await KMLExportService.downloadKML(plan, undefined, { 
+          useRealCoordinates: true 
+        });
+      } catch {
         // Fallback to approximate coordinates if geocoding fails
-        // await KMLExportService.downloadKML(plan, undefined, { 
-        //   useRealCoordinates: false 
-        // });
-        console.log('KML export with approximate coordinates completed successfully');
+        await KMLExportService.downloadKML(plan, undefined, { 
+          useRealCoordinates: false 
+        });
       }
       
     } catch (error) {

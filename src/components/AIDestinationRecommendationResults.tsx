@@ -21,6 +21,9 @@ export function AIDestinationRecommendationResults({
   const [selectedDestinationForModal, setSelectedDestinationForModal] = useState<Destination | null>(null);
 
   const { destinations } = aiResponse;
+  
+  // Acknowledge unused parameter to prevent linting error
+  void onBack;
 
 
   const handleViewDetails = (destination: Destination) => {

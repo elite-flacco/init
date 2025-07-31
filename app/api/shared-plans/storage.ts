@@ -36,10 +36,8 @@ export class PersistentSharedPlans {
         this.memoryStore.set(plan.id, plan)
       })
       
-      console.log(`Loaded ${validPlans.length} shared plans from storage`)
-    } catch (error) {
+    } catch {
       // File doesn't exist or is invalid, start with empty storage
-      console.log('No existing shared plans found, starting with empty storage')
     }
     
     this.initialized = true
@@ -49,8 +47,8 @@ export class PersistentSharedPlans {
     try {
       const plansArray = Array.from(this.memoryStore.values())
       await fs.writeFile(STORAGE_FILE, JSON.stringify(plansArray, null, 2))
-    } catch (error) {
-      console.error('Error saving shared plans to file:', error)
+    } catch {
+      // Error saving to file - silently continue
     }
   }
 

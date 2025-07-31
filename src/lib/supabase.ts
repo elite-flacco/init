@@ -28,25 +28,25 @@ export interface Database {
       shared_plans: {
         Row: {
           id: string
-          destination: any
-          traveler_type: any
-          ai_response: any
+          destination: Record<string, unknown>
+          traveler_type: Record<string, unknown>
+          ai_response: Record<string, unknown>
           created_at: string
           expires_at: string
         }
         Insert: {
           id: string
-          destination: any
-          traveler_type: any
-          ai_response: any
+          destination: Record<string, unknown>
+          traveler_type: Record<string, unknown>
+          ai_response: Record<string, unknown>
           created_at?: string
           expires_at: string
         }
         Update: {
           id?: string
-          destination?: any
-          traveler_type?: any
-          ai_response?: any
+          destination?: Record<string, unknown>
+          traveler_type?: Record<string, unknown>
+          ai_response?: Record<string, unknown>
           created_at?: string
           expires_at?: string
         }

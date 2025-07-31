@@ -143,7 +143,7 @@ export class SecurityMiddleware {
   /**
    * Validate travel plan data structure and content
    */
-  static validateTravelPlan(data: any): data is {
+  static validateTravelPlan(data: unknown): data is {
     destination: Destination
     travelerType: TravelerType
     aiResponse: AITripPlanningResponse
@@ -152,33 +152,36 @@ export class SecurityMiddleware {
       return false
     }
 
+    // Cast to a more specific type after initial type guard
+    const obj = data as Record<string, unknown>
+
     // Validate destination
-    if (!data.destination || typeof data.destination !== 'object') {
+    if (!obj.destination || typeof obj.destination !== 'object') {
       return false
     }
     
-    const dest = data.destination
+    const dest = obj.destination as Record<string, unknown>
     if (!dest.id || !dest.name || typeof dest.id !== 'string' || typeof dest.name !== 'string') {
       return false
     }
 
     // Check for suspicious content in destination name
-    if (this.containsSuspiciousContent(dest.name) || this.containsSuspiciousContent(dest.description || '')) {
+    if (this.containsSuspiciousContent(dest.name as string) || this.containsSuspiciousContent((dest.description as string) || '')) {
       return false
     }
 
     // Validate traveler type
-    if (!data.travelerType || typeof data.travelerType !== 'object') {
+    if (!obj.travelerType || typeof obj.travelerType !== 'object') {
       return false
     }
 
-    const traveler = data.travelerType
+    const traveler = obj.travelerType as Record<string, unknown>
     if (!traveler.id || !traveler.name || typeof traveler.id !== 'string' || typeof traveler.name !== 'string') {
       return false
     }
 
     // Validate AI response structure
-    if (!data.aiResponse || typeof data.aiResponse !== 'object') {
+    if (!obj.aiResponse || typeof obj.aiResponse !== 'object') {
       return false
     }
 
@@ -254,7 +257,7 @@ export class SecurityMiddleware {
         }
 
         // Store the parsed body for later use (avoid re-parsing)
-        ;(request as any)._validatedBody = body
+        ;(request as { _validatedBody?: unknown })._validatedBody = body
       } catch (error) {
         if (error instanceof SecurityError) {
           throw error
@@ -267,7 +270,7 @@ export class SecurityMiddleware {
   /**
    * Create a security-wrapped response with additional headers
    */
-  static createSecureResponse(data: any, status = 200): NextResponse {
+  static createSecureResponse(data: unknown, status = 200): NextResponse {
     const response = NextResponse.json(data, { status })
     
     // Add security headers

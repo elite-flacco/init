@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getAIConfig } from '../config'
 
 export async function GET() {
@@ -14,7 +14,7 @@ export async function GET() {
       // Don't expose the actual API key for security
       apiKeyPreview: config.apiKey ? `${config.apiKey.substring(0, 8)}...` : 'Not set'
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to get AI config' }, { status: 500 })
   }
 }

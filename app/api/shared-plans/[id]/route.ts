@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { SharedPlanService } from '../../../../src/services/sharedPlanService'
 import { SecurityMiddleware } from '../../../../src/lib/security'
 
@@ -50,7 +50,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error retrieving shared plan:', error)
     return SecurityMiddleware.handleSecurityError(error as Error)
   }
 }

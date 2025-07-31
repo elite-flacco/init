@@ -116,13 +116,6 @@ export function AITripPlanningPrompts({
         stressLevel: answers.stressLevel,
       };
 
-      console.log('Calling AI trip planning service with:', {
-        destination: effectiveDestination,
-        preferences,
-        travelerType,
-        destinationKnowledge,
-        pickDestinationPreferences
-      });
 
       const aiResponse = await aiTripPlanningService.generateTravelPlan({
         destination: effectiveDestination,
@@ -132,7 +125,6 @@ export function AITripPlanningPrompts({
         pickDestinationPreferences
       });
 
-      console.log('AI response received:', aiResponse);
 
       onComplete(aiResponse);
     } catch (error) {

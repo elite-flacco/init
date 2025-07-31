@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { randomBytes } from 'crypto'
 import { TravelerType, Destination } from '../../../src/types/travel'
 import { AITripPlanningResponse } from '../../../src/services/aiTripPlanningService'
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Get the validated body from security middleware
-    const body: CreateSharedPlanRequest = (request as any)._validatedBody || await request.json()
+    const body: CreateSharedPlanRequest = (request as { _validatedBody?: CreateSharedPlanRequest })._validatedBody || await request.json()
 
     // Additional validation for required fields
     if (!body.destination || !body.travelerType || !body.aiResponse) {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days
     
-    const sharedPlan = await SharedPlanService.createSharedPlan({
+    await SharedPlanService.createSharedPlan({
       id: shareId,
       destination: body.destination,
       travelerType: body.travelerType,
@@ -57,7 +57,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error creating shared plan:', error)
     return SecurityMiddleware.handleSecurityError(error as Error)
   }
 }

@@ -22,71 +22,61 @@ async function callAI(prompt: string): Promise<string> {
 
   // Real AI API calls
   if (provider === 'openai') {
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 180000) // 3 minute timeout
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 180000) // 3 minute timeout
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: config.model,
-          messages: [{ role: 'user', content: prompt }],
-          max_tokens: config.maxTokens,
-          temperature: config.temperature
-        }),
-        signal: controller.signal
-      })
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: config.model,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: config.maxTokens,
+        temperature: config.temperature
+      }),
+      signal: controller.signal
+    })
 
-      clearTimeout(timeoutId)
+    clearTimeout(timeoutId)
 
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.statusText}`)
-      }
-
-      const data = await response.json()
-      return data.choices[0]?.message?.content || 'No response from AI'
-    } catch (error) {
-      console.error('OpenAI API call failed:', error)
-      throw error
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.statusText}`)
     }
+
+    const data = await response.json()
+    return data.choices[0]?.message?.content || 'No response from AI'
   }
 
   if (provider === 'anthropic') {
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 180000) // 3 minute timeout
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 180000) // 3 minute timeout
 
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': apiKey,
-          'Content-Type': 'application/json',
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: config.model || 'claude-3-sonnet-20240229',
-          max_tokens: config.maxTokens,
-          messages: [{ role: 'user', content: prompt }]
-        }),
-        signal: controller.signal
-      })
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: config.model || 'claude-3-sonnet-20240229',
+        max_tokens: config.maxTokens,
+        messages: [{ role: 'user', content: prompt }]
+      }),
+      signal: controller.signal
+    })
 
-      clearTimeout(timeoutId)
+    clearTimeout(timeoutId)
 
-      if (!response.ok) {
-        throw new Error(`Anthropic API error: ${response.statusText}`)
-      }
-
-      const data = await response.json()
-      return data.content[0]?.text || 'No response from AI'
-    } catch (error) {
-      console.error('Anthropic API call failed:', error)
-      throw error
+    if (!response.ok) {
+      throw new Error(`Anthropic API error: ${response.statusText}`)
     }
+
+    const data = await response.json()
+    return data.content[0]?.text || 'No response from AI'
   }
 
   throw new Error(`Unsupported AI provider: ${provider}`)
@@ -316,26 +306,17 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
 export async function POST(request: NextRequest) {
   try {
     const body: AITripPlanningRequest = await request.json()
-    console.log('Received request body:', JSON.stringify(body, null, 2))
 
     if (!body.destination || !body.travelerType || !body.preferences) {
-      console.log('Missing required fields:', {
-        hasDestination: !!body.destination,
-        hasTravelerType: !!body.travelerType,
-        hasPreferences: !!body.preferences
-      })
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       )
     }
 
-    console.log('Generating trip planning prompt...')
     const prompt = generateTripPlanningPrompt(body)
     
-    console.log('Calling AI service...')
     const aiResponse = await callAI(prompt)
-    console.log('AI response received, length:', aiResponse.length)
 
     // Parse AI response - it might be wrapped in markdown code blocks
     let cleanResponse = aiResponse.trim()
@@ -345,9 +326,7 @@ export async function POST(request: NextRequest) {
       cleanResponse = cleanResponse.replace(/^```\s*/, '').replace(/\s*```$/, '')
     }
 
-    console.log('Parsing AI response...')
     const parsedResponse = JSON.parse(cleanResponse)
-    console.log('Successfully parsed response')
 
     // Wrap the response in the expected AITripPlanningResponse format
     const wrappedResponse = {
@@ -364,8 +343,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(wrappedResponse)
 
   } catch (error) {
-    console.error('Error in AI trip planning API:', error)
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
     return NextResponse.json(
       { error: 'Failed to generate trip plan', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
