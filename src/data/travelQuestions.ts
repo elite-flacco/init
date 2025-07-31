@@ -8,19 +8,19 @@ export const commonDestinationQuestions: Question[] = [
         options: [
             {
                 label: 'March – May',
-                value: 'spring season travel'
+                value: 'March – May'
             },
             {
                 label: 'June – August',
-                value: 'summer season travel'
+                value: 'June – August'
             },
             {
                 label: 'September – November',
-                value: 'autumn/fall season travel'
+                value: 'September – November'
             },
             {
                 label: 'December – February',
-                value: 'winter season travel'
+                value: 'December – February'
             },
             {
                 label: 'No idea yet / I\'m flexible',
@@ -489,19 +489,19 @@ export const commonTripPlanningQuestions: Question[] = [
         options: [
             {
                 label: 'March – May',
-                value: 'spring season travel'
+                value: 'March – May'
             },
             {
                 label: 'June – August',
-                value: 'summer season travel'
+                value: 'June – August'
             },
             {
                 label: 'September – November',
-                value: 'autumn/fall season travel'
+                value: 'September – November'
             },
             {
                 label: 'December – February',
-                value: 'winter season travel'
+                value: 'December – February'
             },
             {
                 label: 'No idea yet / I\'m flexible',

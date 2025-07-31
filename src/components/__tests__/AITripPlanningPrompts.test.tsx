@@ -28,6 +28,7 @@ vi.mock('../ProgressiveForm', () => ({
           activities: [],
           tripType: 'cultural',
           activityLevel: 'moderate',
+          specialActivities: 'cultural',
           riskTolerance: 'low',
           spontaneity: 'planned',
           wantRestaurants: true,

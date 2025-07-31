@@ -86,8 +86,8 @@ export function DestinationDetailsModal({
             <div className="flex items-center">
               <DollarSign className="w-5 h-5 text-primary mr-3" />
               <div>
-                <p className="text-sm text-foreground-secondary">Budget Level</p>
-                <p className="font-medium text-foreground">{destination.budget}</p>
+                <p className="text-sm text-foreground-secondary">Estimated Cost</p>
+                <p className="font-medium text-foreground">{destination.estimatedCost}</p>
               </div>
             </div>
           </div>

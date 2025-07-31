@@ -112,58 +112,85 @@ async function callAI(prompt: string): Promise<string> {
 function generatePrompt(request: AIDestinationRequest): string {
   const { travelerType, preferences, destinationKnowledge } = request;
 
-  let prompt = `You are a travel expert AI. Help recommend the best destinations for this traveler:
+  const prompt = `You are an expert travel advisor specializing in personalized destination recommendations. Your task is to recommend 3-6 destinations that perfectly match this traveler's personality and preferences.
 
-Traveler Type: ${travelerType.name} - ${travelerType.description}
+## TRAVELER PROFILE
+**Type:** ${travelerType.name} - ${travelerType.description}
+**Destination Knowledge:** ${destinationKnowledge.label} - ${destinationKnowledge.description}
 
-`;
+${preferences ? `## TRAVEL PREFERENCES
+${Object.entries({
+  'Travel Season': preferences.timeOfYear,
+  'Trip Duration': preferences.duration,
+  'Budget Level': preferences.budget,
+  'Preferred Activities': preferences.tripType,
+  'Special Interests': preferences.specialActivities,
+  'Weather Preference': preferences.weather,
+  'Travel Priority': preferences.priority,
+  'Destination Type': preferences.destinationType,
+  'Preferred Region': preferences.region
+}).filter(([, value]) => value?.trim()).map(([key, value]) => `- **${key}:** ${value.trim()}`).join('\n')}` : ''}
 
-  if (destinationKnowledge) {
-    prompt += `Destination Knowledge: ${destinationKnowledge.label} - ${destinationKnowledge.description}\n`;
-  }
+## RECOMMENDATION GUIDELINES
+Match destinations to traveler type:
+- **Explorer Travelers:** Adventure, spontaneity, unique experiences, social opportunities
+- **Type A Travelers:** Efficiency, must-see attractions, well-planned itineraries, cultural highlights
+- **Overthinker Travelers:** Safety, comfort, familiar cuisines, English-speaking areas, established tourism
+- **Chill Travelers:** Relaxation, natural beauty, slower pace, wellness activities
 
-  if (preferences) {
-    prompt += `User Preferences:
-- Travel Season: ${preferences.timeOfYear?.trim() || "Not specified"}
-- Trip Duration: ${preferences.duration?.trim() || "Not specified"}
-- Budget Level: ${preferences.budget?.trim() || "Not specified"}
-- Preferred Activities: ${preferences.tripType?.trim() || "Not specified"}
-- Special Interests: ${preferences.specialActivities?.trim() || "Not specified"}
-- Weather Preference: ${preferences.weather?.trim() || "Not specified"}
-- Travel Priority: ${preferences.priority?.trim() || "Not specified"}
-- Destination Type: ${preferences.destinationType?.trim() || "Not specified"}
-`;
+Destination type priorities:
+- **Major Hits:** Iconic landmarks, world-famous attractions, bucket-list destinations
+- **Off the Beaten Path:** Hidden gems, local secrets, authentic experiences, fewer tourists
+- **Up and Coming:** Emerging destinations, trending hotspots, recently accessible places
 
-    if (preferences.region) {
-      prompt += `- Preferred Region: ${preferences.region}\n`;
-    }
-  }
+Please include ALL of the following in your response for each destination:
 
-  prompt += `
-Please recommend 3-6 destinations that would be perfect for this traveler. Return your response as a valid JSON object with this exact structure:
+1. Destination Name
+  - Start with upper case
+2. Country Name
+  - Start with upper case
+3. Description
+  - 2-3 sentences description of the destination
+4. Best Time to Visit
+  - Optimal timing to visit this destination, explaining the weather conditions, activities available, cultural events, and crowds
+5. Key Activities
+  - Top 4-5 activities that align with their interests and personality, start each activity with upper case
+6. Match Reason
+  - Specific explanation connecting this destination to their traveler type traits
+7. Estimated Cost
+  - Typical average daily cost of the destination for the specified budget level and time of year
+8. Highlights
+  - Top 3-4 highlights that align with their interests and personality, start each highlight with upper case
+9. Details
+  - 3-4 detailed paragraphs covering: cultural highlights, food scene, accommodation options, transportation, must-see attractions, local customs, and practical travel tips (3-4 paragraphs)
+
+## RESPONSE FORMAT
+Return ONLY valid JSON with this exact structure, make sure there is comma after each field:
 
 {
   "destinations": [
     {
-      "name": "Destination Name",
-      "country": "Country Name",
-      "description": "Brief description of why it matches their preferences and what makes it special",
-      "bestTimeToVisit": "Best time to visit based on their travel season preference",
-      "keyActivities": "Key activities/experiences that align with their interests",
-      "matchReason": "Specific explanation of why this destination fits their traveler type and preferences",
-      "estimatedCost": "Budget level as $ (budget-friendly), $$ (moderate), $$$ (expensive), or $$$$ (luxury)",
-      "details": "Detailed information about the destination including culture, food, transportation, accommodation types, must-see attractions, local customs, and practical travel tips (3-4 paragraphs)"
+      "name": "string",
+      "country": "string", 
+      "description": "string",
+      "bestTimeToVisit": "string",
+      "keyActivities": ["string"],
+      "matchReason": "string",
+      "estimatedCost": "string",
+      "highlights": ["string"],
+      "details": "string"
     }
   ],
-  "summary": "Overall explanation of the recommendation strategy and why these destinations work well together"
+  "summary": "string"
 }
 
-Focus on destinations that truly match their personality type and stated preferences. Pay special attention to their destination type preference:
-- If they want "major hits": recommend well-known, popular tourist destinations and iconic places
-- If they want "off the beaten path": suggest hidden gems, remote locations, and lesser-known destinations
-- If they want "up and coming": recommend trending destinations, emerging hotspots, and places gaining popularity
-
-Ensure the JSON is valid and parseable.`;
+CRITICAL REQUIREMENTS:
+- All destinations must strongly align with the traveler's personality type
+- Prioritize their stated destination type preference (major hits/off beaten path/up and coming)
+- Consider budget, season, and activity preferences in every recommendation
+- Provide diverse options that offer different experiences within their preferences
+- Include specific, actionable details in the "details" field
+- Ensure JSON is perfectly formatted and parseable`;
 
   return prompt;
 }
@@ -200,7 +227,7 @@ export async function POST(request: NextRequest) {
 
     // Map AI response to actual destination objects from our data
     const recommendedDestinations = parsedResponse.destinations.map(
-      (aiDest: { name: string; details: string; country?: string; description?: string; highlights?: string[]; bestTime?: string; budget?: string }) => {
+      (aiDest: { name: string; details: string; country?: string; description?: string; highlights?: string[]; bestTimeToVisit?: string; estimatedCost?: string; keyActivities?: string[]; matchReason?: string }) => {
         // Try to find matching destination in our data, or create a basic one
         const existingDest = destinations.find(
           (dest) => dest.name.toLowerCase() === aiDest.name.toLowerCase()
@@ -220,10 +247,12 @@ export async function POST(request: NextRequest) {
           country: aiDest.country,
           description: aiDest.description,
           image: "/images/placeholder-destination.jpg",
-          highlights: aiDest.keyActivities?.split(", ") || [],
+          highlights: aiDest.highlights || [],
           bestTime: aiDest.bestTimeToVisit || "Year-round",
-          budget: aiDest.estimatedCost || "$$$",
+          estimatedCost: aiDest.estimatedCost || "",
           details: aiDest.details || aiDest.description,
+          keyActivities: aiDest.keyActivities || [],
+          matchReason: aiDest.matchReason || "",
         };
       }
     );

@@ -9,7 +9,9 @@ export const destinations: Destination[] = [
     image: 'https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800',
     highlights: ['Beautiful beaches', 'Ancient temples', 'Rice terraces', 'Yoga retreats'],
     bestTime: 'April - October',
-    budget: '$50-80/day'
+    estimatedCost: '$50-80/day',
+    keyActivities: ['Beach', 'Temple', 'Rice Terrace', 'Yoga Retreat'],
+    matchReason: 'Perfect for those interested in beaches and temples'
   },
   {
     id: 'iceland',
@@ -19,7 +21,9 @@ export const destinations: Destination[] = [
     image: 'https://images.pexels.com/photos/1433052/pexels-photo-1433052.jpeg?auto=compress&cs=tinysrgb&w=800',
     highlights: ['Northern Lights', 'Geysers', 'Waterfalls', 'Blue Lagoon'],
     bestTime: 'June - August',
-    budget: '$120-180/day'
+    estimatedCost: '$120-180/day',
+    keyActivities: ['Northern Lights', 'Geysers', 'Waterfalls', 'Blue Lagoon'],
+    matchReason: 'Perfect for those interested in nature and adventure'
   },
   {
     id: 'tokyo',
@@ -29,7 +33,9 @@ export const destinations: Destination[] = [
     image: 'https://images.pexels.com/photos/161251/senso-ji-temple-japan-kyoto-landmark-161251.jpeg?auto=compress&cs=tinysrgb&w=800',
     highlights: ['Ancient temples', 'Cherry blossoms', 'Modern cities', 'Amazing food'],
     bestTime: 'March - May, September - November',
-    budget: '$80-120/day'
+    estimatedCost: '$80-120/day',
+    keyActivities: ['Ancient temples', 'Cherry blossoms', 'Modern cities', 'Amazing food'],
+    matchReason: 'Perfect for those interested in culture and food'
   },
   {
     id: 'costa-rica',
@@ -39,7 +45,9 @@ export const destinations: Destination[] = [
     image: 'https://images.pexels.com/photos/2725675/pexels-photo-2725675.jpeg?auto=compress&cs=tinysrgb&w=800',
     highlights: ['Rainforest adventures', 'Wildlife viewing', 'Zip-lining', 'Pristine beaches'],
     bestTime: 'December - April',
-    budget: '$60-100/day'
+    estimatedCost: '$60-100/day',
+    keyActivities: ['Rainforest adventures', 'Wildlife viewing', 'Zip-lining', 'Pristine beaches'],
+    matchReason: 'Perfect for those interested in nature and adventure'
   },
   {
     id: 'greece',
@@ -49,7 +57,9 @@ export const destinations: Destination[] = [
     image: 'https://images.pexels.com/photos/1285625/pexels-photo-1285625.jpeg?auto=compress&cs=tinysrgb&w=800',
     highlights: ['Ancient ruins', 'Island hopping', 'Mediterranean cuisine', 'Sunset views'],
     bestTime: 'April - June, September - October',
-    budget: '$70-110/day'
+    estimatedCost: '$70-110/day',
+    keyActivities: ['Ancient ruins', 'Island hopping', 'Mediterranean cuisine', 'Sunset views'],
+    matchReason: 'Perfect for those interested in culture and food'
   },
   {
     id: 'new-zealand',
@@ -59,6 +69,8 @@ export const destinations: Destination[] = [
     image: 'https://images.pexels.com/photos/552779/pexels-photo-552779.jpeg?auto=compress&cs=tinysrgb&w=800',
     highlights: ['Adventure sports', 'Stunning landscapes', 'Hobbiton', 'Milford Sound'],
     bestTime: 'December - February',
-    budget: '$90-140/day'
+    estimatedCost: '$90-140/day',
+    keyActivities: ['Adventure sports', 'Stunning landscapes', 'Hobbiton', 'Milford Sound'],
+    matchReason: 'Perfect for those interested in nature and adventure'
   }
 ];

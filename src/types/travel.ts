@@ -13,10 +13,12 @@ export interface Destination {
   name: string;
   country: string;
   description: string;
+  keyActivities: string[];
+  matchReason: string;
+  estimatedCost: string;
   image: string;
   highlights: string[];
   bestTime: string;
-  budget: string;
   details?: string;
 }
 
