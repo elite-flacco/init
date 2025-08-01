@@ -18,7 +18,7 @@ export function DestinationCard({ destination, onViewDetails }: DestinationCardP
       onClick={handleCardClick}
       className="group h-full transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
     >
-      <Card className="h-full overflow-hidden border-2 border-transparent group-hover:border-primary transition-colors duration-300">
+      <Card className="h-full overflow-hidden border-2 border-transparent group-hover:border-background transition-colors duration-300">
         {/* Image with overlay */}
         <div className="relative h-64 overflow-hidden">
           <img
@@ -56,24 +56,24 @@ export function DestinationCard({ destination, onViewDetails }: DestinationCardP
 
           {/* Details */}
           <div className="space-y-3 mb-8">
-            <div className="flex items-center text-sm">
-              <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-              <span>
-                Best time: <span>{destination.bestTime}</span>
-              </span>
+            <div className="flex items-center">
+              {/* <Calendar className="w-4 h-4 mr-2 flex-shrink-0" /> */}
+              <p className="font-semibold">
+               📅 Best time: <span className="font-normal">{destination.bestTime}</span>
+              </p>
             </div>
-            <div className="flex items-center text-sm">
-              <DollarSign className="w-4 h-4 mr-2 flex-shrink-0" />
-              <span>
-                Budget: <span>{destination.estimatedCost}</span>
-              </span>
+            <div className="flex items-center">
+              {/* <DollarSign className="w-4 h-4 mr-2 flex-shrink-0" /> */}
+              <p className="font-semibold">
+               💰 Estimated Cost: <span className="font-normal">{destination.estimatedCost}</span>
+              </p>
             </div>
           </div>
 
           {/* Highlights */}
           <div className="space-y-1 mb-8">
-            <h5>Highlights</h5>
-            <div className="flex flex-wrap gap-1 mt-8">
+            <h6>Highlights</h6>
+            <div className="flex flex-wrap gap-1 mt-12">
               {destination.highlights.map((highlight, index) => (
                 <li
                   key={index}
@@ -84,9 +84,10 @@ export function DestinationCard({ destination, onViewDetails }: DestinationCardP
             </div>
           </div>
 
+          {/* Activities */}
           <div className="space-y-1 mb-8">
-            <h5>Activities</h5>
-            <div className="flex flex-wrap gap-1 mt-8">
+            <h6>Activities</h6>
+            <div className="flex flex-wrap gap-1 mt-12">
               {destination.keyActivities.map((activity, index) => (
                 <li
                   key={index}
@@ -97,9 +98,10 @@ export function DestinationCard({ destination, onViewDetails }: DestinationCardP
             </div>
           </div>
 
+          {/* Why here */}
           <div className="space-y-1 mb-8">
-            <h5>Why here?</h5>
-            <div className="flex flex-wrap gap-1 mt-8">
+            <h6>Why here</h6>
+            <div className="flex flex-wrap gap-1 mt-12">
               {destination.matchReason}
             </div>
           </div>

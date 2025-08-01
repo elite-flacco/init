@@ -81,7 +81,7 @@ export function TravelPlanLoading({ isVisible, destinationName = "your destinati
   const IconComponent = currentStage.icon;
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card 
         variant="elevated" 
         size="lg" 

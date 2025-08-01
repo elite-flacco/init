@@ -14,7 +14,7 @@ export function PlaceholderMessage({ travelerType, onContinue }: PlaceholderMess
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <Card className="card pt-12 text-center">
-        <div className="text-6xl mb-6" aria-hidden="true">
+        <div className="text-4xl sm:text-6xl md:text-8xl lg:text-10xl mb-6" aria-hidden="true">
           {travelerType.icon}
         </div>
         <h3 className="mb-12">{travelerType.greeting}</h3>

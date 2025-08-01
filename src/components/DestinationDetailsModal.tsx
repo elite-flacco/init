@@ -63,10 +63,10 @@ export function DestinationDetailsModal({
           
           {/* Title */}
           <div className="absolute bottom-6 left-6 right-6">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="mb-4">
               {destination.name}
             </h1>
-            <p className="text-lg text-white/90 max-w-2xl">
+            <p className="max-w-2xl text-white">
               {destination.description}
             </p>
           </div>
@@ -77,24 +77,24 @@ export function DestinationDetailsModal({
           {/* Quick info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div className="flex items-center">
-              <Calendar className="w-5 h-5 text-primary mr-3" />
+              {/* <Calendar className="w-5 h-5 text-primary mr-3" /> */}
               <div>
-                <p className="text-sm text-foreground-secondary">Best Time to Visit</p>
-                <p className="font-medium text-foreground">{destination.bestTime}</p>
+                <p>📅 Best Time to Visit</p>
+                <p className="font-medium text-foreground ml-6">{destination.bestTime}</p>
               </div>
             </div>
             <div className="flex items-center">
-              <DollarSign className="w-5 h-5 text-primary mr-3" />
-              <div>
-                <p className="text-sm text-foreground-secondary">Estimated Cost</p>
-                <p className="font-medium text-foreground">{destination.estimatedCost}</p>
+              {/* <DollarSign className="w-5 h-5 text-primary mr-3" /> */}
+              <div> 
+                <p>💰 Estimated Cost</p>
+                <p className="font-medium text-foreground ml-6">{destination.estimatedCost}</p>
               </div>
             </div>
           </div>
 
           {/* Highlights */}
           <div className="mb-8">
-            <h3 className="text-xl font-semibold text-foreground mb-4">Highlights</h3>
+            <h5 className="mb-4">Highlights</h5>
             <div className="flex flex-wrap gap-3">
               {destination.highlights.map((highlight, index) => (
                 <span
@@ -110,7 +110,7 @@ export function DestinationDetailsModal({
           {/* Detailed Information */}
           {destination.details && (
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-foreground mb-4">About This Destination</h3>
+              <h5 className="mb-4">About This Destination</h5>
               <div className="prose prose-gray max-w-none">
                 {destination.details.split('\n\n').map((paragraph, index) => (
                   <p key={index} className="text-foreground-secondary leading-relaxed mb-4">
@@ -125,13 +125,13 @@ export function DestinationDetailsModal({
           <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-border">
             <button
               onClick={onClose}
-              className="px-6 py-3 border border-border text-foreground rounded-lg hover:bg-gray-50 transition-colors"
+              className="btn-outline"
             >
               Close
             </button>
             <button
               onClick={handleSelectForPlanning}
-              className="flex items-center justify-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+              className="btn-primary"
             >
               Plan My Trip Here
               <ArrowRight className="w-4 h-4 ml-2" />

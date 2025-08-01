@@ -80,7 +80,7 @@
   }
 
   span {
-    @apply text-xs sm:text-sm text-foreground-secondary;
+    @apply text-sm sm:text-base text-foreground-secondary;
   }
 
   /* Enhanced forms with modern styling */
@@ -100,10 +100,11 @@
   /* Base Button */
   button,
   .btn {
-    @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium transition-all duration-300 border border-transparent rounded-xl shadow-card focus:outline-none focus:ring-0 focus:ring-offset-0 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-0 active:scale-95;
+    @apply inline-flex items-center justify-center relative overflow-hidden gap-2 px-5 py-2.5 text-base font-semibold rounded-xl transition-all duration-300 border border-transparent shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
+
   button:active,
   .btn:active {
     transform: translateY(0) scale(0.95);
@@ -114,12 +115,14 @@
   /* Enhanced Button Variants with sophisticated styling */
 
   .btn-primary {
-    @apply btn text-foreground bg-gradient-to-br from-primary via-primary-light to-primary/60 shadow-card hover:shadow-card-hover hover:from-primary-dark hover:via-primary hover:to-primary-dark/40 relative overflow-hidden;
-  }
+    @apply btn text-white bg-gradient-to-br from-primary via-primary-light to-primary/60 hover:from-primary-dark hover:via-primary hover:to-primary-dark/60 shadow-md hover:shadow-lg;
+  }  
   
   .btn-primary::before {
-    @apply absolute inset-0 -translate-x-full transition-transform duration-600;
+    @apply absolute inset-0 -translate-x-full transition-transform duration-[600ms];
+    content: '';
     background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+    z-index: 0;
   }
   
   .btn-primary:hover::before {
@@ -127,19 +130,19 @@
   }
 
   .btn-secondary {
-    @apply btn text-foreground bg-gradient-to-br from-secondary-light to-secondary-dark shadow-card hover:shadow-card-hover hover:from-secondary hover:to-secondary-dark/90 text-white;
+    @apply btn text-foreground bg-gradient-to-br from-secondary-light to-secondary-dark hover:from-secondary hover:to-secondary-dark/80 text-white shadow-md hover:shadow-lg;
   }
 
+  .btn-glow {
+    @apply btn text-white bg-primary shadow-lg shadow-primary/40 hover:shadow-xl hover:brightness-110 active:scale-95 transition-transform;
+  }  
+
   .btn-outline {
-    @apply btn text-foreground bg-background/80 backdrop-blur-sm border-2 border-border shadow-card hover:bg-background hover:border-primary/50 hover:shadow-card-hover hover:text-primary;
+    @apply btn bg-background/70 backdrop-blur-sm text-foreground border-2 border-border hover:border-primary hover:text-primary hover:shadow-md;
   }
 
   .btn-ghost {
-    @apply btn text-foreground bg-transparent shadow-none hover:bg-background-muted hover:text-primary hover:shadow-card backdrop-blur-sm;
-  }
-  
-  .btn-glass {
-    @apply btn text-foreground bg-white/10 backdrop-blur-md border border-white/20 shadow-glass hover:bg-white/20 hover:border-white/30;
+    @apply btn bg-transparent text-foreground hover:text-primary hover:bg-background-muted hover:shadow-sm backdrop-blur-md;
   }
 
   .back-button {
@@ -159,12 +162,12 @@
   }
 
   .page-title {
-    @apply text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-8 leading-extra-tight bg-gradient-to-br from-foreground to-foreground/60 text-transparent bg-clip-text;
+    @apply text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-8 text-center leading-extra-tight bg-gradient-to-br from-foreground to-foreground/60 text-transparent bg-clip-text;
     animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
   }
 
   .page-subtitle {
-    @apply text-base md:text-lg lg:text-xl text-foreground-secondary max-w-3xl mx-auto leading-relaxed;
+    @apply text-base md:text-lg lg:text-xl text-foreground-secondary max-w-3xl mx-auto text-center leading-relaxed;
     animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
     text-wrap: balance;
   }
@@ -180,7 +183,7 @@
   }
 
   .option-card-inner {
-    @apply h-full transition-all duration-500 border-2 bg-background/80 backdrop-blur-xl overflow-hidden rounded-2xl backdrop-blur-xl shadow-card hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary relative;
+    @apply h-full rounded-3xl duration-500 border-2 bg-background/80 backdrop-blur-xl overflow-hidden rounded-2xl backdrop-blur-xl shadow-card hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary relative;
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
   
@@ -269,11 +272,11 @@
 
   /* ==== Question card styles ===== */
   .card-minimal {
-    @apply card bg-background-muted/50 border border-border/30 shadow-md;
+    @apply card border border-border/30 shadow-md;
   }
 
   .card-minimal:hover {
-    @apply bg-background-muted/70 shadow-md -translate-y-0.5 shadow-lg;
+    @apply bg-background-soft shadow-md -translate-y-0.5 shadow-lg;
   }
 
   .question-card-active {
@@ -281,7 +284,7 @@
   }
 
   .question-card-completed {
-    @apply card-minimal px-12 py-8 mb-6;
+    @apply card-minimal px-12 py-6 mb-6;
   }
 
   /* Card components */

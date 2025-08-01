@@ -92,7 +92,7 @@ export function DestinationLoading({ isVisible }: DestinationLoadingProps) {
   const IconComponent = currentStage.icon;
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Floating Background Emojis */}
       {floatingEmojis.map((item) => (
         <div

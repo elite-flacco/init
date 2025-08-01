@@ -11,6 +11,7 @@ import { AIDestinationRecommendationResults } from '../src/components/AIDestinat
 import { AITripPlanningPrompts } from '../src/components/AITripPlanningPrompts'
 import { AITravelPlan } from '../src/components/AITravelPlan'
 import { PlaceholderMessage } from '../src/components/PlaceholderMessage'
+import { TravelProgressIndicator } from '../src/components/TravelProgressIndicator'
 import { TravelerType, Destination, DestinationKnowledge, PickDestinationPreferences } from '../src/types/travel'
 import { AITripPlanningResponse } from '../src/services/aiTripPlanningService'
 import { AIDestinationResponse, aiDestinationService } from '../src/services/aiDestinationService'
@@ -384,49 +385,8 @@ export default function HomePage() {
               )}
             </div>
             
-            {/* Progress Indicator */}
-            <div className="hidden md:flex items-center space-x-8">
-              {[
-                { step: 'traveler-type', label: 'You', 
-                  active: currentStep === 'traveler-type',
-                  completed: ['destination-knowledge', 'destination-input', 'pick-destination', 'destination-recommendations', 'planning', 'plan'].includes(currentStep)
-                },
-                { step: 'destination', label: 'Destination', 
-                  active: ['destination-knowledge', 'destination-input', 'pick-destination', 'destination-recommendations'].includes(currentStep),
-                  completed: ['planning', 'plan'].includes(currentStep)
-                },
-                { step: 'planning', label: 'Planning', 
-                  active: currentStep === 'planning',
-                  completed: currentStep === 'plan'
-                },
-                { step: 'plan', label: 'Your Plan', 
-                  active: currentStep === 'plan',
-                  completed: false
-                }
-              ].map(({ step, label, active, completed }) => (
-                <div key={step} className="flex items-center space-x-3 group">
-                  <div className={`relative w-4 h-4 rounded-full transition-all duration-300 ${
-                    active ? 'bg-gradient-to-r from-primary to-primary shadow-glow scale-110' : 
-                    completed ? 'bg-gradient-to-r from-success to-success shadow-lg' : 'bg-border/60 hover:bg-border'
-                  }`}>
-                    {completed && (
-                      <svg className="w-3 h-3 text-white absolute inset-0 m-auto" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    )}
-                    {active && (
-                      <div className="absolute inset-0 rounded-full bg-primary animate-pulse opacity-40"></div>
-                    )}
-                  </div>
-                  <span className={`text-sm font-medium transition-all duration-300 ${
-                    active ? 'text-primary font-semibold' : 
-                    completed ? 'text-success font-medium' : 'text-foreground-muted group-hover:text-foreground-secondary'
-                  }`}>
-                    {label}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {/* Enhanced Travel Progress Indicator */}
+            <TravelProgressIndicator currentStep={currentStep} />
           </div>
         </div>
       </header>

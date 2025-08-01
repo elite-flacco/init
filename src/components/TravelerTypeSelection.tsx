@@ -24,7 +24,7 @@ export function TravelerTypeSelection({ onSelect }: TravelerTypeSelectionProps) 
         role="banner"
         aria-labelledby="step-title"
       >
-        <h1 id="step-title" className="page-title mb-6">
+        <h1 className="page-title mb-6">
           What's your travel vibe?
         </h1>
         <p className="page-subtitle max-w-2xl mx-auto mb-4 opacity-90">
@@ -58,7 +58,7 @@ export function TravelerTypeSelection({ onSelect }: TravelerTypeSelectionProps) 
               {/* Glow Effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 scale-110"></div>
               
-              <Card className="h-full p-8 bg-white/80 backdrop-blur-xl border-2 border-border/30 hover:border-primary/40 rounded-3xl shadow-card hover:shadow-2xl transition-all duration-500 relative overflow-hidden group-hover:bg-white/90">
+              <Card className="h-full p-8 bg-white/80 backdrop-blur-xl border-2 border-border/30 hover:border-border rounded-3xl shadow-card hover:shadow-2xl transition-all duration-500 relative overflow-hidden group-hover:bg-white/90">
                 {/* Subtle background pattern */}
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 

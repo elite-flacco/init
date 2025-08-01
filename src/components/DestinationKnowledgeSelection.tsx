@@ -43,7 +43,7 @@ export function DestinationKnowledgeSelection({ onSelect }: DestinationKnowledge
         role="banner"
         aria-labelledby="step-title"
       >
-        <h1 id="step-title" className="page-title mb-6">
+        <h1 className="page-title mb-6">
           Where are we headed?
         </h1>
         <p className="page-subtitle max-w-2xl mx-auto mb-4 opacity-90">
@@ -78,7 +78,7 @@ export function DestinationKnowledgeSelection({ onSelect }: DestinationKnowledge
             <Card 
               variant="elevated"
               size="lg"
-              className="h-full bg-white/85 backdrop-blur-xl border-2 border-border/30 hover:border-primary/40 shadow-card hover:shadow-2xl transition-all duration-500 relative overflow-hidden group-hover:bg-white/95"
+              className="h-full bg-white/85 backdrop-blur-xl border-2 border-border/30 hover:border-background shadow-card hover:shadow-2xl transition-all duration-500 relative overflow-hidden group-hover:bg-white/95"
             >
               {/* Subtle background pattern */}
               <div className="absolute inset-0 bg-gradient-to-r from-primary/3 via-transparent to-accent/3 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>

@@ -22,10 +22,10 @@ export function PickMyDestinationFlow({
       <div className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-16">
-            <h2 className="text-2xl font-bold text-foreground mb-4">
+            <h3 className="mb-4">
               Oops, we hit a snag
-            </h2>
-            <p className="text-foreground-secondary">
+            </h3>
+            <p>
               Looks like some info got lost along the way. Mind going back and starting fresh?
             </p>
           </div>
@@ -72,10 +72,10 @@ export function PickMyDestinationFlow({
       <div className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-16">
-            <h2 className="text-2xl font-bold text-foreground mb-4">
+            <h3 className="mb-4">
               Getting things ready...
-            </h2>
-            <p className="text-foreground-secondary">
+            </h3>
+            <p>
               Just prepping some questions that'll help us find your perfect spot
             </p>
           </div>

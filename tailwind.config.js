@@ -14,79 +14,71 @@ module.exports = {
     extend: {
       // Enhanced color palette with more sophisticated variants
       colors: {
-        // 🌅 Sunset Citrus (Primary) - Enhanced with more shades
+        // 🌅 Coral Coast (Primary) - Warm & playful with tropical edge
         primary: {
-          DEFAULT: '#06b6d4',  // cyan-500 (brighter, tropical)
-          light: '#22d3ee',    // cyan-400
-          dark: '#0891b2',     // cyan-600
+          DEFAULT: '#f75c4c',  // Coral red (fun, energetic)
+          light: '#ff8c7a',    // Soft coral
+          dark: '#e05244',     // Deeper terracotta
         },
-  
-        // 🌊 Coastal Breeze (Accent) - Enhanced with full spectrum
+      
+        // 🌊 Teal Waters (Accent) - Balancing cool tone
         accent: {
-          DEFAULT: '#0ea5e9',
-          light: '#38bdf8',
-          dark: '#0284c7',
+          DEFAULT: '#06b6d4',  // Cyan-teal
+          light: '#22d3ee',    // Lighter water tone
+          dark: '#0e7490',     // Deep teal
         },
-  
-        // Secondary (Enhanced amber palette)
+      
+        // 🍋 Golden Drift (Secondary) - Pop of sunshine
         secondary: {
-          DEFAULT: '#f97316',
-          light: '#fdba74',
-          dark: '#ea580c',
+          DEFAULT: '#ffd166',  // Golden yellow
+          light: '#ffe49e',    // Pale lemon
+          dark: '#e6b84f',     // Honey gold
         },
-  
-        // Enhanced semantic colors with proper shades
+      
+        // ✅ Semantic Colors (slightly softened for friendliness)
         success: {
-          DEFAULT: '#10b981',
+          DEFAULT: '#10b981',  // Emerald green
         },
         warning: {
-          DEFAULT: '#facc15',
+          DEFAULT: '#facc15',  // Warm yellow
         },
         error: {
-          DEFAULT: '#ef4444',
+          DEFAULT: '#ef4444',  // Friendly red
         },
         info: {
-          DEFAULT: '#3b82f6',
+          DEFAULT: '#3b82f6',  // Sky blue
         },
-  
-        // Enhanced UI background/foreground with better contrast
+      
+        // 🪨 Backgrounds - Light, soft, with warmth
         background: {
-          DEFAULT: '#fefefe',      // Pure white with warmth
-          muted: '#f8fafc',        // Cooler muted background
-          soft: '#fafafa',         // Soft neutral
+          DEFAULT: '#fdf6f6',      // Light blush tone
+          muted: '#fefae0',        // Soft cream
+          soft: '#fafafa',         // General UI background
           card: '#ffffff',         // Card backgrounds
         },
+      
+        // 🖋 Foregrounds - Gentle contrast, travel-friendly
         foreground: {
-          DEFAULT: '#0f172a',      // slate-900
-          secondary: '#475569',    // slate-600
-          muted: '#64748b',        // slate-500
-          dim: '#94a3b8',          // slate-400
-          ghost: '#cbd5e1',        // slate-300
+          DEFAULT: '#2f3e46',      // Deep sea gray
+          secondary: '#475569',    // Slate-600
+          muted: '#64748b',        // Slate-500
+          dim: '#94a3b8',          // Slate-400
+          ghost: '#cbd5e1',        // Slate-300
         },
+      
+        // 📏 Borders & Rings
         border: {
-          DEFAULT: '#e2e8f0',      // slate-200
-          secondary: '#cbd5e1',    // slate-300
-          muted: '#f1f5f9',        // slate-100
+          DEFAULT: '#e2e8f0',      // Neutral border
+          secondary: '#cbd5e1',    // Soft border
+          muted: '#f1f5f9',        // Light background border
         },
         ring: {
-          DEFAULT: '#f97316',      // accent blue
-          primary: '#f97316',      // orange focus
-          muted: '#cbd5e1',        // subtle focus
-        },
-        
-        // Glass morphism colors
-        glass: {
-          white: 'rgba(255, 255, 255, 0.25)',
-          dark: 'rgba(0, 0, 0, 0.25)',
-        },
-        
-        // Gradient stops for modern effects
-        gradient: {
-          from: '#f97316',
-          via: '#fb923c',
-          to: '#8b5cf6',
+          DEFAULT: '#f75c4c',      // Coral focus
+          primary: '#ffd166',      // Yellow focus
+          muted: '#cbd5e1',        // Subtle focus
         },
       },
+      
       
       // Enhanced Typography with better scales and spacing
       fontFamily: {
@@ -161,12 +153,19 @@ module.exports = {
         '6xl': '3rem',
       },
       boxShadow: {
-        glow: '0 0 20px rgba(249, 115, 22, 0.3)',
-        'glow-lg': '0 0 40px rgba(249, 115, 22, 0.4)',
+        // ✨ Glow effects for buttons or special components
+        glow: '0 0 12px rgba(255, 111, 97, 0.3)',           // coral glow (primary)
+        'glow-lg': '0 0 32px rgba(255, 111, 97, 0.4)',
+        'glow-yellow': '0 0 20px rgba(255, 209, 102, 0.4)', // golden glow (secondary)
+      
+        // 🧱 Card shadows – soft, layered for modern feel
         card: '0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 8px -2px rgba(0, 0, 0, 0.04)',
         'card-hover': '0 8px 24px -4px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.08)',
-        glass: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+      
+        // 🌈 Optional: Special floating or modal shadow
+        highlight: '0 12px 40px rgba(6, 182, 212, 0.25)',    // teal glow (accent)
       },
+      
       backdropBlur: {
         '2xl': '24px',
         '3xl': '40px',

@@ -34,16 +34,16 @@ export function DestinationInputComponent({ travelerType, onSubmit }: Destinatio
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="text-center mb-8">
+      <div className="text-center mb-16">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full mb-6">
           <MapPin className="w-8 h-8 text-primary" />
         </div>
         
-        <h1 className="text-3xl font-bold text-foreground mb-4">
+        <h2 className="page-title mb-4">
           Alright, spill the beans - where to?
-        </h1>
+        </h2>
         
-        <p className="text-lg text-foreground-secondary max-w-2xl mx-auto">
+        <p className="page-subtitle max-w-2xl mx-auto">
           {travelerType.name === 'Explorer' && "Let's plan something unforgettable. "}
           {travelerType.name === 'Type A' && "Perfect! Let's get this trip meticulously planned. "}
           {travelerType.name === 'Typical Overthinker' && "Great choice! We'll handle the details so you can close some tabs. "}
@@ -55,9 +55,6 @@ export function DestinationInputComponent({ travelerType, onSubmit }: Destinatio
       <div className="max-w-md mx-auto">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray" />
-            </div>
             <input
               type="text"
               value={destination}
@@ -85,7 +82,7 @@ export function DestinationInputComponent({ travelerType, onSubmit }: Destinatio
         </form>
 
         <div className="mt-8 text-center">
-          <p className="text-sm text-foreground-secondary">
+          <p>
             💡 Pro tip: Get as specific as you want - "Tokyo ramen district" hits different than just "Japan"
           </p>
         </div>

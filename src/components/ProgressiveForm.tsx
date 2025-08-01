@@ -138,12 +138,12 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
             className="text-center mb-12"
           >
             {title && (
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+              <h1 className="page-title mb-4">
                 {title}
               </h1>
             )}
             {subtitle && (
-              <p className="text-lg text-foreground-secondary max-w-2xl mx-auto">
+              <p className="page-subtitle max-w-2xl mx-auto">
                 {subtitle}
               </p>
             )}
@@ -291,7 +291,7 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
                 }}
                 className="text-center"
               >
-                <motion.div
+                {/* <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ 
@@ -314,7 +314,7 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
                   >
                     ✨
                   </motion.div>
-                </motion.div>
+                </motion.div> */}
                 <motion.h3
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -324,7 +324,7 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
                   }}
                   className="text-2xl font-bold text-foreground mb-3"
                 >
-                  Perfect! 🎉We've got everything we need.
+                  Perfect! We've got everything we need.
                 </motion.h3>
                 <motion.p
                   initial={{ opacity: 0, y: 15 }}

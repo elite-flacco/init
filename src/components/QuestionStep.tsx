@@ -131,9 +131,9 @@ export function QuestionStep({
       >
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h5 className="mb-2">
+            <h6 className="mb-2">
               {question.question}
-            </h5>
+            </h6>
             <p className="text-foreground-secondary">{value}</p>
           </div>
         </div>

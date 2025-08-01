@@ -51,7 +51,7 @@ export default function SharedPlanPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading shared travel plan...</p>
@@ -62,7 +62,7 @@ export default function SharedPlanPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-6xl mb-4">🧳</div>
           <h1 className="text-2xl font-bold text-foreground mb-2">Travel Plan Not Found</h1>
@@ -83,7 +83,7 @@ export default function SharedPlanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Shared plan banner */}
       <div className="bg-primary/10 border-b border-primary/20 py-3">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

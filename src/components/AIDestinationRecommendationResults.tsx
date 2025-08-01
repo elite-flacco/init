@@ -42,10 +42,10 @@ export function AIDestinationRecommendationResults({
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold text-foreground mb-6">
+        <h1 className="mb-6">
           Your Top Hits
         </h1>
-        <p className="text-xl text-foreground-secondary max-w-3xl mx-auto leading-relaxed mb-6">
+        <p className="max-w-3xl mx-auto mb-6">
           Based on your vibe, we're pretty confident one of these will make you go "YES, this is it!"
         </p>
         <div className="flex justify-center m-4">
@@ -75,13 +75,13 @@ export function AIDestinationRecommendationResults({
 
       {destinations.length === 0 && (
         <div className="text-center py-16">
-          <p className="text-foreground-secondary mb-4">
+          <p className="mb-4">
             No destinations found matching your criteria.
           </p>
           {onRegenerate && (
             <button
               onClick={onRegenerate}
-              className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+              className="btn-primary"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Give Me Something Else
