@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -14,17 +14,40 @@
   }
 
   body {
-    @apply min-h-screen font-sans leading-relaxed transition-all duration-300;
-    background: linear-gradient(135deg, #fefefe 0%, #f8fafc 100%);
+    @apply min-h-screen font-sans leading-relaxed transition-all duration-300 bg-gradient-to-br from-background via-background to-background-soft;
+    background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  
+
+  /* Adventure-themed background pattern */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* background-image: radial-gradient(
+        circle at 25% 25%,
+        theme(colors.primary / 3%) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 75% 75%,
+        theme(colors.secondary / 3%) 0%,
+        transparent 50%
+      );
+    background-size: 800px 800px;
+    pointer-events: none;
+    z-index: -1; */
+  }
+
   /* Enhanced focus management for better accessibility */
   *:focus {
     outline: none;
   }
-  
+
   *:focus-visible {
     @apply ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
@@ -42,31 +65,31 @@
   }
 
   h1 {
-    @apply text-4xl font-bold leading-extra-tight sm:text-5xl md:text-6xl lg:text-7xl text-transparent bg-clip-text bg-gradient-to-br from-foreground to-foreground/60;
+    @apply text-4xl font-display font-bold leading-extra-tight sm:text-5xl md:text-6xl lg:text-7xl bg-gradient-to-r from-primary via-primary-dark to-secondary bg-clip-text text-transparent;
   }
 
   h2 {
-    @apply text-3xl font-bold leading-tight sm:text-4xl md:text-5xl lg:text-6xl;
+    @apply text-3xl font-display font-bold leading-tight sm:text-4xl md:text-5xl lg:text-6xl text-foreground;
   }
 
   h3 {
-    @apply text-2xl font-semibold leading-tight sm:text-3xl md:text-4xl lg:text-5xl;
+    @apply text-2xl font-display font-semibold leading-tight sm:text-3xl md:text-4xl lg:text-5xl text-foreground;
   }
 
   h4 {
-    @apply text-xl font-semibold leading-snug sm:text-2xl md:text-3xl lg:text-4xl;
+    @apply text-xl font-display font-semibold leading-snug sm:text-2xl md:text-3xl lg:text-4xl text-foreground;
   }
 
   h5 {
-    @apply text-lg font-semibold leading-snug sm:text-xl md:text-2xl lg:text-3xl;
+    @apply text-lg font-display font-semibold leading-snug sm:text-xl md:text-2xl lg:text-3xl text-foreground;
   }
 
   h6 {
-    @apply text-base font-semibold leading-normal sm:text-lg md:text-xl lg:text-2xl;
+    @apply text-base font-display font-semibold leading-normal sm:text-lg md:text-xl lg:text-2xl text-foreground;
   }
 
   p {
-    @apply text-sm sm:text-base text-foreground-secondary leading-relaxed;
+    @apply text-sm sm:text-base font-body text-foreground-secondary leading-relaxed;
     text-wrap: pretty;
   }
 
@@ -89,7 +112,7 @@
   select {
     @apply w-full px-4 py-3 text-foreground bg-background/80 backdrop-blur-sm border border-border rounded-xl shadow-card transition-all duration-250 focus:ring-2 focus:ring-ring focus:border-primary focus:shadow-card-hover;
   }
-  
+
   input:hover,
   textarea:hover,
   select:hover {
@@ -101,7 +124,6 @@
   button,
   .btn {
     @apply inline-flex items-center justify-center relative overflow-hidden gap-2 px-5 py-2.5 text-base font-semibold rounded-xl transition-all duration-300 border border-transparent shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
-
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -109,40 +131,57 @@
   .btn:active {
     transform: translateY(0) scale(0.95);
   }
-}
+} /* Close @layer base */
 
 @layer components {
-  /* Enhanced Button Variants with sophisticated styling */
+  /* Adventure Button Variants - Travel-themed styling */
 
   .btn-primary {
-    @apply btn text-white bg-gradient-to-br from-primary via-primary-light to-primary/60 hover:from-primary-dark hover:via-primary hover:to-primary-dark/60 shadow-md hover:shadow-lg;
-  }  
-  
+    @apply btn text-white font-semibold bg-gradient-to-r from-primary to-primary-dark shadow-primary/30 shadow-glow;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .btn-primary:hover {
+    @apply bg-gradient-to-r from-primary-dark to-primary;
+    transform: translateY(-2px);
+  }
+
   .btn-primary::before {
-    @apply absolute inset-0 -translate-x-full transition-transform duration-[600ms];
-    content: '';
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+    @apply absolute inset-0 -translate-x-full transition-transform duration-[600ms] bg-gradient-to-r from-primary to-primary-dark;
+    content: "";
     z-index: 0;
   }
-  
+
   .btn-primary:hover::before {
     @apply translate-x-full;
   }
 
   .btn-secondary {
-    @apply btn text-foreground bg-gradient-to-br from-secondary-light to-secondary-dark hover:from-secondary hover:to-secondary-dark/80 text-white shadow-md hover:shadow-lg;
+    @apply btn text-white font-semibold bg-gradient-to-r from-secondary to-secondary-dark shadow-secondary/30 shadow-glow;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .btn-glow {
-    @apply btn text-white bg-primary shadow-lg shadow-primary/40 hover:shadow-xl hover:brightness-110 active:scale-95 transition-transform;
-  }  
+  .btn-secondary:hover {
+    @apply bg-gradient-to-r from-secondary-dark to-secondary;
+    transform: translateY(-2px);
+  }
+
+  .btn-adventure {
+    @apply btn text-white font-bold bg-gradient-to-r from-primary via-accent to-secondary relative overflow-hidden shadow-glow;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .btn-adventure:hover {
+    @apply shadow-primary/30 shadow-glow;
+    transform: translateY(-3px) scale(1.02);
+  }
 
   .btn-outline {
-    @apply btn bg-background/70 backdrop-blur-sm text-foreground border-2 border-border hover:border-primary hover:text-primary hover:shadow-md;
+    @apply btn bg-background/80 backdrop-blur-sm text-primary font-semibold border-2 border-primary/30 hover:border-primary hover:bg-primary/5 hover:shadow-travel-card;
   }
 
   .btn-ghost {
-    @apply btn bg-transparent text-foreground hover:text-primary hover:bg-background-muted hover:shadow-sm backdrop-blur-md;
+    @apply btn bg-transparent text-foreground hover:text-primary hover:bg-primary/5 hover:shadow-sm backdrop-blur-md font-medium;
   }
 
   .back-button {
@@ -162,12 +201,12 @@
   }
 
   .page-title {
-    @apply text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-8 text-center leading-extra-tight bg-gradient-to-br from-foreground to-foreground/60 text-transparent bg-clip-text;
+    @apply text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold mb-8 text-center leading-extra-tight bg-gradient-to-br from-primary via-primary-dark to-secondary bg-clip-text text-transparent;
     animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
   }
 
   .page-subtitle {
-    @apply text-base md:text-lg lg:text-xl text-foreground-secondary max-w-3xl mx-auto text-center leading-relaxed;
+    @apply text-base md:text-lg lg:text-xl font-body text-foreground-secondary max-w-3xl mx-auto text-center leading-relaxed;
     animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
     text-wrap: balance;
   }
@@ -177,7 +216,7 @@
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     transform-style: preserve-3d;
   }
-  
+
   .option-card:hover {
     transform: translateY(-8px) scale(1.02);
   }
@@ -186,17 +225,17 @@
     @apply h-full rounded-3xl duration-500 border-2 bg-background/80 backdrop-blur-xl overflow-hidden rounded-2xl backdrop-blur-xl shadow-card hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary relative;
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
+
   .group:hover .option-card-inner {
     @apply border-primary;
   }
-  
+
   .option-card-inner::before {
-    content: '';
+    content: "";
     @apply absolute inset-0 opacity-0 transition-opacity duration-400 rounded-2xl;
-    background: linear-gradient(to bottom right, rgba(249, 115, 22, 0.1), transparent, rgba(139, 69, 19, 0.1));
+    @apply bg-gradient-to-br from-primary/[8%] via-transparent to-secondary/[8%];
   }
-  
+
   .option-card:hover .option-card-inner::before {
     @apply opacity-100;
   }
@@ -204,7 +243,7 @@
   .option-card-title {
     @apply text-xl lg:text-2xl font-bold text-foreground mb-3 tracking-tight transition-colors duration-300;
   }
-  
+
   .group:hover .option-card-title {
     @apply text-primary;
   }
@@ -213,7 +252,7 @@
     @apply text-base lg:text-lg text-foreground-secondary leading-relaxed font-medium transition-colors duration-300;
     text-wrap: balance;
   }
-  
+
   .group:hover .option-card-description {
     @apply text-foreground;
   }
@@ -222,17 +261,25 @@
     @apply option-card;
     animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
-  
-  .traveler-card:nth-child(1) { animation-delay: 0.1s; }
-  .traveler-card:nth-child(2) { animation-delay: 0.2s; }
-  .traveler-card:nth-child(3) { animation-delay: 0.3s; }
-  .traveler-card:nth-child(4) { animation-delay: 0.4s; }
+
+  .traveler-card:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  .traveler-card:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .traveler-card:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  .traveler-card:nth-child(4) {
+    animation-delay: 0.4s;
+  }
 
   .traveler-card-inner {
     @apply h-full p-8 backdrop-blur-xl border-2 rounded-3xl shadow-card hover:shadow-2xl transition-all duration-500 relative overflow-hidden flex flex-col items-center text-center bg-background/80 backdrop-blur-xl;
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
+
   .group:hover .traveler-card-inner {
     @apply border-primary;
   }
@@ -242,30 +289,24 @@
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
-  
+
   .group:hover .traveler-card-icon {
     transform: scale(1.1) rotate(6deg);
-    filter: drop-shadow(0 8px 16px rgba(249, 115, 22, 0.3));
+    filter: drop-shadow(0 8px 16px rgba(255, 107, 53, 0.3));
   }
 
   .traveler-card-title {
-    @apply text-2xl lg:text-3xl font-bold mb-4 text-center bg-gradient-to-r from-primary via-primary-light to-secondary transition-all duration-500 tracking-tight;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    @apply text-2xl lg:text-3xl font-display font-bold mb-4 text-center transition-all duration-500 tracking-tight bg-gradient-to-br from-primary via-accent to-secondary bg-clip-text text-transparent;
   }
-  
+
   .group:hover .traveler-card-title {
-    @apply bg-gradient-to-r from-primary via-primary-light to-secondary;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    @apply bg-gradient-to-br from-primary-dark via-primary to-secondary-light bg-clip-text text-transparent;
   }
 
   .traveler-card-description {
     @apply text-base lg:text-lg text-foreground-secondary leading-relaxed flex-grow font-medium text-center transition-colors duration-500;
   }
-  
+
   .group:hover .traveler-card-description {
     @apply text-foreground;
   }
@@ -293,27 +334,9 @@
     @apply px-8 py-6 md:px-12 md:py-8 overflow-hidden transition-all duration-400 rounded-3xl border bg-background/80 backdrop-blur-sm border-border shadow-card;
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
+
   .card:hover {
     @apply shadow-card-hover -translate-y-1;
-  }
-
-  /* ===== Enhanced Card State Modifiers ===== */
-  .card[data-state="active"] {
-    @apply shadow-card-hover backdrop-blur-md relative;
-    background: linear-gradient(to bottom right, rgba(249, 115, 22, 0.1), rgba(255, 255, 255, 0.9), rgba(139, 69, 19, 0.05));
-    border-color: rgba(249, 115, 22, 0.5);
-  }
-  
-  .card[data-state="active"]::before {
-    content: '';
-    @apply absolute inset-0 rounded-3xl;
-    background: linear-gradient(to bottom right, rgba(249, 115, 22, 0.05), rgba(139, 69, 19, 0.05));
-  }
-
-  .card[data-state="completed"] {
-    @apply backdrop-blur-sm border-border-secondary hover:bg-background hover:shadow-card transition-all duration-400;
-    background-color: rgba(248, 250, 252, 0.8);
   }
 
   /* ===== Card Sections ===== */
@@ -362,7 +385,7 @@
   .badge-secondary {
     @apply bg-secondary/10 text-secondary border-secondary/20 hover:bg-secondary/20 hover:border-secondary/30;
   }
-  
+
   .badge-glass {
     @apply bg-white/10 text-foreground border-white/20 backdrop-blur-md hover:bg-white/20;
   }
@@ -406,7 +429,7 @@
     @apply ring-2 ring-primary/30 border-primary/50 shadow-card-hover bg-background;
     outline: none;
   }
-  
+
   .form-input:hover,
   .form-textarea:hover {
     @apply border-border-secondary bg-background;
@@ -482,7 +505,7 @@
     background-size: 1rem 1rem;
     min-height: 3rem;
   }
-  
+
   .form-select:focus {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f97316' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
   }
@@ -527,49 +550,44 @@
   .text-balance {
     text-wrap: balance;
   }
-  
+
   .text-pretty {
     text-wrap: pretty;
-  }
-
-  /* Smooth scrolling for the whole app */
-  html {
-    scroll-behavior: smooth;
   }
 
   /* Enhanced focus management */
   .focus-visible {
     @apply outline-none ring-2 ring-offset-2 ring-ring;
   }
-  
+
   /* Glass morphism utilities */
   .glass {
-    @apply bg-white/10 backdrop-blur-md border border-white/20;
+    @apply text-white bg-white/30 backdrop-blur-md border border-white/20;
   }
-  
+
   .glass-dark {
-    @apply bg-black/10 backdrop-blur-md border border-black/20;
+    @apply text-white bg-black/60 backdrop-blur-md border border-black/20;
   }
-  
+
   /* Gradient utilities */
   .gradient-primary {
     @apply bg-gradient-to-br from-primary to-secondary;
   }
-  
+
   .gradient-accent {
     @apply bg-gradient-to-br from-accent to-secondary;
   }
-  
+
   .gradient-text {
     @apply bg-gradient-to-br from-primary to-secondary text-transparent bg-clip-text;
   }
-  
+
   /* Interactive utilities */
   .interactive {
     @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover active:translate-y-0 active:scale-95;
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
+
   .interactive-subtle {
     @apply transition-all duration-250 hover:-translate-y-0.5 hover:shadow-card active:translate-y-0;
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
@@ -630,7 +648,7 @@
       opacity: 0;
     }
   }
-  
+
   /* Shimmer effect for loading states */
   @keyframes shimmer {
     0% {
@@ -640,9 +658,45 @@
       background-position: calc(200px + 100%) 0;
     }
   }
-  
+
+  /* Adventure-specific floating animations */
+  @keyframes float-slow {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-6px) rotate(1deg);
+    }
+  }
+
+  @keyframes float-delayed {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-8px) rotate(-1deg);
+    }
+  }
+
+  /* Adventure slide animations */
+  @keyframes slide-right {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
   .shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
     background-size: 200px 100%;
     animation: shimmer 1.5s infinite;
   }
@@ -662,18 +716,30 @@
   .slide-out-down {
     animation: slideOutDown 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
-  
+
   /* Staggered animations for lists */
   .stagger > * {
     animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
-  
-  .stagger > *:nth-child(1) { animation-delay: 0.1s; }
-  .stagger > *:nth-child(2) { animation-delay: 0.2s; }
-  .stagger > *:nth-child(3) { animation-delay: 0.3s; }
-  .stagger > *:nth-child(4) { animation-delay: 0.4s; }
-  .stagger > *:nth-child(5) { animation-delay: 0.5s; }
-  .stagger > *:nth-child(6) { animation-delay: 0.6s; }
+
+  .stagger > *:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  .stagger > *:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .stagger > *:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  .stagger > *:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+  .stagger > *:nth-child(5) {
+    animation-delay: 0.5s;
+  }
+  .stagger > *:nth-child(6) {
+    animation-delay: 0.6s;
+  }
 
   /* Animation utility classes for common effects */
   @keyframes fade-in {
@@ -699,7 +765,8 @@
   }
 
   @keyframes glow-pulse {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 0;
     }
     50% {
@@ -737,22 +804,46 @@
     animation: shine-sweep 1s ease-out;
   }
 
+  .animate-float-slow {
+    animation: float-slow 4s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float-delayed 5s ease-in-out infinite 1s;
+  }
+
+  .animate-slide-right {
+    animation: slide-right 2s linear infinite;
+  }
+
+  .animate-slide-left {
+    animation: slide-left 2s linear infinite;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 2s linear infinite;
+  }
+
+  .animate-slide-down {
+    animation: slide-down 2s linear infinite;
+  }
+
   /* Common hover effect classes */
   .hover-glow {
     @apply relative overflow-hidden;
   }
 
   .hover-glow::before {
-    content: '';
+    content: "";
     @apply absolute inset-0 blur-xl opacity-0 transition-opacity duration-500 scale-105;
-    background: linear-gradient(to right, theme('colors.primary.DEFAULT/0.15'), theme('colors.primary.dark/0.1'), theme('colors.secondary.DEFAULT/0.15'));
+    @apply bg-gradient-to-r from-primary/[15%] via-accent/[10%] to-secondary/[15%];
     z-index: -1;
     border-radius: inherit;
   }
-  
+
   .traveler-card.hover-glow::before {
     @apply scale-110;
-    background: linear-gradient(to bottom right, rgba(249, 115, 22, 0.2), rgba(139, 69, 19, 0.1), rgba(34, 197, 94, 0.2));
+    @apply bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20;
   }
 
   .hover-glow:hover::before {
@@ -764,9 +855,14 @@
   }
 
   .hover-shine::after {
-    content: '';
+    content: "";
     @apply absolute inset-0 -translate-x-full transition-transform duration-1000 ease-out opacity-0;
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
   }
 
   .hover-shine:hover::after {
@@ -808,12 +904,97 @@
 
   /* Enhanced card patterns */
   .card-pattern::before {
-    content: '';
+    content: "";
     @apply absolute inset-0 opacity-0 transition-opacity duration-500;
-    background: linear-gradient(to right, rgba(249, 115, 22, 0.03), transparent, rgba(139, 69, 19, 0.03));
+    @apply bg-gradient-to-r from-primary/[3%] via-transparent to-secondary/[3%];
   }
 
   .group:hover .card-pattern::before {
     @apply opacity-100;
+  }
+
+  /* Adventure-themed components */
+  .adventure-badge {
+    @apply inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 text-primary-dark border border-primary/20;
+    @apply bg-gradient-to-br from-primary/10 to-secondary/10;
+  }
+
+  .adventure-badge:hover {
+    @apply border-primary/30;
+    @apply bg-gradient-to-br from-primary/[15%] to-secondary/[15%];
+    transform: translateY(-1px);
+  }
+
+  .travel-step-indicator {
+    @apply relative flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm transition-all duration-300;
+  }
+
+  .travel-step-indicator.active {
+    @apply bg-gradient-to-br from-primary to-primary-dark text-white;
+    box-shadow: 0 4px 12px rgb(from theme(colors.primary) r g b / 0.3);
+  }
+
+  .travel-step-indicator.completed {
+    @apply bg-gradient-to-br from-secondary to-secondary-dark text-white;
+    box-shadow: 0 4px 12px rgb(from theme(colors.secondary) r g b / 0.3);
+  }
+
+  .travel-step-indicator.pending {
+    @apply bg-background/80 border-2 border-primary/20 text-muted-foreground;
+  }
+
+  /* Adventure loading animations */
+  .adventure-spinner {
+    @apply w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin;
+  }
+
+  .travel-pulse {
+    animation: travel-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes travel-pulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.05);
+    }
+  }
+
+  /* Special adventure highlight boxes */
+  .adventure-highlight {
+    @apply p-6 rounded-2xl border relative overflow-hidden border-primary/15;
+    @apply bg-gradient-to-br from-primary/[5%] via-accent/[3%] to-secondary/[5%];
+  }
+
+  .adventure-highlight::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+      from 0deg,
+      transparent,
+      theme(colors.primary / 10%),
+      transparent,
+      theme(colors.secondary / 10%),
+      transparent
+    );
+    animation: adventure-float 8s linear infinite;
+    opacity: 0.3;
+  }
+
+  /* Travel-themed form elements */
+  .travel-input {
+    @apply form-input bg-background/90 border-border-warm focus:border-primary focus:ring-primary/20 shadow-glow;
+  }
+
+  .travel-input:focus {
+    @apply shadow-glow;
   }
 }

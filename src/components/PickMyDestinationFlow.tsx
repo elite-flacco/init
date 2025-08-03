@@ -85,13 +85,13 @@ export function PickMyDestinationFlow({
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background-soft to-background-muted">
       <div className="container mx-auto px-4 py-8">
         <ProgressiveForm
           questions={questions}
           onComplete={handleFormComplete}
-          title="Let's Find Your Perfect Spot"
-          subtitle="A few quick questions and we'll find destinations that'll make you want to book flights immediately ✈️"
+          title="🗺️ Chart Your Adventure Course"
+          subtitle="Share your travel dreams with us, and we'll uncover destinations that match your wanderlust spirit perfectly. Every answer brings you closer to your next great adventure!"
         />
       </div>
     </div>

@@ -128,24 +128,43 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-3xl mx-auto px-4">
-        {/* Header */}
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Adventure Background Elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-16 text-4xl opacity-10 animate-float">🧭</div>
+        <div className="absolute top-40 right-20 text-3xl opacity-15 animate-pulse-slow" style={{ animationDelay: '1s' }}>⭐</div>
+        <div className="absolute bottom-40 left-24 text-5xl opacity-10 animate-bounce-subtle" style={{ animationDelay: '2s' }}>🗺️</div>
+        <div className="absolute bottom-32 right-32 text-4xl opacity-20 animate-float" style={{ animationDelay: '0.5s' }}>✈️</div>
+        <div className="absolute top-60 left-1/3 text-2xl opacity-15 animate-spin-slow" style={{ animationDelay: '3s' }}>🌟</div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto px-4 relative z-10">
+        {/* Asymmetrical Adventure Header */}
         {(title || subtitle) && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
+            className="relative mb-16 py-12"
           >
             {title && (
-              <h1 className="page-title mb-4">
-                {title}
-              </h1>
+              <div className="ml-8 md:ml-16 lg:ml-24 mb-8">
+                {/* Floating icon - positioned asymmetrically */}
+                <div className="absolute -top-8 -right-4 md:-right-8 lg:-right-12">
+                  <div className="bg-gradient-to-r from-primary to-secondary p-4 rounded-full shadow-glow animate-glow-pulse">
+                    <span className="text-3xl">🚀</span>
+                  </div>
+                </div>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent leading-tight max-w-4xl">
+                  {title}
+                </h1>
+              </div>
             )}
             {subtitle && (
-              <p className="page-subtitle max-w-2xl mx-auto">
-                {subtitle}
-              </p>
+              <div className="ml-8 md:ml-16 lg:ml-32 max-w-2xl">
+                <p className="text-lg md:text-xl text-foreground-secondary leading-relaxed font-medium">
+                  {subtitle}
+                </p>
+              </div>
             )}
           </motion.div>
         )}
@@ -174,8 +193,11 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
                   className="flex justify-center"
                   ref={(el) => (stepRefs.current[index] = el)}
                 >
+                  {/* Asymmetrical question layout */}
                   <motion.div
-                    className="w-full max-w-3xl transition-all duration-150 cursor-pointer mb-8"
+                    className={`w-full max-w-3xl transition-all duration-150 cursor-pointer mb-8 ${
+                      index % 2 === 0 ? 'ml-8 lg:ml-16' : 'mr-8 lg:mr-16'
+                    }`}
                     whileHover={!isCurrentlyEditing ? {
                       scale: 1.03,
                       transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }
@@ -315,6 +337,20 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
                     ✨
                   </motion.div>
                 </motion.div> */}
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ 
+                    delay: 0.1, 
+                    duration: 0.6, 
+                    type: "spring", 
+                    stiffness: 200, 
+                    damping: 12,
+                  }}
+                  className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-primary to-secondary rounded-full mb-6 shadow-glow animate-glow-pulse"
+                >
+                  <span className="text-3xl">🎯</span>
+                </motion.div>
                 <motion.h3
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -322,9 +358,9 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
                     delay: 0.4, 
                     duration: 0.6,
                   }}
-                  className="text-2xl font-bold text-foreground mb-3"
+                  className="text-3xl font-display font-bold text-foreground mb-4 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent"
                 >
-                  Perfect! We've got everything we need.
+                  🚀 Adventure Course Plotted!
                 </motion.h3>
                 <motion.p
                   initial={{ opacity: 0, y: 15 }}
@@ -333,9 +369,9 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
                     delay: 0.6, 
                     duration: 0.6,
                   }}
-                  className="text-lg text-foreground-secondary"
+                  className="text-xl text-foreground-secondary font-medium"
                 >
-                  Let's create something amazing for you...
+                  We're crafting your perfect destination matches...
                 </motion.p>
               </motion.div>
             </motion.div>
@@ -343,15 +379,16 @@ export function ProgressiveForm({ questions, onComplete, title, subtitle }: Prog
 
         </div>
 
-        {/* Scroll Hint */}
+        {/* Adventure Scroll Hint */}
         {currentStep > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed bottom-6 left-1/2 transform -translate-x-1/2"
+            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
           >
-            <div className="bg-white shadow-lg rounded-full px-4 py-2 text-sm text-foreground-secondary border">
-              💡 Scroll up to change any answers
+            <div className="bg-gradient-to-r from-primary/90 to-secondary/90 backdrop-blur-md shadow-glow rounded-full px-6 py-3 text-sm text-white font-medium border border-white/20 animate-bounce-subtle">
+              <span className="mr-2">🗺️</span>
+              Scroll up to edit your adventure course
             </div>
           </motion.div>
         )}

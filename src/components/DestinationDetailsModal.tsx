@@ -107,6 +107,21 @@ export function DestinationDetailsModal({
             </div>
           </div>
 
+          {/* Key Activities */}
+          <div className="mb-8">
+            <h5 className="mb-4">Key Activities</h5>
+            <div className="flex flex-wrap gap-3">
+              {destination.keyActivities.map((activity, index) => (
+                <span
+                  key={index}
+                  className="px-4 py-2 bg-secondary/10 text-secondary rounded-full text-sm font-medium"
+                >
+                  {activity}
+                </span>
+              ))}
+            </div>
+          </div>
+
           {/* Detailed Information */}
           {destination.details && (
             <div className="mb-8">

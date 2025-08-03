@@ -12,27 +12,54 @@ module.exports = {
   // Theme configuration
   theme: {
     extend: {
-      // Enhanced color palette with more sophisticated variants
+      // Adventure Awaits Color Palette - Travel-themed warm & inviting
       colors: {
-        // 🌅 Coral Coast (Primary) - Warm & playful with tropical edge
+        // 🌅 Sunset Orange (Primary) - Warm adventure spirit
         primary: {
-          DEFAULT: '#f75c4c',  // Coral red (fun, energetic)
-          light: '#ff8c7a',    // Soft coral
-          dark: '#e05244',     // Deeper terracotta
+          DEFAULT: '#FF6B35',  // Sunset orange (adventurous, warm)
+          light: '#FF8A5C',    // Soft sunset
+          dark: '#E55A2B',     // Deep sunset
+          50: '#FFF4F0',
+          100: '#FFE8DC',
+          200: '#FFD0B8',
+          300: '#FFB089',
+          400: '#FF8A5C',
+          500: '#FF6B35',
+          600: '#E55A2B',
+          700: '#CC4A21',
+          800: '#B33B17',
+          900: '#99320D',
         },
       
-        // 🌊 Teal Waters (Accent) - Balancing cool tone
-        accent: {
-          DEFAULT: '#06b6d4',  // Cyan-teal
-          light: '#22d3ee',    // Lighter water tone
-          dark: '#0e7490',     // Deep teal
-        },
-      
-        // 🍋 Golden Drift (Secondary) - Pop of sunshine
+        // 🌊 Deep Teal (Secondary) - Calming waters, adventure depth
         secondary: {
-          DEFAULT: '#ffd166',  // Golden yellow
-          light: '#ffe49e',    // Pale lemon
-          dark: '#e6b84f',     // Honey gold
+          DEFAULT: '#2A9D8F',  // Deep teal
+          light: '#52C4B5',    // Light teal waves
+          dark: '#21826F',     // Ocean depth
+          50: '#F0FFFE',
+          100: '#CCFBF1',
+          200: '#99F6E4',
+          300: '#5EEAD4',
+          400: '#2DD4BF',
+          500: '#2A9D8F',
+          600: '#21826F',
+          700: '#1A675A',
+          800: '#134E4A',
+          900: '#0D3B37',
+        },
+      
+        // 🎯 Adventure Accent Colors
+        accent: {
+          DEFAULT: '#F4A261',  // Warm sand/amber for highlights
+          light: '#F7B582',    // Light amber
+          dark: '#E08E3E',     // Golden bronze
+        },
+      
+        // 🌸 Coral Pink - For special highlights and CTAs
+        coral: {
+          DEFAULT: '#E76F51',  // Coral adventure
+          light: '#ED8A73',    // Soft coral
+          dark: '#D85A3C',     // Deep coral
         },
       
         // ✅ Semantic Colors (slightly softened for friendliness)
@@ -49,41 +76,44 @@ module.exports = {
           DEFAULT: '#3b82f6',  // Sky blue
         },
       
-        // 🪨 Backgrounds - Light, soft, with warmth
+        // 🏖️ Adventure Backgrounds - Warm, inviting travel vibes
         background: {
-          DEFAULT: '#fdf6f6',      // Light blush tone
-          muted: '#fefae0',        // Soft cream
-          soft: '#fafafa',         // General UI background
-          card: '#ffffff',         // Card backgrounds
+          DEFAULT: '#FFFEF9',      // Warm off-white (like sand)
+          muted: '#FFF8F0',        // Soft cream (like morning light)
+          soft: '#FEFCF7',         // General UI background
+          card: '#FFFFFF',         // Card backgrounds
+          pattern: '#FFF4F0',      // Pattern overlay
         },
       
-        // 🖋 Foregrounds - Gentle contrast, travel-friendly
+        // 🗺️ Adventure Text - Clear, readable, travel-friendly
         foreground: {
-          DEFAULT: '#2f3e46',      // Deep sea gray
-          secondary: '#475569',    // Slate-600
-          muted: '#64748b',        // Slate-500
-          dim: '#94a3b8',          // Slate-400
-          ghost: '#cbd5e1',        // Slate-300
+          DEFAULT: '#2D3748',      // Deep charcoal (like adventure gear)
+          secondary: '#4A5568',    // Medium slate
+          muted: '#718096',        // Muted text
+          dim: '#A0AEC0',          // Dim text
+          ghost: '#E2E8F0',        // Ghost text
         },
       
-        // 📏 Borders & Rings
+        // 🧭 Adventure UI Elements
         border: {
-          DEFAULT: '#e2e8f0',      // Neutral border
-          secondary: '#cbd5e1',    // Soft border
-          muted: '#f1f5f9',        // Light background border
+          DEFAULT: '#E2E8F0',      // Neutral border
+          secondary: '#CBD5E1',    // Soft border
+          muted: '#F7FAFC',        // Light background border
+          warm: '#FFE8DC',         // Warm border (primary tint)
         },
         ring: {
-          DEFAULT: '#f75c4c',      // Coral focus
-          primary: '#ffd166',      // Yellow focus
-          muted: '#cbd5e1',        // Subtle focus
+          DEFAULT: '#FF6B35',      // Sunset orange focus
+          secondary: '#2A9D8F',    // Teal focus
+          muted: '#CBD5E1',        // Subtle focus
         },
       },
       
       
-      // Enhanced Typography with better scales and spacing
+      // Adventure Typography - Modern, friendly, travel-ready
       fontFamily: {
-        // System font stack with fallbacks
+        // Primary sans-serif with adventure personality
         sans: [
+          'Outfit',
           'Inter',
           'system-ui',
           '-apple-system',
@@ -93,8 +123,16 @@ module.exports = {
           'Arial',
           'sans-serif',
         ],
-        // Display font for headings
+        // Display font for headings - bold and adventurous
         display: [
+          'Outfit',
+          'Inter',
+          'system-ui',
+          '-apple-system',
+          'sans-serif',
+        ],
+        // Body text - Clean and readable
+        body: [
           'Inter',
           'system-ui',
           '-apple-system',
@@ -102,6 +140,7 @@ module.exports = {
         ],
         // Monospace font stack
         mono: [
+          'JetBrains Mono',
           'ui-monospace',
           'SFMono-Regular',
           'Menlo',
@@ -153,17 +192,20 @@ module.exports = {
         '6xl': '3rem',
       },
       boxShadow: {
-        // ✨ Glow effects for buttons or special components
-        glow: '0 0 12px rgba(255, 111, 97, 0.3)',           // coral glow (primary)
-        'glow-lg': '0 0 32px rgba(255, 111, 97, 0.4)',
-        'glow-yellow': '0 0 20px rgba(255, 209, 102, 0.4)', // golden glow (secondary)
+        // 🌅 Adventure Glow Effects - Warm and inviting
+        glow: '0 0 20px rgba(255, 107, 53, 0.25)',          // sunset orange glow
+        'glow-lg': '0 0 40px rgba(255, 107, 53, 0.3)',       // large sunset glow
+        'glow-teal': '0 0 24px rgba(42, 157, 143, 0.3)',     // teal water glow
+        'glow-coral': '0 0 16px rgba(231, 111, 81, 0.4)',    // coral adventure glow
       
-        // 🧱 Card shadows – soft, layered for modern feel
-        card: '0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 8px -2px rgba(0, 0, 0, 0.04)',
-        'card-hover': '0 8px 24px -4px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.08)',
+        // 🏖️ Travel Card Shadows - Soft, welcoming, layered
+        card: '0 4px 16px -4px rgba(0, 0, 0, 0.08), 0 2px 8px -2px rgba(255, 107, 53, 0.04)',
+        'card-hover': '0 12px 32px -8px rgba(0, 0, 0, 0.12), 0 4px 16px -4px rgba(255, 107, 53, 0.08)',
+        'card-adventure': '0 8px 24px -4px rgba(255, 107, 53, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.08)',
       
-        // 🌈 Optional: Special floating or modal shadow
-        highlight: '0 12px 40px rgba(6, 182, 212, 0.25)',    // teal glow (accent)
+        // 🌊 Special Adventure Shadows
+        'adventure-float': '0 16px 48px rgba(42, 157, 143, 0.2), 0 8px 24px rgba(255, 107, 53, 0.1)',
+        'travel-card': '0 6px 20px -6px rgba(255, 107, 53, 0.2), 0 4px 12px -4px rgba(0, 0, 0, 0.1)',
       },
       
       backdropBlur: {
@@ -204,8 +246,17 @@ module.exports = {
           '50%': { transform: 'translateY(-2px)' },
         },
         'glow-pulse': {
-          '0%, 100%': { boxShadow: '0 0 20px rgba(249, 115, 22, 0.3)' },
-          '50%': { boxShadow: '0 0 30px rgba(249, 115, 22, 0.5)' },
+          '0%, 100%': { boxShadow: '0 0 24px rgba(255, 107, 53, 0.3)' },
+          '50%': { boxShadow: '0 0 36px rgba(255, 107, 53, 0.5)' },
+        },
+        'adventure-float': {
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '33%': { transform: 'translateY(-8px) rotate(1deg)' },
+          '66%': { transform: 'translateY(-4px) rotate(-1deg)' },
+        },
+        'travel-bounce': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-12px)' },
         },
         'shimmer': {
           '0%': { transform: 'translateX(-100%)' },
@@ -250,6 +301,8 @@ module.exports = {
         // Interaction animations
         'bounce-subtle': 'bounce-subtle 0.6s ease-in-out',
         'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+        'adventure-float': 'adventure-float 4s ease-in-out infinite',
+        'travel-bounce': 'travel-bounce 2s ease-in-out infinite',
         'shimmer': 'shimmer 2s linear infinite',
         'float': 'float 3s ease-in-out infinite',
         'wiggle': 'wiggle 1s ease-in-out infinite',

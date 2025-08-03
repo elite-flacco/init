@@ -341,28 +341,18 @@ export default function HomePage() {
       <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-3xl pointer-events-none animate-float"></div>
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-accent/10 to-transparent rounded-full blur-3xl pointer-events-none animate-float" style={{ animationDelay: '1s' }}></div>
       
-      {/* Header */}
+      {/* Header - Compressed */}
       <header className="bg-white/70 backdrop-blur-xl shadow-card sticky top-0 z-50 border-b border-border/50 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 pointer-events-none"></div>
-        <div className="container mx-auto px-4 py-4 sm:px-6 relative">
+        <div className="container mx-auto px-4 py-2.5 sm:px-6 relative">
           <div className="flex items-center justify-between relative">
-            {/* Logo and Brand */}
-            <div className="flex items-center space-x-4">
-              <div className="bg-gradient-to-br from-primary to-primary p-3 rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:scale-105 group">
-                <Plane className="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300" />
-              </div>
-              <div className="space-y-1">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">TravelAI</h1>
-                <p className="text-sm text-foreground-secondary font-medium">AI-Powered Travel Planning</p>
-              </div>
-            </div>
-            
-            {/* Back Button - Only show when not on the first step */}
-            <div className="absolute left-1/2 transform -translate-x-1/2">
+            {/* Logo and Brand - Compact */}
+            <div className="flex items-center space-x-3">
+              {/* Back Button integrated with logo */}
               {currentStep !== 'traveler-type' && (
                 <button 
                   onClick={handleBack}
-                  className="group inline-flex items-center px-4 py-2 text-sm font-medium text-foreground-muted hover:text-primary bg-white/60 hover:bg-white/80 backdrop-blur-sm border border-border/50 hover:border-primary/30 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                  className="group inline-flex items-center p-2 text-sm font-medium text-foreground-muted hover:text-primary bg-white/60 hover:bg-white/80 backdrop-blur-sm border border-border/50 hover:border-primary/30 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   aria-label="Go back to previous step"
                 >
                   <svg 
@@ -375,24 +365,32 @@ export default function HomePage() {
                     strokeWidth="2" 
                     strokeLinecap="round" 
                     strokeLinejoin="round"
-                    className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300"
+                    className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300"
                   >
                     <path d="m12 19-7-7 7-7"></path>
                     <path d="M19 12H5"></path>
                   </svg>
-                  <span>Back</span>
                 </button>
               )}
+              <div className="bg-gradient-to-br from-primary to-primary p-2 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:scale-105 group">
+                <Plane className="w-5 h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">TravelAI</h1>
+                <p className="text-xs text-foreground-secondary font-medium hidden sm:block">AI-Powered Travel Planning</p>
+              </div>
             </div>
             
-            {/* Enhanced Travel Progress Indicator */}
-            <TravelProgressIndicator currentStep={currentStep} />
+            {/* Progress Indicator - Smaller on final step */}
+            {currentStep !== 'plan' && (
+              <TravelProgressIndicator currentStep={currentStep} />
+            )}
           </div>
         </div>
       </header>
       
       {/* Main content */}
-      <main className="relative py-12 pb-32 px-4 sm:px-6">
+      <main className="relative py-6 pb-20 px-4 sm:px-6">
         <div className="container mx-auto relative z-10">
           <div className="relative">
             {renderCurrentStep()}
