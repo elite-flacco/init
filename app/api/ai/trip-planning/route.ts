@@ -1,87 +1,90 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { TravelerType, Destination, TripPreferences } from '../../../../src/types/travel'
-import { getAIConfig } from '../config'
-import { generateDevMockData } from '../../../../src/data/mock/travelData'
+import { NextRequest, NextResponse } from "next/server";
+import {
+  TravelerType,
+  Destination,
+  TripPreferences,
+} from "../../../../src/types/travel";
+import { getAIConfig } from "../config";
+import { generateDevMockData } from "../../../../src/data/mock/travelData";
 
 export interface AITripPlanningRequest {
-  destination: Destination
-  travelerType: TravelerType
-  preferences: TripPreferences
+  destination: Destination;
+  travelerType: TravelerType;
+  preferences: TripPreferences;
 }
 
 async function callAI(prompt: string): Promise<string> {
-  const config = getAIConfig()
-  const { provider, apiKey } = config
+  const config = getAIConfig();
+  const { provider, apiKey } = config;
 
-  if (provider === 'mock' || !apiKey) {
+  if (provider === "mock" || !apiKey) {
     // Mock response for development
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    const mockData = generateDevMockData()
-    return JSON.stringify(mockData.response.plan)
+    await new Promise((resolve) => setTimeout(resolve, 30000));
+    const mockData = generateDevMockData();
+    return JSON.stringify(mockData.response.plan);
   }
 
   // Real AI API calls
-  if (provider === 'openai') {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 180000) // 3 minute timeout
+  if (provider === "openai") {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minute timeout
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: config.model,
-        messages: [{ role: 'user', content: prompt }],
+        messages: [{ role: "user", content: prompt }],
         max_tokens: config.maxTokens,
-        temperature: config.temperature
+        temperature: config.temperature,
       }),
-      signal: controller.signal
-    })
+      signal: controller.signal,
+    });
 
-    clearTimeout(timeoutId)
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`)
+      throw new Error(`OpenAI API error: ${response.statusText}`);
     }
 
-    const data = await response.json()
-    return data.choices[0]?.message?.content || 'No response from AI'
+    const data = await response.json();
+    return data.choices[0]?.message?.content || "No response from AI";
   }
 
-  if (provider === 'anthropic') {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 180000) // 3 minute timeout
+  if (provider === "anthropic") {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minute timeout
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
       headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01'
+        "x-api-key": apiKey,
+        "Content-Type": "application/json",
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: config.model || 'claude-3-sonnet-20240229',
+        model: config.model || "claude-3-sonnet-20240229",
         max_tokens: config.maxTokens,
-        messages: [{ role: 'user', content: prompt }]
+        messages: [{ role: "user", content: prompt }],
       }),
-      signal: controller.signal
-    })
+      signal: controller.signal,
+    });
 
-    clearTimeout(timeoutId)
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new Error(`Anthropic API error: ${response.statusText}`)
+      throw new Error(`Anthropic API error: ${response.statusText}`);
     }
 
-    const data = await response.json()
-    return data.content[0]?.text || 'No response from AI'
+    const data = await response.json();
+    return data.content[0]?.text || "No response from AI";
   }
 
-  throw new Error(`Unsupported AI provider: ${provider}`)
+  throw new Error(`Unsupported AI provider: ${provider}`);
 }
-
 
 function getRestaurantCount(preferences: TripPreferences): string {
   const baseDays = parseInt(preferences.duration) || 7;
@@ -95,13 +98,17 @@ function getBarCount(preferences: TripPreferences): string {
 
 function getPlacesCount(preferences: TripPreferences): string {
   const baseDays = parseInt(preferences.duration) || 7;
-  const activityMultiplier = preferences.activityLevel === 'high' ? 4 :
-    preferences.activityLevel === 'low' ? 2 : 3;
+  const activityMultiplier =
+    preferences.activityLevel === "high"
+      ? 4
+      : preferences.activityLevel === "low"
+        ? 2
+        : 3;
   return Math.ceil(baseDays * activityMultiplier).toString();
 }
 
 function generateTripPlanningPrompt(request: AITripPlanningRequest): string {
-  const { destination, travelerType, preferences } = request
+  const { destination, travelerType, preferences } = request;
 
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
 
@@ -119,8 +126,8 @@ TRIP PREFERENCES:
 - Budget: ${preferences.budget}
 - Accommodation: ${preferences.accommodation}
 - Transportation: ${preferences.transportation}
-- Wants Restaurant Recommendations: ${preferences.wantRestaurants ? 'Yes' : 'No'}
-- Wants Bar/Nightlife Recommendations: ${preferences.wantBars ? 'Yes' : 'No'}
+- Wants Restaurant Recommendations: ${preferences.wantRestaurants ? "Yes" : "No"}
+- Wants Bar/Nightlife Recommendations: ${preferences.wantBars ? "Yes" : "No"}
 - Trip Type: ${preferences.tripType}
 - Special Activities Requested: ${preferences.specialActivities}
 `;
@@ -265,7 +272,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
 
 17. DETAILED DAY-BY-DAY ITINERARY
     - Incorporate all above elements into a practical daily schedule
-    - Adjust daily activities based on preferred activity level: ${preferences.activityLevel || 'medium'}
+    - Adjust daily activities based on preferred activity level: ${preferences.activityLevel || "medium"}
     - High activity: 4-6 activities per day
     - Medium activity: 3-4 activities per day  
     - Low activity: 2-3 activities per day
@@ -305,50 +312,57 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
 
 export async function POST(request: NextRequest) {
   try {
-    const body: AITripPlanningRequest = await request.json()
+    const body: AITripPlanningRequest = await request.json();
 
     if (!body.destination || !body.travelerType || !body.preferences) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
-    const prompt = generateTripPlanningPrompt(body)
-    
-    const aiResponse = await callAI(prompt)
+    const prompt = generateTripPlanningPrompt(body);
+
+    const aiResponse = await callAI(prompt);
 
     // Parse AI response - it might be wrapped in markdown code blocks
-    let cleanResponse = aiResponse.trim()
-    if (cleanResponse.startsWith('```json')) {
-      cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '')
-    } else if (cleanResponse.startsWith('```')) {
-      cleanResponse = cleanResponse.replace(/^```\s*/, '').replace(/\s*```$/, '')
+    let cleanResponse = aiResponse.trim();
+    if (cleanResponse.startsWith("```json")) {
+      cleanResponse = cleanResponse
+        .replace(/^```json\s*/, "")
+        .replace(/\s*```$/, "");
+    } else if (cleanResponse.startsWith("```")) {
+      cleanResponse = cleanResponse
+        .replace(/^```\s*/, "")
+        .replace(/\s*```$/, "");
     }
 
-    const parsedResponse = JSON.parse(cleanResponse)
+    const parsedResponse = JSON.parse(cleanResponse);
 
     // Wrap the response in the expected AITripPlanningResponse format
     const wrappedResponse = {
       plan: {
         destination: body.destination, // Include the destination from the request
-        ...parsedResponse
+        ...parsedResponse,
       },
-      reasoning: 'AI-generated travel plan based on your preferences and destination',
+      reasoning:
+        "AI-generated travel plan based on your preferences and destination",
       confidence: 0.9,
       personalizations: [
         `Customized for ${body.travelerType.name} traveler type`,
         `Tailored to ${body.preferences.budget} budget`,
-        `Optimized for ${body.preferences.duration} trip duration`
-      ]
-    }
+        `Optimized for ${body.preferences.duration} trip duration`,
+      ],
+    };
 
-    return NextResponse.json(wrappedResponse)
-
+    return NextResponse.json(wrappedResponse);
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to generate trip plan', details: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
-    )
+      {
+        error: "Failed to generate trip plan",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    );
   }
 }

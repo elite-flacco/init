@@ -22,13 +22,11 @@ async function callAI(prompt: string): Promise<string> {
 
   if (provider === "mock" || !apiKey) {
     // Mock response for development using actual destinations data
-    await new Promise((resolve) =>
-      setTimeout(resolve, 1000)
-    );
+    await new Promise((resolve) => setTimeout(resolve, 30000));
 
     // Select 2-3 random destinations from our mock data
     const shuffledDestinations = [...destinations].sort(
-      () => 0.5 - Math.random()
+      () => 0.5 - Math.random(),
     );
     const selectedDestinations = shuffledDestinations.slice(0, 3);
 
@@ -58,22 +56,19 @@ async function callAI(prompt: string): Promise<string> {
 
   // Real AI API calls
   if (provider === "openai") {
-    const response = await fetch(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: config.model,
-          messages: [{ role: "user", content: prompt }],
-          max_tokens: config.maxTokens,
-          temperature: config.temperature,
-        }),
-      }
-    );
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: config.model,
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: config.maxTokens,
+        temperature: config.temperature,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error(`OpenAI API error: ${response.statusText}`);
@@ -118,18 +113,25 @@ function generatePrompt(request: AIDestinationRequest): string {
 **Type:** ${travelerType.name} - ${travelerType.description}
 **Destination Knowledge:** ${destinationKnowledge.label} - ${destinationKnowledge.description}
 
-${preferences ? `## TRAVEL PREFERENCES
+${
+  preferences
+    ? `## TRAVEL PREFERENCES
 ${Object.entries({
-  'Travel Season': preferences.timeOfYear,
-  'Trip Duration': preferences.duration,
-  'Budget Level': preferences.budget,
-  'Preferred Activities': preferences.tripType,
-  'Special Interests': preferences.specialActivities,
-  'Weather Preference': preferences.weather,
-  'Travel Priority': preferences.priority,
-  'Destination Type': preferences.destinationType,
-  'Preferred Region': preferences.region
-}).filter(([, value]) => value?.trim()).map(([key, value]) => `- **${key}:** ${value.trim()}`).join('\n')}` : ''}
+  "Travel Season": preferences.timeOfYear,
+  "Trip Duration": preferences.duration,
+  "Budget Level": preferences.budget,
+  "Preferred Activities": preferences.tripType,
+  "Special Interests": preferences.specialActivities,
+  "Weather Preference": preferences.weather,
+  "Travel Priority": preferences.priority,
+  "Destination Type": preferences.destinationType,
+  "Preferred Region": preferences.region,
+})
+  .filter(([, value]) => value?.trim())
+  .map(([key, value]) => `- **${key}:** ${value.trim()}`)
+  .join("\n")}`
+    : ""
+}
 
 ## RECOMMENDATION GUIDELINES
 Match destinations to traveler type:
@@ -202,7 +204,7 @@ export async function POST(request: NextRequest) {
     if (!body.travelerType || !body.destinationKnowledge) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -227,10 +229,20 @@ export async function POST(request: NextRequest) {
 
     // Map AI response to actual destination objects from our data
     const recommendedDestinations = parsedResponse.destinations.map(
-      (aiDest: { name: string; details: string; country?: string; description?: string; highlights?: string[]; bestTimeToVisit?: string; estimatedCost?: string; keyActivities?: string[]; matchReason?: string }) => {
+      (aiDest: {
+        name: string;
+        details: string;
+        country?: string;
+        description?: string;
+        highlights?: string[];
+        bestTimeToVisit?: string;
+        estimatedCost?: string;
+        keyActivities?: string[];
+        matchReason?: string;
+      }) => {
         // Try to find matching destination in our data, or create a basic one
         const existingDest = destinations.find(
-          (dest) => dest.name.toLowerCase() === aiDest.name.toLowerCase()
+          (dest) => dest.name.toLowerCase() === aiDest.name.toLowerCase(),
         );
 
         if (existingDest) {
@@ -254,7 +266,7 @@ export async function POST(request: NextRequest) {
           keyActivities: aiDest.keyActivities || [],
           matchReason: aiDest.matchReason || "",
         };
-      }
+      },
     );
 
     return NextResponse.json({
@@ -268,7 +280,7 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json(
       { error: "Failed to generate destination recommendations" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

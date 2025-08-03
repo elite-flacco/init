@@ -5,16 +5,19 @@ This directory contains the testing setup and utilities for the Travel AI applic
 ## Test Structure
 
 ### Service Tests
+
 - `src/services/__tests__/aiDestinationService.test.ts` - Comprehensive tests for AI destination recommendations
 - `src/services/__tests__/aiTripPlanningService.test.ts` - Comprehensive tests for AI trip planning
 - `src/services/__tests__/aiServices.integration.test.ts` - Integration tests for AI services
 - `src/services/__tests__/basic.test.ts` - Basic functionality and import tests
 
 ### Component Tests
+
 - `src/components/__tests__/AIDestinationRecommendationResults.test.tsx` - Tests for destination results component
 - `src/components/__tests__/AITripPlanningPrompts.test.tsx` - Tests for trip planning prompts component
 
 ### Test Utilities
+
 - `setup.ts` - Test environment configuration
 - `mocks.ts` - Mock data and utility functions
 
@@ -40,19 +43,23 @@ npx vitest src/services/__tests__/basic.test.ts
 ## Test Features
 
 ### Mock Data
+
 The test suite includes comprehensive mock data for:
+
 - Traveler types (Explorer, Type A, Overthinker, Chill)
 - Destinations (Paris, Tokyo, Bali, etc.)
 - Trip preferences and configurations
 - AI API responses (OpenAI and Anthropic formats)
 
 ### AI Service Testing
+
 - **Mock Mode Testing**: All services work in mock mode by default
 - **API Integration Testing**: Tests for OpenAI and Anthropic API calls
 - **Error Handling**: Comprehensive error scenarios and fallback testing
 - **Data Validation**: Ensures all responses have correct structure and types
 
 ### Component Testing
+
 - **Loading States**: Tests for AI processing animations
 - **Error States**: Tests for error handling and retry functionality
 - **User Interactions**: Tests for button clicks and form submissions
@@ -61,6 +68,7 @@ The test suite includes comprehensive mock data for:
 ## Test Configuration
 
 Tests are configured with:
+
 - **Vitest** as the test runner
 - **jsdom** environment for component testing
 - **@testing-library/react** for component testing utilities
@@ -72,37 +80,45 @@ Tests are configured with:
 When adding new tests:
 
 1. **Import test utilities**:
+
    ```typescript
-   import { describe, it, expect, beforeEach, vi } from 'vitest'
-   import { mockTravelerTypes, mockDestinations, resetMocks } from '../../test/mocks'
+   import { describe, it, expect, beforeEach, vi } from "vitest";
+   import {
+     mockTravelerTypes,
+     mockDestinations,
+     resetMocks,
+   } from "../../test/mocks";
    ```
 
 2. **Reset mocks in beforeEach**:
+
    ```typescript
    beforeEach(() => {
-     resetMocks()
-   })
+     resetMocks();
+   });
    ```
 
 3. **Use mock data consistently**:
+
    ```typescript
    const request = {
      travelerType: mockTravelerTypes.culture,
-     destination: mockDestinations.paris
-   }
+     destination: mockDestinations.paris,
+   };
    ```
 
 4. **Test both success and error scenarios**:
+
    ```typescript
    // Success case
-   it('should handle successful API response', async () => {
+   it("should handle successful API response", async () => {
      // Test implementation
-   })
+   });
 
-   // Error case  
-   it('should handle API errors gracefully', async () => {
+   // Error case
+   it("should handle API errors gracefully", async () => {
      // Test error scenarios
-   })
+   });
    ```
 
 ## Best Practices

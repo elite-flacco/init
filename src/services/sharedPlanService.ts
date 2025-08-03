@@ -1,14 +1,14 @@
-import { supabaseAdmin } from '../lib/supabase'
-import { TravelerType, Destination } from '../types/travel'
-import { AITripPlanningResponse } from './aiTripPlanningService'
+import { supabaseAdmin } from "../lib/supabase";
+import { TravelerType, Destination } from "../types/travel";
+import { AITripPlanningResponse } from "./aiTripPlanningService";
 
 export interface SharedPlanData {
-  id: string
-  destination: Destination
-  travelerType: TravelerType
-  aiResponse: AITripPlanningResponse
-  createdAt: string
-  expiresAt: string
+  id: string;
+  destination: Destination;
+  travelerType: TravelerType;
+  aiResponse: AITripPlanningResponse;
+  createdAt: string;
+  expiresAt: string;
 }
 
 export class SharedPlanService {
@@ -16,40 +16,40 @@ export class SharedPlanService {
    * Create a new shared plan (server-side only with admin access)
    */
   static async createSharedPlan(data: {
-    id: string
-    destination: Destination
-    travelerType: TravelerType
-    aiResponse: AITripPlanningResponse
-    expiresAt: string
+    id: string;
+    destination: Destination;
+    travelerType: TravelerType;
+    aiResponse: AITripPlanningResponse;
+    expiresAt: string;
   }): Promise<SharedPlanData> {
     if (!supabaseAdmin) {
-      throw new Error('Service role key not configured - cannot create shared plans')
+      throw new Error(
+        "Service role key not configured - cannot create shared plans",
+      );
     }
 
-    const now = new Date().toISOString()
-    
+    const now = new Date().toISOString();
+
     const sharedPlan: SharedPlanData = {
       ...data,
       createdAt: now,
-    }
+    };
 
     // Use admin client for secure server-side operations
-    const { error } = await supabaseAdmin
-      .from('shared_plans')
-      .insert({
-        id: data.id,
-        destination: data.destination,
-        traveler_type: data.travelerType,
-        ai_response: data.aiResponse,
-        expires_at: data.expiresAt,
-        created_at: now,
-      })
+    const { error } = await supabaseAdmin.from("shared_plans").insert({
+      id: data.id,
+      destination: data.destination,
+      traveler_type: data.travelerType,
+      ai_response: data.aiResponse,
+      expires_at: data.expiresAt,
+      created_at: now,
+    });
 
     if (error) {
-      throw new Error(`Failed to create shared plan.`)
+      throw new Error(`Failed to create shared plan.`);
     }
 
-    return sharedPlan
+    return sharedPlan;
   }
 
   /**
@@ -57,36 +57,38 @@ export class SharedPlanService {
    */
   static async getSharedPlan(id: string): Promise<SharedPlanData | null> {
     if (!supabaseAdmin) {
-      throw new Error('Service role key not configured - cannot retrieve shared plans')
+      throw new Error(
+        "Service role key not configured - cannot retrieve shared plans",
+      );
     }
 
     // Use admin client to bypass RLS and get accurate results
     const { data, error } = await supabaseAdmin
-      .from('shared_plans')
-      .select('*')
-      .eq('id', id)
-      .single()
+      .from("shared_plans")
+      .select("*")
+      .eq("id", id)
+      .single();
 
     if (error) {
-      if (error.code === 'PGRST116') {
+      if (error.code === "PGRST116") {
         // No rows found
-        return null
+        return null;
       }
-      throw new Error(`Failed to fetch shared plan.`)
+      throw new Error(`Failed to fetch shared plan.`);
     }
 
     if (!data) {
-      return null
+      return null;
     }
 
     // Check if the plan has expired
-    const now = new Date()
-    const expiresAt = new Date(data.expires_at)
+    const now = new Date();
+    const expiresAt = new Date(data.expires_at);
 
     if (now > expiresAt) {
       // Plan has expired, delete it
-      await this.deleteSharedPlan(id)
-      return null
+      await this.deleteSharedPlan(id);
+      return null;
     }
 
     // Transform database row back to our format
@@ -97,9 +99,9 @@ export class SharedPlanService {
       aiResponse: data.ai_response,
       createdAt: data.created_at,
       expiresAt: data.expires_at,
-    }
+    };
 
-    return sharedPlan
+    return sharedPlan;
   }
 
   /**
@@ -107,19 +109,21 @@ export class SharedPlanService {
    */
   static async deleteSharedPlan(id: string): Promise<boolean> {
     if (!supabaseAdmin) {
-      throw new Error('Service role key not configured - cannot delete shared plans')
+      throw new Error(
+        "Service role key not configured - cannot delete shared plans",
+      );
     }
-    
+
     const { error } = await supabaseAdmin
-      .from('shared_plans')
+      .from("shared_plans")
       .delete()
-      .eq('id', id)
+      .eq("id", id);
 
     if (error) {
-      return false
+      return false;
     }
 
-    return true
+    return true;
   }
 
   /**
@@ -128,58 +132,60 @@ export class SharedPlanService {
    */
   static async cleanupExpiredPlans(): Promise<number> {
     if (!supabaseAdmin) {
-      throw new Error('Service role key not configured - cannot cleanup expired plans')
+      throw new Error(
+        "Service role key not configured - cannot cleanup expired plans",
+      );
     }
 
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
 
     const { data, error } = await supabaseAdmin
-      .from('shared_plans')
+      .from("shared_plans")
       .delete()
-      .lt('expires_at', now)
-      .select('id')
+      .lt("expires_at", now)
+      .select("id");
 
     if (error) {
-      return 0
+      return 0;
     }
 
-    const deletedCount = data?.length || 0
-    return deletedCount
+    const deletedCount = data?.length || 0;
+    return deletedCount;
   }
 
   /**
    * Get statistics about shared plans (uses service role for admin access)
    */
   static async getStats(): Promise<{
-    total: number
-    expired: number
-    active: number
+    total: number;
+    expired: number;
+    active: number;
   }> {
     if (!supabaseAdmin) {
-      throw new Error('Service role key not configured - cannot get stats')
+      throw new Error("Service role key not configured - cannot get stats");
     }
 
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
 
     // Get total count
     const { count: total, error: totalError } = await supabaseAdmin
-      .from('shared_plans')
-      .select('*', { count: 'exact', head: true })
+      .from("shared_plans")
+      .select("*", { count: "exact", head: true });
 
     // Get expired count
     const { count: expired, error: expiredError } = await supabaseAdmin
-      .from('shared_plans')
-      .select('*', { count: 'exact', head: true })
-      .lt('expires_at', now)
+      .from("shared_plans")
+      .select("*", { count: "exact", head: true })
+      .lt("expires_at", now);
 
     if (totalError || expiredError) {
-      return { total: 0, expired: 0, active: 0 }
+      return { total: 0, expired: 0, active: 0 };
     }
 
     return {
       total: total || 0,
       expired: expired || 0,
       active: (total || 0) - (expired || 0),
-    }
+    };
   }
 }

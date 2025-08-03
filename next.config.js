@@ -8,6 +8,6 @@ const nextConfig = {
     // During development, we might have linting errors while migrating
     ignoreDuringBuilds: false,
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

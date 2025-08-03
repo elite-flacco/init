@@ -182,7 +182,7 @@ This project includes Claude Code integration for enhanced development workflow:
 ### Configuration Files
 
 - `next.config.js` - Next.js configuration
-- `tailwind.config.js` - Tailwind CSS configuration  
+- `tailwind.config.js` - Tailwind CSS configuration
 - `postcss.config.js` - PostCSS configuration
 - `tsconfig.json` - TypeScript configuration
 - `vitest.config.ts` - Testing configuration

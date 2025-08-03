@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { MapPin, Plane, Compass } from 'lucide-react';
-import { Card } from './Card';
+import React, { useState, useEffect } from "react";
+import { MapPin, Plane, Compass } from "lucide-react";
+import { Card } from "./Card";
 
 interface KMLExportLoadingProps {
   isVisible: boolean;
@@ -14,7 +14,7 @@ const loadingMessages = [
   "🌍 Geocoding destinations...",
   "🗺️ Creating your personalized map...",
   "📱 Preparing for Google Maps...",
-  "🚀 Almost ready for takeoff!"
+  "🚀 Almost ready for takeoff!",
 ];
 
 export function KMLExportLoading({ isVisible }: KMLExportLoadingProps) {
@@ -51,9 +51,9 @@ export function KMLExportLoading({ isVisible }: KMLExportLoadingProps) {
 
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card 
-        variant="elevated" 
-        size="lg" 
+      <Card
+        variant="elevated"
+        size="lg"
         className="max-w-md w-full text-center animate-scale-in"
       >
         {/* Loading Icon Animation */}
@@ -63,12 +63,12 @@ export function KMLExportLoading({ isVisible }: KMLExportLoadingProps) {
             <div className="absolute animate-spin-slow">
               <Compass className="w-8 h-8 text-primary" />
             </div>
-            
+
             {/* Floating Plane */}
             <div className="absolute animate-float">
               <Plane className="w-6 h-6 text-secondary transform rotate-45" />
             </div>
-            
+
             {/* Pulsing Map Pins */}
             <div className="absolute animate-pulse-slow">
               <MapPin className="w-4 h-4 text-success transform -translate-x-6 -translate-y-2" />
@@ -84,7 +84,7 @@ export function KMLExportLoading({ isVisible }: KMLExportLoadingProps) {
           <h3 className="text-lg font-semibold text-foreground mb-2">
             Preparing Your Map
           </h3>
-          <p 
+          <p
             key={currentMessageIndex}
             className="text-foreground-secondary animate-fade-in-fast"
           >
@@ -95,7 +95,7 @@ export function KMLExportLoading({ isVisible }: KMLExportLoadingProps) {
         {/* Progress Bar */}
         <div className="mb-4">
           <div className="w-full bg-border rounded-full h-2 overflow-hidden">
-            <div 
+            <div
               className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-800 ease-out rounded-full"
               style={{ width: `${Math.min(progress, 95)}%` }}
             />
@@ -106,9 +106,9 @@ export function KMLExportLoading({ isVisible }: KMLExportLoadingProps) {
         </div>
 
         {/* Accessibility */}
-        <div 
-          role="status" 
-          aria-live="polite" 
+        <div
+          role="status"
+          aria-live="polite"
           aria-label="Exporting travel plan to KML format"
           className="sr-only"
         >

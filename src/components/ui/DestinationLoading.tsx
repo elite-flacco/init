@@ -1,6 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Globe, Sparkles, MapPin, Compass, Search, Brain, Plane, Heart } from 'lucide-react';
-import { Card } from './Card';
+import React, { useState, useEffect } from "react";
+import {
+  Globe,
+  Sparkles,
+  MapPin,
+  Compass,
+  Search,
+  Brain,
+  Plane,
+  Heart,
+} from "lucide-react";
+import { Card } from "./Card";
 
 interface DestinationLoadingProps {
   isVisible: boolean;
@@ -10,46 +19,59 @@ const searchStages = [
   {
     icon: Brain,
     message: "🧠 Analyzing your travel personality...",
-    detail: "Understanding what makes your wanderlust tick"
+    detail: "Understanding what makes your wanderlust tick",
   },
   {
     icon: Search,
     message: "🔍 Scanning the globe for hidden gems...",
-    detail: "Exploring destinations off the beaten path"
+    detail: "Exploring destinations off the beaten path",
   },
   {
     icon: Globe,
     message: "🌍 Evaluating thousands of destinations...",
-    detail: "From bustling cities to serene beaches"
+    detail: "From bustling cities to serene beaches",
   },
   {
     icon: MapPin,
     message: "📍 Pinpointing perfect matches...",
-    detail: "Finding places that speak to your soul"
+    detail: "Finding places that speak to your soul",
   },
   {
     icon: Heart,
     message: "❤️ Curating destinations you'll love...",
-    detail: "Handpicking experiences made for you"
+    detail: "Handpicking experiences made for you",
   },
   {
     icon: Sparkles,
     message: "✨ Adding that special magic...",
-    detail: "The final touches that make trips unforgettable"
+    detail: "The final touches that make trips unforgettable",
   },
   {
     icon: Plane,
     message: "🛫 Almost ready to inspire you!",
-    detail: "Your perfect destinations are just moments away"
-  }
+    detail: "Your perfect destinations are just moments away",
+  },
 ];
 
-const travelEmojis = ['🏖️', '🏔️', '🏛️', '🌸', '🦘', '🍜', '🎭', '🏯', '🦋', '🌺'];
+const travelEmojis = [
+  "🏖️",
+  "🏔️",
+  "🏛️",
+  "🌸",
+  "🦘",
+  "🍜",
+  "🎭",
+  "🏯",
+  "🦋",
+  "🌺",
+];
 
 export function DestinationLoading({ isVisible }: DestinationLoadingProps) {
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [floatingEmojis, setFloatingEmojis] = useState<Array<{id: number, emoji: string, delay: number}>>([]);
+  const [floatingEmojis, setFloatingEmojis] = useState<
+    Array<{ id: number; emoji: string; delay: number }>
+  >([]);
 
   useEffect(() => {
     if (!isVisible) {
@@ -60,10 +82,10 @@ export function DestinationLoading({ isVisible }: DestinationLoadingProps) {
     }
 
     // Generate floating emojis
-    const emojis = Array.from({length: 8}, (_, i) => ({
+    const emojis = Array.from({ length: 8 }, (_, i) => ({
       id: i,
       emoji: travelEmojis[Math.floor(Math.random() * travelEmojis.length)],
-      delay: i * 500
+      delay: i * 500,
     }));
     setFloatingEmojis(emojis);
 
@@ -99,19 +121,19 @@ export function DestinationLoading({ isVisible }: DestinationLoadingProps) {
           key={item.id}
           className="absolute text-4xl opacity-10 animate-float pointer-events-none"
           style={{
-            left: `${10 + (item.id * 10)}%`,
+            left: `${10 + item.id * 10}%`,
             top: `${15 + (item.id % 3) * 20}%`,
             animationDelay: `${item.delay}ms`,
-            animationDuration: `${3000 + item.id * 200}ms`
+            animationDuration: `${3000 + item.id * 200}ms`,
           }}
         >
           {item.emoji}
         </div>
       ))}
 
-      <Card 
-        variant="elevated" 
-        size="lg" 
+      <Card
+        variant="elevated"
+        size="lg"
         className="max-w-2xl w-full text-center animate-scale-in relative z-10"
       >
         {/* Main Loading Animation */}
@@ -126,19 +148,22 @@ export function DestinationLoading({ isVisible }: DestinationLoadingProps) {
                 </div>
               </div>
             </div>
-            
+
             {/* Orbiting Stage Icon */}
-            <div className="absolute animate-spin" style={{ animationDuration: '8s' }}>
-              <div 
+            <div
+              className="absolute animate-spin"
+              style={{ animationDuration: "8s" }}
+            >
+              <div
                 className="w-32 h-32 flex items-center justify-center"
                 style={{
-                  transform: 'rotate(' + (currentStageIndex * 51.4) + 'deg)'
+                  transform: "rotate(" + currentStageIndex * 51.4 + "deg)",
                 }}
               >
-                <div 
+                <div
                   className="transform p-3 bg-accent/20 rounded-full animate-bounce-subtle border border-accent/30"
                   style={{
-                    transform: 'rotate(-' + (currentStageIndex * 51.4) + 'deg)'
+                    transform: "rotate(-" + currentStageIndex * 51.4 + "deg)",
                   }}
                 >
                   <IconComponent className="w-6 h-6 text-accent" />
@@ -167,10 +192,7 @@ export function DestinationLoading({ isVisible }: DestinationLoadingProps) {
           <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-4">
             AI is working its magic...
           </h2>
-          <div 
-            key={currentStageIndex}
-            className="animate-fade-in-fast"
-          >
+          <div key={currentStageIndex} className="animate-fade-in-fast">
             <p className="text-lg font-medium text-primary mb-2">
               {currentStage.message}
             </p>
@@ -183,11 +205,15 @@ export function DestinationLoading({ isVisible }: DestinationLoadingProps) {
         {/* Enhanced Progress Section */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-3">
-            <span className="text-sm text-foreground-muted">Sifting through thousands of destinations</span>
-            <span className="text-sm font-medium text-primary">{Math.min(Math.round(progress), 85)}%</span>
+            <span className="text-sm text-foreground-muted">
+              Sifting through thousands of destinations
+            </span>
+            <span className="text-sm font-medium text-primary">
+              {Math.min(Math.round(progress), 85)}%
+            </span>
           </div>
           <div className="w-full bg-border/30 rounded-full h-3 overflow-hidden">
-            <div 
+            <div
               className="h-full bg-gradient-to-r from-primary via-accent to-secondary transition-all duration-1000 ease-out rounded-full relative"
               style={{ width: `${Math.min(progress, 85)}%` }}
             >
@@ -198,9 +224,18 @@ export function DestinationLoading({ isVisible }: DestinationLoadingProps) {
 
         {/* Enhanced Loading Dots */}
         <div className="flex justify-center items-center space-x-3 mb-6">
-          <div className="w-4 h-4 bg-gradient-to-r from-primary to-primary rounded-full animate-bounce shadow-lg" style={{ animationDelay: '0ms' }} />
-          <div className="w-4 h-4 bg-gradient-to-r from-accent to-accent rounded-full animate-bounce shadow-lg" style={{ animationDelay: '150ms' }} />
-          <div className="w-4 h-4 bg-gradient-to-r from-secondary to-secondary rounded-full animate-bounce shadow-lg" style={{ animationDelay: '300ms' }} />
+          <div
+            className="w-4 h-4 bg-gradient-to-r from-primary to-primary rounded-full animate-bounce shadow-lg"
+            style={{ animationDelay: "0ms" }}
+          />
+          <div
+            className="w-4 h-4 bg-gradient-to-r from-accent to-accent rounded-full animate-bounce shadow-lg"
+            style={{ animationDelay: "150ms" }}
+          />
+          <div
+            className="w-4 h-4 bg-gradient-to-r from-secondary to-secondary rounded-full animate-bounce shadow-lg"
+            style={{ animationDelay: "300ms" }}
+          />
         </div>
 
         {/* Stage Indicators */}
@@ -209,11 +244,11 @@ export function DestinationLoading({ isVisible }: DestinationLoadingProps) {
             <div
               key={index}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentStageIndex 
-                  ? 'bg-primary scale-125 shadow-glow' 
-                  : index < currentStageIndex 
-                    ? 'bg-success' 
-                    : 'bg-border'
+                index === currentStageIndex
+                  ? "bg-primary scale-125 shadow-glow"
+                  : index < currentStageIndex
+                    ? "bg-success"
+                    : "bg-border"
               }`}
             />
           ))}
@@ -221,13 +256,14 @@ export function DestinationLoading({ isVisible }: DestinationLoadingProps) {
 
         {/* Footer Message */}
         <p className="text-sm text-foreground-muted">
-          Our AI is analyzing your travel personality to find destinations that'll make you want to pack your bags immediately ✈️
+          Our AI is analyzing your travel personality to find destinations
+          that'll make you want to pack your bags immediately ✈️
         </p>
 
         {/* Accessibility */}
-        <div 
-          role="status" 
-          aria-live="polite" 
+        <div
+          role="status"
+          aria-live="polite"
           aria-label="Searching for destination recommendations"
           className="sr-only"
         >

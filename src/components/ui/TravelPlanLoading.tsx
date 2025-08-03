@@ -1,6 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Sparkles, Brain, MapPin, Compass, Calendar, Utensils, Home, Plane, Map, Globe, Navigation } from 'lucide-react';
-import { Card } from './Card';
+import React, { useState, useEffect } from "react";
+import {
+  Sparkles,
+  Brain,
+  MapPin,
+  Compass,
+  Calendar,
+  Utensils,
+  Home,
+  Plane,
+  Map,
+  Globe,
+  Navigation,
+} from "lucide-react";
+import { Card } from "./Card";
 
 interface TravelPlanLoadingProps {
   isVisible: boolean;
@@ -11,41 +23,44 @@ const adventureStages = [
   {
     icon: Brain,
     message: "🧠 Analyzing your explorer DNA...",
-    detail: "Decoding what makes your adventure spirit tick"
+    detail: "Decoding what makes your adventure spirit tick",
   },
   {
     icon: Map,
     message: "🗺️ Charting uncharted territories...",
-    detail: "Discovering hidden gems and legendary local secrets"
+    detail: "Discovering hidden gems and legendary local secrets",
   },
   {
     icon: Navigation,
     message: "🧭 Plotting your expedition route...",
-    detail: "Crafting the perfect balance of thrill and chill"
+    detail: "Crafting the perfect balance of thrill and chill",
   },
   {
     icon: Utensils,
     message: "🍽️ Scouting epic food adventures...",
-    detail: "From legendary street eats to culinary masterpieces"
+    detail: "From legendary street eats to culinary masterpieces",
   },
   {
     icon: Home,
     message: "🏠 Finding your perfect base camp...",
-    detail: "Where adventure meets comfort in the best neighborhoods"
+    detail: "Where adventure meets comfort in the best neighborhoods",
   },
   {
     icon: Compass,
     message: "✨ Adding legendary experiences...",
-    detail: "The once-in-a-lifetime moments that become epic stories"
+    detail: "The once-in-a-lifetime moments that become epic stories",
   },
   {
     icon: Globe,
     message: "🌍 Final expedition preparations...",
-    detail: "Your adventure dossier is almost ready for takeoff!"
-  }
+    detail: "Your adventure dossier is almost ready for takeoff!",
+  },
 ];
 
-export function TravelPlanLoading({ isVisible, destinationName = "your destination" }: TravelPlanLoadingProps) {
+export function TravelPlanLoading({
+  isVisible,
+  destinationName = "your destination",
+}: TravelPlanLoadingProps) {
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
 
@@ -84,17 +99,24 @@ export function TravelPlanLoading({ isVisible, destinationName = "your destinati
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Adventure Background Elements */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-20 left-10 text-4xl opacity-[0.03] animate-float-slow transform rotate-12">🗺️</div>
-        <div className="absolute top-60 right-20 text-3xl opacity-[0.04] animate-float-delayed transform -rotate-12">🧭</div>
-        <div className="absolute bottom-40 left-20 text-5xl opacity-[0.02] animate-float transform rotate-45">⛰️</div>
-        <div className="absolute bottom-20 right-10 text-3xl opacity-[0.03] animate-float-slow transform -rotate-6">🎒</div>
+        <div className="absolute top-20 left-10 text-4xl opacity-[0.03] animate-float-slow transform rotate-12">
+          🗺️
+        </div>
+        <div className="absolute top-60 right-20 text-3xl opacity-[0.04] animate-float-delayed transform -rotate-12">
+          🧭
+        </div>
+        <div className="absolute bottom-40 left-20 text-5xl opacity-[0.02] animate-float transform rotate-45">
+          ⛰️
+        </div>
+        <div className="absolute bottom-20 right-10 text-3xl opacity-[0.03] animate-float-slow transform -rotate-6">
+          🎒
+        </div>
       </div>
-      
+
       <div className="relative z-10 max-w-3xl w-full">
         {/* Adventure Loading Container */}
         <div className="transform -rotate-1 hover:rotate-0 transition-transform duration-700">
           <div className="bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 rounded-3xl p-8 lg:p-12 shadow-adventure-float relative overflow-hidden text-center">
-            
             {/* Adventure Glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary/30 rounded-3xl blur-xl opacity-50 -z-10 animate-adventure-float"></div>
             {/* Adventure Command Center */}
@@ -111,19 +133,20 @@ export function TravelPlanLoading({ isVisible, destinationName = "your destinati
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Orbiting Adventure Icons */}
                 <div className="absolute animate-spin-slow">
-                  <div 
+                  <div
                     className="w-28 h-28 flex items-center justify-center"
                     style={{
-                      transform: 'rotate(' + (currentStageIndex * 51.4) + 'deg)'
+                      transform: "rotate(" + currentStageIndex * 51.4 + "deg)",
                     }}
                   >
-                    <div 
+                    <div
                       className="transform p-4 bg-gradient-to-br from-accent/30 to-secondary/30 rounded-full animate-bounce-subtle border border-accent/50 shadow-glow"
                       style={{
-                        transform: 'rotate(-' + (currentStageIndex * 51.4) + 'deg)'
+                        transform:
+                          "rotate(-" + currentStageIndex * 51.4 + "deg)",
                       }}
                     >
                       <IconComponent className="w-6 h-6 text-accent" />
@@ -133,16 +156,24 @@ export function TravelPlanLoading({ isVisible, destinationName = "your destinati
 
                 {/* Adventure Floating Elements */}
                 <div className="absolute animate-float animation-delay-500">
-                  <div className="transform -translate-x-12 -translate-y-8 text-2xl opacity-60 animate-bounce-subtle">🗺️</div>
+                  <div className="transform -translate-x-12 -translate-y-8 text-2xl opacity-60 animate-bounce-subtle">
+                    🗺️
+                  </div>
                 </div>
                 <div className="absolute animate-float animation-delay-1000">
-                  <div className="transform translate-x-12 -translate-y-6 text-2xl opacity-60 animate-bounce-subtle">🎒</div>
+                  <div className="transform translate-x-12 -translate-y-6 text-2xl opacity-60 animate-bounce-subtle">
+                    🎒
+                  </div>
                 </div>
                 <div className="absolute animate-float animation-delay-1500">
-                  <div className="transform -translate-x-10 translate-y-10 text-2xl opacity-60 animate-bounce-subtle">⛰️</div>
+                  <div className="transform -translate-x-10 translate-y-10 text-2xl opacity-60 animate-bounce-subtle">
+                    ⛰️
+                  </div>
                 </div>
                 <div className="absolute animate-float animation-delay-2000">
-                  <div className="transform translate-x-10 translate-y-8 text-2xl opacity-60 animate-bounce-subtle">🧭</div>
+                  <div className="transform translate-x-10 translate-y-8 text-2xl opacity-60 animate-bounce-subtle">
+                    🧭
+                  </div>
                 </div>
               </div>
             </div>
@@ -156,15 +187,12 @@ export function TravelPlanLoading({ isVisible, destinationName = "your destinati
                 </div>
                 <div className="text-2xl animate-bounce-subtle">📋</div>
               </div>
-              
+
               <h2 className="text-3xl lg:text-4xl font-display font-bold mb-6 bg-gradient-to-br from-primary via-accent to-secondary bg-clip-text text-transparent leading-tight">
                 Crafting Your Epic Adventure!
               </h2>
-              
-              <div 
-                key={currentStageIndex}
-                className="animate-fade-in-fast"
-              >
+
+              <div key={currentStageIndex} className="animate-fade-in-fast">
                 <p className="text-xl font-semibold text-primary mb-3">
                   {currentStage.message}
                 </p>
@@ -177,11 +205,15 @@ export function TravelPlanLoading({ isVisible, destinationName = "your destinati
             {/* Adventure Progress */}
             <div className="mb-8">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-base font-medium text-foreground-secondary">Expedition Progress for {destinationName}</span>
-                <span className="text-lg font-bold text-primary">{Math.min(Math.round(progress), 90)}%</span>
+                <span className="text-base font-medium text-foreground-secondary">
+                  Expedition Progress for {destinationName}
+                </span>
+                <span className="text-lg font-bold text-primary">
+                  {Math.min(Math.round(progress), 90)}%
+                </span>
               </div>
               <div className="w-full bg-border/50 rounded-full h-4 overflow-hidden border border-border/30">
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-primary via-accent to-secondary transition-all duration-1000 ease-out rounded-full relative shadow-glow"
                   style={{ width: `${Math.min(progress, 90)}%` }}
                 >
@@ -199,27 +231,31 @@ export function TravelPlanLoading({ isVisible, destinationName = "your destinati
                   <div
                     key={index}
                     className={`relative transition-all duration-500 ${
-                      index === currentStageIndex 
-                        ? 'scale-125 transform' 
-                        : index < currentStageIndex 
-                          ? 'scale-100' 
-                          : 'scale-75 opacity-50'
+                      index === currentStageIndex
+                        ? "scale-125 transform"
+                        : index < currentStageIndex
+                          ? "scale-100"
+                          : "scale-75 opacity-50"
                     }`}
                   >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-                      index === currentStageIndex 
-                        ? 'bg-primary/30 border-primary shadow-glow animate-pulse-slow' 
-                        : index < currentStageIndex 
-                          ? 'bg-accent/30 border-accent' 
-                          : 'bg-border/30 border-border'
-                    }`}>
-                      <StageIcon className={`w-4 h-4 ${
-                        index === currentStageIndex 
-                          ? 'text-primary' 
-                          : index < currentStageIndex 
-                            ? 'text-accent' 
-                            : 'text-foreground-muted'
-                      }`} />
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                        index === currentStageIndex
+                          ? "bg-primary/30 border-primary shadow-glow animate-pulse-slow"
+                          : index < currentStageIndex
+                            ? "bg-accent/30 border-accent"
+                            : "bg-border/30 border-border"
+                      }`}
+                    >
+                      <StageIcon
+                        className={`w-4 h-4 ${
+                          index === currentStageIndex
+                            ? "text-primary"
+                            : index < currentStageIndex
+                              ? "text-accent"
+                              : "text-foreground-muted"
+                        }`}
+                      />
                     </div>
                   </div>
                 );
@@ -229,16 +265,19 @@ export function TravelPlanLoading({ isVisible, destinationName = "your destinati
             {/* Adventure Briefing Footer */}
             <div className="bg-gradient-to-r from-background/50 to-background-card/50 backdrop-blur-sm border border-border/30 rounded-2xl p-6">
               <p className="text-base text-foreground-secondary leading-relaxed">
-                Our adventure AI is analyzing thousands of expedition insights to craft your perfect journey. 
+                Our adventure AI is analyzing thousands of expedition insights
+                to craft your perfect journey.
                 <br className="hidden sm:block" />
-                <span className="font-semibold text-primary">Your epic adventure dossier will be ready in 30-60 seconds!</span>
+                <span className="font-semibold text-primary">
+                  Your epic adventure dossier will be ready in 30-60 seconds!
+                </span>
               </p>
             </div>
 
             {/* Accessibility */}
-            <div 
-              role="status" 
-              aria-live="polite" 
+            <div
+              role="status"
+              aria-live="polite"
               aria-label="Generating personalized adventure plan"
               className="sr-only"
             >

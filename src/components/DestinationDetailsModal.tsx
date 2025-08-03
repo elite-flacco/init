@@ -1,6 +1,6 @@
-import React from 'react';
-import { X, MapPin, Calendar, DollarSign, ArrowRight } from 'lucide-react';
-import { Destination } from '../types/travel';
+import React from "react";
+import { X, MapPin, Calendar, DollarSign, ArrowRight } from "lucide-react";
+import { Destination } from "../types/travel";
 
 interface DestinationDetailsModalProps {
   destination: Destination;
@@ -9,11 +9,11 @@ interface DestinationDetailsModalProps {
   onSelectForPlanning: (destination: Destination) => void;
 }
 
-export function DestinationDetailsModal({ 
-  destination, 
-  isOpen, 
-  onClose, 
-  onSelectForPlanning 
+export function DestinationDetailsModal({
+  destination,
+  isOpen,
+  onClose,
+  onSelectForPlanning,
 }: DestinationDetailsModalProps) {
   if (!isOpen) return null;
 
@@ -29,7 +29,7 @@ export function DestinationDetailsModal({
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
       onClick={handleBackdropClick}
     >
@@ -42,7 +42,7 @@ export function DestinationDetailsModal({
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-          
+
           {/* Close button */}
           <button
             onClick={onClose}
@@ -50,7 +50,7 @@ export function DestinationDetailsModal({
           >
             <X className="w-5 h-5" />
           </button>
-          
+
           {/* Location badge */}
           <div className="absolute top-4 left-4">
             <div className="flex items-center bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
@@ -60,15 +60,11 @@ export function DestinationDetailsModal({
               </span>
             </div>
           </div>
-          
+
           {/* Title */}
           <div className="absolute bottom-6 left-6 right-6">
-            <h1 className="mb-4">
-              {destination.name}
-            </h1>
-            <p className="max-w-2xl text-white">
-              {destination.description}
-            </p>
+            <h1 className="mb-4">{destination.name}</h1>
+            <p className="max-w-2xl text-white">{destination.description}</p>
           </div>
         </div>
 
@@ -80,14 +76,18 @@ export function DestinationDetailsModal({
               {/* <Calendar className="w-5 h-5 text-primary mr-3" /> */}
               <div>
                 <p>📅 Best Time to Visit</p>
-                <p className="font-medium text-foreground ml-6">{destination.bestTime}</p>
+                <p className="font-medium text-foreground ml-6">
+                  {destination.bestTime}
+                </p>
               </div>
             </div>
             <div className="flex items-center">
               {/* <DollarSign className="w-5 h-5 text-primary mr-3" /> */}
-              <div> 
+              <div>
                 <p>💰 Estimated Cost</p>
-                <p className="font-medium text-foreground ml-6">{destination.estimatedCost}</p>
+                <p className="font-medium text-foreground ml-6">
+                  {destination.estimatedCost}
+                </p>
               </div>
             </div>
           </div>
@@ -127,8 +127,11 @@ export function DestinationDetailsModal({
             <div className="mb-8">
               <h5 className="mb-4">About This Destination</h5>
               <div className="prose prose-gray max-w-none">
-                {destination.details.split('\n\n').map((paragraph, index) => (
-                  <p key={index} className="text-foreground-secondary leading-relaxed mb-4">
+                {destination.details.split("\n\n").map((paragraph, index) => (
+                  <p
+                    key={index}
+                    className="text-foreground-secondary leading-relaxed mb-4"
+                  >
                     {paragraph}
                   </p>
                 ))}
@@ -138,16 +141,10 @@ export function DestinationDetailsModal({
 
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-border">
-            <button
-              onClick={onClose}
-              className="btn-outline"
-            >
+            <button onClick={onClose} className="btn-outline">
               Close
             </button>
-            <button
-              onClick={handleSelectForPlanning}
-              className="btn-primary"
-            >
+            <button onClick={handleSelectForPlanning} className="btn-primary">
               Plan My Trip Here
               <ArrowRight className="w-4 h-4 ml-2" />
             </button>

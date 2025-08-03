@@ -23,7 +23,7 @@ export interface Destination {
 }
 
 export interface DestinationKnowledge {
-  type: 'yes' | 'country' | 'no-clue';
+  type: "yes" | "country" | "no-clue";
   label?: string;
   description?: string;
 }
@@ -118,7 +118,7 @@ export interface Restaurant {
 
 export interface Bar {
   name: string;
-  type: 'beer' | 'wine' | 'cocktail' | 'dive' | 'other';
+  type: "beer" | "wine" | "cocktail" | "dive" | "other";
   atmosphere: string;
   description: string;
   category: string;
@@ -207,13 +207,13 @@ export interface RecommendedActivity {
   duration: string;
   localSpecific: boolean;
   bookingLink?: string;
-  experienceType?: 'airbnb' | 'getyourguide' | 'viator' | 'other';
+  experienceType?: "airbnb" | "getyourguide" | "viator" | "other";
 }
 
 export interface FoodItem {
   name: string;
   description: string;
-  category: 'main' | 'dessert' | 'drink' | 'snack';
+  category: "main" | "dessert" | "drink" | "snack";
   whereToFind?: string;
   priceRange?: string;
 }

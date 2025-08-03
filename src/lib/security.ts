@@ -1,50 +1,53 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { TravelerType, Destination } from '../types/travel'
-import { AITripPlanningResponse } from '../services/aiTripPlanningService'
+import { NextRequest, NextResponse } from "next/server";
+import { TravelerType, Destination } from "../types/travel";
+import { AITripPlanningResponse } from "../services/aiTripPlanningService";
 
 // Rate limiting storage (in production, use Redis or database)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 export interface SecurityConfig {
   rateLimit: {
-    maxRequests: number
-    windowMs: number
-  }
-  allowedOrigins: string[]
-  requireValidPlan: boolean
+    maxRequests: number;
+    windowMs: number;
+  };
+  allowedOrigins: string[];
+  requireValidPlan: boolean;
 }
 
 // Get allowed origins from environment variable or use development defaults
 const getAllowedOrigins = (): string[] => {
-  const envOrigins = process.env.SECURITY_ALLOWED_ORIGINS
-  
+  const envOrigins = process.env.SECURITY_ALLOWED_ORIGINS;
+
   if (envOrigins) {
     // Parse comma-separated origins from environment variable
-    return envOrigins.split(',').map(origin => origin.trim())
+    return envOrigins.split(",").map((origin) => origin.trim());
   }
-  
+
   // Development defaults
   return [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3001'
-  ]
-}
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+  ];
+};
 
 const defaultConfig: SecurityConfig = {
   rateLimit: {
     maxRequests: 100, // 100 requests per 15 minutes (production setting)
-    windowMs: 15 * 60 * 1000 // 15 minutes
+    windowMs: 15 * 60 * 1000, // 15 minutes
   },
   allowedOrigins: getAllowedOrigins(),
-  requireValidPlan: true
-}
+  requireValidPlan: true,
+};
 
 export class SecurityError extends Error {
-  constructor(message: string, public statusCode: number) {
-    super(message)
-    this.name = 'SecurityError'
+  constructor(
+    message: string,
+    public statusCode: number,
+  ) {
+    super(message);
+    this.name = "SecurityError";
   }
 }
 
@@ -54,152 +57,176 @@ export class SecurityMiddleware {
    */
   static getClientIP(request: NextRequest): string {
     // Try various headers that might contain the real IP
-    const forwarded = request.headers.get('x-forwarded-for')
-    const realIP = request.headers.get('x-real-ip')
-    const cfConnectingIP = request.headers.get('cf-connecting-ip')
-    
+    const forwarded = request.headers.get("x-forwarded-for");
+    const realIP = request.headers.get("x-real-ip");
+    const cfConnectingIP = request.headers.get("cf-connecting-ip");
+
     if (forwarded) {
-      return forwarded.split(',')[0].trim()
+      return forwarded.split(",")[0].trim();
     }
     if (realIP) {
-      return realIP
+      return realIP;
     }
     if (cfConnectingIP) {
-      return cfConnectingIP
+      return cfConnectingIP;
     }
-    
+
     // Fallback to connection remote address
-    return request.ip || 'unknown'
+    return request.ip || "unknown";
   }
 
   /**
    * Check rate limiting for IP address
    */
   static checkRateLimit(ip: string, config = defaultConfig): boolean {
-    const now = Date.now()
-    const key = `rate_limit:${ip}`
-    const limit = rateLimitStore.get(key)
+    const now = Date.now();
+    const key = `rate_limit:${ip}`;
+    const limit = rateLimitStore.get(key);
 
     if (!limit || now > limit.resetTime) {
       // First request or window expired, reset counter
       rateLimitStore.set(key, {
         count: 1,
-        resetTime: now + config.rateLimit.windowMs
-      })
-      return true
+        resetTime: now + config.rateLimit.windowMs,
+      });
+      return true;
     }
 
     if (limit.count >= config.rateLimit.maxRequests) {
-      return false // Rate limit exceeded
+      return false; // Rate limit exceeded
     }
 
     // Increment counter
-    limit.count++
-    rateLimitStore.set(key, limit)
-    return true
+    limit.count++;
+    rateLimitStore.set(key, limit);
+    return true;
   }
 
   /**
    * Validate request origin to prevent basic CSRF
    */
   static validateOrigin(request: NextRequest, config = defaultConfig): boolean {
-    const origin = request.headers.get('origin')
-    const referer = request.headers.get('referer')
-    
+    const origin = request.headers.get("origin");
+    const referer = request.headers.get("referer");
+
     // In development, be more permissive
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       // Allow requests without origin/referer
       if (!origin && !referer) {
-        return true
+        return true;
       }
-      
+
       // Allow any localhost origin in development
-      if (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
-        return true
+      if (
+        origin &&
+        (origin.includes("localhost") || origin.includes("127.0.0.1"))
+      ) {
+        return true;
       }
-      
-      if (referer && (referer.includes('localhost') || referer.includes('127.0.0.1'))) {
-        return true
+
+      if (
+        referer &&
+        (referer.includes("localhost") || referer.includes("127.0.0.1"))
+      ) {
+        return true;
       }
     }
 
     // Check origin header
-    if (origin && config.allowedOrigins.some(allowed => 
-      origin === allowed || origin.startsWith(allowed)
-    )) {
-      return true
+    if (
+      origin &&
+      config.allowedOrigins.some(
+        (allowed) => origin === allowed || origin.startsWith(allowed),
+      )
+    ) {
+      return true;
     }
 
     // Check referer as fallback
-    if (referer && config.allowedOrigins.some(allowed => 
-      referer.startsWith(allowed)
-    )) {
-      return true
+    if (
+      referer &&
+      config.allowedOrigins.some((allowed) => referer.startsWith(allowed))
+    ) {
+      return true;
     }
 
-    return false
+    return false;
   }
 
   /**
    * Validate travel plan data structure and content
    */
   static validateTravelPlan(data: unknown): data is {
-    destination: Destination
-    travelerType: TravelerType
-    aiResponse: AITripPlanningResponse
+    destination: Destination;
+    travelerType: TravelerType;
+    aiResponse: AITripPlanningResponse;
   } {
-    if (!data || typeof data !== 'object') {
-      return false
+    if (!data || typeof data !== "object") {
+      return false;
     }
 
     // Cast to a more specific type after initial type guard
-    const obj = data as Record<string, unknown>
+    const obj = data as Record<string, unknown>;
 
     // Validate destination
-    if (!obj.destination || typeof obj.destination !== 'object') {
-      return false
+    if (!obj.destination || typeof obj.destination !== "object") {
+      return false;
     }
-    
-    const dest = obj.destination as Record<string, unknown>
-    if (!dest.id || !dest.name || typeof dest.id !== 'string' || typeof dest.name !== 'string') {
-      return false
+
+    const dest = obj.destination as Record<string, unknown>;
+    if (
+      !dest.id ||
+      !dest.name ||
+      typeof dest.id !== "string" ||
+      typeof dest.name !== "string"
+    ) {
+      return false;
     }
 
     // Check for suspicious content in destination name
-    if (this.containsSuspiciousContent(dest.name as string) || this.containsSuspiciousContent((dest.description as string) || '')) {
-      return false
+    if (
+      this.containsSuspiciousContent(dest.name as string) ||
+      this.containsSuspiciousContent((dest.description as string) || "")
+    ) {
+      return false;
     }
 
     // Validate traveler type
-    if (!obj.travelerType || typeof obj.travelerType !== 'object') {
-      return false
+    if (!obj.travelerType || typeof obj.travelerType !== "object") {
+      return false;
     }
 
-    const traveler = obj.travelerType as Record<string, unknown>
-    if (!traveler.id || !traveler.name || typeof traveler.id !== 'string' || typeof traveler.name !== 'string') {
-      return false
+    const traveler = obj.travelerType as Record<string, unknown>;
+    if (
+      !traveler.id ||
+      !traveler.name ||
+      typeof traveler.id !== "string" ||
+      typeof traveler.name !== "string"
+    ) {
+      return false;
     }
 
     // Validate AI response structure
-    if (!obj.aiResponse || typeof obj.aiResponse !== 'object') {
-      return false
+    if (!obj.aiResponse || typeof obj.aiResponse !== "object") {
+      return false;
     }
 
     // Check for reasonable data sizes (prevent huge payloads)
-    const jsonString = JSON.stringify(data)
-    if (jsonString.length > 100000) { // 100KB limit
-      return false
+    const jsonString = JSON.stringify(data);
+    if (jsonString.length > 100000) {
+      // 100KB limit
+      return false;
     }
 
-    return true
+    return true;
   }
 
   /**
    * Check for suspicious content (spam, malicious links, etc.)
    */
   static containsSuspiciousContent(text: string): boolean {
-    if (!text || typeof text !== 'string') {
-      return false
+    if (!text || typeof text !== "string") {
+      return false;
     }
 
     const suspiciousPatterns = [
@@ -219,10 +246,10 @@ export class SecurityMiddleware {
       /<script/i,
       /javascript:/i,
       /eval\(/i,
-      /document\.cookie/i
-    ]
+      /document\.cookie/i,
+    ];
 
-    return suspiciousPatterns.some(pattern => pattern.test(text))
+    return suspiciousPatterns.some((pattern) => pattern.test(text));
   }
 
   /**
@@ -230,39 +257,42 @@ export class SecurityMiddleware {
    */
   static async validateRequest(
     request: NextRequest,
-    options: Partial<SecurityConfig> = {}
+    options: Partial<SecurityConfig> = {},
   ): Promise<void> {
-    const config = { ...defaultConfig, ...options }
-    
+    const config = { ...defaultConfig, ...options };
+
     // Get client IP
-    const ip = this.getClientIP(request)
+    const ip = this.getClientIP(request);
 
     // Check rate limiting
     if (!this.checkRateLimit(ip, config)) {
-      throw new SecurityError('Rate limit exceeded. Please try again later.', 429)
+      throw new SecurityError(
+        "Rate limit exceeded. Please try again later.",
+        429,
+      );
     }
 
     // Validate origin (for POST requests)
-    if (request.method === 'POST' && !this.validateOrigin(request, config)) {
-      throw new SecurityError('Invalid request origin', 403)
+    if (request.method === "POST" && !this.validateOrigin(request, config)) {
+      throw new SecurityError("Invalid request origin", 403);
     }
 
     // For POST requests, validate the request body if required
-    if (request.method === 'POST' && config.requireValidPlan) {
+    if (request.method === "POST" && config.requireValidPlan) {
       try {
-        const body = await request.json()
-        
+        const body = await request.json();
+
         if (!this.validateTravelPlan(body)) {
-          throw new SecurityError('Invalid travel plan data', 400)
+          throw new SecurityError("Invalid travel plan data", 400);
         }
 
         // Store the parsed body for later use (avoid re-parsing)
-        ;(request as { _validatedBody?: unknown })._validatedBody = body
+        (request as { _validatedBody?: unknown })._validatedBody = body;
       } catch (error) {
         if (error instanceof SecurityError) {
-          throw error
+          throw error;
         }
-        throw new SecurityError('Invalid JSON data', 400)
+        throw new SecurityError("Invalid JSON data", 400);
       }
     }
   }
@@ -271,15 +301,15 @@ export class SecurityMiddleware {
    * Create a security-wrapped response with additional headers
    */
   static createSecureResponse(data: unknown, status = 200): NextResponse {
-    const response = NextResponse.json(data, { status })
-    
+    const response = NextResponse.json(data, { status });
+
     // Add security headers
-    response.headers.set('X-Content-Type-Options', 'nosniff')
-    response.headers.set('X-Frame-Options', 'DENY')
-    response.headers.set('X-XSS-Protection', '1; mode=block')
-    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-    
-    return response
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    response.headers.set("X-Frame-Options", "DENY");
+    response.headers.set("X-XSS-Protection", "1; mode=block");
+    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
+    return response;
   }
 
   /**
@@ -289,32 +319,32 @@ export class SecurityMiddleware {
     if (error instanceof SecurityError) {
       return this.createSecureResponse(
         { error: error.message },
-        error.statusCode
-      )
+        error.statusCode,
+      );
     }
 
-    return this.createSecureResponse(
-      { error: 'Internal server error' },
-      500
-    )
+    return this.createSecureResponse({ error: "Internal server error" }, 500);
   }
 
   /**
    * Clean up old rate limit entries (call periodically)
    */
   static cleanupRateLimitStore(): void {
-    const now = Date.now()
+    const now = Date.now();
     for (const [key, limit] of rateLimitStore.entries()) {
       if (now > limit.resetTime) {
-        rateLimitStore.delete(key)
+        rateLimitStore.delete(key);
       }
     }
   }
 }
 
 // Cleanup rate limit store every 30 minutes
-if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
-    SecurityMiddleware.cleanupRateLimitStore()
-  }, 30 * 60 * 1000)
+if (typeof setInterval !== "undefined") {
+  setInterval(
+    () => {
+      SecurityMiddleware.cleanupRateLimitStore();
+    },
+    30 * 60 * 1000,
+  );
 }
