@@ -5,6 +5,7 @@ import {
   Map,
 } from "lucide-react";
 import React, { useState } from "react";
+import { trackTravelEvent } from "../lib/analytics";
 import {
   commonTripPlanningQuestions,
   destinationInputQuestion,
@@ -154,6 +155,9 @@ export function AITripPlanningPrompts({
           stressLevel: answers.stressLevel,
         };
 
+        // Track AI trip planning request
+        trackTravelEvent.requestAIRecommendations('trip_plan');
+        
         const aiResponse = await aiTripPlanningService.generateTravelPlan({
           destination: effectiveDestination,
           preferences,
@@ -169,6 +173,10 @@ export function AITripPlanningPrompts({
           error instanceof Error
             ? error.message
             : "Our AI had a brain freeze. Mind giving it another shot?";
+        
+        // Track trip planning error
+        trackTravelEvent.error('trip_planning_failed', errorMessage);
+        
         setGenerationError(errorMessage);
         setIsGeneratingPlan(false);
       }

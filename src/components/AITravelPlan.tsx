@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { trackTravelEvent } from "../lib/analytics";
 import {
   Sparkles,
   MapPin,
@@ -83,6 +84,9 @@ export function AITravelPlan({
 
   const handleExportToPdf = async () => {
     try {
+      // Track PDF export
+      trackTravelEvent.exportPlan('pdf');
+      
       await PdfExportService.exportTravelPlanToPdf({
         destination,
         travelerType,
@@ -93,11 +97,17 @@ export function AITravelPlan({
     } catch (error) {
       console.error("Error exporting to PDF:", error);
       alert("Couldn't create the PDF. Give it another shot?");
+      
+      // Track export error
+      trackTravelEvent.error('pdf_export_failed');
     }
   };
 
   const handleExportToGoogleMaps = async () => {
     setIsExportingKML(true);
+    
+    // Track KML export
+    trackTravelEvent.exportPlan('kml');
 
     try {
       // First try with real coordinates, but with a shorter timeout
@@ -114,6 +124,9 @@ export function AITravelPlan({
     } catch (error) {
       console.error("Error exporting to KML:", error);
       alert("Couldn't create the map file. Try again?");
+      
+      // Track export error
+      trackTravelEvent.error('kml_export_failed');
     } finally {
       setIsExportingKML(false);
     }
@@ -121,6 +134,10 @@ export function AITravelPlan({
 
   const handleShare = async () => {
     setIsSharing(true);
+    
+    // Track share attempt
+    trackTravelEvent.sharePlan('url');
+    
     try {
       const response = await fetch("/api/shared-plans", {
         method: "POST",
@@ -158,6 +175,9 @@ export function AITravelPlan({
     } catch (error) {
       console.error("Error creating share link:", error);
       alert("Couldn't create the share link. Try again?");
+      
+      // Track share error
+      trackTravelEvent.error('share_failed');
     } finally {
       setIsSharing(false);
     }
