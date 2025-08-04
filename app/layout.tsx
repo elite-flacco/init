@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import FeedbackButton from "../src/components/ui/FeedbackButton";
+import GoogleAnalytics from "../src/components/GoogleAnalytics";
 import "../src/index.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <GoogleAnalytics />
         {children}
         <FeedbackButton />
       </body>

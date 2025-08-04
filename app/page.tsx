@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plane } from "lucide-react";
+import { trackTravelEvent, trackPageView } from "../src/lib/analytics";
 import { TravelerTypeSelection } from "../src/components/TravelerTypeSelection";
 import { DestinationKnowledgeSelection } from "../src/components/DestinationKnowledgeSelection";
 import { DestinationInputComponent } from "../src/components/DestinationInputComponent";
@@ -55,6 +56,19 @@ export default function HomePage() {
     useState<AIDestinationResponse | null>(null);
   const [isLoadingDestinations, setIsLoadingDestinations] = useState(false);
   const [destinationError, setDestinationError] = useState<string | null>(null);
+  const [previousStep, setPreviousStep] = useState<AppStep | null>(null);
+
+  // Track step changes
+  useEffect(() => {
+    if (previousStep && previousStep !== currentStep) {
+      trackTravelEvent.navigateStep(previousStep, currentStep);
+    }
+    
+    // Track page view for step changes
+    trackPageView(`/step/${currentStep}`, `Travel Planning - ${currentStep}`);
+    
+    setPreviousStep(currentStep);
+  }, [currentStep, previousStep]);
 
   // Development shortcuts - check for URL parameters
   useEffect(() => {
@@ -90,6 +104,9 @@ export default function HomePage() {
 
   const handleTravelerTypeSelect = (type: TravelerType) => {
     setSelectedTravelerType(type);
+    
+    // Track traveler type selection
+    trackTravelEvent.selectTravelerType(type.title);
 
     // Show placeholder for types that have it enabled
     if (type.showPlaceholder) {
@@ -103,6 +120,9 @@ export default function HomePage() {
     knowledge: DestinationKnowledge,
   ) => {
     setDestinationKnowledge(knowledge);
+    
+    // Track destination knowledge selection
+    trackTravelEvent.selectDestinationKnowledge(knowledge.type);
 
     if (knowledge.type === "no-clue") {
       setCurrentStep("pick-destination");
@@ -116,6 +136,10 @@ export default function HomePage() {
     preferences: PickDestinationPreferences,
   ) => {
     setPickDestinationPreferences(preferences);
+    
+    // Track destination preferences completion
+    trackTravelEvent.completeDestinationPreferences(preferences);
+    
     // Add delay to allow form transition to complete and fade out before showing loading
     setTimeout(() => {
       generateDestinationRecommendations(preferences);
@@ -132,6 +156,9 @@ export default function HomePage() {
     setIsLoadingDestinations(true);
     setDestinationError(null);
     setCurrentStep("destination-recommendations");
+    
+    // Track AI recommendation request
+    trackTravelEvent.requestAIRecommendations('destinations');
 
     try {
       const response = await aiDestinationService.getDestinationRecommendations(
@@ -143,10 +170,14 @@ export default function HomePage() {
       );
 
       setAiDestinationResponse(response);
-    } catch {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setDestinationError(
         "Failed to get destination recommendations. Please try again.",
       );
+      
+      // Track error
+      trackTravelEvent.error('destination_recommendations_failed', errorMessage);
     } finally {
       setIsLoadingDestinations(false);
     }
@@ -154,19 +185,31 @@ export default function HomePage() {
 
   const handleDestinationSelect = (destination: Destination) => {
     setSelectedDestination(destination);
+    
+    // Track destination selection
+    trackTravelEvent.selectDestination(destination.name);
+    
     setCurrentStep("planning");
   };
 
   const handleTripPlanningComplete = (response: AITripPlanningResponse) => {
     try {
       setAiTripPlanningResponse(response);
+      
+      // Track trip planning completion
+      trackTravelEvent.completeTripPlanning();
+      
       setCurrentStep("plan");
-    } catch {
-      // Stay on planning step if there's an error
+    } catch (error) {
+      // Track error and stay on planning step
+      trackTravelEvent.error('trip_planning_failed');
     }
   };
 
   const handleRegeneratePlan = () => {
+    // Track plan regeneration
+    trackTravelEvent.regeneratePlan();
+    
     setCurrentStep("planning");
   };
 
@@ -179,6 +222,9 @@ export default function HomePage() {
   };
 
   const handleDestinationInput = (destinationName: string) => {
+    // Track manual destination input
+    trackTravelEvent.inputDestination(destinationName);
+    
     // Create a destination object from the user input
     const customDestination: Destination = {
       id: "user-input",
@@ -374,6 +420,11 @@ export default function HomePage() {
         );
 
       case "plan":
+        // Track when user views the final travel plan
+        if (selectedDestination) {
+          trackTravelEvent.viewTravelPlan(selectedDestination.name);
+        }
+        
         return (
           <AITravelPlan
             destination={selectedDestination!}
