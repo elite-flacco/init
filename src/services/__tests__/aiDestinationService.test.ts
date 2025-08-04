@@ -133,16 +133,16 @@ describe("aiDestinationService", () => {
       const response =
         await aiDestinationService.getDestinationRecommendations(request);
 
-      response.destinations.forEach((destination) => {
-        expect(destination).toHaveProperty("id");
-        expect(destination).toHaveProperty("name");
-        expect(destination).toHaveProperty("country");
-        expect(destination).toHaveProperty("description");
-        expect(destination).toHaveProperty("image");
-        expect(destination).toHaveProperty("highlights");
-        expect(destination).toHaveProperty("bestTime");
-        expect(destination).toHaveProperty("budget");
-      });
-    });
-  });
-});
+      response.destinations.forEach(destination => {
+        expect(destination).toHaveProperty('id')
+        expect(destination).toHaveProperty('name')
+        expect(destination).toHaveProperty('country')
+        expect(destination).toHaveProperty('description')
+        expect(destination).toHaveProperty('image')
+        expect(destination).toHaveProperty('highlights')
+        expect(destination).toHaveProperty('bestTime')
+        expect(destination).toHaveProperty('estimatedCost')
+      })
+    })
+  })
+})
