@@ -5,16 +5,16 @@ export const travelerTypes: TravelerType[] = [
     id: "explorer",
     name: "Explorer",
     description:
-      "I’m down for whatever - just show me all the cool stuff and I’ll have a blast.",
-    icon: "🎢",
+      "I'm down for whatever - just show me all the cool stuff and I'll have a blast.",
+    icon: "explorer", // Now handled by icon mapping
     showPlaceholder: false,
   },
   {
     id: "type-a",
-    name: "Type A",
+    name: "Type A", 
     description:
       "I have spreadsheets for my spreadsheets. Every minute planned, every detail covered.",
-    icon: "📋",
+    icon: "type-a", // Now handled by icon mapping
     showPlaceholder: true,
     placeholderMessage:
       "We're currently deep in the spreadsheets perfecting this feature. Keep being your organized self - we'll have something awesome for you soon.",
@@ -23,8 +23,8 @@ export const travelerTypes: TravelerType[] = [
   {
     id: "overthinker",
     name: "Typical Overthinker",
-    description: "I’ve got 51 tabs open, and still not sure where to stay.",
-    icon: "🧠",
+    description: "I've got 51 tabs open, and still not sure where to stay.",
+    icon: "overthinker", // Now handled by icon mapping
     showPlaceholder: true,
     placeholderMessage:
       "We're busy overthinking how to help you stop overthinking. Stay tuned.",
@@ -35,7 +35,7 @@ export const travelerTypes: TravelerType[] = [
     name: "Just Here to Chill",
     description:
       "Beach, spa, nap, repeat. My toughest decision should be piña colada or mojito.",
-    icon: "🌴",
+    icon: "chill", // Now handled by icon mapping
     showPlaceholder: true,
     placeholderMessage:
       "We aren't slacking off at the beach - chill mode support is coming soon. In the meantime, Netflix and chill?",

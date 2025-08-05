@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import { ArrowRight } from "lucide-react";
 import { DestinationKnowledge } from "../types/travel";
+import { getDestinationKnowledgeIcon } from "../utils/iconMapping";
 
 interface DestinationKnowledgeSelectionProps {
   onSelect: (knowledge: DestinationKnowledge) => void;
@@ -41,14 +43,13 @@ export function DestinationKnowledgeSelection({
     <div className="container max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
       {/* Header Section */}
       <div
-        className={`page-header transition-all duration-700 ${
-          isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-        }`}
+        className={`page-header transition-all duration-700 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+          }`}
         role="banner"
         aria-labelledby="step-title"
       >
-        <h1 className="page-title mb-6">Where are we headed?</h1>
-        <p className="page-subtitle max-w-2xl mx-auto mb-4 opacity-90">
+        <h1 className="text-3d-hero text-4xl md:text-5xl lg:text-6xl mb-6">Where are we headed?</h1>
+        <p className="page-subtitle max-w-2xl mx-auto mb-4">
           Whether you've got your heart set on somewhere specific or you're completely open to suggestions, we're here for it.
         </p>
       </div>
@@ -62,11 +63,10 @@ export function DestinationKnowledgeSelection({
         {destinationOptions.map((option, index) => (
           <div
             key={option.type}
-            className={`group relative cursor-pointer transition-all duration-500 ${
-              isLoaded
+            className={`group relative cursor-pointer transition-all duration-500 ${isLoaded
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-12"
-            }`}
+              }`}
             style={{
               transitionDelay: `${200 + index * 150}ms`,
             }}
@@ -81,37 +81,27 @@ export function DestinationKnowledgeSelection({
             tabIndex={0}
             aria-label={`Select ${option.label}: ${option.description}`}
           >
-            {/* Adventure Glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary/30 rounded-3xl blur-2xl opacity-0 group-hover:opacity-50 transition-opacity duration-500 -z-10 animate-glow-pulse"></div>
+            <div className={`option-card-rotating p-4 md:p-8 lg:pl-16 lg:pr-8 lg:pt-8 lg:pb-8 ${index % 2 === 0 ? 'card-3d-rotate-left' : 'card-3d-rotate-right'}`}>
 
-            {/* Asymmetrical Adventure Card */}
-            <div className="bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-primary/30 group-hover:border-primary/50 rounded-3xl shadow-adventure-float group-hover:shadow-travel-card relative overflow-hidden transform -rotate-1 group-hover:rotate-0 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 p-8 lg:pl-16 lg:pr-8 lg:pt-12 lg:pb-8">
-
-              {/* Subtle background pattern */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"></div>
-
-              {/* Shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
-
-              <div className="relative flex items-center justify-between -ml-4 lg:-ml-8">
+              <div className="flex items-center justify-between">
+                <span className="text-2xl mr-2 md:mr-3 lg:mr-4">
+                  {getDestinationKnowledgeIcon(option.type)}
+                </span>
                 <div className="flex-1">
-                  <div className="flex items-center mb-4">
-                    <span className="text-2xl mr-3">
-                      {option.type === 'yes' ? '🎯' : option.type === 'country' ? '🗺️' : '🌍'}
-                    </span>
-                    <h3 className="font-display font-bold text-foreground group-hover:text-primary transition-colors duration-300 text-xl lg:text-2xl tracking-tight">
+                  <div className="flex items-center">
+                    <h3 className="option-card-title">
                       {option.label}
                     </h3>
                   </div>
-                  <p className="text-base lg:text-lg text-foreground-secondary group-hover:text-foreground transition-colors duration-300 leading-relaxed font-medium ml-4 lg:ml-8">
+                  <p className="option-card-description">
                     {option.description}
                   </p>
                 </div>
 
                 {/* Selection Arrow */}
                 <div className="ml-6 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
-                  <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm">→</span>
+                  <div className="w-8 h-8 gradient-primary rounded-full flex items-center justify-center">
+                    <ArrowRight className="w-4 h-4 text-white" />
                   </div>
                 </div>
               </div>

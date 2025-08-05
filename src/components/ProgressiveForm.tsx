@@ -135,24 +135,6 @@ export function ProgressiveForm({
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Adventure Background Elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-16 text-4xl opacity-10 animate-float">
-          🧭
-        </div>
-        <div
-          className="absolute bottom-40 left-24 text-5xl opacity-10 animate-bounce-subtle"
-          style={{ animationDelay: "2s" }}
-        >
-          🗺️
-        </div>
-        <div
-          className="absolute bottom-32 right-32 text-4xl opacity-20 animate-float"
-          style={{ animationDelay: "0.5s" }}
-        >
-          ✈️
-        </div>
-      </div>
 
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         {/* Asymmetrical Adventure Header */}
@@ -164,7 +146,7 @@ export function ProgressiveForm({
           >
             {title && (
               <div className="text-center ml-8 md:ml-16 lg:ml-24 mb-8">
-                <h1 className=" mb-6 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent leading-tight max-w-4xl">
+                <h1 className="text-3d-gradient mb-6 leading-tight max-w-4xl">
                   {title}
                 </h1>
               </div>
@@ -207,7 +189,7 @@ export function ProgressiveForm({
                     ease: [0.25, 0.46, 0.45, 0.94],
                     delay: index * 0.15,
                   }}
-                  className="flex justify-center items-center py-4"
+                  className="flex justify-center items-center py-2"
                   ref={(el) => (stepRefs.current[index] = el)}
                 >
                   {/* Asymmetrical question layout */}

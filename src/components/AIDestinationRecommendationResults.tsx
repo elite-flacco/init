@@ -43,11 +43,11 @@ export function AIDestinationRecommendationResults({
     <div className="max-w-7xl mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h3 className="mb-2 page-title">Your Top Hits</h3>
+          <h2 className="mb-2 text-3d-gradient">Your Top Hits</h2>
           <p className="page-subtitle text-left">We think you'll love these 😉</p>
         </div>
         {onRegenerate && destinations.length > 0 && (
-          <button onClick={onRegenerate} className="btn-primary">
+          <button onClick={onRegenerate} className="btn-3d-primary">
             <RefreshCw className="w-4 h-4 mr-2" />
             Show Me More
           </button>
@@ -69,7 +69,7 @@ export function AIDestinationRecommendationResults({
         <div className="text-center py-16">
           <h6 className="mb-4">Hmm, our AI is having a moment. Let's try this again.</h6>
           {onRegenerate && (
-            <button onClick={onRegenerate} className="btn-primary">
+            <button onClick={onRegenerate} className="btn-3d-primary">
               <RefreshCw className="w-4 h-4 mr-2" />
               Try Again
             </button>

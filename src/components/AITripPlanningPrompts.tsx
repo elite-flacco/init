@@ -185,16 +185,7 @@ export function AITripPlanningPrompts({
 
   if (generationError) {
     return (
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        {/* Adventure Background Elements */}
-        <div className="fixed inset-0 pointer-events-none z-0">
-          <div className="absolute top-20 left-10 text-4xl opacity-[0.03] animate-float-slow transform rotate-12">
-            🗺️
-          </div>
-          <div className="absolute bottom-20 right-10 text-3xl opacity-[0.03] animate-float-slow transform -rotate-6">
-            🧭
-          </div>
-        </div>
+      <div className="flex items-center justify-center relative overflow-hidden">
 
         <div className="relative z-10 text-center p-8 max-w-2xl">
           {/* Adventure Error Container */}
@@ -264,64 +255,14 @@ export function AITripPlanningPrompts({
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Adventure Background Elements */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-20 left-10 text-4xl opacity-[0.03] animate-float-slow transform rotate-12">
-          🗺️
-        </div>
-        <div className="absolute top-60 right-20 text-3xl opacity-[0.04] animate-float-delayed transform -rotate-12">
-          🧭
-        </div>
-        <div className="absolute bottom-40 left-20 text-5xl opacity-[0.02] animate-float transform rotate-45">
-          ⛰️
-        </div>
-        <div className="absolute bottom-20 right-10 text-3xl opacity-[0.03] animate-float-slow transform -rotate-6">
-          🎒
-        </div>
-      </div>
-
-      <div className="relative z-10 container max-w-5xl mx-auto px-4 py-8">
-        {/* Adventure Planning Header */}
-        <div className="text-center mb-12">
-          <div className="transform -rotate-1 hover:rotate-0 transition-transform duration-700 mb-8">
-            <div className="inline-block bg-gradient-to-br from-primary/20 via-accent/15 to-secondary/20 rounded-3xl p-8 lg:p-12 border-2 border-border/30 backdrop-blur-xl shadow-adventure-float relative">
-              {/* Adventure Glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary/30 rounded-3xl blur-xl opacity-50 -z-10 animate-adventure-float"></div>
-
-              <h2 className="text-4xl lg:text-5xl font-display font-bold mb-6 bg-gradient-to-br from-primary via-accent to-secondary bg-clip-text text-transparent leading-tight">
-                Let's Plan Your {getDestinationName()} Trip!
-              </h2>
-
-              <p className="text-lg lg:text-xl text-foreground-secondary max-w-3xl mx-auto leading-relaxed">
-                Time to plan something awesome for {getDestinationName()}.
-                Just answer a few quick questions and we'll craft a travel plan that's perfectly you.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Adventure Form Container */}
-        <div className="relative">
-          <div className="transform rotate-1 hover:rotate-0 transition-transform duration-700">
-            <div className="bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 rounded-3xl p-8 lg:p-10 shadow-card hover:shadow-adventure-float transition-all duration-500 relative overflow-hidden">
-              {/* Adventure Glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 via-accent/10 to-primary/20 rounded-3xl blur-xl opacity-0 hover:opacity-100 transition-all duration-700 -z-10"></div>
-
-              {/* Adventure Pattern */}
-              <div className="absolute top-6 right-6 text-3xl opacity-20 hover:opacity-40 transition-opacity duration-500 animate-spin-slow">
-                🧭
-              </div>
-
-              <ProgressiveForm
-                questions={getQuestions()}
-                onComplete={handleFormComplete}
-                title=""
-                subtitle=""
-              />
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen">
+      <div className="container mx-auto px-4 py-8">
+        <ProgressiveForm
+          questions={getQuestions()}
+          onComplete={handleFormComplete}
+          title={`Let's plan your ${getDestinationName()} trip!`}
+          subtitle="Answer a few questions and we'll craft a travel plan that's perfectly you"
+        />
       </div>
     </div>
   );

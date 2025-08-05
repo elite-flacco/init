@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Brain,
-  Compass,
-  Utensils,
-  Home,
-  Globe,
-  Map,
-  Navigation,
-} from "lucide-react";
+import { BrainIcon3D, CoffeeIcon3D, GlobeIcon3D, MapIcon3D, MapPinIcon3D, SuitcaseIcon3D, TravelIcon3D } from "./Icon3D";
 import { BaseLoading, LoadingStage } from "./BaseLoading";
 
 interface TravelPlanLoadingProps {
@@ -17,37 +9,37 @@ interface TravelPlanLoadingProps {
 
 const adventureStages: LoadingStage[] = [
   {
-    icon: Brain,
+    icon: BrainIcon3D,
     message: "🧠 Getting to know your travel style...",
     detail: "Understanding what kind of trip you're looking for",
   },
   {
-    icon: Map,
+    icon: MapPinIcon3D,
     message: "🗺️ Finding great places to visit...",
     detail: "Discovering cool spots and local favorites",
   },
   {
-    icon: Navigation,
+    icon: MapIcon3D,
     message: "🧭 Planning your route...",
     detail: "Creating the perfect mix of must-sees and relaxation",
   },
   {
-    icon: Utensils,
+    icon: CoffeeIcon3D,
     message: "🍽️ Finding amazing food spots...",
     detail: "From street food to fine dining - whatever you're into",
   },
   {
-    icon: Home,
+    icon: SuitcaseIcon3D,
     message: "🏠 Picking the best areas to stay...",
     detail: "Finding neighborhoods that match your vibe",
   },
   {
-    icon: Compass,
+    icon: TravelIcon3D,
     message: "✨ Adding special experiences...",
     detail: "The memorable moments that make trips amazing",
   },
   {
-    icon: Globe,
+    icon: GlobeIcon3D,
     message: "🌍 Putting it all together...",
     detail: "Your personalized travel plan is almost ready!",
   },
@@ -69,7 +61,7 @@ export function TravelPlanLoading({
       showStageIndicators={true}
       showProgressDots={false}
       showOrbitingIcon={true}
-      centralIcon={Compass}
+      centralIcon={MapIcon3D}
       className="min-h-screen"
       progressLabel={`Planning your trip to ${destinationName}`}
       footerMessage={
@@ -83,21 +75,6 @@ export function TravelPlanLoading({
       }
       ariaLabel="Generating personalized adventure plan"
     >
-      {/* Adventure Background Elements */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-20 left-10 text-4xl opacity-[0.03] animate-float-slow transform rotate-12">
-          🗺️
-        </div>
-        <div className="absolute top-60 right-20 text-3xl opacity-[0.04] animate-float-delayed transform -rotate-12">
-          🧭
-        </div>
-        <div className="absolute bottom-40 left-20 text-5xl opacity-[0.02] animate-float transform rotate-45">
-          ⛰️
-        </div>
-        <div className="absolute bottom-20 right-10 text-3xl opacity-[0.03] animate-float-slow transform -rotate-6">
-          🎒
-        </div>
-      </div>
     </BaseLoading>
   );
 }

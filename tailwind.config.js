@@ -15,19 +15,19 @@ module.exports = {
       colors: {
         // 🌅 Sunset Orange (Primary) - Warm adventure spirit
         primary: {
-          DEFAULT: "#FF6B35", // Sunset orange (adventurous, warm)
-          light: "#FF8A5C", // Soft sunset
-          dark: "#E55A2B", // Deep sunset
-          50: "#FFF4F0",
-          100: "#FFE8DC",
-          200: "#FFD0B8",
-          300: "#FFB089",
-          400: "#FF8A5C",
-          500: "#FF6B35",
-          600: "#E55A2B",
-          700: "#CC4A21",
-          800: "#B33B17",
-          900: "#99320D",
+          DEFAULT: "#18b5c1", // Sunset orange (adventurous, warm)
+          light: "#a2eff5", // Soft sunset
+          dark: "#024047", // Deep sunset
+          50: "#e9fdfe",
+          100: "#c9f7fa",
+          200: "#a2eff5",
+          300: "#64dfe9",
+          400: "#32cfd9",
+          500: "#18b5c1",
+          600: "#0e99a4",
+          700: "#0b7786",
+          800: "#055c64",
+          900: "#024047",
         },
 
         // 🌊 Deep Teal (Secondary) - Calming waters, adventure depth
@@ -77,9 +77,9 @@ module.exports = {
 
         // 🏖️ Adventure Backgrounds - Warm, inviting travel vibes
         background: {
-          DEFAULT: "#F7FAFC", // Warm off-white (like sand)
-          muted: "#FFF8F0", // Soft cream (like morning light)
-          soft: "#FEFCF7", // General UI background
+          DEFAULT: "#FFFFFF", // Warm off-white (like sand)
+          muted: "#FAF9F6", // Soft cream (like morning light)
+          soft: "#F7FAFC", // General UI background
           card: "#FFFFFF", // Card backgrounds
           pattern: "#FFF4F0", // Pattern overlay
         },
@@ -179,6 +179,12 @@ module.exports = {
         176: "44rem",
         192: "48rem",
       },
+      scale: {
+        175: '1.75',
+        200: '2',
+        250: '2.5',
+        300: '3'
+      },
       borderRadius: {
         "4xl": "2rem",
         "5xl": "2.5rem",
@@ -238,10 +244,6 @@ module.exports = {
           "0%": { transform: "scale(0.95)", opacity: "0" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
-        "bounce-subtle": {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-2px)" },
-        },
         "glow-pulse": {
           "0%, 100%": { boxShadow: "0 0 24px rgba(255, 107, 53, 0.3)" },
           "50%": { boxShadow: "0 0 36px rgba(255, 107, 53, 0.5)" },
@@ -260,8 +262,8 @@ module.exports = {
           "100%": { transform: "translateX(100%)" },
         },
         float: {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-10px)" },
+          "0%, 100%": { transform: "translateY(0px) scale(2)" },
+          "50%": { transform: "translateY(-10px) scale(2)" },
         },
         wiggle: {
           "0%, 100%": { transform: "rotate(-3deg)" },
@@ -274,8 +276,16 @@ module.exports = {
 
         // Loading and progress animations
         "spin-slow": {
-          "0%": { transform: "rotate(0deg)" },
-          "100%": { transform: "rotate(360deg)" },
+          "0%": { transform: "rotate(0deg) scale(2)" },
+          "100%": { transform: "rotate(360deg) scale(2)" },
+        },
+        "spin-horizontal": {
+          "0%": { transform: "rotateY(0deg) scale(2)" },
+          "100%": { transform: "rotateY(360deg) scale(2)" },
+        },
+        "bounce-subtle": {
+          "0%, 100%": { transform: "translateY(0) scale(2)" },
+          "50%": { transform: "translateY(-2px) scale(2)" },
         },
         "pulse-slow": {
           "0%, 100%": { opacity: "1" },

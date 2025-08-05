@@ -21,6 +21,7 @@ import {
   Edit,
   Coffee,
 } from "lucide-react";
+import { getActivityIcon } from "../utils/iconMapping";
 import {
   Destination,
   TravelerType,
@@ -37,6 +38,7 @@ import { ItemGrid } from "./ui/ItemGrid";
 import { CategoryGroup } from "./ui/CategoryGroup";
 import { KMLExportLoading } from "./ui/KMLExportLoading";
 import { ContentGrid, ContentCard } from "./ui/ContentGrid";
+import { MapIcon3D, NotebookIcon3D, SuitcaseIcon3D, CalendarIcon3D } from "./ui/Icon3D";
 
 interface AITravelPlanProps {
   destination: Destination;
@@ -209,18 +211,20 @@ export function AITravelPlan({
 
   // Helper function to get icon component based on icon name
   const getIconComponent = (iconName: string) => {
-    switch (iconName) {
-      case "coffee":
-        return <Coffee className="w-6 h-6 animate-pulse-slow" />;
-      case "map":
-        return <MapPin className="w-6 h-6 animate-bounce-subtle" />;
-      case "utensils":
-        return <Utensils className="w-6 h-6 animate-pulse-slow" />;
-      case "compass":
-        return <Compass className="w-6 h-6 animate-spin-slow" />;
-      default:
-        return <Compass className="w-6 h-6 animate-bounce-subtle" />;
-    }
+    const getAnimationFromIconName = (name: string) => {
+      switch (name) {
+        case "coffee": return "pulse";
+        case "map": return "bounce";
+        case "utensils": return "pulse";
+        case "compass": return "bounce";
+        case "camera": return "none";
+        case "exploration": return "none";
+        case "afternoon": return "none";
+        default: return "none";
+      }
+    };
+
+    return getActivityIcon(iconName, "xs", getAnimationFromIconName(iconName) as any);
   };
 
   // Render a single activity
@@ -234,14 +238,14 @@ export function AITravelPlan({
           <div className="flex items-start relative z-10">
             {/* Time Badge */}
             <div className="flex-shrink-0 mr-4">
-              <div className="inline-flex items-center bg-primary/20 text-primary px-3 py-2 rounded-full font-bold text-sm transform -rotate-1 group-hover:rotate-0 transition-transform duration-300">
+              <div className="inline-flex items-center justify-start bg-primary/20 text-primary px-3 py-2 rounded-full font-bold text-sm transform -rotate-1 group-hover:rotate-0 transition-transform duration-300">
                 {activity.time}
               </div>
             </div>
 
             {/* Activity Content */}
             <div className="flex-1">
-              <div className="flex items-center mb-2">
+              <div className="flex items-center mb-1">
                 <div className="flex-shrink-0 mr-3">
                   {activity.icon ? (
                     getIconComponent(activity.icon)
@@ -263,7 +267,7 @@ export function AITravelPlan({
 
               {activity.description && (
                 <div className="ml-9">
-                  <p className="text-foreground-secondary group-hover:text-foreground transition-colors duration-300 leading-relaxed">
+                  <p className="group-hover:text-foreground transition-colors duration-300 leading-relaxed">
                     {activity.description}
                   </p>
                 </div>
@@ -286,8 +290,8 @@ export function AITravelPlan({
 
           {/* Day Header */}
           <div className="flex items-center mb-8">
-            <div className="inline-flex items-center bg-secondary/20 text-secondary px-6 py-3 rounded-full font-bold text-xl mr-4 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
-              <Calendar className="w-5 h-5 mr-3" />
+            <div className="inline-flex items-center bg-primary/20 text-primary px-6 py-3 rounded-full font-bold text-base md:text-lg lg:text-lg mr-4 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+              <CalendarIcon3D size="xs" />
               {day.title}
             </div>
           </div>
@@ -311,9 +315,9 @@ export function AITravelPlan({
           <div className="mb-3 sm:mb-0">
             <div className="flex items-start">
               <Sparkles className="w-16 h-16 text-primary mr-2" />
-              <h1 className="page-title">
+              <h2 className="text-3d-gradient">
                 Your Travel Plan
-              </h1>
+              </h2>
             </div>
           </div>
 
@@ -321,19 +325,19 @@ export function AITravelPlan({
           <div className="hidden sm:flex items-center space-x-2">
             <button
               onClick={onRegeneratePlan}
-              className="flex items-center p-2 btn-secondary"
+              className="flex items-center p-2 btn-3d-outline"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
             <button
-              className="flex items-center p-2 btn-secondary"
+              className="flex items-center p-2 btn-3d-outline"
               onClick={handleExportToPdf}
               title="Export to PDF"
             >
               <FileText className="w-4 h-4 " />
             </button>
             <button
-              className="flex items-center p-2 btn-secondary"
+              className="flex items-center p-2 btn-3d-outline"
               onClick={handleExportToGoogleMaps}
               disabled={isExportingKML}
               title="Export to Google Maps (KML)"
@@ -345,7 +349,7 @@ export function AITravelPlan({
               )}
             </button>
             <button
-              className="flex items-center p-2 btn-secondary"
+              className="flex items-center p-2 btn-3d-outline"
               onClick={handleShare}
               disabled={isSharing}
               title="Share this travel plan"
@@ -362,7 +366,7 @@ export function AITravelPlan({
           <div className="relative sm:hidden" ref={mobileActionsRef}>
             <button
               onClick={() => setShowMobileActions(!showMobileActions)}
-              className="flex items-center px-4 py-2 text-sm btn-secondary w-full justify-between"
+              className="flex items-center px-4 py-2 text-sm btn-3d-outline w-full justify-between"
             >
               <span>Actions</span>
               <ChevronDown
@@ -428,18 +432,18 @@ export function AITravelPlan({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="mb-8 relative">
-          <div className="flex flex-col xl:flex-row justify-center items-center gap-4 xl:gap-4 px-4 max-w-none mx-auto">
+        <div className="mb-4 relative">
+          <div className="flex flex-col xl:flex-row justify-center items-center gap-2 xl:gap-2 px-2 max-w-none mx-auto">
             <button
               onClick={() => setActiveTab("itinerary")}
               className={`group transition-all duration-300 transform hover:scale-105 w-full xl:w-auto border-0 shadow-none ${activeTab === "itinerary" ? "scale-110" : "hover:-translate-y-1"
                 }`}
             >
-              <div className={`inline-flex items-center justify-center px-6 py-4 rounded-full font-bold text-lg transform transition-all duration-300 whitespace-nowrap ${activeTab === "itinerary"
+              <div className={`inline-flex items-center justify-center px-6 py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "itinerary"
                   ? "bg-primary/20 text-primary -rotate-1 shadow-glow"
                   : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-primary/10 hover:to-primary/5 hover:text-primary hover:border-primary/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
                 }`}>
-                <span className="w-5 h-5 mr-3 flex-shrink-0">🗺️</span>
+                <MapIcon3D size="xs" />
                 <span>Adventure Blueprint</span>
               </div>
             </button>
@@ -449,11 +453,11 @@ export function AITravelPlan({
               className={`group transition-all duration-300 transform hover:scale-105 w-full xl:w-auto border-0 shadow-none ${activeTab === "info" ? "scale-110" : "hover:-translate-y-1"
                 }`}
             >
-              <div className={`inline-flex items-center justify-center px-6 py-4 rounded-full font-bold text-lg transform transition-all duration-300 whitespace-nowrap ${activeTab === "info"
+              <div className={`inline-flex items-center justify-center px-6 py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "info"
                   ? "bg-secondary/20 text-secondary -rotate-2 shadow-glow-teal"
                   : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-secondary/10 hover:to-secondary/5 hover:text-secondary hover:border-secondary/20 rotate-2 hover:rotate-0 shadow-card hover:shadow-adventure-float"
                 }`}>
-                <span className="w-5 h-5 mr-3 flex-shrink-0">🕵️‍♂️</span>
+                <NotebookIcon3D size="xs" />
                 <span>Intelligence Briefing</span>
               </div>
             </button>
@@ -463,11 +467,11 @@ export function AITravelPlan({
               className={`group transition-all duration-300 transform hover:scale-105 w-full xl:w-auto border-0 shadow-none ${activeTab === "practical" ? "scale-110" : "hover:-translate-y-1"
                 }`}
             >
-              <div className={`inline-flex items-center justify-center px-6 py-4 rounded-full font-bold text-lg transform transition-all duration-300 whitespace-nowrap ${activeTab === "practical"
+              <div className={`inline-flex items-center justify-center px-6 py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "practical"
                   ? "bg-accent/20 text-accent -rotate-2 shadow-glow-coral"
                   : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-accent/10 hover:to-accent/5 hover:text-accent hover:border-accent/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
                 }`}>
-                <span className="w-5 h-5 mr-3 flex-shrink-0">🛠️</span>
+                <SuitcaseIcon3D size="xs" />
                 <span>Practical Guide</span>
               </div>
             </button>
@@ -1351,7 +1355,7 @@ export function AITravelPlan({
       {onBack && (
         <button
           onClick={onBack}
-          className="fixed bottom-18 right-6 btn-primary z-50 flex items-center p-2"
+          className="fixed bottom-18 right-6 btn-3d-primary z-50 flex items-center p-2"
           aria-label="Go back to edit plan"
         >
           <Edit className="w-4 h-4" />

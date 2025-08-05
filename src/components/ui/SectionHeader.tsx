@@ -28,7 +28,7 @@ export function SectionHeader({
         className={`inline-flex items-center ${badgeClasses} px-4 py-2 rounded-full font-bold text-lg mr-4 transform -rotate-2 hover:rotate-0 transition-transform duration-300`}
       >
         {/* <Icon className="w-5 h-5 mr-3" /> */}
-        <div className="text-xl animate-bounce-subtle mr-2">{emoji}</div>
+        <div className="text-base md:text-lg lg:text-lg mr-2">{emoji}</div>
         {title}
       </div>
       {/* <div className="text-2xl animate-bounce-subtle">{emoji}</div> */}

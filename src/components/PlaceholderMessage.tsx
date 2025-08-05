@@ -1,5 +1,5 @@
-import { Card } from "./ui/Card";
 import { TravelerType } from "../types/travel";
+import { getTravelerTypeIcon } from "../utils/iconMapping";
 
 interface PlaceholderMessageProps {
   travelerType: TravelerType;
@@ -16,18 +16,15 @@ export function PlaceholderMessage({
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <Card className="card pt-12 text-center">
-        <div
-          className="text-4xl sm:text-6xl md:text-8xl lg:text-10xl mb-6"
-          aria-hidden="true"
-        >
-          {travelerType.icon}
+      <div className="group card-3d items-center justify-center text-center p-12 lift-hover">
+        <div className="mb-6 rotate-hover group-hover:scale-110 group-hover:rotate-12 transition-transform duration-500" aria-hidden="true">
+          {getTravelerTypeIcon(travelerType.id, "2xl")}
         </div>
-        <h3 className="mb-12">{travelerType.greeting}</h3>
-        <h6 className="mb-8 text-foreground-secondary">
+        <h3 className="text-3d-title mb-12">{travelerType.greeting}</h3>
+        <h6 className="mb-8 text-foreground-secondary font-medium">
           {travelerType.placeholderMessage}
         </h6>
-      </Card>
+      </div>
     </div>
   );
 }

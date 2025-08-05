@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { LucideIcon, Compass } from "lucide-react";
+import { Icon3D, TravelIcon3D, Icon3DProps } from "./Icon3D";
 
 export interface LoadingStage {
-  icon: LucideIcon;
+  icon: React.ComponentType<Omit<Icon3DProps, "src" | "alt">>;
   message: string;
   detail: string;
 }
@@ -20,7 +20,7 @@ export interface BaseLoadingProps {
   simpleStageIndicators?: boolean;
   showProgressDots?: boolean;
   showOrbitingIcon?: boolean;
-  centralIcon?: LucideIcon;
+  centralIcon?: React.ComponentType<Omit<Icon3DProps, "src" | "alt">>;
   children?: React.ReactNode;
   className?: string;
   footerMessage?: React.ReactNode;
@@ -40,8 +40,8 @@ export function BaseLoading({
   showStageIndicators = true,
   simpleStageIndicators = false,
   showProgressDots = false,
-  showOrbitingIcon = true,
-  centralIcon: CentralIcon = Compass,
+  showOrbitingIcon: _showOrbitingIcon = true,
+  centralIcon: CentralIcon = TravelIcon3D,
   children,
   className = "",
   footerMessage,
@@ -80,35 +80,25 @@ export function BaseLoading({
   if (!isVisible) return null;
 
   const currentStage = stages[currentStageIndex];
-  const IconComponent = currentStage.icon;
 
   return (
     <div className={`flex items-center justify-center p-4 relative overflow-hidden ${className}`}>
       {children}
-      
+
       <div className="relative z-10 max-w-3xl w-full">
         <div className="transform -rotate-1 hover:rotate-0 transition-transform duration-700">
           <div className="bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 rounded-3xl p-8 lg:p-12 shadow-adventure-float relative overflow-hidden text-center">
             {/* Glow Effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary/30 rounded-3xl blur-xl opacity-50 -z-10 animate-adventure-float"></div>
-            
+
             {/* Central Animation */}
             <div className="relative mb-10">
               <div className="relative flex justify-center items-center h-32">
                 {/* Central Icon */}
-                <div className="absolute">
-                  <div className="relative">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary/30 to-accent/40 rounded-full flex items-center justify-center animate-pulse-slow border-2 border-primary/50">
-                      <CentralIcon className="w-8 h-8 text-primary animate-spin-slow" />
-                    </div>
-                    <div className="absolute inset-0 animate-glow-pulse">
-                      <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-accent/30 rounded-full opacity-50"></div>
-                    </div>
-                  </div>
-                </div>
+                <CentralIcon size="md" animation="spin" />
 
                 {/* Orbiting Stage Icon */}
-                {showOrbitingIcon && (
+                {/* {showOrbitingIcon && (
                   <div className="absolute animate-spin-slow">
                     <div
                       className="w-28 h-28 flex items-center justify-center"
@@ -126,15 +116,15 @@ export function BaseLoading({
                       </div>
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
 
             {/* Title and Stage Info */}
             <div className="mb-10">
-              <h3 className="mb-6 bg-gradient-to-br from-primary via-accent to-secondary bg-clip-text text-transparent leading-tight">
+              <h2 className="text-3d-gradient mb-6 leading-tight">
                 {title}
-              </h3>
+              </h2>
               {subtitle && (
                 <p className="text-sm text-foreground-secondary mb-4">
                   {subtitle}
@@ -142,7 +132,7 @@ export function BaseLoading({
               )}
 
               <div key={currentStageIndex} className="animate-fade-in-fast">
-                <p className="text-xl font-semibold text-primary mb-3">
+                <p className="text-lg font-semibold text-foreground-secondary mb-3">
                   {currentStage.message}
                 </p>
                 <p className="text-sm text-foreground-secondary leading-relaxed">
@@ -198,13 +188,12 @@ export function BaseLoading({
                   stages.map((_, index) => (
                     <div
                       key={index}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        index === currentStageIndex
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentStageIndex
                           ? "bg-primary scale-125 shadow-glow"
                           : index < currentStageIndex
                             ? "bg-success"
                             : "bg-border"
-                      }`}
+                        }`}
                     />
                   ))
                 ) : (
@@ -214,31 +203,30 @@ export function BaseLoading({
                     return (
                       <div
                         key={index}
-                        className={`relative transition-all duration-500 ${
-                          index === currentStageIndex
+                        className={`relative transition-all duration-500 ${index === currentStageIndex
                             ? "scale-125 transform"
                             : index < currentStageIndex
                               ? "scale-100"
                               : "scale-75 opacity-50"
-                        }`}
+                          }`}
                       >
                         <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-                            index === currentStageIndex
+                          className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${index === currentStageIndex
                               ? "bg-primary/30 border-primary shadow-glow animate-pulse-slow"
                               : index < currentStageIndex
                                 ? "bg-accent/30 border-accent"
                                 : "bg-border/30 border-border"
-                          }`}
+                            }`}
                         >
                           <StageIcon
-                            className={`w-4 h-4 ${
-                              index === currentStageIndex
+                            size="xs"
+                            animation="none"
+                            className={index === currentStageIndex
                                 ? "text-primary"
                                 : index < currentStageIndex
                                   ? "text-accent"
                                   : "text-foreground-muted"
-                            }`}
+                              }
                           />
                         </div>
                       </div>
@@ -250,7 +238,7 @@ export function BaseLoading({
 
             {/* Footer Message */}
             {footerMessage && (
-              <div className="bg-gradient-to-r from-background/50 to-background-card/50 backdrop-blur-sm border border-border/30 rounded-2xl p-6">
+              <div className="glass backdrop-blur-sm border border-border/30 rounded-2xl p-6">
                 <p className="text-base text-foreground-secondary leading-relaxed">
                   {footerMessage}
                 </p>

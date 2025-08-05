@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { MapPin, Calendar, DollarSign, ArrowRight } from "lucide-react";
 import { Destination } from "../types/travel";
+import { MapPinIcon3D } from "./ui/Icon3D";
 
 interface DestinationCardProps {
   destination: Destination;
@@ -22,54 +23,52 @@ export function DestinationCard({
       onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group h-full transition-all duration-500 transform hover:-translate-y-3 hover:scale-[1.02] cursor-pointer"
+      className="group h-full"
     >
-      {/* Adventure Glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 -z-10 scale-110 animate-adventure-float"></div>
+      <div className="card-3d-destination h-full overflow-hidden">
 
-      {/* Asymmetrical Adventure Card */}
-      <div className="h-full overflow-hidden border-2 border-border/30 group-hover:border-primary/40 rounded-3xl shadow-card group-hover:shadow-adventure-float transition-all duration-500 bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl relative transform group-hover:-rotate-1 hover:rotate-0">
-
-        {/* Asymmetrical Hero Image Section */}
-        <div className="relative h-72 overflow-hidden transform group-hover:skew-y-1 transition-transform duration-700">
+        {/* Hero Image Section */}
+        <div className="relative h-72 overflow-hidden">
           <img
             src={destination.image}
             alt={destination.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             loading="lazy"
           />
 
-          {/* Adventure Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent group-hover:from-foreground/60 transition-all duration-500" />
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
 
-          {/* Asymmetrical Exploration Badge */}
-          <div className="absolute top-6 left-6 transform -rotate-3 group-hover:rotate-0 transition-transform duration-500">
-            <div className="flex items-center glass px-4 py-2 rounded-full shadow-glow text-sm font-semibold transform group-hover:scale-110 transition-transform duration-300">
-              <MapPin className="w-4 h-4 mr-2" />
+          {/* Country Badge */}
+          <div className="absolute top-6 left-6">
+            <div className="glass px-4 py-2 rounded-full text-sm font-semibold depth-light flex items-center">
+              <div className="mr-2">
+                <MapPinIcon3D size="xs" />
+              </div>
               {destination.country}
             </div>
           </div>
 
           {/* Destination Title */}
           <div className="absolute bottom-4 left-4 right-4">
-            <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-2 group-hover:translate-y-[-4px] transition-all duration-300 drop-shadow-lg">
+            <h3 className="text-3d-title text-2xl md:text-3xl text-white mb-2">
               {destination.name}
             </h3>
             <div
               className={`overflow-hidden transition-all duration-500 ${isHovered ? "max-h-20 opacity-100" : "max-h-0 opacity-0"}`}
             >
               <p className="text-white/90 text-sm font-medium">
-                ✨ {destination.description.split(".")[0]}...
+                {destination.description.split(".")[0]}...
               </p>
             </div>
           </div>
         </div>
 
-        {/* Adventure Details */}
+        {/* Details */}
         <div className="p-6">
-          {/* Key Adventure Info */}
+          {/* Key Info */}
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-gradient-to-br from-secondary/10 to-accent/10 p-4 rounded-xl border border-secondary/20">
+            <div className="card-3d-soft p-4">
               <div className="flex items-center mb-2">
                 <Calendar className="w-4 h-4 text-secondary mr-2" />
                 <span className="text-sm font-semibold text-secondary">
@@ -81,7 +80,7 @@ export function DestinationCard({
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-secondary/10 to-accent/10 p-4 rounded-xl border border-secondary/20">
+            <div className="card-3d-soft p-4">
               <div className="flex items-center mb-2">
                 <DollarSign className="w-4 h-4 text-secondary mr-2" />
                 <span className="text-sm font-semibold text-secondary">
@@ -94,69 +93,51 @@ export function DestinationCard({
             </div>
           </div>
 
-          {/* Adventure Highlights */}
-          <div className="mb-12">
-            <div className="flex items-center mb-3">
-              {/* <span className="text-lg mr-2">🎯</span> */}
-              <h6 className="font-bold text-foreground">Highlights</h6>
-            </div>
+          {/* Highlights */}
+          <div className="mb-8">
+            <h6 className="text-3d-title mb-3">Highlights</h6>
             <div className="flex flex-wrap gap-2">
               {destination.highlights.slice(0, 3).map((highlight, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-foreground-muted/20 to-secondary/20 text-secondary border border-secondary/30 rounded-full text-xs font-semibold transition-all duration-300 hover:scale-105"
-                >
+                <span key={index} className="badge-secondary lift-hover">
                   {highlight}
                 </span>
               ))}
               {destination.highlights.length > 3 && (
-                <span className="inline-flex items-center px-3 py-1.5 bg-foreground-muted/10 text-foreground-muted border border-foreground-muted/30 rounded-full text-xs font-medium">
+                <span className="badge text-foreground-muted bg-foreground-muted/10 border border-foreground-muted/30">
                   +{destination.highlights.length - 3} more
                 </span>
               )}
             </div>
           </div>
 
-          {/* Adventure Activities */}
-          <div className="mb-12">
-            <div className="flex items-center mb-3">
-              {/* <span className="text-lg mr-2">⚡</span> */}
-              <h6 className="font-bold text-foreground">Adventure Awaits</h6>
-            </div>
+          {/* Activities */}
+          <div className="mb-8">
+            <h6 className="text-3d-title mb-3">Adventure Awaits</h6>
             <div className="flex flex-wrap gap-2">
               {destination.keyActivities.slice(0, 2).map((activity, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-foreground-muted/20 to-secondary/20 text-secondary border border-secondary/30 rounded-full text-xs font-semibold transition-all duration-300 hover:scale-105"
-                >
+                <span key={index} className="badge-primary lift-hover">
                   {activity}
                 </span>
               ))}
               {destination.keyActivities.length > 2 && (
-                <span className="inline-flex items-center px-3 py-1.5 bg-foreground-muted/10 text-foreground-muted border border-foreground-muted/30 rounded-full text-xs font-medium">
+                <span className="badge text-foreground-muted bg-foreground-muted/10 border border-foreground-muted/30">
                   +{destination.keyActivities.length - 2} more
                 </span>
               )}
             </div>
           </div>
 
-          {/* Why This Adventure */}
+          {/* Match Reason */}
           <div className="mb-8">
-            <div className="flex items-start">
-              <div>
-                <h6 className="font-bold text-foreground mb-2">
-                  Perfect For You
-                </h6>
-                <p className="text-sm text-foreground-secondary font-medium leading-relaxed">
-                  {destination.matchReason}
-                </p>
-              </div>
-            </div>
+            <h6 className="text-3d-title mb-2">Perfect For You</h6>
+            <p className="text-sm text-foreground-secondary font-medium leading-relaxed">
+              {destination.matchReason}
+            </p>
           </div>
 
-          {/* Adventure CTA */}
+          {/* CTA Button */}
           <button
-            className="w-full group/button relative overflow-hidden bg-gradient-to-r from-primary to-accent/20 text-white font-bold py-4 px-6 rounded-xl shadow-glow hover:shadow-glow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 border-0"
+            className="btn-3d-primary w-full py-4 px-6"
             onClick={(e) => {
               e.stopPropagation();
               onViewDetails(destination);
@@ -164,7 +145,7 @@ export function DestinationCard({
           >
             <span className="flex items-center justify-center gap-2">
               🚀 Explore This
-              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover/button:translate-x-2" />
+              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
             </span>
           </button>
         </div>

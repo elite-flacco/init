@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { ArrowRight } from "lucide-react";
 import { TravelerType } from "../types/travel";
 
 interface DestinationInputComponentProps {
@@ -43,30 +44,6 @@ export function DestinationInputComponent({
 
   return (
     <div className="container overflow-hidden">
-      {/* Adventure Background Elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-16 left-12 text-4xl opacity-10 animate-float">
-          🧭
-        </div>
-        <div
-          className="absolute top-32 right-16 text-3xl opacity-20 animate-pulse-slow"
-          style={{ animationDelay: "1s" }}
-        >
-          📍
-        </div>
-        <div
-          className="absolute bottom-32 left-20 text-5xl opacity-10 animate-bounce-subtle"
-          style={{ animationDelay: "2s" }}
-        >
-          🗺️
-        </div>
-        <div
-          className="absolute bottom-20 right-32 text-4xl opacity-20 animate-float"
-          style={{ animationDelay: "0.5s" }}
-        >
-          ✈️
-        </div>
-      </div>
 
       <div className="container mx-auto px-4 relative z-10 flex items-center">
         <div className="w-full max-w-4xl mx-auto">
@@ -139,11 +116,9 @@ export function DestinationInputComponent({
                     disabled={!destination.trim()}
                     className="w-full group relative overflow-hidden bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-8 rounded-xl shadow-glow hover:shadow-glow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:translate-y-0"
                   >
-                    <span className="relative z-10 flex items-center justify-center">
-                      <span className="mr-3 text-white">🚀 Let's Go</span>
-                      <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center transform group-hover:translate-x-2 transition-transform duration-300">
-                        <span className="text-sm text-white">→</span>
-                      </div>
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      <span className="text-white">🚀 Let's Go</span>
+                      <ArrowRight className="w-5 h-5 text-white transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
 
                     {/* Button Shine Effect */}

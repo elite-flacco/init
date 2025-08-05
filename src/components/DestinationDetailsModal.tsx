@@ -141,7 +141,7 @@ export function DestinationDetailsModal({
 
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-border">
-            <button onClick={handleSelectForPlanning} className="btn-primary">
+            <button onClick={handleSelectForPlanning} className="btn-3d-primary">
               Let's Plan This Thing
               <ArrowRight className="w-4 h-4 ml-2" />
             </button>

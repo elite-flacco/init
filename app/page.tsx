@@ -63,10 +63,10 @@ export default function HomePage() {
     if (previousStep && previousStep !== currentStep) {
       trackTravelEvent.navigateStep(previousStep, currentStep);
     }
-    
+
     // Track page view for step changes
     trackPageView(`/step/${currentStep}`, `Travel Planning - ${currentStep}`);
-    
+
     setPreviousStep(currentStep);
   }, [currentStep, previousStep]);
 
@@ -104,7 +104,7 @@ export default function HomePage() {
 
   const handleTravelerTypeSelect = (type: TravelerType) => {
     setSelectedTravelerType(type);
-    
+
     // Track traveler type selection
     trackTravelEvent.selectTravelerType(type.title);
 
@@ -120,7 +120,7 @@ export default function HomePage() {
     knowledge: DestinationKnowledge,
   ) => {
     setDestinationKnowledge(knowledge);
-    
+
     // Track destination knowledge selection
     trackTravelEvent.selectDestinationKnowledge(knowledge.type);
 
@@ -136,10 +136,10 @@ export default function HomePage() {
     preferences: PickDestinationPreferences,
   ) => {
     setPickDestinationPreferences(preferences);
-    
+
     // Track destination preferences completion
     trackTravelEvent.completeDestinationPreferences(preferences);
-    
+
     // Add delay to allow form transition to complete and fade out before showing loading
     setTimeout(() => {
       generateDestinationRecommendations(preferences);
@@ -156,7 +156,7 @@ export default function HomePage() {
     setIsLoadingDestinations(true);
     setDestinationError(null);
     setCurrentStep("destination-recommendations");
-    
+
     // Track AI recommendation request
     trackTravelEvent.requestAIRecommendations('destinations');
 
@@ -175,7 +175,7 @@ export default function HomePage() {
       setDestinationError(
         "Failed to get destination recommendations. Please try again.",
       );
-      
+
       // Track error
       trackTravelEvent.error('destination_recommendations_failed', errorMessage);
     } finally {
@@ -185,20 +185,20 @@ export default function HomePage() {
 
   const handleDestinationSelect = (destination: Destination) => {
     setSelectedDestination(destination);
-    
+
     // Track destination selection
     trackTravelEvent.selectDestination(destination.name);
-    
+
     setCurrentStep("planning");
   };
 
   const handleTripPlanningComplete = (response: AITripPlanningResponse) => {
     try {
       setAiTripPlanningResponse(response);
-      
+
       // Track trip planning completion
       trackTravelEvent.completeTripPlanning();
-      
+
       setCurrentStep("plan");
     } catch (error) {
       // Track error and stay on planning step
@@ -209,7 +209,7 @@ export default function HomePage() {
   const handleRegeneratePlan = () => {
     // Track plan regeneration
     trackTravelEvent.regeneratePlan();
-    
+
     setCurrentStep("planning");
   };
 
@@ -224,7 +224,7 @@ export default function HomePage() {
   const handleDestinationInput = (destinationName: string) => {
     // Track manual destination input
     trackTravelEvent.inputDestination(destinationName);
-    
+
     // Create a destination object from the user input
     const customDestination: Destination = {
       id: "user-input",
@@ -424,7 +424,7 @@ export default function HomePage() {
         if (selectedDestination) {
           trackTravelEvent.viewTravelPlan(selectedDestination.name);
         }
-        
+
         return (
           <AITravelPlan
             destination={selectedDestination!}
@@ -468,33 +468,32 @@ export default function HomePage() {
       </div>
 
       {/* Navigation Elements - Right Side */}
-      {currentStep !== "plan" && (
+      {currentStep !== "plan" && currentStep !== "traveler-type" && (
         <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center space-y-4">
           {/* Back Button */}
-          {currentStep !== "traveler-type" && (
-            <button
-              onClick={handleBack}
-              className="group inline-flex items-center p-3 text-sm font-medium text-foreground-muted hover:text-primary bg-white/80 hover:bg-white/90 backdrop-blur-sm border border-border/50 hover:border-primary/30 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-              aria-label="Go back to previous step"
+
+          <button
+            onClick={handleBack}
+            className="btn-3d-outline group inline-flex items-center p-2 text-sm font-medium"
+            aria-label="Go back to previous step"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
-              >
-                <path d="m12 19-7-7 7-7"></path>
-                <path d="M19 12H5"></path>
-              </svg>
-            </button>
-          )}
-          
+              <path d="m12 19-7-7 7-7"></path>
+              <path d="M19 12H5"></path>
+            </svg>
+          </button>
+
           {/* Progress Indicator */}
           <TravelProgressIndicator currentStep={currentStep} vertical={true} />
         </div>
