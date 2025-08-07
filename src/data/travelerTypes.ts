@@ -5,7 +5,7 @@ export const travelerTypes: TravelerType[] = [
     id: "explorer",
     name: "Explorer",
     description:
-      "I'm down for whatever - just show me all the cool stuff and I'll have a blast.",
+      "I'm down for whatever - just give me the good stuff and I'll figure out what to do when I'm there.",
     icon: "explorer", // Now handled by icon mapping
     showPlaceholder: false,
   },

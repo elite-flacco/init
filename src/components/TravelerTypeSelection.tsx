@@ -4,6 +4,7 @@ import { travelerTypes } from "../data/travelerTypes";
 import { TravelerType } from "../types/travel";
 import { getTravelerTypeIcon } from "../utils/iconMapping";
 import { HeroIconsComposition } from "../utils/iconMapping";
+import { useTypingEffect } from "../hooks/useTypingEffect";
 
 interface TravelerTypeSelectionProps {
   onSelect: (type: TravelerType) => void;
@@ -95,6 +96,13 @@ export function TravelerTypeSelection({
 }: TravelerTypeSelectionProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hoveredType, setHoveredType] = useState<string | null>(null);
+  
+  // Typing effect for hero title
+  const { displayedText: typedHeroTitle, isComplete: heroTitleComplete } = useTypingEffect({
+    text: "Plan your trip, your way",
+    speed: 80,
+    delay: 800
+  });
 
   useEffect(() => {
     setTimeout(() => setIsLoaded(true), 100);
@@ -125,20 +133,22 @@ export function TravelerTypeSelection({
 
             {/* Hero Title */}
             <h1 className="text-3d-gradient text-4xl md:text-6xl lg:text-7xl mb-6">
-              Plan your trip, your way
+              {typedHeroTitle}
+              <span className={`inline-block w-1 h-12 md:h-16 lg:h-20 bg-primary ml-2 ${!heroTitleComplete ? 'animate-pulse' : 'opacity-0'} transition-opacity duration-500`}>
+              </span>
             </h1>
             {/* Hero Subtitle */}
-            <p className="text-3d-title text-lg md:text-xl lg:text-2xl text-foreground-secondary max-w-3xl mx-auto mb-8 leading-relaxed">
+            <p className={`text-3d-title text-lg md:text-xl lg:text-2xl text-foreground-secondary max-w-3xl mx-auto mb-8 leading-relaxed transition-all duration-700 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Spreadsheets or vibes - we've got you.
             </p>
             {/* Blurb */}
-            <p className="text-base md:text-lg max-w-3xl mx-auto mb-12 leading-relaxed">
+            <p className={`text-base md:text-lg max-w-3xl mx-auto mb-12 leading-relaxed transition-all duration-700 delay-300 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Not a travel agent. Just the smart, judgment-free co-pilot that helps you figure out where to go and what to do — based on how you travel.
             </p>
 
             <button
               onClick={scrollToTravelerTypes}
-              className="btn-3d-primary px-8 py-4 rounded-full text-lg lift-hover"
+              className={`btn-3d-primary px-8 py-4 rounded-full text-lg lift-hover transition-all duration-700 delay-500 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             >
               Let's Go
               <ArrowDown className="w-5 h-5 text-white animate-bounce" />

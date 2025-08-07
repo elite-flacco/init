@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plane } from "lucide-react";
 import { trackTravelEvent, trackPageView } from "../src/lib/analytics";
+import { useTypingEffect } from "../src/hooks/useTypingEffect";
 import { TravelerTypeSelection } from "../src/components/TravelerTypeSelection";
 import { DestinationKnowledgeSelection } from "../src/components/DestinationKnowledgeSelection";
 import { DestinationInputComponent } from "../src/components/DestinationInputComponent";
@@ -57,6 +58,13 @@ export default function HomePage() {
   const [isLoadingDestinations, setIsLoadingDestinations] = useState(false);
   const [destinationError, setDestinationError] = useState<string | null>(null);
   const [previousStep, setPreviousStep] = useState<AppStep | null>(null);
+
+  // Typing effect for hero title
+  const { displayedText: typedTitle, isComplete: titleComplete } = useTypingEffect({
+    text: "TravelAI",
+    speed: 150,
+    delay: 500
+  });
 
   // Track step changes
   useEffect(() => {
@@ -451,20 +459,26 @@ export default function HomePage() {
       ></div>
 
       {/* Logo - Top Left */}
-      <div className="fixed top-6 left-6 z-50">
-        <div className="flex items-center space-x-3">
+      <div className="fixed top-3 left-3 z-50">
+        <button
+          onClick={() => setCurrentStep("traveler-type")}
+          className="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-300"
+          aria-label="Return to home"
+        >
           <div className="bg-gradient-to-br from-primary to-primary p-2 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:scale-105 group">
             <Plane className="w-5 h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
           </div>
-          <div>
+          <div className="flex flex-col items-start">
             <h1 className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-              TravelAI
+              {typedTitle}
+              <span className={`inline-block w-0.5 h-5 bg-primary ml-1 ${!titleComplete ? 'animate-pulse' : 'opacity-0'}`}>
+              </span>
             </h1>
-            <p className="text-xs text-foreground-secondary font-medium hidden sm:block">
+            <p className={`text-xs text-foreground-secondary font-medium hidden sm:block transition-opacity duration-500 ${titleComplete ? 'opacity-100' : 'opacity-0'}`}>
               AI-Powered Travel Planning
             </p>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Navigation Elements - Right Side */}
