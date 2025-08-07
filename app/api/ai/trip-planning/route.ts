@@ -17,7 +17,7 @@ async function callAI(prompt: string): Promise<string> {
   const config = getAIConfig();
   const { provider, apiKey } = config;
 
-  if (provider === "mock" || !apiKey) {
+  if (provider === "mock") {
     // Mock response for development
     await new Promise((resolve) => setTimeout(resolve, 30000));
     const mockData = generateDevMockData();
@@ -195,6 +195,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
 
 4. RESTAURANT RECOMMENDATIONS
    - Adjust number based on trip length and activity level: ${getRestaurantCount(preferences)} recommendations
+   - Include AT LEAST FIVE (5) restaurants per neighborhood 
    - Vary by cuisine type, price range, and neighborhood
    - Include specific dishes to try at each restaurant
    - Include if reservations are recommended / required - "Yes" or "No"
@@ -232,6 +233,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
    - For each airport, include: distance to city center, ALL transportation options (including train, bus, taxi, rideshare)with cost, duration, and important notes/warnings (e.g., "be careful with unofficial taxis")
    - Rideshare/taxi availability, typical costs, and tips for using them
    - Include other forms of transportation (e.g. motorbike, tuk-tuk, etc.) in taxi info
+   - INCLUDE other common forms of transportation (e.g. motorbike, tuk-tuk, etc.) in taxi info
 
 10. CURRENCY AND PAYMENT INFORMATION
     - Local currency and current exchange rate from USD
@@ -279,6 +281,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
     - Low activity: 2-3 activities per day
     - Consider travel time between locations
     - Balance must-see attractions with authentic local experiences
+    - ENSURE number of days aligns with trip duration
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
 

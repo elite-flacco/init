@@ -71,7 +71,13 @@ async function callAI(prompt: string): Promise<string> {
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      console.error('OpenAI API Error Details:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData
+      });
+      throw new Error(`OpenAI API error: ${response.statusText} - ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
@@ -225,7 +231,12 @@ export async function POST(request: NextRequest) {
         .replace(/\s*```$/, "");
     }
 
-    const parsedResponse = JSON.parse(cleanResponse);
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(cleanResponse);
+    } catch (parseError) {
+      throw new Error('Invalid JSON response from AI');
+    }
 
     // Map AI response to actual destination objects from our data
     const recommendedDestinations = parsedResponse.destinations.map(
