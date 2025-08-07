@@ -55,6 +55,8 @@ vi.mock("../ProgressiveForm", () => ({
             spontaneity: "planned",
             wantRestaurants: true,
             wantBars: true,
+            priority: "",
+            vibe: "",
           })
         }
       >
@@ -100,7 +102,7 @@ describe("AITripPlanningPrompts", () => {
   it("should render the planning form initially", () => {
     render(<AITripPlanningPrompts {...defaultProps} />);
 
-    expect(screen.getByText("AI-Powered Trip Planning")).toBeInTheDocument();
+    expect(screen.getByText("Let's plan your Tokyo trip!")).toBeInTheDocument();
     expect(screen.getByTestId("progressive-form")).toBeInTheDocument();
   });
 
@@ -150,11 +152,15 @@ describe("AITripPlanningPrompts", () => {
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
 
-    expect(
-      screen.getByText(
-        /Our AI is analyzing your preferences and creating a personalized travel plan for Tokyo/,
-      ),
-    ).toBeInTheDocument();
+    // Wait for the 2.1 second delay plus the form completion transition
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText(/Creating Your Perfect Trip/),
+        ).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
   });
 
   it("should call AI service with correct parameters", async () => {
@@ -197,24 +203,28 @@ describe("AITripPlanningPrompts", () => {
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
 
-    await waitFor(() => {
-      expect(aiTripPlanningService.generateTravelPlan).toHaveBeenCalledWith({
-        destination: mockDestinations.tokyo,
-        preferences: expect.objectContaining({
-          accommodation: "hotel",
-          transportation: "public transport",
-          wantRestaurants: true,
-          wantBars: true,
-          duration: "7 days",
-          budget: "mid-range",
-          tripType: "cultural",
-          timeOfYear: "Summer",
-        }),
-        travelerType: mockTravelerTypes.culture,
-        destinationKnowledge: mockDestinationKnowledge,
-        pickDestinationPreferences: mockPickDestinationPreferences,
-      });
-    });
+    // Wait for the setTimeout delay and service call to complete
+    await waitFor(
+      () => {
+        expect(aiTripPlanningService.generateTravelPlan).toHaveBeenCalledWith({
+          destination: mockDestinations.tokyo,
+          preferences: expect.objectContaining({
+            accommodation: "hotel",
+            transportation: "public transport",
+            wantRestaurants: true,
+            wantBars: true,
+            duration: "7 days",
+            budget: "mid-range",
+            tripType: "cultural",
+            timeOfYear: "Summer",
+          }),
+          travelerType: mockTravelerTypes.culture,
+          destinationKnowledge: mockDestinationKnowledge,
+          pickDestinationPreferences: mockPickDestinationPreferences,
+        });
+      },
+      { timeout: 5000 }
+    );
 
     expect(mockOnComplete).toHaveBeenCalledWith(mockResponse);
   });
@@ -233,11 +243,15 @@ describe("AITripPlanningPrompts", () => {
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
 
-    await waitFor(() => {
-      expect(
-        screen.getByText("Oops! Something went wrong"),
-      ).toBeInTheDocument();
-    });
+    // Wait for the setTimeout delay and error handling
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText("Houston, we have a problem..."),
+        ).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
   });
 
   it("should allow retrying after error", async () => {
@@ -254,15 +268,20 @@ describe("AITripPlanningPrompts", () => {
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
 
-    await waitFor(() => {
-      expect(screen.getByText("Try Again")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText("Give It Another Shot")).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
 
-    const retryButton = screen.getByText("Try Again");
+    const retryButton = screen.getByText("Give It Another Shot");
     await userEvent.click(retryButton);
 
     // Should show the form again
-    expect(screen.getByTestId("progressive-form")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("progressive-form")).toBeInTheDocument();
+    });
   });
 
   it("should handle missing destination", async () => {
@@ -276,11 +295,14 @@ describe("AITripPlanningPrompts", () => {
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
 
-    await waitFor(() => {
-      expect(
-        screen.getByText("Oops! Something went wrong"),
-      ).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText("Houston, we have a problem..."),
+        ).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
   });
 
   it("should call onBack when back button is clicked in error state", async () => {
@@ -297,9 +319,12 @@ describe("AITripPlanningPrompts", () => {
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
 
-    await waitFor(() => {
-      expect(screen.getByText("Go Back")).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText("Go Back")).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
 
     const backButton = screen.getByText("Go Back");
     await userEvent.click(backButton);
@@ -311,7 +336,7 @@ describe("AITripPlanningPrompts", () => {
     render(<AITripPlanningPrompts {...defaultProps} />);
 
     expect(
-      screen.getByText("Let's plan your epic trip to Tokyo!"),
+      screen.getByText("Let's plan your Tokyo trip!"),
     ).toBeInTheDocument();
   });
 
@@ -328,7 +353,7 @@ describe("AITripPlanningPrompts", () => {
     render(<AITripPlanningPrompts {...propsWithRegion} />);
 
     expect(
-      screen.getByText("Let's plan your epic trip to Southeast Asia!"),
+      screen.getByText("Let's plan your Southeast Asia trip!"),
     ).toBeInTheDocument();
   });
 
@@ -414,20 +439,23 @@ describe("AITripPlanningPrompts", () => {
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
 
-    await waitFor(() => {
-      expect(aiTripPlanningService.generateTravelPlan).toHaveBeenCalledWith(
-        expect.objectContaining({
-          preferences: expect.objectContaining({
-            duration: "7 days", // From pickDestinationPreferences
-            budget: "mid-range", // From pickDestinationPreferences
-            tripType: "cultural", // From pickDestinationPreferences
-            timeOfYear: "Summer", // From pickDestinationPreferences
-            accommodation: "hotel", // From form
-            wantRestaurants: true, // Hardcoded in implementation
-            wantBars: true, // Hardcoded in implementation
+    await waitFor(
+      () => {
+        expect(aiTripPlanningService.generateTravelPlan).toHaveBeenCalledWith(
+          expect.objectContaining({
+            preferences: expect.objectContaining({
+              duration: "7 days", // From pickDestinationPreferences
+              budget: "mid-range", // From pickDestinationPreferences
+              tripType: "cultural", // From pickDestinationPreferences
+              timeOfYear: "Summer", // From pickDestinationPreferences
+              accommodation: "hotel", // From form
+              wantRestaurants: true, // Hardcoded in implementation
+              wantBars: true, // Hardcoded in implementation
+            }),
           }),
-        }),
-      );
-    });
+        );
+      },
+      { timeout: 5000 }
+    );
   });
 });

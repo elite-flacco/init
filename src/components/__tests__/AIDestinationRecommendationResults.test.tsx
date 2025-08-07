@@ -33,7 +33,7 @@ describe("AIDestinationRecommendationResults", () => {
     render(<AIDestinationRecommendationResults {...defaultProps} />);
 
     expect(screen.getByText("Your Top Hits")).toBeInTheDocument();
-    expect(screen.getByText("We think you'll love these!")).toBeInTheDocument();
+    expect(screen.getByText("We think you'll love these 😉")).toBeInTheDocument();
   });
 
   it("should render destination cards for each destination", () => {
@@ -47,7 +47,7 @@ describe("AIDestinationRecommendationResults", () => {
   it("should show regenerate button when onRegenerate is provided", () => {
     render(<AIDestinationRecommendationResults {...defaultProps} />);
 
-    expect(screen.getByText("Get New Suggestions")).toBeInTheDocument();
+    expect(screen.getByText("Show Me More")).toBeInTheDocument();
   });
 
   it("should not show regenerate button when onRegenerate is not provided", () => {
@@ -58,13 +58,13 @@ describe("AIDestinationRecommendationResults", () => {
 
     render(<AIDestinationRecommendationResults {...propsWithoutRegenerate} />);
 
-    expect(screen.queryByText("Get New Suggestions")).not.toBeInTheDocument();
+    expect(screen.queryByText("Show Me More")).not.toBeInTheDocument();
   });
 
   it("should call onRegenerate when regenerate button is clicked", async () => {
     render(<AIDestinationRecommendationResults {...defaultProps} />);
 
-    const regenerateButton = screen.getByText("Get New Suggestions");
+    const regenerateButton = screen.getByText("Show Me More");
     await userEvent.click(regenerateButton);
 
     expect(mockOnRegenerate).toHaveBeenCalledTimes(1);
@@ -85,10 +85,10 @@ describe("AIDestinationRecommendationResults", () => {
     render(<AIDestinationRecommendationResults {...propsWithEmptyResults} />);
 
     expect(
-      screen.getByText("No destinations found matching your criteria."),
+      screen.getByText("Hmm, our AI is having a moment. Let's try this again."),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Try Different Recommendations"),
+      screen.getByText("Try Again"),
     ).toBeInTheDocument();
   });
 
@@ -107,7 +107,7 @@ describe("AIDestinationRecommendationResults", () => {
     render(<AIDestinationRecommendationResults {...propsWithEmptyResults} />);
 
     const tryDifferentButton = screen.getByText(
-      "Try Different Recommendations",
+      "Try Again",
     );
     await userEvent.click(tryDifferentButton);
 
@@ -118,10 +118,10 @@ describe("AIDestinationRecommendationResults", () => {
     render(<AIDestinationRecommendationResults {...defaultProps} />);
 
     expect(
-      screen.queryByText("No destinations found matching your criteria."),
+      screen.queryByText("Hmm, our AI is having a moment. Let's try this again."),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText("Try Different Recommendations"),
+      screen.queryByText("Try Again"),
     ).not.toBeInTheDocument();
   });
 
