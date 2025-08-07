@@ -62,7 +62,7 @@ export function TravelPlanLoading({
       showProgressDots={false}
       showOrbitingIcon={true}
       centralIcon={MapIcon3D}
-      className="min-h-screen"
+      className=""
       progressLabel={`Planning your trip to ${destinationName}`}
       footerMessage={
         <>

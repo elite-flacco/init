@@ -198,7 +198,7 @@ export function AITripPlanningPrompts({
                 <div className="text-4xl animate-bounce-subtle">🚫</div>
               </div>
 
-              <h3 className="text-2xl lg:text-3xl font-display font-bold mb-4 bg-gradient-to-br from-primary via-accent to-secondary bg-clip-text text-transparent">
+              <h3 className="text-2xl lg:text-3xl font-display font-bold mb-4 bg-gradient-to-br from-primary via-primary-dark to-secondary bg-clip-text text-transparent">
                 Houston, we have a problem...
               </h3>
 
@@ -212,7 +212,7 @@ export function AITripPlanningPrompts({
                     setGenerationError(null);
                     setIsFormCompleted(false);
                   }}
-                  className="group px-8 py-4 bg-gradient-to-br from-primary/20 to-accent/30 hover:from-primary/30 hover:to-accent/40 border border-border/50 hover:border-primary/50 rounded-xl font-semibold text-foreground hover:text-primary shadow-card hover:shadow-adventure-float transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
+                  className="group btn-3d-gradient"
                 >
                   <div className="flex items-center justify-center">
                     <Compass className="w-5 h-5 mr-3 group-hover:rotate-45 transition-transform duration-500" />
@@ -222,7 +222,7 @@ export function AITripPlanningPrompts({
 
                 <button
                   onClick={onBack}
-                  className="group px-8 py-4 bg-background/80 hover:bg-secondary/20 border border-border/50 hover:border-secondary/50 rounded-xl font-semibold text-foreground-secondary hover:text-foreground shadow-card hover:shadow-adventure-float transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
+                  className="group btn-3d-outline"
                 >
                   <div className="flex items-center justify-center">
                     <ArrowLeft className="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform duration-300" />

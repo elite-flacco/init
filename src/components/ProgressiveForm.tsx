@@ -371,20 +371,6 @@ export function ProgressiveForm({
                     ✨
                   </motion.div>
                 </motion.div> */}
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{
-                    delay: 0.1,
-                    duration: 0.6,
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 12,
-                  }}
-                  className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-primary to-secondary rounded-full mb-6 shadow-glow animate-glow-pulse"
-                >
-                  <span className="text-3xl">🎯</span>
-                </motion.div>
                 <motion.h3
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -414,16 +400,14 @@ export function ProgressiveForm({
 
         {/* Adventure Scroll Hint */}
         {currentStep > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          <div
             className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
           >
-            <div className="bg-gradient-to-r from-primary/90 to-secondary/90 backdrop-blur-md shadow-glow rounded-full px-6 py-3 text-sm text-white font-medium border border-white/20 animate-bounce-subtle">
+            <div className="bg-gradient-to-r from-primary/90 to-secondary/90 backdrop-blur-md shadow-glow rounded-full px-6 py-3 text-sm text-white font-medium border border-white/20">
               <span className="mr-2">✏️</span>
               Scroll up to edit your answers
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>

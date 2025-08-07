@@ -316,7 +316,7 @@ export function AITravelPlan({
             <div className="flex items-start">
               <Sparkles className="w-16 h-16 text-primary mr-2" />
               <h2 className="text-3d-gradient">
-                Your Travel Plan
+                Your Travel Info Packet
               </h2>
             </div>
           </div>
@@ -497,8 +497,8 @@ export function AITravelPlan({
               ) : (
                 <div className="text-center py-16">
                   <div className="bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 rounded-3xl p-12 shadow-card transform -rotate-1">
-                    <div className="text-6xl mb-4 animate-bounce-subtle">
-                      🗺️
+                    <div className="flex items-center justify-center mb-4">
+                      <MapIcon3D size="xl" animation="bounce" />
                     </div>
                     <h3 className="text-xl font-bold text-foreground mb-2">
                       Adventure Map Loading...
@@ -594,13 +594,13 @@ export function AITravelPlan({
                         <p className="inline-block bg-success/10 border border-success/20 rounded-lg p-1 font-medium text-sm text-success mt-4 mb-2">Pros</p>
                         <ul className="text-foreground/80">
                           {neighborhood.pros.map((pro, idx) => (
-                            <li className="mr-2" key={idx}>• {pro}</li>
+                            <li className="mr-2 text-sm" key={idx}>• {pro}</li>
                           ))}
                         </ul>
                         <p className="inline-block bg-error/10 border border-error/20 rounded-lg p-1 font-medium text-sm text-error mt-4 mb-2">Cons</p>
                         <ul className="text-foreground/80">
                           {neighborhood.cons.map((con, idx) => (
-                            <li className="mr-2" key={idx}>• {con}</li>
+                            <li className="mr-2 text-sm" key={idx}>• {con}</li>
                           ))}
                         </ul>
                       </div>
@@ -734,7 +734,7 @@ export function AITravelPlan({
                         restaurantsByNeighborhood[neighborhood].length > 0 && (
                           <div>
                             <h5 className="mb-3 flex items-center">
-                              <Utensils className="w-5 h-5 mr-2 text-primary" />
+                              <Utensils className="w-5 h-5 mr-2 text-accent" />
                               Restaurants
                             </h5>
                             <div className="space-y-4">

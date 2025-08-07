@@ -122,6 +122,9 @@
     @apply btn-3d bg-gradient-to-b from-background to-background-muted border-2 border-primary text-primary font-semibold;
   }
 
+  .btn-3d-gradient {
+    @apply btn-3d bg-gradient-to-r from-primary to-secondary text-white font-semibold;
+  }
   /* === 3D CARD SYSTEM === */
   .card-3d {
     @apply flex flex-col relative bg-gradient-to-br from-background via-background-card to-background-muted rounded-3xl border border-border/30 overflow-hidden;

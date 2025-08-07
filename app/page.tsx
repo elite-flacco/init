@@ -29,7 +29,6 @@ import {
   generateDevMockData,
   generateDevMockDestinationData,
 } from "../src/data/mock/travelData";
-import { DestinationLoading } from "../src/components/ui/DestinationLoading";
 
 type AppStep =
   | "traveler-type"
@@ -148,10 +147,8 @@ export default function HomePage() {
     // Track destination preferences completion
     trackTravelEvent.completeDestinationPreferences(preferences);
 
-    // Add delay to allow form transition to complete and fade out before showing loading
-    setTimeout(() => {
-      generateDestinationRecommendations(preferences);
-    }, 2100);
+    // ProgressiveForm already has a 2-second transition, so we can call immediately
+    generateDestinationRecommendations(preferences);
   };
 
   const generateDestinationRecommendations = async (
@@ -339,77 +336,14 @@ export default function HomePage() {
         );
 
       case "destination-recommendations":
-        if (isLoadingDestinations) {
-          return (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
-            >
-              <DestinationLoading isVisible={true} />
-            </motion.div>
-          );
-        }
-
-        if (destinationError) {
-          return (
-            <div className="max-w-7xl mx-auto p-6">
-              <div className="text-center py-20">
-                <div className="max-w-2xl mx-auto">
-                  {/* Error icon */}
-                  <div className="relative inline-flex items-center justify-center w-20 h-20 mb-8">
-                    <div className="absolute inset-0 bg-gradient-to-r from-error/20 to-warning/20 rounded-full animate-pulse"></div>
-                    <div className="relative w-12 h-12 bg-gradient-to-br from-error/10 to-warning/10 rounded-full flex items-center justify-center border border-error/30">
-                      <span className="text-2xl">😅</span>
-                    </div>
-                  </div>
-
-                  <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-error bg-clip-text text-transparent mb-4">
-                    Oops, we hit a snag
-                  </h2>
-                  <p className="text-lg text-foreground-secondary mb-8 leading-relaxed">
-                    Our AI took a little coffee break. {destinationError}
-                  </p>
-
-                  <button
-                    onClick={() => generateDestinationRecommendations()}
-                    className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary-700 text-white rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 font-medium"
-                  >
-                    <svg
-                      className="w-5 h-5 mr-3 group-hover:rotate-180 transition-transform duration"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                      ></path>
-                    </svg>
-                    Let's Try This Again
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        }
-
-        if (!aiDestinationResponse || !selectedTravelerType) {
-          return (
-            <div className="text-center py-16">
-              <p>Loading destination recommendations...</p>
-            </div>
-          );
-        }
-
         return (
           <AIDestinationRecommendationResults
             aiResponse={aiDestinationResponse}
             onSelect={handleDestinationSelect}
             onBack={() => setCurrentStep("pick-destination")}
             onRegenerate={() => generateDestinationRecommendations()}
+            isLoading={isLoadingDestinations}
+            error={destinationError}
           />
         );
 
