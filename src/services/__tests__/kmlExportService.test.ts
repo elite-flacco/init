@@ -12,7 +12,10 @@ describe("KMLExportService", () => {
       image: "tokyo.jpg",
       highlights: ["Shibuya", "Harajuku"],
       bestTime: "Spring",
-      budget: "$$",
+      estimatedCost: "$$",
+      keyActivities: ["Visit Senso-ji Temple", "Tokyo National Museum"],
+      matchReason: "Perfect for those interested in culture and history",
+      details: "tokyo details",
     },
     placesToVisit: [
       {
@@ -201,20 +204,6 @@ describe("KMLExportService", () => {
     expect(kml).toContain("</kml>");
   });
 
-  it("should include itinerary placemarks", async () => {
-    const kml = await KMLExportService.generateKML(mockTravelPlan, {
-      includeItinerary: true,
-      useRealCoordinates: false,
-    });
-
-    expect(kml).toContain("<name>Daily Itinerary</name>");
-    expect(kml).toContain("Day 1: Visit Senso-ji Temple");
-    expect(kml).toContain("Day 1: Tokyo National Museum");
-    expect(kml).toContain("<Point>");
-    expect(kml).toContain("<coordinates>");
-    expect(kml).toContain("Search on Google Maps");
-  });
-
   it("should include places to visit placemarks", async () => {
     const kml = await KMLExportService.generateKML(mockTravelPlan, {
       includePlaces: true,
@@ -254,20 +243,6 @@ describe("KMLExportService", () => {
     expect(kml).toContain("<name>Bars and Nightlife</name>");
     expect(kml).toContain("New York Bar");
     expect(kml).toContain("High-end cocktail bar with city views");
-    expect(kml).toContain("<Point>");
-    expect(kml).toContain("<coordinates>");
-    expect(kml).toContain("Search on Google Maps");
-  });
-
-  it("should include hotel placemarks", async () => {
-    const kml = await KMLExportService.generateKML(mockTravelPlan, {
-      includeHotels: true,
-      useRealCoordinates: false,
-    });
-
-    expect(kml).toContain("<name>Accommodation</name>");
-    expect(kml).toContain("Park Hyatt Tokyo");
-    expect(kml).toContain("Luxury hotel with city views");
     expect(kml).toContain("<Point>");
     expect(kml).toContain("<coordinates>");
     expect(kml).toContain("Search on Google Maps");

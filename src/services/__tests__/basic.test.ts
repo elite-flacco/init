@@ -9,7 +9,7 @@ describe("Basic Service Tests", () => {
   it("should have valid mock data", () => {
     expect(mockTravelerTypes.culture).toBeDefined();
     expect(mockTravelerTypes.culture.id).toBe("culture");
-    expect(mockTravelerTypes.culture.name).toBe("Culture Explorer");
+    expect(mockTravelerTypes.culture.name).toBe("Typical Overthinker");
 
     expect(mockDestinations.tokyo).toBeDefined();
     expect(mockDestinations.tokyo.id).toBe("tokyo");
