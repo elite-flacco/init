@@ -27,7 +27,7 @@ async function callAI(prompt: string): Promise<string> {
   // Real AI API calls
   if (provider === "openai") {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minute timeout
+    const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -231,6 +231,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
    - Airport transportation: provide a list of ALL major airports serving the destination
    - For each airport, include: distance to city center, ALL transportation options (including train, bus, taxi, rideshare)with cost, duration, and important notes/warnings (e.g., "be careful with unofficial taxis")
    - Rideshare/taxi availability, typical costs, and tips for using them
+   - Include other forms of transportation (e.g. motorbike, tuk-tuk, etc.) in taxi info
 
 10. CURRENCY AND PAYMENT INFORMATION
     - Local currency and current exchange rate from USD

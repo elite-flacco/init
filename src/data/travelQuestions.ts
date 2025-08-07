@@ -72,23 +72,23 @@ export const commonDestinationQuestions: Question[] = [
     question: "What kind of adventure calls to you? 🎭",
     options: [
       {
-        label: "Nature & outdoors",
+        label: "🌳 Nature & outdoors",
         value: "nature outdoor activities hiking adventure",
       },
       {
-        label: "History & culture",
+        label: "🏛️ History & culture",
         value: "cultural experiences historical sites museums",
       },
       {
-        label: "Food & drinks",
+        label: "🍽️ Food & drinks",
         value: "culinary experiences local cuisine food tours",
       },
       {
-        label: "Beach & chill",
+        label: "🏖️ Beach & chill",
         value: "beach relaxation coastal activities",
       },
       {
-        label: "Cities & nightlife",
+        label: "🏙️ Cities & nightlife",
         value: "urban exploration nightlife city experiences",
       },
       {
@@ -116,37 +116,37 @@ export const commonDestinationQuestions: Question[] = [
       },
     ],
   },
-  {
-    id: "priority",
-    type: "select",
-    question: "What's your main priority on this trip? 🎯",
-    options: [
-      {
-        label: "🍽️ Incredible food & drinks",
-        value: "prioritize culinary experiences",
-      },
-      {
-        label: "🍸 Nightlife & social vibes",
-        value: "prioritize nightlife and social activities",
-      },
-      {
-        label: "🛍️ Shopping (sorry, credit card)",
-        value: "prioritize shopping and retail experiences",
-      },
-      {
-        label: "📸 Instagram-worthy spots",
-        value: "prioritize photogenic and scenic locations",
-      },
-      {
-        label: "👯 Meeting awesome people",
-        value: "prioritize social connections and meeting locals",
-      },
-      {
-        label: "🧘 Total relaxation mode",
-        value: "prioritize relaxation and wellness",
-      },
-    ],
-  },
+  // {
+  //   id: "priority",
+  //   type: "select",
+  //   question: "What's your main priority on this trip? 🎯",
+  //   options: [
+  //     {
+  //       label: "🍽️ Incredible food & drinks",
+  //       value: "prioritize culinary experiences",
+  //     },
+  //     {
+  //       label: "🍸 Nightlife & social vibes",
+  //       value: "prioritize nightlife and social activities",
+  //     },
+  //     {
+  //       label: "🛍️ Shopping (sorry, credit card)",
+  //       value: "prioritize shopping and retail experiences",
+  //     },
+  //     {
+  //       label: "📸 Instagram-worthy spots",
+  //       value: "prioritize photogenic and scenic locations",
+  //     },
+  //     {
+  //       label: "👯 Meeting awesome people",
+  //       value: "prioritize social connections and meeting locals",
+  //     },
+  //     {
+  //       label: "🧘 Total relaxation mode",
+  //       value: "prioritize relaxation and wellness",
+  //     },
+  //   ],
+  // },
   {
     id: "destinationType",
     type: "select",
@@ -281,16 +281,16 @@ const explorerTripPlanningQuestions: Question[] = [
     question: "What's your adventure energy looking like? ⚡",
     options: [
       {
-        label: "High - Go go go! I want to do EVERYTHING!",
-        value: "high energy very active adventurous schedule",
+        label: "Pack the agenda, I want to see everything",
+        value: "high energy very tight and active adventurous schedule, pack more activities into the itinerary with minimal breaks",
       },
       {
-        label: "Medium - A good mix of adventure and chill",
-        value: "moderate energy balanced adventure and relaxation",
+        label: "Balanced vibes - Adventure with strategic nap breaks",
+        value: "moderate energy balanced adventure and relaxation, include breaks between activities",
       },
       {
-        label: "Low - YOLO but make it relaxed 😎",
-        value: "low energy relaxed adventurous mindset",
+        label: "I like to take it slow, 2 activities a day, max",
+        value: "low energy relaxed adventurous mindset, don't include more than 3 activities per day",
       },
     ],
   },
@@ -574,6 +574,56 @@ export const commonTripPlanningQuestions: Question[] = [
       // }
     ],
   },
+  {
+    id: "priority",
+    type: "select",
+    question: "What's your main priority on this trip? 🎯",
+    options: [
+      {
+        label: "🏛️ Culture & history",
+        value: "prioritize cultural experiences, museums, historical sites",
+      },
+      {
+        label: "🌳 Nature & outdoors",
+        value: "prioritize outdoor activities, hiking, nature walks",
+      },
+      {
+        label: "🍽️ Incredible food & drinks",
+        value: "prioritize culinary experiences, local cuisine, food tours",
+      },
+      {
+        label: "🍸 Nightlife & social vibes",
+        value: "prioritize nightlife and social activities, bars, clubs, parties",
+      },
+      {
+        label: "🛍️ Shopping (sorry, credit card)",
+        value: "prioritize shopping and retail experiences, boutiques, markets",
+      },
+      {
+        label: "📸 Instagram-worthy spots",
+        value: "prioritize photogenic and scenic locations, beaches, parks, landmarks",
+      },
+    ],
+  },
+  {
+    id: "vibe",
+    type: "select",
+    question: "What kind of vibe are you going for?",
+    options: [
+      {
+        label: "Hidden gems",
+        value: "hidden gems",
+      },
+      {
+        label: "Local & authentic",
+        value: "local authentic experiences",
+      },
+      {
+        label: "I love touristy spots",
+        value: "touristy spots",
+      },
+    ],
+  },
   // {
   //     id: 'transportation',
   //     type: 'select',
@@ -615,6 +665,18 @@ export const commonTripPlanningQuestions: Question[] = [
   //         }
   //     ]
   // }
+];
+
+
+export const commonFinalTripPlanningQuestions: Question[] = [
+  {
+    id: "specialActivities",
+    type: "textarea",
+    question:
+      "Lastly... anything else we should know about?",
+    placeholder:
+      "e.g. bucket list activities, special requests, etc.",
+  },
 ];
 
 export const getTripPlanningQuestionsByTravelerType = (

@@ -8,6 +8,7 @@ import React, { useState } from "react";
 import { trackTravelEvent } from "../lib/analytics";
 import {
   commonTripPlanningQuestions,
+  commonFinalTripPlanningQuestions,
   destinationInputQuestion,
   getTripPlanningQuestionsByTravelerType,
 } from "../data/travelQuestions";
@@ -75,6 +76,8 @@ export function AITripPlanningPrompts({
           return false;
         if (question.id === "budget" && pickDestinationPreferences?.budget)
           return false;
+        if (question.id === "priority" && pickDestinationPreferences?.priority)
+          return false;
         return true;
       },
     );
@@ -86,6 +89,8 @@ export function AITripPlanningPrompts({
       travelerType.id,
     );
     questions.push(...typeSpecificQuestions);
+
+    questions.push(...commonFinalTripPlanningQuestions);
 
     return questions;
   };
@@ -137,6 +142,8 @@ export function AITripPlanningPrompts({
           wantRestaurants: true,
           wantBars: true,
           tripType: pickDestinationPreferences?.tripType || "leisure",
+          priority: pickDestinationPreferences?.priority || "",
+          vibe: pickDestinationPreferences?.vibe || "",
           // Explorer specific answers
           activityLevel: answers.activityLevel,
           riskTolerance: answers.riskTolerance,

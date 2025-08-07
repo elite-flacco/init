@@ -38,6 +38,7 @@ export interface PickDestinationPreferences {
   weather: string;
   priority: string;
   destinationType: string;
+  vibe: string;
 }
 
 export interface TripPreferences {
@@ -51,6 +52,8 @@ export interface TripPreferences {
   wantRestaurants: boolean;
   wantBars: boolean;
   tripType: string;
+  priority: string;
+  vibe: string;
   // Explorer specific
   activityLevel?: string;
   riskTolerance?: string;
