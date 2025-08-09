@@ -108,6 +108,7 @@ AI settings can be configured via environment variables:
 - `AI_MODEL`: AI model to use (default: 'gpt-4')
 - `AI_MAX_TOKENS`: Maximum tokens for AI responses (default: 1000)
 - `AI_TEMPERATURE`: AI temperature setting (default: 0.7)
+- `PIXABAY_API_KEY`: Your Pixabay API key for dynamic destination images
 
 ### Usage
 
@@ -191,6 +192,40 @@ By default, the app runs in mock mode with simulated AI responses. To enable rea
 
 - `?dev=plan` - Jump directly to plan view with mock data
 - `?dev=destinations` - Jump to destination recommendations with mock data
+
+## Dynamic Image Service
+
+The app includes dynamic destination image fetching using Pixabay API:
+
+### Features
+- **Dynamic Images**: Fetch high-quality destination images via Pixabay API
+- **Automatic Fallback**: Falls back to static Pexels images if Pixabay is unavailable
+- **Loading States**: Shows loading indicators while fetching images
+- **Error Handling**: Graceful error handling with fallback images
+- **Safe Search**: Images are filtered for safe content
+- **High Resolution**: Prefers high-resolution images suitable for destination cards
+
+### API Endpoints
+- **GET /api/images/destination** - Fetch destination images
+  - `destination` (required): Destination name to search for
+  - `country` (optional): Country name for more specific results
+  - `count` (optional): Number of images to fetch (default: 1)
+
+### Components Using Dynamic Images
+- `DestinationCard` - Uses single image for destination cards
+- `DestinationDetailsModal` - Uses single image for modal header
+- Hook: `useDestinationImage` - Custom hook for fetching destination images
+
+### Configuration
+Set `PIXABAY_API_KEY` environment variable with your Pixabay API key. Without this key, the app will use static fallback images.
+
+### Pixabay API Features Used
+- Image type: photo
+- Orientation: horizontal (landscape)
+- Category: travel
+- Minimum dimensions: 800x600
+- Safe search enabled
+- Uses high-resolution images (largeImageURL) when available
 
 ## Security Features
 

@@ -105,7 +105,7 @@ export function AITripPlanningPrompts({
             name: answers.destination || "Your Destination",
             country: "Unknown",
             description: "Your chosen destination",
-            image: "/images/placeholder-destination.jpg",
+            image: "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
             highlights: ["User selected destination"],
             bestTime: "Year-round",
             budget: "$$$",

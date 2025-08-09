@@ -269,7 +269,7 @@ export async function POST(request: NextRequest) {
           name: aiDest.name,
           country: aiDest.country,
           description: aiDest.description,
-          image: "/images/placeholder-destination.jpg",
+          image: "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
           highlights: aiDest.highlights || [],
           bestTime: aiDest.bestTimeToVisit || "Year-round",
           estimatedCost: aiDest.estimatedCost || "",

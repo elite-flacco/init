@@ -1,6 +1,7 @@
 import React from "react";
-import { X, MapPin, ArrowRight } from "lucide-react";
+import { X, MapPin, ArrowRight, ImageIcon } from "lucide-react";
 import { Destination } from "../types/travel";
+import { useDestinationImage } from '../hooks/useDestinationImage';
 
 interface DestinationDetailsModalProps {
   destination: Destination;
@@ -15,7 +16,16 @@ export function DestinationDetailsModal({
   onClose,
   onSelectForPlanning,
 }: DestinationDetailsModalProps) {
+  const { imageUrl, isLoading } = useDestinationImage({
+    destination: destination.name,
+    country: destination.country,
+    count: 1,
+    enabled: isOpen
+  });
+
   if (!isOpen) return null;
+
+  const displayImage = imageUrl || destination.image;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -36,11 +46,26 @@ export function DestinationDetailsModal({
       <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl relative mx-auto animate-in slide-in-from-bottom-4 duration-300">
         {/* Header with image */}
         <div className="relative h-64 md:h-80">
-          <img
-            src={destination.image}
-            alt={destination.name}
-            className="w-full h-full object-cover"
-          />
+          {isLoading ? (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                <ImageIcon className="w-12 h-12 animate-pulse" />
+                <span>Loading image...</span>
+              </div>
+            </div>
+          ) : (
+            <img
+              src={displayImage}
+              alt={destination.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (target.src !== destination.image) {
+                  target.src = destination.image;
+                }
+              }}
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
           {/* Close button */}

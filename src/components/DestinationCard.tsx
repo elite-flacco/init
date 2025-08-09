@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { MapPin, Calendar, DollarSign, ArrowRight } from "lucide-react";
+import { Calendar, DollarSign, ArrowRight } from "lucide-react";
 import { Destination } from "../types/travel";
 import { MapPinIcon3D } from "./ui/Icon3D";
+import { useDestinationImage } from '../hooks/useDestinationImage';
 
 interface DestinationCardProps {
   destination: Destination;
@@ -12,11 +13,19 @@ export function DestinationCard({
   destination,
   onViewDetails,
 }: DestinationCardProps) {
+  const { imageUrl, isLoading, error } = useDestinationImage({
+    destination: destination.name,
+    country: destination.country,
+    count: 1
+  });
+
   const [isHovered, setIsHovered] = useState(false);
 
   const handleCardClick = () => {
     onViewDetails(destination);
   };
+
+  const displayImage = imageUrl || destination.image;
 
   return (
     <div
@@ -30,10 +39,17 @@ export function DestinationCard({
         {/* Hero Image Section */}
         <div className="relative h-72 overflow-hidden">
           <img
-            src={destination.image}
+            src={displayImage}
             alt={destination.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             loading="lazy"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              console.error('Image failed to load:', target.src);
+              if (target.src !== destination.image) {
+                target.src = destination.image;
+              }
+            }}
           />
 
           {/* Overlay */}
@@ -41,8 +57,8 @@ export function DestinationCard({
 
           {/* Country Badge */}
           <div className="absolute top-6 left-6">
-            <div className="glass px-4 py-2 rounded-full text-sm font-semibold depth-light flex items-center">
-              <div className="mr-2">
+            <div className="glass px-3 py-1 rounded-full text-sm text-white font-semibold depth-light flex items-center">
+              <div>
                 <MapPinIcon3D size="xs" />
               </div>
               {destination.country}
