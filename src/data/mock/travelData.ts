@@ -175,6 +175,15 @@ export const generatePlacesToVisit = (
         "Explore the charming streets and historic architecture of the city center.",
       category: "Sightseeing",
       priority: 1,
+      ticketInfo: {
+        required: false,
+        recommended: false,
+        bookingAdvice: "Free to explore, just walk around and enjoy the architecture",
+        peakTime: [],
+        averageWaitTime: "No wait time",
+        bookingWindow: "No booking needed",
+        alternativeOptions: "Consider guided walking tours for deeper insights",
+      },
     },
     {
       name: "Local Market",
@@ -182,12 +191,30 @@ export const generatePlacesToVisit = (
         "Experience local culture and cuisine at the bustling market.",
       category: "Food & Shopping",
       priority: 2,
+      ticketInfo: {
+        required: false,
+        recommended: false,
+        bookingAdvice: "Free entry, just bring cash for purchases",
+        peakTime: ["Weekend mornings"],
+        averageWaitTime: "5-10 minutes during peak hours",
+        bookingWindow: "No booking needed",
+        alternativeOptions: "Visit early morning or evening for fewer crowds",
+      },
     },
     {
       name: `${destination.name} Museum`,
       description: "Learn about the rich history and culture of the region.",
       category: "Cultural",
       priority: 3,
+      ticketInfo: {
+        required: true,
+        recommended: true,
+        bookingAdvice: "Advance booking highly recommended, especially during peak season",
+        peakTime: ["Summer", "Holiday weekends"],
+        averageWaitTime: "30-60 minutes without advance tickets",
+        bookingWindow: "Book 1-2 weeks in advance during peak season",
+        alternativeOptions: "Early morning or late afternoon visits typically less crowded",
+      },
     },
     {
       name: "Scenic Viewpoint",
@@ -195,6 +222,15 @@ export const generatePlacesToVisit = (
         "Enjoy breathtaking panoramic views of the city and surroundings.",
       category: "Nature",
       priority: 4,
+      ticketInfo: {
+        required: false,
+        recommended: false,
+        bookingAdvice: "Free access, but check weather conditions before visiting",
+        peakTime: ["Sunset hours", "Clear weather days"],
+        averageWaitTime: "No wait time typically",
+        bookingWindow: "No booking needed",
+        alternativeOptions: "Consider sunrise visits for fewer crowds and better lighting",
+      },
     },
   ];
 
@@ -204,6 +240,15 @@ export const generatePlacesToVisit = (
       description: "Experience thrilling outdoor activities and adventures.",
       category: "Adventure",
       priority: 5,
+      ticketInfo: {
+        required: true,
+        recommended: true,
+        bookingAdvice: "Advance booking required for most activities, especially during peak season",
+        peakTime: ["Summer", "School holidays"],
+        averageWaitTime: "45-90 minutes without booking",
+        bookingWindow: "Book 3-7 days in advance",
+        alternativeOptions: "Weekday visits typically have shorter wait times",
+      },
     });
   }
 
@@ -213,6 +258,15 @@ export const generatePlacesToVisit = (
       description: "Vibrant area with clubs, bars, and live music venues.",
       category: "Nightlife",
       priority: 6,
+      ticketInfo: {
+        required: false,
+        recommended: true,
+        bookingAdvice: "No tickets needed for most venues, but VIP tables may require reservations",
+        peakTime: ["Weekend nights", "Holiday weekends"],
+        averageWaitTime: "15-30 minutes at popular venues",
+        bookingWindow: "Same-day reservations usually sufficient",
+        alternativeOptions: "Start early in the evening to avoid peak crowds",
+      },
     });
   }
 

@@ -178,6 +178,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
    - Adjust number of attractions based on trip length and activity level: ${getPlacesCount(preferences)} recommendations
    - Main attractions categorized by type (cultural, historical, natural, entertainment, etc.)
    - Include priority ranking for each attraction based on user preferences and general popularity
+   - For each place, include ticket booking information: whether tickets are required or recommended, booking advice (e.g. "Book at least 2 weeks in advance during peak season"), peak time DURING THE DAY (e.g. early morning, late afternoon), average wait times to get in
 
 2. NEIGHBORHOOD BREAKDOWNS (3-5 MOST POPULAR NEIGHBORHOODS)
    - Summary of 3-5 most popular neighborhoods with their unique vibes
@@ -287,10 +288,10 @@ Focus on creating authentic experiences that match their travel style while bein
 
 CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON. 
 
-Use this exact structure, make sure there is comma after each field:
+Use this exact structure, MAKE SURE there is a comma after each field:
 
 {
-  "placesToVisit": [{"name": "string", "description": "string", "category": "string", "priority": number}],
+  "placesToVisit": [{"name": "string", "description": "string", "category": "string", "priority": number, "ticketInfo": {"required": boolean, "recommended": boolean, "bookingAdvice": "string", "peakTime": ["string"], "averageWaitTime": "string"}}],
   "neighborhoods": [{"name": "string", "summary": "string", "vibe": "string", "pros": ["string"], "cons": ["string"]}],
   "hotelRecommendations": [{"name": "string", "neighborhood": "string", "priceRange": "string", "description": "string", "amenities": ["string"], "airbnbLink": "string"}],
   "restaurants": [{"name": "string", "cuisine": "string", "priceRange": "string", "description": "string", "neighborhood": "string", "specialDishes": ["string"], "reservationsRecommended": "string"}],

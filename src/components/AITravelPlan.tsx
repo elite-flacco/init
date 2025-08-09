@@ -88,7 +88,7 @@ export function AITravelPlan({
     try {
       // Track PDF export
       trackTravelEvent.exportPlan('pdf');
-      
+
       await PdfExportService.exportTravelPlanToPdf({
         destination,
         travelerType,
@@ -99,7 +99,7 @@ export function AITravelPlan({
     } catch (error) {
       console.error("Error exporting to PDF:", error);
       alert("Couldn't create the PDF. Give it another shot?");
-      
+
       // Track export error
       trackTravelEvent.error('pdf_export_failed');
     }
@@ -107,7 +107,7 @@ export function AITravelPlan({
 
   const handleExportToGoogleMaps = async () => {
     setIsExportingKML(true);
-    
+
     // Track KML export
     trackTravelEvent.exportPlan('kml');
 
@@ -126,7 +126,7 @@ export function AITravelPlan({
     } catch (error) {
       console.error("Error exporting to KML:", error);
       alert("Couldn't create the map file. Try again?");
-      
+
       // Track export error
       trackTravelEvent.error('kml_export_failed');
     } finally {
@@ -136,10 +136,10 @@ export function AITravelPlan({
 
   const handleShare = async () => {
     setIsSharing(true);
-    
+
     // Track share attempt
     trackTravelEvent.sharePlan('url');
-    
+
     try {
       const response = await fetch("/api/shared-plans", {
         method: "POST",
@@ -177,7 +177,7 @@ export function AITravelPlan({
     } catch (error) {
       console.error("Error creating share link:", error);
       alert("Couldn't create the share link. Try again?");
-      
+
       // Track share error
       trackTravelEvent.error('share_failed');
     } finally {
@@ -440,8 +440,8 @@ export function AITravelPlan({
                 }`}
             >
               <div className={`inline-flex items-center justify-center px-6 py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "itinerary"
-                  ? "bg-primary/20 text-primary -rotate-1 shadow-glow"
-                  : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-primary/10 hover:to-primary/5 hover:text-primary hover:border-primary/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
+                ? "bg-primary/20 text-primary -rotate-1 shadow-glow"
+                : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-primary/10 hover:to-primary/5 hover:text-primary hover:border-primary/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
                 }`}>
                 <MapIcon3D size="xs" />
                 <span>Adventure Blueprint</span>
@@ -454,8 +454,8 @@ export function AITravelPlan({
                 }`}
             >
               <div className={`inline-flex items-center justify-center px-6 py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "info"
-                  ? "bg-secondary/20 text-secondary -rotate-2 shadow-glow-teal"
-                  : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-secondary/10 hover:to-secondary/5 hover:text-secondary hover:border-secondary/20 rotate-2 hover:rotate-0 shadow-card hover:shadow-adventure-float"
+                ? "bg-secondary/20 text-secondary -rotate-2 shadow-glow-teal"
+                : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-secondary/10 hover:to-secondary/5 hover:text-secondary hover:border-secondary/20 rotate-2 hover:rotate-0 shadow-card hover:shadow-adventure-float"
                 }`}>
                 <NotebookIcon3D size="xs" />
                 <span>Intelligence Briefing</span>
@@ -468,8 +468,8 @@ export function AITravelPlan({
                 }`}
             >
               <div className={`inline-flex items-center justify-center px-6 py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "practical"
-                  ? "bg-accent/20 text-accent -rotate-2 shadow-glow-coral"
-                  : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-accent/10 hover:to-accent/5 hover:text-accent hover:border-accent/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
+                ? "bg-accent/20 text-accent -rotate-2 shadow-glow-coral"
+                : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-accent/10 hover:to-accent/5 hover:text-accent hover:border-accent/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
                 }`}>
                 <SuitcaseIcon3D size="xs" />
                 <span>Practical Guide</span>
@@ -561,7 +561,43 @@ export function AITravelPlan({
                             title={place.name}
                             description={place.description}
                             searchLink={generateGoogleSearchLink(place.name)}
-                          />
+                          >
+                            {place.ticketInfo && (
+                              <div className="mt-3 space-y-2">
+                                {(place.ticketInfo.required || place.ticketInfo.recommended) && (
+                                  <div className="flex flex-col items-start justify-start space-y-2">
+                                    {place.ticketInfo.required && (
+                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-error/10 text-error border border-error/20">
+                                        🎫 Tickets Required
+                                      </span>
+                                    )}
+                                    {place.ticketInfo.recommended && !place.ticketInfo.required && (
+                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber/10 text-amber border border-amber/20">
+                                        🎫 Tickets Recommended
+                                      </span>
+                                    )}
+
+                                    <div>
+                                      <p className="text-sm text-foreground-secondary">
+                                        💡 {place.ticketInfo.bookingAdvice}
+                                      </p>
+                                      {place.ticketInfo.peakTime && (
+                                        <p className="text-xs text-foreground-muted">
+                                          <strong>Peak time:</strong> {place.ticketInfo.peakTime.join(", ")}
+                                        </p>
+                                      )}
+                                      {place.ticketInfo.averageWaitTime && (
+                                        <p className="text-xs text-foreground-muted">
+                                          <strong>Wait time:</strong> {place.ticketInfo.averageWaitTime}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+
+                              </div>
+                            )}
+                          </ItemCard>
                         ))}
                       </ItemGrid>
                     </CategoryGroup>
@@ -991,8 +1027,8 @@ export function AITravelPlan({
                     </span>
                     <span
                       className={`text-sm font-medium px-2 py-1 rounded-full ${plan.transportationInfo.creditCardPayment
-                          ? "bg-green-100 text-green-700"
-                          : "bg-amber-100 text-amber-700"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-amber-100 text-amber-700"
                         }`}
                     >
                       {plan.transportationInfo.creditCardPayment
@@ -1019,7 +1055,7 @@ export function AITravelPlan({
                       <div className="flex items-center mb-2">
                         {/* <span className="text-sm mr-2">💡</span> */}
                         <span className="text-sm font-medium text-foreground-secondary">
-                        💡 Pro Tips:
+                          💡 Pro Tips:
                         </span>
                       </div>
                       <ul className="space-y-1">
@@ -1045,11 +1081,11 @@ export function AITravelPlan({
               </ContentGrid>
 
               {/* Airport Transportation - Full width dedicated section */}
-              
+
               <div className="border-t border-border/30 pt-8">
                 <div className="flex items-center mb-6">
                   <h6>
-                  ✈️ Airport Transportation
+                    ✈️ Airport Transportation
                   </h6>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -1131,7 +1167,7 @@ export function AITravelPlan({
                   )}
                 </div>
               </div>
-              
+
             </TravelPlanSection>
 
             {/* Weather Information */}
@@ -1311,21 +1347,21 @@ export function AITravelPlan({
                   badgeColor="primary"
                 />
                 <div className="flex items-start">
-                    <span
-                      className={`mr-2 ${plan.tapWaterSafe.safe ? "animate-bounce-subtle" : "animate-pulse-slow"}`}
+                  <span
+                    className={`mr-2 ${plan.tapWaterSafe.safe ? "animate-bounce-subtle" : "animate-pulse-slow"}`}
+                  >
+                    {plan.tapWaterSafe.safe ? "✅" : "⚠️"}
+                  </span>
+                  <div>
+                    <p
+                      className={`${plan.tapWaterSafe.safe ? "text-green-600" : "text-amber-600"}`}
                     >
-                      {plan.tapWaterSafe.safe ? "✅" : "⚠️"}
-                    </span>
-                    <div>
-                      <p
-                        className={`${plan.tapWaterSafe.safe ? "text-green-600" : "text-amber-600"}`}
-                      >
-                        {plan.tapWaterSafe.safe
-                          ? "Tap water is safe to drink!"
-                          : "Tap water is not recommended for drinking."}
-                      </p>
-                    </div>
+                      {plan.tapWaterSafe.safe
+                        ? "Tap water is safe to drink!"
+                        : "Tap water is not recommended for drinking."}
+                    </p>
                   </div>
+                </div>
               </TravelPlanSection>
             )}
 

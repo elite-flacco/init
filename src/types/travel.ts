@@ -98,6 +98,15 @@ export interface PlaceToVisit {
   description: string;
   category: string;
   priority: number;
+  ticketInfo?: TicketBookingInfo;
+}
+
+export interface TicketBookingInfo {
+  required: boolean;
+  recommended: boolean;
+  bookingAdvice: string;
+  peakTime?: string[];
+  averageWaitTime?: string;
 }
 
 export interface Neighborhood {
