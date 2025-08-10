@@ -15,6 +15,7 @@ import {
   MapPinIcon3D,
   CoffeeIcon3D,
   UtensilsIcon3D,
+  HotelIcon3D,
 } from "../components/ui/Icon3D";
 
 // Icon mapping for different activity types
@@ -31,6 +32,11 @@ export function getActivityIcon(
     case "drink":
     case "chill":
       return <CoffeeIcon3D {...iconProps} />;
+      
+    case "hotel":
+    case "accommodation":
+    case "lodging":
+      return <HotelIcon3D {...iconProps} />;
       
     case "map":
     case "navigation":

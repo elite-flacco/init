@@ -325,7 +325,17 @@
 
   /* === QUESTION CARDS === */
   .question-card-active {
-    @apply card-3d-rotate-left p-8 lg:pl-16 lg:pr-8 lg:pt-12 lg:pb-8 mb-6 relative;
+    @apply card-3d p-8 lg:pl-16 lg:pr-8 lg:pt-12 lg:pb-8 mb-6 relative;
+    transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) rotateZ(-2deg) scale(1.02);
+  }
+
+  .question-card-active:hover {
+    transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) rotateZ(0deg) translateY(-10px) scale(1.04);
+    box-shadow: 
+      0 35px 70px rgba(0, 0, 0, 0.22),
+      0 18px 40px rgba(0, 0, 0, 0.15),
+      0 8px 20px rgba(0, 0, 0, 0.08),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.15);
   }
 
   .question-card-active::before {

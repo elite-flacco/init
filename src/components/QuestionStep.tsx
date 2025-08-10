@@ -182,7 +182,7 @@ export function QuestionStep({
         <div className="ml-4 lg:ml-8 mr-2 mb-4">{renderInput()}</div>
 
         {isActive && question.type !== "select" && (
-          <div className="mt-8 ml-4 lg:ml-8 mr-4">
+          <div className="mt-8 ml-4 lg:ml-8 mr-4 space-x-4">
             <button
               type="submit"
               disabled={!localValue.trim()}
@@ -193,6 +193,14 @@ export function QuestionStep({
                 <div className="p-2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center transform group-hover:translate-x-1 transition-transform duration-300">
                   <span className="text-white text-sm">→</span>
                 </div>
+              </span>
+            </button>
+            <button
+              type="submit"
+              className="btn-3d-outline py-2.5 px-6 group"
+            >
+              <span className="flex items-center">
+                <span>Nope</span>
               </span>
             </button>
           </div>

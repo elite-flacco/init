@@ -25,24 +25,29 @@ export function TravelProgressIndicator({
 }: TravelProgressIndicatorProps) {
   // Define the travel journey steps with 3D travel-themed icons
   const steps: ProgressStep[] = [
-    {
-      id: "traveler-type",
-      label: "",
-      icon: () => getProgressStepIcon("traveler-type", "sm"),
-      active: currentStep === "traveler-type",
-      completed: [
-        "destination-knowledge",
-        "destination-input",
-        "pick-destination",
-        "destination-recommendations",
-        "planning",
-        "plan",
-      ].includes(currentStep),
-    },
+    // {
+    //   id: "traveler-type",
+    //   label: "",
+    //   icon: () => getProgressStepIcon("traveler-type", currentStep === "traveler-type" ? "md" : "sm"),
+    //   active: currentStep === "traveler-type",
+    //   completed: [
+    //     "destination-knowledge",
+    //     "destination-input",
+    //     "pick-destination",
+    //     "destination-recommendations",
+    //     "planning",
+    //     "plan",
+    //   ].includes(currentStep),
+    // },
     {
       id: "destination",
       label: "",
-      icon: () => getProgressStepIcon("destination", "sm"),
+      icon: () => getProgressStepIcon("destination", [
+        "destination-knowledge",
+        "destination-input", 
+        "pick-destination",
+        "destination-recommendations",
+      ].includes(currentStep) ? "md" : "sm"),
       active: [
         "destination-knowledge",
         "destination-input",
@@ -54,14 +59,14 @@ export function TravelProgressIndicator({
     {
       id: "planning",
       label: "",
-      icon: () => getProgressStepIcon("planning", "sm"),
+      icon: () => getProgressStepIcon("planning", currentStep === "planning" ? "md" : "sm"),
       active: currentStep === "planning",
       completed: currentStep === "plan",
     },
     {
       id: "plan",
       label: "",
-      icon: () => getProgressStepIcon("plan", "sm"),
+      icon: () => getProgressStepIcon("plan", currentStep === "plan" ? "md" : "sm"),
       active: currentStep === "plan",
       completed: false,
     },
@@ -75,43 +80,34 @@ export function TravelProgressIndicator({
     return (
       <div className={`flex flex-col items-center ${className}`}>
         {/* Vertical Progress Line */}
-        <div className="relative flex flex-col items-center space-y-4">
-          {/* Animated Squiggly Progress Trail */}
+        <div className="relative flex flex-col items-center space-y-6">
+          {/* Curved Progress Trail */}
           <svg 
-            className="text-primary/20 absolute left-1/2 top-0 bottom-0 -translate-x-1/2 z-0" 
+            className="text-primary absolute left-1/2 top-0 bottom-0 -translate-x-1/2 z-0" 
             width="20" 
             height="100%" 
             viewBox="0 0 20 200"
             preserveAspectRatio="none"
           >
             <defs>
-              <linearGradient id="progressGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
-                <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="1" />
-                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.9" />
-              </linearGradient>
-              <linearGradient id="trackGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
-              </linearGradient>
+              <clipPath id="progressClip">
+                <rect x="0" y="0" width="20" height={`${(progressPercentage / 100) * 200}`} />
+              </clipPath>
             </defs>
-            {/* Background squiggly track */}
+            {/* Background curved track */}
             <path 
               d="M10,0 Q15,25 10,50 Q5,75 10,100 Q15,125 10,150 Q5,175 10,200" 
-              stroke="url(#trackGradient)" 
+              stroke="#CBD5E1" 
               strokeWidth="2" 
               fill="none"
             />
-            {/* Animated progress squiggly line */}
-            <motion.path 
+            {/* Progress curved line */}
+            <path 
               d="M10,0 Q15,25 10,50 Q5,75 10,100 Q15,125 10,150 Q5,175 10,200" 
-              stroke="url(#progressGradient)" 
-              strokeWidth="2" 
+              stroke="#0b7786" 
+              strokeWidth="3" 
               fill="none"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: progressPercentage / 100 }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
-              style={{ filter: "drop-shadow(0 0 4px hsl(var(--primary) / 0.5))" }}
+              clipPath="url(#progressClip)"
             />
           </svg>
 
@@ -121,53 +117,15 @@ export function TravelProgressIndicator({
             return (
               <div key={step.id} className="flex flex-col items-center relative z-20">
                 {/* Step Icon Container */}
-                <motion.div
-                  className="relative group z-20"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {/* Glowing Background for Active Step */}
-                  {step.active && (
-                    <motion.div
-                      className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-lg z-0"
-                      animate={{
-                        scale: [1, 1.1, 1],
-                        opacity: [0.5, 0.8, 0.5],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
-                  )}
-
+                <div className="relative group z-20">
                   {/* Step Circle */}
-                  <motion.div
-                    className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-card z-30 ${
-                      step.active
-                        ? "bg-gradient-to-br from-primary to-primary shadow-card-hover scale-110"
-                        : "bg-transparent border border-border/60"
-                    }`}
-                    layout
-                  >
+                  <div className="relative w-10 h-10 rounded-full flex items-center justify-center bg-transparent">
                     {/* Travel Icon - Always show */}
-                    <motion.div 
-                      className={`transition-all duration-300 ${step.active ? "text-white" : step.completed ? "text-primary" : "text-foreground group-hover:brightness-110"}`}
-                      animate={step.active ? {
-                        scale: [1, 1.1, 1],
-                        opacity: [0.8, 1, 0.8],
-                      } : {}}
-                      transition={step.active ? {
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      } : {}}
-                    >
-                      <IconComponent className="w-4 h-4" />
-                    </motion.div>
-                  </motion.div>
-                </motion.div>
+                    <div className={`${step.active ? "text-primary" : step.completed ? "text-primary" : "text-foreground"}`}>
+                      <IconComponent />
+                    </div>
+                  </div>
+                </div>
               </div>
             );
           })}
@@ -180,13 +138,11 @@ export function TravelProgressIndicator({
     <div className={`flex items-center justify-center ${className}`}>
       {/* Desktop Version - Full Journey Visualization */}
       <div className="hidden lg:flex items-center space-x-6 relative">
-        {/* Animated Progress Trail */}
-        <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-border/30 to-border/60 -translate-y-1/2 z-0">
-          <motion.div
-            className="h-full bg-gradient-to-r from-primary/20 via-primary to-accent/80 shadow-glow"
-            initial={{ width: "0%" }}
-            animate={{ width: `${progressPercentage}%` }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
+        {/* Progress Trail */}
+        <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-border/60 -translate-y-1/2 z-0">
+          <div
+            className="h-full bg-primary"
+            style={{ width: `${progressPercentage}%` }}
           />
         </div>
 
@@ -196,73 +152,30 @@ export function TravelProgressIndicator({
           return (
             <div key={step.id} className="flex items-center relative z-10">
               {/* Step Icon Container */}
-              <motion.div
-                className="relative group"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.2 }}
-              >
-                {/* Glowing Background for Active Step */}
-                {step.active && (
-                  <motion.div
-                    className="absolute -inset-3 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-xl"
-                    animate={{
-                      scale: [1, 1.1, 1],
-                      opacity: [0.5, 0.8, 0.5],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-                )}
-
+              <div className="relative group">
                 {/* Step Circle */}
-                <motion.div
-                  className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    step.active
-                      ? "bg-gradient-to-br from-primary-200 to-primary-100 shadow-card-hover scale-110"
-                      : "bg-transparent border-2 border-border/60 shadow-card"
-                  }`}
-                  layout
-                >
+                <div className="relative w-12 h-12 rounded-full flex items-center justify-center bg-transparent">
                   {/* Travel Icon - Always show */}
-                  <motion.div 
-                    className={`transition-all duration-300 ${step.active ? "text-white" : step.completed ? "text-primary" : "text-foreground group-hover:brightness-110"}`}
-                    animate={step.active ? {
-                      scale: [1, 1.1, 1],
-                      opacity: [0.8, 1, 0.8],
-                    } : {}}
-                    transition={step.active ? {
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    } : {}}
-                  >
-                    <IconComponent className="w-5 h-5" />
-                  </motion.div>
-                </motion.div>
+                  <div className={`${step.active ? "text-white" : step.completed ? "text-primary" : "text-foreground"}`}>
+                    <IconComponent />
+                  </div>
+                </div>
 
-                {/* Step Label with Enhanced Typography */}
-                <motion.div
-                  className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: steps.indexOf(step) * 0.1 }}
-                >
+                {/* Step Label */}
+                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
                   <span
-                    className={`text-xs font-medium transition-all duration-300 ${
+                    className={`text-xs font-medium ${
                       step.active
-                        ? "text-primary font-semibold bg-gradient-to-r from-primary-200 to-primary-100 bg-clip-text text-transparent"
+                        ? "text-primary font-semibold"
                         : step.completed
                           ? "text-primary/30 font-medium"
-                          : "text-foreground-muted group-hover:text-foreground-secondary"
+                          : "text-foreground-muted"
                     }`}
                   >
                     {step.label}
                   </span>
-                </motion.div>
-              </motion.div>
+                </div>
+              </div>
             </div>
           );
         })}
@@ -271,10 +184,7 @@ export function TravelProgressIndicator({
       {/* Mobile & Tablet Version - Compact Journey Indicator */}
       <div className="flex lg:hidden items-center space-x-4">
         {/* Current Step Info */}
-        <motion.div
-          className="flex items-center space-x-3 bg-transparent backdrop-blur-sm rounded-2xl px-4 py-2 shadow-card border border-border/50"
-          layout
-        >
+        <div className="flex items-center space-x-3 bg-transparent rounded-2xl px-4 py-2 border border-border/50">
           {/* Current Step Icon */}
           <div className="relative">
             {steps.map((step) => {
@@ -282,17 +192,14 @@ export function TravelProgressIndicator({
               const IconComponent = step.icon;
 
               return (
-                <motion.div
+                <div
                   key={step.id}
-                  className="w-8 h-8 bg-gradient-to-br from-primary-200 to-primary-100 rounded-full flex items-center justify-center shadow-card"
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ duration: 0.5, type: "spring", bounce: 0.6 }}
+                  className="w-8 h-8 bg-transparent rounded-full flex items-center justify-center"
                 >
-                  <div className="text-white">
-                    <IconComponent className="w-4 h-4" />
+                  <div className="text-primary">
+                    <IconComponent />
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
@@ -302,21 +209,19 @@ export function TravelProgressIndicator({
             <span className="text-xs font-medium text-foreground-muted">
               Step {currentStepIndex + 1} of {steps.length}
             </span>
-            <span className="text-sm font-semibold bg-gradient-to-r from-primary-200 to-primary-100 bg-clip-text text-transparent">
+            <span className="text-sm font-semibold text-primary">
               {steps.find((step) => step.active)?.label || ""}
             </span>
           </div>
-        </motion.div>
+        </div>
 
         {/* Mini Progress Bar */}
-        <div className="flex-1 max-w-20 h-2 bg-gradient-to-r from-border/30 to-border/60 rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-primary-200 via-primary to-accent/80 shadow-glow"
-            initial={{ width: "0%" }}
-            animate={{
+        <div className="flex-1 max-w-20 h-2 bg-border/60 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-primary"
+            style={{
               width: `${((currentStepIndex + 1) / steps.length) * 100}%`,
             }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
           />
         </div>
       </div>

@@ -11,7 +11,7 @@ export interface Icon3DProps {
 }
 
 const sizeClasses = {
-  xs: "w-8 h-8",
+  xs: "w-12 h-12",
   sm: "w-16 h-16",
   md: "w-24 h-24",
   lg: "w-32 h-32",
@@ -124,4 +124,8 @@ export function CoffeeIcon3D(props: Omit<Icon3DProps, "src" | "alt">) {
 
 export function UtensilsIcon3D(props: Omit<Icon3DProps, "src" | "alt">) {
   return <Icon3D src="/icons/utensils.png" alt="Utensils" {...props} />;
+}
+
+export function HotelIcon3D(props: Omit<Icon3DProps, "src" | "alt">) {
+  return <Icon3D src="/icons/house.png" alt="Hotel" {...props} />;
 }

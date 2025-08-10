@@ -46,19 +46,19 @@ export function ProgressiveForm({
     [currentStep],
   );
 
-  // Auto-scroll to current step with improved timing
+  // Auto-scroll to current step - happens before animation starts
   useEffect(() => {
     const timer = setTimeout(() => {
       const currentStepElement = stepRefs.current[currentStep];
       if (currentStepElement && editingStep === null) {
-        // Scroll to the current question with smooth behavior, ensuring it's centered in viewport
+        // Scroll to the current question immediately, before animation
         currentStepElement.scrollIntoView({
           behavior: "smooth",
           block: "center",
           inline: "center",
         });
       }
-    }, 50); // Very quick delay for immediate responsiveness
+    }, 50); // Quick delay for DOM updates
 
     return () => clearTimeout(timer);
   }, [currentStep, editingStep]);
@@ -79,7 +79,7 @@ export function ProgressiveForm({
       const nextUnansweredStep = findNextUnansweredStep(editingStep);
       if (nextUnansweredStep !== -1) {
         setCurrentStep(nextUnansweredStep);
-        // Ensure the new question scrolls into view after state update
+        // Scroll to new question immediately after editing
         setTimeout(() => {
           const nextStepElement = stepRefs.current[nextUnansweredStep];
           if (nextStepElement) {
@@ -89,7 +89,7 @@ export function ProgressiveForm({
               inline: "center",
             });
           }
-        }, 200);
+        }, 50);
       } else {
         // All questions are answered, show smooth transition
         setIsTransitioning(true);
@@ -101,7 +101,7 @@ export function ProgressiveForm({
     if (currentStep < questions.length - 1) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
-      // Ensure the new question scrolls into view after state update and animation
+      // Scroll to new question immediately, before animation starts
       setTimeout(() => {
         const nextStepElement = stepRefs.current[nextStep];
         if (nextStepElement) {
@@ -111,7 +111,7 @@ export function ProgressiveForm({
             inline: "center",
           });
         }
-      }, 1200); // Wait for animation to complete (0.8s animation + 0.1s buffer)
+      }, 100); // Immediate scroll, just after DOM updates
     } else {
       // All questions completed, show smooth transition
       setIsTransitioning(true);
@@ -264,49 +264,34 @@ export function ProgressiveForm({
             {currentStep < questions.length &&
               editingStep === null &&
               !isTransitioning && (
-                <div className="min-h-screen flex items-center justify-center">
-                  <motion.div
-                    key={`current-${questions[currentStep].id}`}
-                    initial={{ opacity: 0, y: 400, scale: 0.8, rotateX: 15 }}
-                    animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-                    exit={{ opacity: 0, y: -100, scale: 0.98, rotateX: -10 }}
-                    transition={{
-                      // type: "spring",
-                      // stiffness: 10,    // moderate stiffness
-                      // damping: 100,      // higher damping = less bounce
-                      // mass: 2,
-                      duration: 1.0,           // total time of the animation
-                      ease: [0.25, 0.46, 0.45, 0.94], // smooth ease-out cubic-bezier
-                      opacity: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
-                      scale: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
-                      y: { duration: 1.0, ease: [0.25, 0.46, 0.45, 0.94] },
+                <div className="min-h-screen relative px-4">
+                  <div 
+                    className="absolute left-1/2 w-full max-w-3xl" 
+                    style={{ 
+                      top: '55%',
+                      transform: 'translate(-50%, -50%)' 
                     }}
-                    ref={(el) => (stepRefs.current[currentStep] = el)}
                   >
-                    <div className="w-full max-w-3xl">
+                    <motion.div
+                      key={`current-${questions[currentStep].id}`}
+                      initial={{ opacity: 0, y: 400, scale: 0.8, rotateX: 15 }}
+                      animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+                      exit={{ opacity: 0, y: -100, scale: 0.98, rotateX: -10 }}
+                      transition={{
+                        duration: 0.8,
+                        ease: [0.25, 0.46, 0.45, 0.94],
+                        opacity: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
+                        scale: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
+                        y: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] },
+                      }}
+                      ref={(el) => (stepRefs.current[currentStep] = el)}
+                    >
                       <motion.div
-                        whileHover={{
-                          scale: 1.02,
-                          transition: {
-                            duration: 0.3,
-                            ease: [0.25, 0.46, 0.45, 0.94],
-                          },
-                        }}
                         initial={{
                           boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                         }}
                         animate={{
-                          boxShadow: [
-                            "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                            "0 20px 25px -5px rgba(0, 0, 0, 0.15)",
-                            "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                          ],
-                          transition: {
-                            duration: 4,
-                            repeat: Infinity,
-                            ease: [0.25, 0.46, 0.45, 0.94],
-                            times: [0, 0.5, 1],
-                          },
+                          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                         }}
                       >
                         <QuestionStep
@@ -322,8 +307,8 @@ export function ProgressiveForm({
                           onEdit={() => handleStepEdit(currentStep)}
                         />
                       </motion.div>
-                    </div>
-                  </motion.div>
+                    </motion.div>
+                  </div>
                 </div>
               )}
           </AnimatePresence>
