@@ -148,7 +148,7 @@ const TRAVEL_PLAN_CHUNKS = [
   }
 ];
 
-function generateBasicsPrompt(request: AITripPlanningRequest): string {
+export function generateBasicsPrompt(request: AITripPlanningRequest): string {
   const { destination, travelerType, preferences } = request;
   
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
@@ -223,7 +223,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
    - Adjust number of attractions based on trip length and activity level: ${placesCount} recommendations
    - Main attractions categorized by type (cultural, historical, natural, entertainment, etc.)
    - Include priority ranking for each attraction based on user preferences and general popularity
-   - For each place, include ticket booking information: whether tickets are required or recommended, booking advice (e.g. "Book at least 2 weeks in advance during peak season"), peak time DURING THE DAY (e.g. early morning, late afternoon), average wait times to get in
+   - For each place, include ticket booking information: whether tickets are required or recommended, booking advice (e.g. "Book at least 2 weeks in advance during peak season"), peak time DURING THE DAY (e.g. ["early morning", "late afternoon"]), average wait times to get in (e.g. "15-30 minutes")
 
 2. NEIGHBORHOOD BREAKDOWNS (3-5 MOST POPULAR NEIGHBORHOODS)
    - Summary of 3-5 most popular neighborhoods with their unique vibes
@@ -236,7 +236,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
    - For each neighborhood listed above, provide EXACTLY THREE (3) separate and distinct accommodation options
    - Each option must match the traveler's accommodation type preference (${preferences.accommodation}) and budget (${preferences.budget})
    - For each of the 3 options per neighborhood, include: name, amenities, price range, and detailed descriptions
-   - Include link to Airbnb listing if applicable (for Airbnb preferences)
+   - Include link to Airbnb listing if applicable (for Airbnb preferences), otherwise use empty string ""
    - CRITICAL: You must provide 3 different accommodation options for EACH neighborhood - do not provide only 1 option per neighborhood
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
@@ -256,7 +256,7 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
   return prompt;
 }
 
-function generateDiningPrompt(request: AITripPlanningRequest): string {
+export function generateDiningPrompt(request: AITripPlanningRequest): string {
   const { destination, travelerType, preferences } = request;
   const days = parseInt(preferences.duration) || 7;
   
@@ -364,7 +364,7 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
   return prompt;
 }
 
-function generatePracticalPrompt(request: AITripPlanningRequest): string {
+export function generatePracticalPrompt(request: AITripPlanningRequest): string {
   const { destination, travelerType, preferences } = request;
   
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
@@ -453,7 +453,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
    - Public transportation system overview and how to use it
    - Credit card payment options for public transport - if you can tap credit card on train/bus directly
    - Airport transportation: provide a list of ALL major airports serving the destination
-   - For each airport, include: distance to city center, ALL transportation options (including train, bus, taxi, rideshare)with cost, duration, and important notes/warnings (e.g., "be careful with unofficial taxis")
+   - For each airport, include: distance to city center, ALL transportation options (including train, bus, taxi, rideshare)with cost, duration, and important notes/warnings (e.g., "be careful with unofficial taxis"). If no special notes, use empty array []
    - Rideshare/taxi availability, typical costs, and tips for using them
    - Include other forms of transportation (e.g. motorbike, tuk-tuk, etc.) in taxi info
    - INCLUDE other common forms of transportation (e.g. motorbike, tuk-tuk, etc.) in taxi info
@@ -494,7 +494,7 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
   return prompt;
 }
 
-function generateCulturalPrompt(request: AITripPlanningRequest): string {
+export function generateCulturalPrompt(request: AITripPlanningRequest): string {
   const { destination, preferences, travelerType } = request;
   const days = parseInt(preferences.duration) || 7;
   const activityLevel = preferences.activityLevel || "medium";

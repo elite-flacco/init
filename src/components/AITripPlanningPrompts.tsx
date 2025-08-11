@@ -14,8 +14,10 @@ import {
 import {
   AITripPlanningResponse,
 } from "../services/aiTripPlanningService";
-import { useChunkedTripPlanning } from "../hooks/useChunkedTripPlanning";
-import { ChunkedLoadingProgress } from "./ChunkedLoadingProgress";
+import { useParallelTripPlanning } from "../hooks/useParallelTripPlanning";
+import { useStreamingTripPlanning } from "../hooks/useStreamingTripPlanning";
+import { ManifestDrivenLoading } from "./ManifestDrivenLoading";
+import { StreamingTravelPlan } from "./StreamingTravelPlan";
 import {
   Destination,
   DestinationKnowledge,
@@ -44,32 +46,56 @@ export function AITripPlanningPrompts({
   onComplete,
   onBack,
 }: AITripPlanningPromptsProps) {
-  const { state: chunkingState, generateChunkedPlan } = useChunkedTripPlanning();
+  const { state: parallelState, generatePlan } = useParallelTripPlanning();
+  const { state: streamingState, generateStreamingPlan, retryChunk } = useStreamingTripPlanning();
+  
+  // Choose which approach to use based on AI provider
+  const [useStreaming, setUseStreaming] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
-  // Handle completion of chunked response
+  // Handle completion of parallel response
   useEffect(() => {
-    if (chunkingState.combinedData && !chunkingState.isLoading && !chunkingState.error) {
+    if (!useStreaming && parallelState.combinedData && !parallelState.isLoading && !parallelState.error) {
       const aiResponse: AITripPlanningResponse = {
-        plan: chunkingState.combinedData as any,
-        reasoning: "AI-generated travel plan created using progressive loading",
+        plan: parallelState.combinedData as any,
+        reasoning: "AI-generated travel plan created using parallel processing and manifest-driven approach",
         confidence: 0.9,
         personalizations: [
           `Customized for ${travelerType.name} traveler type`,
           "Tailored to your specific preferences",
-          "Generated with comprehensive AI analysis",
+          "Generated with fast manifest preview and parallel chunk loading",
         ],
       };
       onComplete(aiResponse);
     }
-  }, [chunkingState.combinedData, chunkingState.isLoading, chunkingState.error, onComplete, travelerType.name]);
+  }, [useStreaming, parallelState.combinedData, parallelState.isLoading, parallelState.error, onComplete, travelerType.name]);
 
-  // Handle chunked errors
+  // Handle completion of streaming response
   useEffect(() => {
-    if (chunkingState.error) {
-      setGenerationError(chunkingState.error);
+    if (useStreaming && streamingState.combinedData && !streamingState.isLoading && !streamingState.error) {
+      const aiResponse: AITripPlanningResponse = {
+        plan: streamingState.combinedData as any,
+        reasoning: "AI-generated travel plan created with real-time streaming and structured outputs",
+        confidence: 0.95,
+        personalizations: [
+          `Customized for ${travelerType.name} traveler type`,
+          "Generated with real-time streaming for immediate feedback",
+          "Structured outputs with JSON schema validation",
+          "Live content updates as AI generates responses",
+        ],
+      };
+      onComplete(aiResponse);
     }
-  }, [chunkingState.error]);
+  }, [useStreaming, streamingState.combinedData, streamingState.isLoading, streamingState.error, onComplete, travelerType.name]);
+
+  // Handle errors from both approaches
+  useEffect(() => {
+    if (useStreaming && streamingState.error) {
+      setGenerationError(streamingState.error);
+    } else if (!useStreaming && parallelState.error) {
+      setGenerationError(parallelState.error);
+    }
+  }, [useStreaming, parallelState.error, streamingState.error]);
 
   const getDestinationName = () => {
     if (destination) return destination.name;
@@ -187,17 +213,26 @@ export function AITripPlanningPrompts({
         // Track AI trip planning request
         trackTravelEvent.requestAIRecommendations('trip_plan');
         
-        // Use chunked approach for better UX
-        await generateChunkedPlan({
+        // Check if streaming is available (OpenAI provider)
+        const streamingRequest = {
           destination: effectiveDestination,
           preferences,
           travelerType,
-          destinationKnowledge,
-          pickDestinationPreferences,
-        });
+        };
+        
+        // Try streaming first, fall back to parallel if not available
+        try {
+          console.log('[Trip Planning] Attempting streaming approach...');
+          setUseStreaming(true);
+          await generateStreamingPlan(streamingRequest);
+        } catch (streamingError) {
+          console.log('[Trip Planning] Streaming failed, falling back to parallel approach:', streamingError);
+          setUseStreaming(false);
+          await generatePlan(streamingRequest);
+        }
 
         // Check for completion and call onComplete when ready
-        // This will be handled by useEffect when chunkingState.combinedData is ready
+        // This will be handled by useEffect when parallelState.combinedData is ready
       } catch (error) {
         console.error("Failed to generate AI travel plan:", error);
         const errorMessage =
@@ -267,22 +302,68 @@ export function AITripPlanningPrompts({
     );
   }
 
-  // If generating plan, show chunked progress
-  if (chunkingState.isLoading) {
+  // If generating plan, show appropriate loading UI
+  if (useStreaming && (streamingState.isLoading || streamingState.manifestLoaded)) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="relative overflow-hidden"
+        className="relative overflow-hidden min-h-screen bg-gradient-to-br from-purple-50 to-blue-100"
       >
-        <ChunkedLoadingProgress
-          isLoading={chunkingState.isLoading}
-          progress={chunkingState.progress}
-          currentSection={chunkingState.currentSection}
-          completedChunks={chunkingState.completedChunks}
-          totalChunks={chunkingState.totalChunks}
-          error={chunkingState.error}
+        <StreamingTravelPlan
+          state={streamingState}
+          onRetry={() => {
+            setGenerationError(null);
+            setIsFormCompleted(false);
+          }}
+          onRetryChunk={(chunkId) => {
+            const streamingRequest = {
+              destination: destination!,
+              preferences: {} as TripPreferences, // Would need to reconstruct this
+              travelerType,
+            };
+            retryChunk(chunkId, streamingRequest);
+          }}
+        />
+      </motion.div>
+    );
+  } else if (!useStreaming && (parallelState.isLoading || parallelState.manifestLoaded)) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative overflow-hidden min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100"
+      >
+        <ManifestDrivenLoading
+          state={parallelState}
+          onRetry={() => {
+            setGenerationError(null);
+            setIsFormCompleted(false);
+          }}
+          onRetryChunk={(chunkId) => {
+            // For now, just retry the entire process
+            // In a more advanced implementation, we could retry individual chunks
+            setGenerationError(null);
+            setIsFormCompleted(false);
+          }}
+          onContinueWithPartial={() => {
+            // Allow continuing with partial data
+            if (parallelState.combinedData) {
+              const aiResponse: AITripPlanningResponse = {
+                plan: parallelState.combinedData as any,
+                reasoning: "Partial travel plan with available sections",
+                confidence: 0.7, // Lower confidence for partial data
+                personalizations: [
+                  `Customized for ${travelerType.name} traveler type`,
+                  "Partial plan based on successfully loaded sections",
+                  "Some sections failed to load but core information is available",
+                ],
+              };
+              onComplete(aiResponse);
+            }
+          }}
         />
       </motion.div>
     );

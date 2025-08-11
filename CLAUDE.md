@@ -123,28 +123,76 @@ The AI services are used in two main flows:
 4. AI returns destination recommendations with reasoning
 5. Results are filtered and displayed to the user
 
-**Trip Planning (Progressive Loading):**
+**Trip Planning (Hybrid Streaming Architecture):**
 
-1. User selects destination and completes trip planning questionnaire
-2. `AITripPlanningPrompts` component calls `useChunkedTripPlanning()` hook
-3. Service always uses chunked approach for better UX with progressive loading
-4. AI generates travel plans in 4 chunks:
-   - **Chunk 1**: Places to visit, neighborhoods, hotels
-   - **Chunk 2**: Restaurants, bars, local food recommendations
-   - **Chunk 3**: Weather, safety, transportation, currency info
-   - **Chunk 4**: Activities, history, detailed itinerary
-5. `ChunkedLoadingProgress` component shows real-time progress
-6. `AITravelPlan` component displays the combined comprehensive plan
+The system uses a hybrid approach with intelligent fallback based on AI provider capabilities:
+
+### **Flow Overview:**
+Both streaming and non-streaming modes follow the same two-step process:
+1. **Step 1: Manifest Generation** - Quick travel overview (2-3 seconds) via `/api/ai/trip-planning/manifest`
+2. **Step 2: Parallel Chunk Processing** - All 4 travel plan sections processed simultaneously
+
+### **Implementation Details:**
+
+**1. Real-Time Streaming Mode (OpenAI Provider)**
+- **Trigger**: When `AI_PROVIDER=openai` and OpenAI API key is available
+- **Hook**: `useStreamingTripPlanning()` 
+- **Step 1**: Calls `/api/ai/trip-planning/manifest` for instant travel overview
+- **Step 2**: Initiates **parallel streaming connections** to `/api/ai/trip-planning/stream` for all 4 chunks simultaneously
+- **Streaming Features**:
+  - OpenAI Streaming API with structured outputs and JSON schema validation
+  - Server-Sent Events (SSE) for real-time content delivery
+  - Progressive JSON parsing with partial data updates
+  - Live typewriter effects in `StreamingTravelPlan` component
+  - Real-time progress indicators showing streaming status
+
+**2. Parallel Processing Mode (Other Providers)**
+- **Trigger**: When using Anthropic, Claude, or when OpenAI streaming fails
+- **Hook**: `useParallelTripPlanning()` (automatic fallback)
+- **Step 1**: Calls `/api/ai/trip-planning/manifest` for instant travel overview (same as streaming)
+- **Step 2**: Initiates **parallel non-streaming requests** to `/api/ai/trip-planning/chunked` for all 4 chunks simultaneously
+- **Features**:
+  - Standard completion API calls (no real-time streaming)
+  - Loading indicators with progress bars instead of live content
+  - Same parallel processing speed, different UX presentation
+  - `ManifestDrivenLoading` component shows completion status
+
+**3. Mock Mode (Development)**
+- **Trigger**: When `AI_PROVIDER=mock` or no API keys provided
+- **Features**: Simulated responses with realistic delays, same UI flow as production
+
+### **Key Technical Details:**
+- **Always Manifest-First**: Both modes start with quick manifest generation for immediate user feedback
+- **Always Parallel Processing**: All 4 chunks process simultaneously (never sequential) regardless of streaming vs non-streaming
+- **Intelligent Fallback**: System attempts streaming first, gracefully falls back to parallel processing if streaming fails
+- **Same Content Structure**: Both approaches generate identical travel plan data structure
+
+**Content Structure (All Approaches):**
+- **Chunk 1**: Places to visit, neighborhoods, hotels
+- **Chunk 2**: Restaurants, bars, local food recommendations  
+- **Chunk 3**: Weather, safety, transportation, currency info
+- **Chunk 4**: Activities, history, detailed itinerary
 
 ### API Routes
 
 The Next.js backend provides several API endpoints:
 
+**Destination Services:**
 - **POST /api/ai/destinations** - Generate AI destination recommendations
-- **POST /api/ai/trip-planning** - Generate comprehensive AI travel plans
-- **GET /api/ai/test** - Test AI service connectivity
+- **GET /api/images/destination** - Fetch dynamic destination images via Pixabay API
+
+**Trip Planning Services:**
+- **POST /api/ai/trip-planning/manifest** - Generate quick travel plan overview (2-3s response)
+- **POST /api/ai/trip-planning/stream** - OpenAI streaming API with structured outputs (real-time)
+- **POST /api/ai/trip-planning/chunked** - Parallel chunk processing (fallback)
+- **POST /api/ai/trip-planning** - Legacy endpoint (redirects to chunked)
+
+**Plan Management:**
 - **POST /api/shared-plans** - Create shareable plan with unique URL
 - **GET /api/shared-plans/[id]** - Retrieve shared plan by ID
+
+**Testing & Utilities:**
+- **GET /api/ai/test** - Test AI service connectivity
 
 ### Plan Sharing & Export
 
