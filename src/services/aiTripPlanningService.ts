@@ -22,12 +22,29 @@ export interface AITripPlanningResponse {
   personalizations: string[];
 }
 
+export interface ChunkedTripPlanningResponse {
+  sessionId: string;
+  chunks: {
+    id: number;
+    section: string;
+    description: string;
+  }[];
+  totalChunks: number;
+}
+
 class AITripPlanningService {
   async generateTravelPlan(
     request: AITripPlanningRequest,
   ): Promise<AITripPlanningResponse> {
+    // Always use chunked approach for better UX
+    return this.generateChunkedTravelPlan(request);
+  }
+
+  async initializeChunkedTravelPlan(
+    request: AITripPlanningRequest,
+  ): Promise<ChunkedTripPlanningResponse> {
     try {
-      const response = await fetch("/api/ai/trip-planning", {
+      const response = await fetch("/api/ai/trip-planning/chunked", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,18 +53,124 @@ class AITripPlanningService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error || `Server error: ${response.statusText}`,
-        );
+        throw new Error(`Failed to initialize chunked session: ${response.statusText}`);
       }
 
-      const data = await response.json();
-      return data;
+      return await response.json();
     } catch (error) {
       throw error instanceof Error
         ? error
-        : new Error("Failed to generate travel plan");
+        : new Error("Failed to initialize chunked travel plan");
+    }
+  }
+
+  async getChunk(
+    request: AITripPlanningRequest,
+    chunkId: number,
+    sessionId: string,
+  ): Promise<{
+    chunk: {
+      chunkId: number;
+      totalChunks: number;
+      section: string;
+      description: string;
+    };
+    data: Record<string, unknown>;
+    isComplete: boolean;
+    sessionId: string;
+  }> {
+    try {
+      const response = await fetch(
+        `/api/ai/trip-planning/chunked?chunk=${chunkId}&sessionId=${sessionId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(request),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to get chunk ${chunkId}: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw error instanceof Error
+        ? error
+        : new Error(`Failed to get chunk ${chunkId}`);
+    }
+  }
+
+  async generateChunkedTravelPlan(
+    request: AITripPlanningRequest,
+    onProgress?: (progress: {
+      completedChunks: number;
+      totalChunks: number;
+      currentSection: string;
+      percentage: number;
+    }) => void
+  ): Promise<AITripPlanningResponse> {
+    try {
+      // Initialize chunked session
+      const session = await this.initializeChunkedTravelPlan(request);
+      
+      let combinedData: Record<string, unknown> = {};
+      const totalChunks = session.totalChunks;
+      
+      // Request each chunk
+      for (let i = 0; i < session.chunks.length; i++) {
+        const chunk = session.chunks[i];
+        
+        // Update progress
+        onProgress?.({
+          completedChunks: i,
+          totalChunks,
+          currentSection: chunk.description,
+          percentage: Math.round((i / totalChunks) * 100)
+        });
+
+        const chunkResponse = await this.getChunk(request, chunk.id, session.sessionId);
+        
+        // Merge chunk data
+        combinedData = { ...combinedData, ...chunkResponse.data };
+        
+        // Update progress
+        onProgress?.({
+          completedChunks: i + 1,
+          totalChunks,
+          currentSection: chunk.description,
+          percentage: Math.round(((i + 1) / totalChunks) * 100)
+        });
+
+        // If complete, use the combined data from the API
+        if (chunkResponse.isComplete && chunkResponse.data.destination) {
+          combinedData = chunkResponse.data;
+          break;
+        }
+      }
+
+      // Ensure destination is included
+      if (!combinedData.destination) {
+        combinedData.destination = request.destination;
+      }
+
+      // Return in standard format
+      return {
+        plan: combinedData,
+        reasoning: "AI-generated travel plan created using chunked processing",
+        confidence: 0.9,
+        personalizations: [
+          `Customized for ${request.travelerType.name} traveler type`,
+          `Tailored to ${request.preferences.budget} budget`,
+          `Optimized for ${request.preferences.duration} trip duration`,
+        ],
+      };
+    } catch (error) {
+      throw error instanceof Error
+        ? error
+        : new Error("Failed to generate chunked travel plan");
     }
   }
 }

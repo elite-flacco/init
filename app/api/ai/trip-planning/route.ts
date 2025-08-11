@@ -6,6 +6,7 @@ import {
 } from "../../../../src/types/travel";
 import { getAIConfig } from "../config";
 import { generateDevMockData } from "../../../../src/data/mock/travelData";
+// Token utilities no longer needed since we always use chunked approach
 
 export interface AITripPlanningRequest {
   destination: Destination;
@@ -13,7 +14,9 @@ export interface AITripPlanningRequest {
   preferences: TripPreferences;
 }
 
-async function callAI(prompt: string): Promise<string> {
+// Removed callAI function - now handled by chunked endpoint
+/*
+async function callAI(prompt: string, maxTokens?: number): Promise<string> {
   const config = getAIConfig();
   const { provider, apiKey } = config;
 
@@ -23,6 +26,8 @@ async function callAI(prompt: string): Promise<string> {
     const mockData = generateDevMockData();
     return JSON.stringify(mockData.response.plan);
   }
+
+  const actualMaxTokens = maxTokens || config.maxTokens || 4000;
 
   // Real AI API calls
   if (provider === "openai") {
@@ -38,7 +43,7 @@ async function callAI(prompt: string): Promise<string> {
       body: JSON.stringify({
         model: config.model,
         messages: [{ role: "user", content: prompt }],
-        max_tokens: config.maxTokens,
+        max_tokens: actualMaxTokens,
         temperature: config.temperature,
       }),
       signal: controller.signal,
@@ -67,7 +72,7 @@ async function callAI(prompt: string): Promise<string> {
       },
       body: JSON.stringify({
         model: config.model || "claude-3-sonnet-20240229",
-        max_tokens: config.maxTokens,
+        max_tokens: actualMaxTokens,
         messages: [{ role: "user", content: prompt }],
       }),
       signal: controller.signal,
@@ -85,6 +90,7 @@ async function callAI(prompt: string): Promise<string> {
 
   throw new Error(`Unsupported AI provider: ${provider}`);
 }
+*/
 
 function getRestaurantCount(preferences: TripPreferences): string {
   const baseDays = parseInt(preferences.duration) || 7;
@@ -107,6 +113,8 @@ function getPlacesCount(preferences: TripPreferences): string {
   return Math.ceil(baseDays * activityMultiplier).toString();
 }
 
+// Removed generateTripPlanningPrompt function - now handled by chunked endpoint  
+/*
 function generateTripPlanningPrompt(request: AITripPlanningRequest): string {
   const { destination, travelerType, preferences } = request;
 
@@ -314,6 +322,7 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
 
   return prompt;
 }
+*/
 
 export async function POST(request: NextRequest) {
   try {
@@ -326,45 +335,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const prompt = generateTripPlanningPrompt(body);
-
-    const aiResponse = await callAI(prompt);
-
-    // Parse AI response - it might be wrapped in markdown code blocks
-    let cleanResponse = aiResponse.trim();
-    if (cleanResponse.startsWith("```json")) {
-      cleanResponse = cleanResponse
-        .replace(/^```json\s*/, "")
-        .replace(/\s*```$/, "");
-    } else if (cleanResponse.startsWith("```")) {
-      cleanResponse = cleanResponse
-        .replace(/^```\s*/, "")
-        .replace(/\s*```$/, "");
-    }
-
-    const parsedResponse = JSON.parse(cleanResponse);
-
-    // Wrap the response in the expected AITripPlanningResponse format
-    const wrappedResponse = {
-      plan: {
-        destination: body.destination, // Include the destination from the request
-        ...parsedResponse,
+    // Always redirect to chunked endpoint for better UX
+    return NextResponse.json(
+      { 
+        message: "Trip planning now uses progressive loading for better experience",
+        redirectTo: "chunked",
+        chunkedEndpoint: "/api/ai/trip-planning/chunked"
       },
-      reasoning:
-        "AI-generated travel plan based on your preferences and destination",
-      confidence: 0.9,
-      personalizations: [
-        `Customized for ${body.travelerType.name} traveler type`,
-        `Tailored to ${body.preferences.budget} budget`,
-        `Optimized for ${body.preferences.duration} trip duration`,
-      ],
-    };
+      { status: 307 } // Temporary Redirect
+    );
 
-    return NextResponse.json(wrappedResponse);
   } catch (error) {
     return NextResponse.json(
       {
-        error: "Failed to generate trip plan",
+        error: "Failed to process trip planning request",
         details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },

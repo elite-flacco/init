@@ -2,9 +2,8 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Compass,
-  Map,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { trackTravelEvent } from "../lib/analytics";
 import {
   commonTripPlanningQuestions,
@@ -14,8 +13,9 @@ import {
 } from "../data/travelQuestions";
 import {
   AITripPlanningResponse,
-  aiTripPlanningService,
 } from "../services/aiTripPlanningService";
+import { useChunkedTripPlanning } from "../hooks/useChunkedTripPlanning";
+import { ChunkedLoadingProgress } from "./ChunkedLoadingProgress";
 import {
   Destination,
   DestinationKnowledge,
@@ -25,7 +25,7 @@ import {
 } from "../types/travel";
 import { ProgressiveForm } from "./ProgressiveForm";
 import { Question } from "./QuestionStep";
-import { TravelPlanLoading } from "./ui/TravelPlanLoading";
+// TravelPlanLoading replaced with ChunkedLoadingProgress
 
 interface AITripPlanningPromptsProps {
   destination: Destination | null;
@@ -44,9 +44,32 @@ export function AITripPlanningPrompts({
   onComplete,
   onBack,
 }: AITripPlanningPromptsProps) {
-  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const { state: chunkingState, generateChunkedPlan } = useChunkedTripPlanning();
   const [generationError, setGenerationError] = useState<string | null>(null);
-  const [isFormCompleted, setIsFormCompleted] = useState(false);
+
+  // Handle completion of chunked response
+  useEffect(() => {
+    if (chunkingState.combinedData && !chunkingState.isLoading && !chunkingState.error) {
+      const aiResponse: AITripPlanningResponse = {
+        plan: chunkingState.combinedData as any,
+        reasoning: "AI-generated travel plan created using progressive loading",
+        confidence: 0.9,
+        personalizations: [
+          `Customized for ${travelerType.name} traveler type`,
+          "Tailored to your specific preferences",
+          "Generated with comprehensive AI analysis",
+        ],
+      };
+      onComplete(aiResponse);
+    }
+  }, [chunkingState.combinedData, chunkingState.isLoading, chunkingState.error, onComplete, travelerType.name]);
+
+  // Handle chunked errors
+  useEffect(() => {
+    if (chunkingState.error) {
+      setGenerationError(chunkingState.error);
+    }
+  }, [chunkingState.error]);
 
   const getDestinationName = () => {
     if (destination) return destination.name;
@@ -124,7 +147,6 @@ export function AITripPlanningPrompts({
 
     // Add delay to allow the form's transition to complete and fade out
     setTimeout(async () => {
-      setIsGeneratingPlan(true);
 
       try {
         const preferences: TripPreferences = {
@@ -165,7 +187,8 @@ export function AITripPlanningPrompts({
         // Track AI trip planning request
         trackTravelEvent.requestAIRecommendations('trip_plan');
         
-        const aiResponse = await aiTripPlanningService.generateTravelPlan({
+        // Use chunked approach for better UX
+        await generateChunkedPlan({
           destination: effectiveDestination,
           preferences,
           travelerType,
@@ -173,7 +196,8 @@ export function AITripPlanningPrompts({
           pickDestinationPreferences,
         });
 
-        onComplete(aiResponse);
+        // Check for completion and call onComplete when ready
+        // This will be handled by useEffect when chunkingState.combinedData is ready
       } catch (error) {
         console.error("Failed to generate AI travel plan:", error);
         const errorMessage =
@@ -185,7 +209,6 @@ export function AITripPlanningPrompts({
         trackTravelEvent.error('trip_planning_failed', errorMessage);
         
         setGenerationError(errorMessage);
-        setIsGeneratingPlan(false);
       }
     }, 2100);
   };
@@ -244,8 +267,8 @@ export function AITripPlanningPrompts({
     );
   }
 
-  // If generating plan, show enhanced loading state with fade in
-  if (isGeneratingPlan) {
+  // If generating plan, show chunked progress
+  if (chunkingState.isLoading) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -253,9 +276,13 @@ export function AITripPlanningPrompts({
         transition={{ duration: 0.6 }}
         className="relative overflow-hidden"
       >
-        <TravelPlanLoading
-          isVisible={true}
-          destinationName={getDestinationName()}
+        <ChunkedLoadingProgress
+          isLoading={chunkingState.isLoading}
+          progress={chunkingState.progress}
+          currentSection={chunkingState.currentSection}
+          completedChunks={chunkingState.completedChunks}
+          totalChunks={chunkingState.totalChunks}
+          error={chunkingState.error}
         />
       </motion.div>
     );

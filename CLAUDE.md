@@ -106,8 +106,9 @@ AI settings can be configured via environment variables:
 - `OPENAI_API_KEY`: Your OpenAI API key (for server-side usage)
 - `ANTHROPIC_API_KEY`: Your Anthropic API key (for server-side usage)
 - `AI_MODEL`: AI model to use (default: 'gpt-4')
-- `AI_MAX_TOKENS`: Maximum tokens for AI responses (default: 1000)
 - `AI_TEMPERATURE`: AI temperature setting (default: 0.7)
+- `AI_CHUNK_TOKEN_LIMIT`: Max tokens per individual chunk (default: 4000)
+- `AI_MAX_CHUNKS`: Maximum number of chunks allowed (default: 4)
 - `PIXABAY_API_KEY`: Your Pixabay API key for dynamic destination images
 
 ### Usage
@@ -122,13 +123,18 @@ The AI services are used in two main flows:
 4. AI returns destination recommendations with reasoning
 5. Results are filtered and displayed to the user
 
-**Trip Planning:**
+**Trip Planning (Progressive Loading):**
 
 1. User selects destination and completes trip planning questionnaire
-2. `AITripPlanningPrompts` component calls `aiTripPlanningService.generateTravelPlan()`
-3. Service creates comprehensive prompts including user preferences, traveler type, and destination details
-4. AI returns detailed travel plans with itineraries, recommendations, and cultural insights
-5. `AITravelPlan` component displays the AI-generated plan with personalization explanations
+2. `AITripPlanningPrompts` component calls `useChunkedTripPlanning()` hook
+3. Service always uses chunked approach for better UX with progressive loading
+4. AI generates travel plans in 4 chunks:
+   - **Chunk 1**: Places to visit, neighborhoods, hotels
+   - **Chunk 2**: Restaurants, bars, local food recommendations
+   - **Chunk 3**: Weather, safety, transportation, currency info
+   - **Chunk 4**: Activities, history, detailed itinerary
+5. `ChunkedLoadingProgress` component shows real-time progress
+6. `AITravelPlan` component displays the combined comprehensive plan
 
 ### API Routes
 

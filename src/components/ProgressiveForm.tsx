@@ -145,7 +145,7 @@ export function ProgressiveForm({
             className="relative mb-16 py-12"
           >
             {title && (
-              <div className="text-center ml-8 md:ml-16 lg:ml-24 mb-8">
+              <div className="text-center">
                 <h1 className="text-3d-gradient mb-6 leading-tight max-w-4xl">
                   {title}
                 </h1>
