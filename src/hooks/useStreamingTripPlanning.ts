@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { 
   AITripPlanningRequest 
 } from '../services/aiTripPlanningService';
@@ -8,7 +9,7 @@ import {
 } from '../types/travel';
 
 interface StreamingEvent {
-  type: 'start' | 'json_start' | 'content_delta' | 'partial_json' | 'complete' | 'error';
+  type: 'start' | 'content_delta' | 'complete' | 'error';
   chunkId?: number;
   sessionId?: string;
   delta?: string;
@@ -21,9 +22,7 @@ interface StreamingEvent {
 export interface ChunkStreamingState {
   isStreaming: boolean;
   hasStarted: boolean;
-  hasJsonStarted: boolean;
   accumulatedContent: string;
-  partialData: any;
   finalData: any;
   error: string | null;
   progress: number; // 0-100 based on content length
@@ -52,9 +51,7 @@ interface StreamingPlanningHook {
 const initialChunkState: ChunkStreamingState = {
   isStreaming: false,
   hasStarted: false,
-  hasJsonStarted: false,
   accumulatedContent: '',
-  partialData: null,
   finalData: null,
   error: null,
   progress: 0
@@ -74,22 +71,23 @@ const initialState: StreamingTripPlanningState = {
 };
 
 const CHUNK_DEFINITIONS = [
-  { id: 1, section: 'basics', weight: 0.3 },
-  { id: 2, section: 'dining', weight: 0.25 },
-  { id: 3, section: 'practical', weight: 0.25 },
-  { id: 4, section: 'cultural', weight: 0.2 }
+  { id: 1, section: 'basics', weight: 0.3, tab: 'info' },      // Places, hotels -> Info tab
+  { id: 2, section: 'dining', weight: 0.25, tab: 'info' },     // Restaurants, bars -> Info tab  
+  { id: 3, section: 'practical', weight: 0.25, tab: 'practical' }, // Practical info -> Practical tab
+  { id: 4, section: 'cultural', weight: 0.2, tab: 'itinerary' }    // Activities, itinerary -> Itinerary tab
 ];
 
 export function useStreamingTripPlanning(): StreamingPlanningHook {
   const [state, setState] = useState<StreamingTripPlanningState>(initialState);
-  const eventSourcesRef = useRef<Record<number, EventSource>>({});
+  const abortControllersRef = useRef<Record<number, AbortController>>({});
+  const completedDataRef = useRef<Record<number, any>>({});
 
   const reset = useCallback(() => {
-    // Close any active EventSource connections
-    Object.values(eventSourcesRef.current).forEach(eventSource => {
-      eventSource.close();
+    // Abort any active fetch requests
+    Object.values(abortControllersRef.current).forEach(controller => {
+      controller.abort();
     });
-    eventSourcesRef.current = {};
+    abortControllersRef.current = {};
     
     setState(initialState);
   }, []);
@@ -115,182 +113,194 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
     (chunkId: number, sessionId: string, request: AITripPlanningRequest) => {
       return new Promise<void>((resolve, reject) => {
         // Close existing connection for this chunk if any
-        if (eventSourcesRef.current[chunkId]) {
-          eventSourcesRef.current[chunkId].close();
+        if (abortControllersRef.current[chunkId]) {
+          abortControllersRef.current[chunkId].abort();
         }
 
-        const eventSource = new EventSource(
-          `/api/ai/trip-planning/stream?chunk=${chunkId}&sessionId=${sessionId}`,
-          {
-            // We'll use POST via fetch instead since EventSource only supports GET
-          }
-        );
+        // Create abort controller for this request
+        const controller = new AbortController();
+        abortControllersRef.current[chunkId] = controller;
 
-        // Actually, EventSource only supports GET, so let's use fetch with streaming
+        // Use EventSource like the working example
         const streamChunk = async () => {
-          try {
-            const response = await fetch(`/api/ai/trip-planning/stream?chunk=${chunkId}&sessionId=${sessionId}`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'text/event-stream',
-              },
-              body: JSON.stringify(request),
-            });
-
-            if (!response.ok) {
-              throw new Error(`Streaming failed: ${response.statusText}`);
+          const url = `/api/ai/trip-planning/stream?chunk=${chunkId}&sessionId=${sessionId}`;
+        
+        // Initialize chunk state  
+        setState(prev => ({
+          ...prev,
+          chunks: {
+            ...prev.chunks,
+            [chunkId]: {
+              ...initialChunkState,
+              isStreaming: true
             }
-
-            const reader = response.body?.getReader();
-            if (!reader) {
-              throw new Error('No response body reader');
-            }
-
-            const decoder = new TextDecoder();
-            let buffer = '';
-
-            // Initialize chunk state
-            setState(prev => ({
-              ...prev,
-              chunks: {
-                ...prev.chunks,
-                [chunkId]: {
-                  ...initialChunkState,
-                  isStreaming: true
-                }
-              }
-            }));
-
-            while (true) {
-              const { done, value } = await reader.read();
-              
-              if (done) break;
-              
-              buffer += decoder.decode(value, { stream: true });
-              const lines = buffer.split('\n');
-              buffer = lines.pop() || '';
-
-              for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                  try {
-                    const eventData: StreamingEvent = JSON.parse(line.slice(6));
-                    
-                    setState(prev => {
-                      const currentChunk = prev.chunks[chunkId] || initialChunkState;
-                      let updatedChunk = { ...currentChunk };
-                      
-                      switch (eventData.type) {
-                        case 'start':
-                          updatedChunk = {
-                            ...updatedChunk,
-                            hasStarted: true,
-                            isStreaming: true
-                          };
-                          break;
-                          
-                        case 'json_start':
-                          updatedChunk = {
-                            ...updatedChunk,
-                            hasJsonStarted: true
-                          };
-                          break;
-                          
-                        case 'content_delta':
-                          const newAccumulated = eventData.accumulated || '';
-                          const progressEstimate = Math.min(
-                            (newAccumulated.length / 4000) * 100, 
-                            95
-                          );
-                          
-                          updatedChunk = {
-                            ...updatedChunk,
-                            accumulatedContent: newAccumulated,
-                            progress: progressEstimate
-                          };
-                          break;
-                          
-                        case 'partial_json':
-                          updatedChunk = {
-                            ...updatedChunk,
-                            partialData: eventData.data,
-                            progress: Math.min(updatedChunk.progress + 5, 95)
-                          };
-                          break;
-                          
-                        case 'complete':
-                          updatedChunk = {
-                            ...updatedChunk,
-                            finalData: eventData.data,
-                            isStreaming: false,
-                            progress: 100
-                          };
-                          break;
-                          
-                        case 'error':
-                          updatedChunk = {
-                            ...updatedChunk,
-                            error: eventData.error || 'Unknown streaming error',
-                            isStreaming: false
-                          };
-                          break;
-                      }
-                      
-                      const newChunks = {
-                        ...prev.chunks,
-                        [chunkId]: updatedChunk
-                      };
-                      
-                      const newCompletedChunks = Object.values(newChunks)
-                        .filter(chunk => chunk.finalData !== null).length;
-                      
-                      const newOverallProgress = calculateOverallProgress(newChunks, prev.manifestLoaded);
-                      
-                      // Check if we should combine data
-                      let newCombinedData = prev.combinedData;
-                      if (eventData.type === 'complete' && newCompletedChunks === CHUNK_DEFINITIONS.length) {
-                        newCombinedData = Object.values(newChunks)
-                          .filter(chunk => chunk.finalData)
-                          .reduce((acc, chunk) => {
-                            return { ...acc, ...chunk.finalData };
-                          }, { destination: request.destination }) as EnhancedTravelPlan;
-                      }
-                      
-                      return {
-                        ...prev,
-                        chunks: newChunks,
-                        completedChunks: newCompletedChunks,
-                        overallProgress: newOverallProgress,
-                        combinedData: newCombinedData,
-                        isLoading: newCompletedChunks < CHUNK_DEFINITIONS.length
-                      };
-                    });
-                  } catch (e) {
-                    console.warn('Failed to parse SSE event:', line);
-                  }
-                }
-              }
-            }
-            
-            resolve();
-          } catch (error) {
-            setState(prev => ({
-              ...prev,
-              chunks: {
-                ...prev.chunks,
-                [chunkId]: {
-                  ...prev.chunks[chunkId],
-                  error: error instanceof Error ? error.message : 'Streaming failed',
-                  isStreaming: false
-                }
-              }
-            }));
-            reject(error);
           }
+        }));
+        
+        // For POST data, we need to use fetch, but handle events like EventSource
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'text/event-stream',
+          },
+          body: JSON.stringify(request),
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Streaming failed: ${response.statusText}`);
+        }
+
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error('No response body reader');
+        }
+
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) {
+            console.log(`[EventSource Style] Chunk ${chunkId} stream ended`);
+            break;
+          }
+          
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const eventDataStr = line.slice(6);
+              
+              if (eventDataStr === '[DONE]') {
+                console.log(`[EventSource Style] Chunk ${chunkId} received [DONE] signal`);
+                continue;
+              }
+              
+              try {
+                const eventData: StreamingEvent = JSON.parse(eventDataStr);
+                
+                // Handle events like the working example - simple and direct
+                if (eventData.type === 'start') {
+                  setState(prev => ({
+                    ...prev,
+                    chunks: {
+                      ...prev.chunks,
+                      [chunkId]: {
+                        ...prev.chunks[chunkId],
+                        hasStarted: true,
+                        isStreaming: true
+                      }
+                    }
+                  }));
+                }
+                
+                else if (eventData.type === 'content_delta' && eventData.accumulated) {
+                  setState(prev => ({
+                    ...prev,
+                    chunks: {
+                      ...prev.chunks,
+                      [chunkId]: {
+                        ...prev.chunks[chunkId],
+                        accumulatedContent: eventData.accumulated || '',
+                        progress: Math.min((eventData.accumulated?.length || 0) / 4000 * 100, 95)
+                      }
+                    }
+                  }));
+                }
+                
+                else if (eventData.type === 'complete') {
+                  console.log(`[EventSource Style] Chunk ${chunkId} completing with data:`, !!eventData.data);
+                  console.log(`[EventSource Style] About to call setState for chunk ${chunkId} completion`);
+                  
+                  setState(prev => {
+                    console.log(`[EventSource Style] INSIDE setState callback for chunk ${chunkId} completion!`);
+                    console.log(`[EventSource Style] Current completedChunks before update:`, prev.completedChunks);
+                    
+                    const updatedChunks = {
+                      ...prev.chunks,
+                      [chunkId]: {
+                        ...prev.chunks[chunkId],
+                        finalData: eventData.data,
+                        isStreaming: false,
+                        progress: 100
+                      }
+                    };
+                    
+                    const completedCount = Object.values(updatedChunks).filter(chunk => chunk.finalData !== null).length;
+                    
+                    console.log(`[EventSource Style] Setting completedChunks to ${completedCount}, isLoading to ${completedCount < 4}`);
+                    
+                    const newState = {
+                      ...prev,
+                      chunks: updatedChunks,
+                      completedChunks: completedCount,
+                      isLoading: completedCount < 4,
+                      overallProgress: Math.round((completedCount / 4) * 100)
+                    };
+                    
+                    console.log(`[EventSource Style] Returning new state for chunk ${chunkId}:`, {
+                      completedChunks: newState.completedChunks,
+                      isLoading: newState.isLoading,
+                      totalChunks: Object.keys(newState.chunks).length
+                    });
+                    
+                    console.log(`[EventSource Style] Final state chunks:`, Object.fromEntries(
+                      Object.entries(newState.chunks).map(([id, chunk]) => [
+                        id, 
+                        { hasFinalData: !!chunk.finalData, isStreaming: chunk.isStreaming, progress: chunk.progress }
+                      ])
+                    ));
+                    
+                    return newState;
+                  });
+                  
+                  console.log(`[EventSource Style] setState call completed for chunk ${chunkId}`);
+                }
+                
+                else if (eventData.type === 'error') {
+                  setState(prev => ({
+                    ...prev,
+                    chunks: {
+                      ...prev.chunks,
+                      [chunkId]: {
+                        ...prev.chunks[chunkId],
+                        error: eventData.error || 'Unknown streaming error',
+                        isStreaming: false
+                      }
+                    }
+                  }));
+                }
+                
+              } catch (e) {
+                console.warn('Failed to parse SSE event:', line);
+              }
+            }
+          }
+        }
+        
+          console.log(`[EventSource Style] Chunk ${chunkId} processing completed, resolving`);
+          resolve();
         };
 
-        streamChunk();
-        eventSourcesRef.current[chunkId] = eventSource;
+        streamChunk().catch(error => {
+          setState(prev => ({
+            ...prev,
+            chunks: {
+              ...prev.chunks,
+              [chunkId]: {
+                ...prev.chunks[chunkId],
+                error: error instanceof Error ? error.message : 'Streaming failed',
+                isStreaming: false
+              }
+            }
+          }));
+          reject(error);
+        });
       });
     },
     [calculateOverallProgress]

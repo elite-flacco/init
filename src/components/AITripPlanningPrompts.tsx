@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+// import { motion } from "framer-motion"; // Removed - no longer used
 import {
   ArrowLeft,
   Compass,
@@ -16,8 +16,8 @@ import {
 } from "../services/aiTripPlanningService";
 import { useParallelTripPlanning } from "../hooks/useParallelTripPlanning";
 import { useStreamingTripPlanning } from "../hooks/useStreamingTripPlanning";
-import { ManifestDrivenLoading } from "./ManifestDrivenLoading";
-import { StreamingTravelPlan } from "./StreamingTravelPlan";
+import { AITripPlanningRequest } from "../services/aiTripPlanningService";
+// Removed intermediate loading components - streaming now happens directly in final page
 import {
   Destination,
   DestinationKnowledge,
@@ -70,12 +70,13 @@ export function AITripPlanningPrompts({
     }
   }, [useStreaming, parallelState.combinedData, parallelState.isLoading, parallelState.error, onComplete, travelerType.name]);
 
-  // Handle completion of streaming response
+  // Handle completion of streaming response AND show live updates  
   useEffect(() => {
-    if (useStreaming && streamingState.combinedData && !streamingState.isLoading && !streamingState.error) {
+    if (useStreaming && streamingState.manifest) {
+      // Show the travel plan page immediately with live streaming state
       const aiResponse: AITripPlanningResponse = {
-        plan: streamingState.combinedData as any,
-        reasoning: "AI-generated travel plan created with real-time streaming and structured outputs",
+        plan: streamingState.combinedData as any || null,
+        reasoning: "AI-generated travel plan streaming in real-time with structured outputs",
         confidence: 0.95,
         personalizations: [
           `Customized for ${travelerType.name} traveler type`,
@@ -83,10 +84,16 @@ export function AITripPlanningPrompts({
           "Structured outputs with JSON schema validation",
           "Live content updates as AI generates responses",
         ],
+        streamingState: streamingState, // Pass the live streaming state
+        streamingHooks: { 
+          generateStreamingPlan, 
+          retryChunk,
+          streamingRequest: undefined // Will be set when form completes
+        },
       };
       onComplete(aiResponse);
     }
-  }, [useStreaming, streamingState.combinedData, streamingState.isLoading, streamingState.error, onComplete, travelerType.name]);
+  }, [useStreaming, streamingState, onComplete, travelerType.name, destination, generateStreamingPlan, retryChunk]);
 
   // Handle errors from both approaches
   useEffect(() => {
@@ -224,7 +231,10 @@ export function AITripPlanningPrompts({
         try {
           console.log('[Trip Planning] Attempting streaming approach...');
           setUseStreaming(true);
+          
+          // Start streaming - the useEffect above will handle navigation
           await generateStreamingPlan(streamingRequest);
+          
         } catch (streamingError) {
           console.log('[Trip Planning] Streaming failed, falling back to parallel approach:', streamingError);
           setUseStreaming(false);
@@ -302,72 +312,8 @@ export function AITripPlanningPrompts({
     );
   }
 
-  // If generating plan, show appropriate loading UI
-  if (useStreaming && (streamingState.isLoading || streamingState.manifestLoaded)) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="relative overflow-hidden min-h-screen bg-gradient-to-br from-purple-50 to-blue-100"
-      >
-        <StreamingTravelPlan
-          state={streamingState}
-          onRetry={() => {
-            setGenerationError(null);
-            setIsFormCompleted(false);
-          }}
-          onRetryChunk={(chunkId) => {
-            const streamingRequest = {
-              destination: destination!,
-              preferences: {} as TripPreferences, // Would need to reconstruct this
-              travelerType,
-            };
-            retryChunk(chunkId, streamingRequest);
-          }}
-        />
-      </motion.div>
-    );
-  } else if (!useStreaming && (parallelState.isLoading || parallelState.manifestLoaded)) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="relative overflow-hidden min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100"
-      >
-        <ManifestDrivenLoading
-          state={parallelState}
-          onRetry={() => {
-            setGenerationError(null);
-            setIsFormCompleted(false);
-          }}
-          onRetryChunk={(chunkId) => {
-            // For now, just retry the entire process
-            // In a more advanced implementation, we could retry individual chunks
-            setGenerationError(null);
-            setIsFormCompleted(false);
-          }}
-          onContinueWithPartial={() => {
-            // Allow continuing with partial data
-            if (parallelState.combinedData) {
-              const aiResponse: AITripPlanningResponse = {
-                plan: parallelState.combinedData as any,
-                reasoning: "Partial travel plan with available sections",
-                confidence: 0.7, // Lower confidence for partial data
-                personalizations: [
-                  `Customized for ${travelerType.name} traveler type`,
-                  "Partial plan based on successfully loaded sections",
-                  "Some sections failed to load but core information is available",
-                ],
-              };
-              onComplete(aiResponse);
-            }
-          }}
-        />
-      </motion.div>
-    );
-  }
+  // No intermediate loading UI needed - we navigate directly to final page  
+  // All loading and streaming is now handled in the AITravelPlan component
 
   return (
     <div className="min-h-screen">

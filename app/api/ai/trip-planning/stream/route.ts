@@ -13,7 +13,7 @@ export interface AITripPlanningRequest {
   preferences: TripPreferences;
 }
 
-// JSON Schema for structured outputs
+// JSON Schema for structured outputs (keeping existing schemas)
 const BASICS_SCHEMA = {
   type: "object",
   properties: {
@@ -81,7 +81,7 @@ const BASICS_SCHEMA = {
             type: "array",
             items: { type: "string" }
           },
-          airbnbLink: { 
+          airbnbLink: {
             type: "string",
             description: "Airbnb link if applicable, otherwise empty string"
           }
@@ -146,7 +146,7 @@ const CHUNK_SCHEMAS = {
               properties: {
                 name: { type: "string" },
                 description: { type: "string" },
-                category: { 
+                category: {
                   type: "string",
                   enum: ["main", "dessert", "drink", "snack"]
                 },
@@ -378,31 +378,10 @@ const CHUNK_SCHEMAS = {
   }
 };
 
-function getRestaurantCount(preferences: TripPreferences): number {
-  const baseDays = parseInt(preferences.duration) || 7;
-  return Math.ceil(baseDays * 4);
-}
-
-function getBarCount(preferences: TripPreferences): number {
-  const baseDays = parseInt(preferences.duration) || 7;
-  return Math.ceil(baseDays * 2);
-}
-
-function getPlacesCount(preferences: TripPreferences): number {
-  const baseDays = parseInt(preferences.duration) || 7;
-  const activityMultiplier =
-    preferences.activityLevel === "high"
-      ? 4
-      : preferences.activityLevel === "low"
-        ? 2
-        : 3;
-  return Math.ceil(baseDays * activityMultiplier);
-}
-
 // Import the existing prompt generators from chunked route
-import { 
+import {
   generateBasicsPrompt,
-  generateDiningPrompt, 
+  generateDiningPrompt,
   generatePracticalPrompt,
   generateCulturalPrompt
 } from '../chunked/route';
@@ -414,15 +393,21 @@ const CHUNK_GENERATORS = {
   4: generateCulturalPrompt
 };
 
+export const runtime = "nodejs"; // More efficient for streaming workloads
+
+// Tiny helper for SSE framing
+const enc = new TextEncoder();
+const sse = (obj: any) => enc.encode(`data: ${JSON.stringify(obj)}\n\n`);
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const chunkId = searchParams.get('chunk');
   const sessionId = searchParams.get('sessionId');
-  
+
   if (!chunkId || !sessionId) {
     return new NextResponse('Missing chunk or sessionId', { status: 400 });
   }
-  
+
   // This is a streaming endpoint, we'll get the request data from query params
   // In a real implementation, you'd store the request data in a session store
   return new NextResponse('Use POST for streaming requests', { status: 405 });
@@ -432,7 +417,7 @@ export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const chunkId = parseInt(searchParams.get('chunk') || '1');
   const sessionId = searchParams.get('sessionId');
-  
+
   if (!sessionId) {
     return new NextResponse('Missing sessionId', { status: 400 });
   }
@@ -440,163 +425,168 @@ export async function POST(request: NextRequest) {
   try {
     const body: AITripPlanningRequest = await request.json();
     const config = getAIConfig();
-    
+
     if (config.provider === 'mock') {
       // For mock, just return regular JSON (no streaming)
-      return NextResponse.json({ 
+      return NextResponse.json({
         message: "Mock mode doesn't support streaming",
-        useRegularEndpoint: true 
+        useRegularEndpoint: true
       });
     }
-    
+
     if (config.provider !== 'openai') {
       return new NextResponse('Streaming only supported with OpenAI provider', { status: 400 });
     }
 
-    const openai = new OpenAI({ 
-      apiKey: config.apiKey 
+    const openai = new OpenAI({
+      apiKey: config.apiKey
     });
 
     const promptGenerator = CHUNK_GENERATORS[chunkId as keyof typeof CHUNK_GENERATORS];
     const schema = CHUNK_SCHEMAS[chunkId as keyof typeof CHUNK_SCHEMAS];
-    
+
     if (!promptGenerator || !schema) {
       return new NextResponse('Invalid chunk ID', { status: 400 });
     }
 
     const prompt = promptGenerator(body);
-    
-    console.log(`[Streaming API] Starting streaming for chunk ${chunkId}, session ${sessionId}`);
 
-    // Create ReadableStream for Server-Sent Events
-    const stream = new ReadableStream({
+    console.log(`[Streaming API v2] Starting streaming for chunk ${chunkId}, session ${sessionId}`);
+
+    let controllerClosed = false;
+    let respStream: Awaited<ReturnType<typeof openai.responses.stream>> | null = null;
+
+    // Create ReadableStream for Server-Sent Events using OpenAI Responses API
+    const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
-        try {
-          // Initialize SSE connection
-          controller.enqueue(`data: ${JSON.stringify({ 
-            type: 'start',
-            chunkId,
-            sessionId,
-            timestamp: Date.now()
-          })}\n\n`);
+        // Handle client aborts (e.g., tab closed)
+        const abort = () => {
+          if (!controllerClosed) {
+            try { respStream?.abort?.(); } catch { }
+            controller.enqueue(sse({ type: "error", error: "client_aborted", timestamp: Date.now() }));
+            controller.enqueue(enc.encode("data: [DONE]\n\n"));
+            controller.close();
+            controllerClosed = true;
+          }
+        };
+        request.signal.addEventListener("abort", abort);
 
-          // Create OpenAI streaming request with structured outputs
-          const completion = await openai.chat.completions.create({
+        const push = (obj: any) => controller.enqueue(sse(obj));
+
+        try {
+          push({ type: "start", chunkId, sessionId, timestamp: Date.now() });
+
+          // Use OpenAI's Responses API - purpose-built for structured streaming outputs
+          respStream = await openai.responses.stream({
             model: config.model || 'gpt-4o-2024-08-06',
-            messages: [{ role: 'user', content: prompt }],
-            stream: true,
-            response_format: {
-              type: "json_schema",
-              json_schema: {
-                name: `chunk_${chunkId}_response`,
-                strict: true,
-                schema: schema
-              }
+            input: [{ role: "user", content: prompt }],
+            text: {
+              format: { 
+                type: "json_schema", 
+                schema: schema, 
+                strict: true, 
+                name: `chunk_${chunkId}_response` 
+              },
             },
-            max_tokens: config.chunkTokenLimit || 4000,
-            temperature: config.temperature || 0.7
+            max_output_tokens: config.chunkTokenLimit || 4000,
+            temperature: config.temperature || 0.3
           });
 
-          let accumulatedContent = '';
-          let hasStartedJson = false;
-          
-          for await (const chunk of completion) {
-            const delta = chunk.choices[0]?.delta?.content || '';
-            
-            if (delta) {
-              accumulatedContent += delta;
-              
-              // Detect start of JSON
-              if (!hasStartedJson && accumulatedContent.includes('{')) {
-                hasStartedJson = true;
-                controller.enqueue(`data: ${JSON.stringify({
-                  type: 'json_start',
-                  timestamp: Date.now()
-                })}\n\n`);
-              }
-              
-              // Send progressive content updates
-              controller.enqueue(`data: ${JSON.stringify({
-                type: 'content_delta',
-                delta: delta,
-                accumulated: accumulatedContent,
-                timestamp: Date.now()
-              })}\n\n`);
+          let buffer = "";
 
-              // Try to parse partial JSON and send structured updates
-              if (hasStartedJson) {
-                try {
-                  // Attempt to parse accumulated JSON
-                  const parsed = JSON.parse(accumulatedContent);
-                  
-                  controller.enqueue(`data: ${JSON.stringify({
-                    type: 'partial_json',
-                    data: parsed,
-                    timestamp: Date.now()
-                  })}\n\n`);
-                } catch (e) {
-                  // JSON not complete yet, continue
-                }
+          // Stream events from OpenAI to client
+          for await (const event of respStream) {
+            // Text deltas for the model's final output (what we'll parse at the end)
+            if (event.type === "response.output_text.delta") {
+              const delta = event.delta ?? "";
+              if (delta) {
+                buffer += delta;
+                // Forward lightweight progress updates
+                push({
+                  type: "content_delta",
+                  delta,
+                  accumulated: buffer,
+                  timestamp: Date.now()
+                });
               }
+            }
+
+            // Handle other event types if needed
+            if (event.type === "response.refusal.delta") {
+              push({
+                type: "refusal",
+                delta: event.delta,
+                timestamp: Date.now()
+              });
             }
           }
 
-          // Final parsing and completion
+          console.log(`[Streaming API v2] Streaming complete for chunk ${chunkId}, parsing final JSON (${buffer.length} chars)`);
+
+          // Parse the buffered text once at the end - much more reliable
+          console.log(`[Streaming API v2] Chunk ${chunkId} final buffer length:`, buffer.length);
+          console.log(`[Streaming API v2] Chunk ${chunkId} buffer preview (first 200 chars):`, buffer.substring(0, 200));
           try {
-            const finalData = JSON.parse(accumulatedContent);
-            
-            controller.enqueue(`data: ${JSON.stringify({
-              type: 'complete',
+            const finalData = JSON.parse(buffer);
+            console.log(`[Streaming API v2] Chunk ${chunkId} successfully parsed JSON, data keys:`, Object.keys(finalData || {}));
+            push({
+              type: "complete",
               chunkId,
               sessionId,
               data: finalData,
               timestamp: Date.now()
-            })}\n\n`);
-            
-            console.log(`[Streaming API] Completed chunk ${chunkId} for session ${sessionId}`);
-          } catch (e) {
-            controller.enqueue(`data: ${JSON.stringify({
-              type: 'error',
-              error: 'Failed to parse final JSON',
-              accumulated: accumulatedContent,
-              timestamp: Date.now()
-            })}\n\n`);
+            });
+            console.log(`[Streaming API v2] Successfully completed chunk ${chunkId} for session ${sessionId}`);
+          } catch (e: any) {
+            console.error(`[Streaming API v2] Final JSON parse failed for chunk ${chunkId}:`, e);
+            console.error(`[Streaming API v2] Buffer preview (first 500 chars):`, buffer.substring(0, 500));
+            // If parsing fails, ship a helpful preview for debugging
+            push({
+              type: "error",
+              error: "final_json_parse_failed",
+              parseError: e?.message ?? "unknown_parse_error",
+              preview: buffer.slice(0, 4000),
+              timestamp: Date.now(),
+            });
           }
-          
-          controller.close();
-        } catch (error) {
-          console.error(`[Streaming API] Error in chunk ${chunkId}:`, error);
-          
-          controller.enqueue(`data: ${JSON.stringify({
-            type: 'error',
-            error: error instanceof Error ? error.message : 'Unknown error',
-            timestamp: Date.now()
-          })}\n\n`);
-          
-          controller.close();
-        }
-      }
-    });
 
-    return new NextResponse(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        } catch (err: any) {
+          console.error(`[Streaming API v2] Stream error for chunk ${chunkId}:`, err);
+          push({
+            type: "error",
+            error: err?.message ?? "unknown_error",
+            timestamp: Date.now()
+          });
+        } finally {
+          if (!controllerClosed) {
+            controller.enqueue(enc.encode("data: [DONE]\n\n"));
+            controller.close();
+            controllerClosed = true;
+          }
+        }
       },
     });
-    
+
+    return new Response(stream, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
+
   } catch (error) {
-    console.error('[Streaming API] Request failed:', error);
+    console.error('[Streaming API v2] Request failed:', error);
     return new NextResponse(
       JSON.stringify({
         error: 'Failed to start streaming',
         details: error instanceof Error ? error.message : String(error)
       }),
-      { 
+      {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       }

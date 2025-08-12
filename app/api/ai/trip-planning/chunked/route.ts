@@ -329,8 +329,8 @@ Please create a comprehensive travel plan that includes ALL of the following det
 
 4. RESTAURANT RECOMMENDATIONS
    - Adjust number based on trip length and activity level: ${restaurantCount} recommendations
-   - Include AT LEAST FIVE (5) restaurants per neighborhood 
-   - Vary by cuisine type, price range, and neighborhood
+   - Include AT LEAST FIVE (5) restaurants per neighborhood that align with the traveler's budget preferences
+   - Vary by cuisine type and neighborhood
    - Include specific dishes to try at each restaurant
    - Include if reservations are recommended / required - "Yes" or "No"
 

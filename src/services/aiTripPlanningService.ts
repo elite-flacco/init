@@ -20,6 +20,13 @@ export interface AITripPlanningResponse {
   reasoning: string;
   confidence: number;
   personalizations: string[];
+  // Optional streaming state for real-time plan building
+  streamingState?: any;
+  streamingHooks?: {
+    generateStreamingPlan: (request: AITripPlanningRequest) => Promise<void>;
+    retryChunk: (chunkId: number, request: AITripPlanningRequest) => Promise<void>;
+    streamingRequest?: AITripPlanningRequest;
+  };
 }
 
 export interface ChunkedTripPlanningResponse {

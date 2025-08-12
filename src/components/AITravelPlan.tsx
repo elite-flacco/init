@@ -64,7 +64,68 @@ export function AITravelPlan({
   const [showMobileActions, setShowMobileActions] = useState(false);
   const mobileActionsRef = useRef<HTMLDivElement>(null);
 
-  const { plan } = aiResponse;
+  // Handle both streaming and completed plans
+  const { plan, streamingState: staticStreamingState, streamingHooks } = aiResponse;
+  
+  // Use the streaming state directly (will be updated reactively)
+  const streamingState = staticStreamingState;
+  const isStreaming = streamingState && streamingHooks; // Has streaming capability
+  const hasStreamingData = streamingState?.combinedData;
+  
+  // For streaming mode, get the live plan data from streaming state
+  // Fall back to original plan if streaming is complete
+  const livePlan = hasStreamingData 
+    ? streamingState.combinedData 
+    : plan;
+
+  // Debug logging
+  console.log('[AITravelPlan] Render state:', {
+    isStreaming,
+    hasStreamingData: !!hasStreamingData,
+    hasPlan: !!plan,
+    hasLivePlan: !!livePlan,
+    streamingStateKeys: streamingState ? Object.keys(streamingState) : null,
+    livePlanKeys: livePlan ? Object.keys(livePlan) : null,
+    streamingChunks: streamingState?.chunks ? Object.keys(streamingState.chunks) : null
+  });
+
+  // Check which tabs have content vs are still loading based on chunk completion
+  const getTabLoadingState = (tab: 'itinerary' | 'info' | 'practical') => {
+    if (!isStreaming) return { isLoading: false, hasContent: !!livePlan };
+    
+    if (!streamingState?.chunks) return { isLoading: true, hasContent: false };
+    
+    // Map tabs to their required chunks
+    const tabChunkMap = {
+      itinerary: [4], // Cultural chunk has activities and itinerary
+      info: [1, 2],   // Basics (places) + dining chunks
+      practical: [3]  // Practical chunk
+    };
+    
+    const requiredChunks = tabChunkMap[tab];
+    const completedChunks = requiredChunks.filter(chunkId => 
+      streamingState.chunks[chunkId]?.finalData
+    );
+    
+    const result = {
+      isLoading: completedChunks.length < requiredChunks.length,
+      hasContent: completedChunks.length > 0,
+      progress: Math.round((completedChunks.length / requiredChunks.length) * 100)
+    };
+    
+    console.log(`[AITravelPlan] Tab ${tab} loading state:`, {
+      requiredChunks,
+      completedChunks,
+      result,
+      chunkData: requiredChunks.map(id => ({
+        id,
+        hasFinalData: !!streamingState.chunks[id]?.finalData,
+        keys: streamingState.chunks[id]?.finalData ? Object.keys(streamingState.chunks[id].finalData) : null
+      }))
+    });
+    
+    return result;
+  };
 
   // Close mobile actions dropdown when clicking outside
   useEffect(() => {
@@ -92,7 +153,7 @@ export function AITravelPlan({
       await PdfExportService.exportTravelPlanToPdf({
         destination,
         travelerType,
-        plan,
+        plan: livePlan,
         includeItinerary: true,
         includeInfo: true,
       });
@@ -114,12 +175,12 @@ export function AITravelPlan({
     try {
       // First try with real coordinates, but with a shorter timeout
       try {
-        await KMLExportService.downloadKML(plan, undefined, {
+        await KMLExportService.downloadKML(livePlan, undefined, {
           useRealCoordinates: true,
         });
       } catch {
         // Fallback to approximate coordinates if geocoding fails
-        await KMLExportService.downloadKML(plan, undefined, {
+        await KMLExportService.downloadKML(livePlan, undefined, {
           useRealCoordinates: false,
         });
       }
@@ -307,6 +368,9 @@ export function AITravelPlan({
     </div>
   );
 
+  // Always show the main travel plan interface
+  // Streaming content will appear directly in the tabs as it becomes available
+
   return (
     <div className="min-h-screen">
       <div className="max-w-5xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
@@ -445,6 +509,9 @@ export function AITravelPlan({
                 }`}>
                 <MapIcon3D size="xs" />
                 <span>Adventure Blueprint</span>
+                {getTabLoadingState('itinerary').isLoading && (
+                  <Loader2 className="w-3 h-3 ml-2 animate-spin" />
+                )}
               </div>
             </button>
 
@@ -459,6 +526,9 @@ export function AITravelPlan({
                 }`}>
                 <NotebookIcon3D size="xs" />
                 <span>Intelligence Briefing</span>
+                {getTabLoadingState('info').isLoading && (
+                  <Loader2 className="w-3 h-3 ml-2 animate-spin" />
+                )}
               </div>
             </button>
 
@@ -473,6 +543,9 @@ export function AITravelPlan({
                 }`}>
                 <SuitcaseIcon3D size="xs" />
                 <span>Practical Guide</span>
+                {getTabLoadingState('practical').isLoading && (
+                  <Loader2 className="w-3 h-3 ml-2 animate-spin" />
+                )}
               </div>
             </button>
           </div>
@@ -490,23 +563,54 @@ export function AITravelPlan({
                 </p>
               </div> */}
 
-              {plan.itinerary && plan.itinerary.length > 0 ? (
+              {livePlan?.itinerary && livePlan?.itinerary.length > 0 ? (
                 <div className="space-y-8">
-                  {plan.itinerary.map((day) => renderDayItinerary(day))}
+                  {livePlan?.itinerary.map((day) => renderDayItinerary(day))}
                 </div>
               ) : (
-                <div className="text-center py-16">
-                  <div className="bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 rounded-3xl p-12 shadow-card transform -rotate-1">
-                    <div className="flex items-center justify-center mb-4">
-                      <MapIcon3D size="xl" animation="bounce" />
+                <div className="space-y-6">
+                  {/* Streaming skeleton for itinerary */}
+                  {isStreaming && getTabLoadingState('itinerary').isLoading ? (
+                    <div className="space-y-4">
+                      <div className="text-center mb-6">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
+                          <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                          <span className="text-sm font-medium text-primary">
+                            Crafting your adventure timeline...
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Day skeleton loaders */}
+                      {[1, 2, 3].map(day => (
+                        <div key={day} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 bg-primary/20 rounded-full animate-pulse"></div>
+                            <div className="h-5 bg-gray-200 rounded w-24 animate-pulse"></div>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                            <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                            <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <h3 className="text-xl font-bold text-foreground mb-2">
-                      Adventure Map Loading...
-                    </h3>
-                    <p className="text-foreground-secondary">
-                      No expedition details available for this destination yet.
-                    </p>
-                  </div>
+                  ) : (
+                    <div className="text-center py-16">
+                      <div className="bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 rounded-3xl p-12 shadow-card transform -rotate-1">
+                        <div className="flex items-center justify-center mb-4">
+                          <MapIcon3D size="xl" animation="bounce" />
+                        </div>
+                        <h3 className="text-xl font-bold text-foreground mb-2">
+                          Adventure Map Loading...
+                        </h3>
+                        <p className="text-foreground-secondary">
+                          No expedition details available for this destination yet.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -524,6 +628,18 @@ export function AITravelPlan({
               </p>
             </div> */}
 
+            {/* Streaming progress indicator for info tab */}
+            {isStreaming && getTabLoadingState('info').isLoading && (
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-full">
+                  <Loader2 className="w-4 h-4 animate-spin text-secondary" />
+                  <span className="text-sm font-medium text-secondary">
+                    Gathering intelligence on {destination.name}...
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Top Attractions */}
             <TravelPlanSection rotation="right" glowColor="primary">
               <SectionHeader
@@ -534,7 +650,7 @@ export function AITravelPlan({
               />
               {(() => {
                 // Group places by category
-                const placesByCategory = plan.placesToVisit?.reduce(
+                const placesByCategory = livePlan?.placesToVisit?.reduce(
                   (acc, place) => {
                     const category = place.category || "Other";
                     if (!acc[category]) {
@@ -543,7 +659,7 @@ export function AITravelPlan({
                     acc[category].push(place);
                     return acc;
                   },
-                  {} as Record<string, typeof plan.placesToVisit>,
+                  {} as Record<string, NonNullable<typeof livePlan>['placesToVisit']>,
                 );
 
                 return Object.entries(placesByCategory || {}).map(
@@ -607,7 +723,7 @@ export function AITravelPlan({
             </TravelPlanSection>
 
             {/* Best Neighborhoods */}
-            {plan.neighborhoods && (
+            {livePlan?.neighborhoods && (
               <TravelPlanSection rotation="left" glowColor="accent">
                 <SectionHeader
                   icon={Home}
@@ -616,7 +732,7 @@ export function AITravelPlan({
                   badgeColor="accent"
                 />
                 <ItemGrid columns={3}>
-                  {plan.neighborhoods.map((neighborhood, index) => (
+                  {livePlan?.neighborhoods.map((neighborhood, index) => (
                     <ItemCard
                       key={index}
                       title={neighborhood.name}
@@ -647,7 +763,7 @@ export function AITravelPlan({
             )}
 
             {/* Hotel Recommendations */}
-            {plan.hotelRecommendations && (
+            {livePlan?.hotelRecommendations && (
               <TravelPlanSection rotation="right" glowColor="secondary">
                 <SectionHeader
                   icon={Home}
@@ -658,7 +774,7 @@ export function AITravelPlan({
                 {(() => {
                   // Group hotels by neighborhood
                   const hotelsByNeighborhood =
-                    plan.hotelRecommendations?.reduce(
+                    livePlan?.hotelRecommendations?.reduce(
                       (acc, hotel) => {
                         const neighborhood =
                           hotel.neighborhood || "Other Areas";
@@ -668,7 +784,7 @@ export function AITravelPlan({
                         acc[neighborhood].push(hotel);
                         return acc;
                       },
-                      {} as Record<string, typeof plan.hotelRecommendations>,
+                      {} as Record<string, NonNullable<typeof livePlan>['hotelRecommendations']>,
                     );
 
                   return Object.entries(hotelsByNeighborhood || {}).map(
@@ -707,13 +823,13 @@ export function AITravelPlan({
               />
               {(() => {
                 // Separate restaurants and bars with type indicators
-                const restaurants = plan.restaurants.map((restaurant) => ({
+                const restaurants = livePlan?.restaurants.map((restaurant) => ({
                   ...restaurant,
                   type: "restaurant" as const,
                   searchType: "restaurant",
                 }));
 
-                const bars = (plan.bars || []).map((bar) => ({
+                const bars = (livePlan?.bars || []).map((bar) => ({
                   name: bar.name,
                   cuisine: bar.category,
                   priceRange: bar.atmosphere,
@@ -833,7 +949,7 @@ export function AITravelPlan({
             </TravelPlanSection>
 
             {/* Local Specialties */}
-            {plan.mustTryFood && plan.mustTryFood.items && (
+            {livePlan?.mustTryFood && livePlan?.mustTryFood.items && (
               <TravelPlanSection rotation="right" glowColor="accent">
                 <SectionHeader
                   icon={Utensils}
@@ -843,7 +959,7 @@ export function AITravelPlan({
                 />
                 {(() => {
                   // Group food items by category
-                  const foodByCategory = plan.mustTryFood.items.reduce(
+                  const foodByCategory = livePlan?.mustTryFood.items.reduce(
                     (acc, item) => {
                       const category = item.category;
                       if (!acc[category]) {
@@ -852,7 +968,7 @@ export function AITravelPlan({
                       acc[category].push(item);
                       return acc;
                     },
-                    {} as Record<string, typeof plan.mustTryFood.items>,
+                    {} as Record<string, NonNullable<NonNullable<typeof livePlan>['mustTryFood']>['items']>,
                   );
 
                   const categoryTitles: Record<string, string> = {
@@ -931,7 +1047,7 @@ export function AITravelPlan({
             )}
 
             {/* Local Events */}
-            {plan.localEvents && plan.localEvents.length > 0 && (
+            {livePlan?.localEvents && livePlan?.localEvents.length > 0 && (
               <TravelPlanSection rotation="left" glowColor="primary">
                 <SectionHeader
                   icon={Calendar}
@@ -940,7 +1056,7 @@ export function AITravelPlan({
                   badgeColor="primary"
                 />
                 <ItemGrid columns={3}>
-                  {plan.localEvents.map((event, index) => (
+                  {livePlan?.localEvents.map((event, index) => (
                     <ItemCard
                       key={index}
                       title={event.name}
@@ -954,7 +1070,7 @@ export function AITravelPlan({
             )}
 
             {/* Activities & Experiences */}
-            {plan.activities && (
+            {livePlan?.activities && (
               <TravelPlanSection rotation="right" glowColor="accent">
                 <SectionHeader
                   icon={Compass}
@@ -963,7 +1079,7 @@ export function AITravelPlan({
                   badgeColor="accent"
                 />
                 <ItemGrid columns={2}>
-                  {plan.activities.map((activity, index) => {
+                  {livePlan?.activities.map((activity, index) => {
                     const tags = [];
                     if (activity.localSpecific) tags.push("Local Specialty");
                     if (
@@ -1006,6 +1122,18 @@ export function AITravelPlan({
               </p>
             </div> */}
 
+            {/* Streaming progress indicator for practical tab */}
+            {isStreaming && getTabLoadingState('practical').isLoading && (
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
+                  <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                  <span className="text-sm font-medium text-accent">
+                    Compiling practical travel guide...
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Getting Around */}
             <TravelPlanSection rotation="left" glowColor="primary">
               <SectionHeader
@@ -1019,19 +1147,19 @@ export function AITravelPlan({
               <ContentGrid columns={2} className="mb-8">
                 <ContentCard title="Public Transport" icon="🚇">
                   <p className="text-foreground-secondary mb-3">
-                    {plan.transportationInfo.publicTransport}
+                    {livePlan?.transportationInfo.publicTransport}
                   </p>
                   <div className="flex items-center">
                     <span className="text-sm text-foreground-secondary mr-2">
                       💳 Credit cards:
                     </span>
                     <span
-                      className={`text-sm font-medium px-2 py-1 rounded-full ${plan.transportationInfo.creditCardPayment
+                      className={`text-sm font-medium px-2 py-1 rounded-full ${livePlan?.transportationInfo.creditCardPayment
                         ? "bg-green-100 text-green-700"
                         : "bg-amber-100 text-amber-700"
                         }`}
                     >
-                      {plan.transportationInfo.creditCardPayment
+                      {livePlan?.transportationInfo.creditCardPayment
                         ? "Accepted"
                         : "Not accepted"}
                     </span>
@@ -1040,17 +1168,17 @@ export function AITravelPlan({
 
                 <ContentCard title="Taxis & Rideshare" icon="🚕">
                   <p className="text-foreground-secondary mb-3">
-                    {plan.transportationInfo.ridesharing}
+                    {livePlan?.transportationInfo.ridesharing}
                   </p>
                   <div className="flex items-center mb-3">
                     <span className="text-sm text-foreground-secondary mr-2">
                       💰 Average cost:
                     </span>
                     <span className="text-sm font-bold text-primary">
-                      {plan.transportationInfo.taxiInfo?.averageCost}
+                      {livePlan?.transportationInfo.taxiInfo?.averageCost}
                     </span>
                   </div>
-                  {plan.transportationInfo.taxiInfo?.tips && (
+                  {livePlan?.transportationInfo.taxiInfo?.tips && (
                     <div>
                       <div className="flex items-center mb-2">
                         {/* <span className="text-sm mr-2">💡</span> */}
@@ -1059,7 +1187,7 @@ export function AITravelPlan({
                         </span>
                       </div>
                       <ul className="space-y-1">
-                        {plan.transportationInfo.taxiInfo.tips.map(
+                        {livePlan?.transportationInfo.taxiInfo.tips.map(
                           (tip, index) => (
                             <li
                               key={index}
@@ -1089,7 +1217,7 @@ export function AITravelPlan({
                   </h6>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {plan.transportationInfo.airportTransport?.airports?.map(
+                  {livePlan?.transportationInfo.airportTransport?.airports?.map(
                     (airport, airportIndex) => (
                       <div
                         key={airportIndex}
@@ -1171,7 +1299,7 @@ export function AITravelPlan({
             </TravelPlanSection>
 
             {/* Weather Information */}
-            {plan.weatherInfo && (
+            {livePlan?.weatherInfo && (
               <TravelPlanSection rotation="right" glowColor="secondary">
                 <SectionHeader
                   icon={Calendar}
@@ -1186,14 +1314,14 @@ export function AITravelPlan({
                     icon="🌡️"
                   >
                     <p className="font-medium text-primary mb-2">
-                      {plan.weatherInfo.temperature} •{" "}
-                      {plan.weatherInfo.conditions}
+                      {livePlan?.weatherInfo.temperature} •{" "}
+                      {livePlan?.weatherInfo.conditions}
                     </p>
                     <p className="text-foreground-secondary mb-1">
-                      Humidity: {plan.weatherInfo.humidity}
+                      Humidity: {livePlan?.weatherInfo.humidity}
                     </p>
                     <p className="text-foreground-secondary">
-                      Day/Night Temp Difference: {plan.weatherInfo.dayNightTempDifference}
+                      Day/Night Temp Difference: {livePlan?.weatherInfo.dayNightTempDifference}
                     </p>
                   </ContentCard>
                   <ContentCard
@@ -1201,7 +1329,7 @@ export function AITravelPlan({
                     icon="🎒"
                   >
                     <ul className="space-y-2">
-                      {plan.weatherInfo.recommendations?.map((rec, index) => (
+                      {livePlan?.weatherInfo.recommendations?.map((rec, index) => (
                         <li key={index} className="flex items-start">
                           <span className="text-primary mr-2">•</span>
                           <p className="text-foreground-secondary">{rec}</p>
@@ -1216,7 +1344,7 @@ export function AITravelPlan({
             {/* Safety & Cultural Tips */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Safety Tips */}
-              {plan.safetyTips && (
+              {livePlan?.safetyTips && (
                 <TravelPlanSection rotation="left" glowColor="primary">
                   <SectionHeader
                     icon={Shield}
@@ -1226,7 +1354,7 @@ export function AITravelPlan({
                   />
 
                   <ul className="space-y-1">
-                    {plan.safetyTips.map((tip, index) => (
+                    {livePlan?.safetyTips.map((tip, index) => (
                       <li key={index} className="flex items-start">
                         <span className="text-secondary mr-2">
                           •
@@ -1247,7 +1375,7 @@ export function AITravelPlan({
                   badgeColor="primary"
                 />
                 <ul className="space-y-1">
-                  {plan.socialEtiquette.map((tip, index) => (
+                  {livePlan?.socialEtiquette.map((tip, index) => (
                     <li key={index} className="flex items-start">
                       <span className="text-accent mr-2">•</span>
                       <p className="text-foreground-secondary">{tip}</p>
@@ -1270,25 +1398,25 @@ export function AITravelPlan({
                 <p>
                   The local currency is{" "}
                   <span className="font-semibold">
-                    {plan.localCurrency.currency}
+                    {livePlan?.localCurrency.currency}
                   </span>
                   .
-                  {plan.localCurrency.cashNeeded
+                  {livePlan?.localCurrency.cashNeeded
                     ? " Cash is recommended for some purchases."
                     : " Credit cards are widely accepted."}
                 </p>
-                {plan.localCurrency.exchangeRate && (
+                {livePlan?.localCurrency.exchangeRate && (
                   <div className="mt-3 mb-2rounded-lg">
                     <h6 className="mb-2">Current Exchange Rate</h6>
                     <p>
-                      1 {plan.localCurrency.exchangeRate.from} ={" "}
-                      {plan.localCurrency.exchangeRate.rate}{" "}
-                      {plan.localCurrency.exchangeRate.to}
+                      1 {livePlan?.localCurrency.exchangeRate.from} ={" "}
+                      {livePlan?.localCurrency.exchangeRate.rate}{" "}
+                      {livePlan?.localCurrency.exchangeRate.to}
                     </p>
                   </div>
                 )}
-                {plan.localCurrency.tips &&
-                  plan.localCurrency.tips.length > 0 && (
+                {livePlan?.localCurrency.tips &&
+                  livePlan?.localCurrency.tips.length > 0 && (
                     <div className="mt-4">
                       <h6 className="mb-2">Money Tips:</h6>
                       <ul className="space-y-1">
@@ -1297,9 +1425,9 @@ export function AITravelPlan({
                           <p>Credit card usage</p>
                         </li>
                         <span className="text-sm ml-4">
-                          {plan.localCurrency.creditCardUsage}
+                          {livePlan?.localCurrency.creditCardUsage}
                         </span>
-                        {plan.localCurrency.tips.map((tip, index) => (
+                        {livePlan?.localCurrency.tips.map((tip, index) => (
                           <li key={index} className="flex items-start">
                             <p className="text-accent mr-2">•</p>
                             <p>{tip}</p>
@@ -1311,7 +1439,7 @@ export function AITravelPlan({
               </TravelPlanSection>
 
               {/* Tipping Etiquette */}
-              {plan.tipEtiquette && (
+              {livePlan?.tipEtiquette && (
                 <TravelPlanSection>
                   <SectionHeader
                     icon={CreditCard}
@@ -1320,7 +1448,7 @@ export function AITravelPlan({
                     badgeColor="primary"
                   />
                   <div className="space-y-3">
-                    {Object.entries(plan.tipEtiquette).map(
+                    {Object.entries(livePlan?.tipEtiquette).map(
                       ([category, tip], index) => (
                         <div key={index} className="mb-2">
                           <p className="font-semibold">
@@ -1338,7 +1466,7 @@ export function AITravelPlan({
             </div>
 
             {/* Drinking Water */}
-            {plan.tapWaterSafe && (
+            {livePlan?.tapWaterSafe && (
               <TravelPlanSection rotation="left" glowColor="primary">
                 <SectionHeader
                   icon={Droplets}
@@ -1348,15 +1476,15 @@ export function AITravelPlan({
                 />
                 <div className="flex items-start">
                   <span
-                    className={`mr-2 ${plan.tapWaterSafe.safe ? "animate-bounce-subtle" : "animate-pulse-slow"}`}
+                    className={`mr-2 ${livePlan?.tapWaterSafe.safe ? "animate-bounce-subtle" : "animate-pulse-slow"}`}
                   >
-                    {plan.tapWaterSafe.safe ? "✅" : "⚠️"}
+                    {livePlan?.tapWaterSafe.safe ? "✅" : "⚠️"}
                   </span>
                   <div>
                     <p
-                      className={`${plan.tapWaterSafe.safe ? "text-green-600" : "text-amber-600"}`}
+                      className={`${livePlan?.tapWaterSafe.safe ? "text-green-600" : "text-amber-600"}`}
                     >
-                      {plan.tapWaterSafe.safe
+                      {livePlan?.tapWaterSafe.safe
                         ? "Tap water is safe to drink!"
                         : "Tap water is not recommended for drinking."}
                     </p>
@@ -1366,7 +1494,7 @@ export function AITravelPlan({
             )}
 
             {/* Local History */}
-            {plan.history && (
+            {livePlan?.history && (
               <TravelPlanSection rotation="right" glowColor="secondary">
                 <SectionHeader
                   icon={BookOpen}
@@ -1376,7 +1504,7 @@ export function AITravelPlan({
                 />
 
                 <p className="text-foreground-secondary leading-relaxed">
-                  {plan.history}
+                  {livePlan?.history}
                 </p>
               </TravelPlanSection>
             )}

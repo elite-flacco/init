@@ -31,10 +31,10 @@ const initialState: ParallelChunkingState = {
 
 // Define chunk configuration matching the backend
 const CHUNK_DEFINITIONS = [
-  { id: 1, section: 'basics', weight: 0.3 },
-  { id: 2, section: 'dining', weight: 0.25 },
-  { id: 3, section: 'practical', weight: 0.25 },
-  { id: 4, section: 'cultural', weight: 0.2 }
+  { id: 1, section: 'basics', weight: 0.3, tab: 'info' },      // Places, hotels -> Info tab
+  { id: 2, section: 'dining', weight: 0.25, tab: 'info' },     // Restaurants, bars -> Info tab  
+  { id: 3, section: 'practical', weight: 0.25, tab: 'practical' }, // Practical info -> Practical tab
+  { id: 4, section: 'cultural', weight: 0.2, tab: 'itinerary' }    // Activities, itinerary -> Itinerary tab
 ];
 
 export function useParallelTripPlanning(): ParallelPlanningHook {
