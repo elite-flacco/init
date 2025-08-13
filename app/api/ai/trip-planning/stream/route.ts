@@ -402,25 +402,17 @@ const sse = (obj: any) => enc.encode(`data: ${JSON.stringify(obj)}\n\n`);
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const chunkId = searchParams.get('chunk');
-  const sessionId = searchParams.get('sessionId');
 
-  if (!chunkId || !sessionId) {
-    return new NextResponse('Missing chunk or sessionId', { status: 400 });
+  if (!chunkId) {
+    return new NextResponse('Missing chunk parameter', { status: 400 });
   }
 
-  // This is a streaming endpoint, we'll get the request data from query params
-  // In a real implementation, you'd store the request data in a session store
   return new NextResponse('Use POST for streaming requests', { status: 405 });
 }
 
 export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const chunkId = parseInt(searchParams.get('chunk') || '1');
-  const sessionId = searchParams.get('sessionId');
-
-  if (!sessionId) {
-    return new NextResponse('Missing sessionId', { status: 400 });
-  }
 
   try {
     const body: AITripPlanningRequest = await request.json();
@@ -451,7 +443,7 @@ export async function POST(request: NextRequest) {
 
     const prompt = promptGenerator(body);
 
-    console.log(`[Streaming API v2] Starting streaming for chunk ${chunkId}, session ${sessionId}`);
+    console.log(`[Streaming API v2] Starting streaming for chunk ${chunkId}`);
 
     let controllerClosed = false;
     let respStream: Awaited<ReturnType<typeof openai.responses.stream>> | null = null;
@@ -474,7 +466,7 @@ export async function POST(request: NextRequest) {
         const push = (obj: any) => controller.enqueue(sse(obj));
 
         try {
-          push({ type: "start", chunkId, sessionId, timestamp: Date.now() });
+          push({ type: "start", chunkId, timestamp: Date.now() });
 
           // Use OpenAI's Responses API - purpose-built for structured streaming outputs
           respStream = await openai.responses.stream({
@@ -532,11 +524,10 @@ export async function POST(request: NextRequest) {
             push({
               type: "complete",
               chunkId,
-              sessionId,
               data: finalData,
               timestamp: Date.now()
             });
-            console.log(`[Streaming API v2] Successfully completed chunk ${chunkId} for session ${sessionId}`);
+            console.log(`[Streaming API v2] Successfully completed chunk ${chunkId}`);
           } catch (e: any) {
             console.error(`[Streaming API v2] Final JSON parse failed for chunk ${chunkId}:`, e);
             console.error(`[Streaming API v2] Buffer preview (first 500 chars):`, buffer.substring(0, 500));

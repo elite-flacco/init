@@ -27,26 +27,9 @@ export interface ChunkedAIResponse {
   chunk: ChunkInfo;
   data: Record<string, unknown>;
   isComplete: boolean;
-  sessionId: string;
 }
 
-// Session storage for chunked responses (in production, use Redis/database)
-const chunkSessions = new Map<string, {
-  chunks: Record<string, unknown>[];
-  totalChunks: number;
-  completedChunks: number;
-  createdAt: number;
-}>();
-
-// Cleanup expired sessions (older than 1 hour)
-setInterval(() => {
-  const oneHourAgo = Date.now() - 60 * 60 * 1000;
-  for (const [sessionId, session] of chunkSessions) {
-    if (session.createdAt < oneHourAgo) {
-      chunkSessions.delete(sessionId);
-    }
-  }
-}, 15 * 60 * 1000); // Run every 15 minutes
+// Note: Individual chunks are processed independently without session storage
 
 async function callAI(prompt: string, maxTokens?: number): Promise<string> {
   const config = getAIConfig();
@@ -614,14 +597,12 @@ Ensure itinerary has exactly ${days} days. START YOUR RESPONSE WITH { AND END WI
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   let chunkParam: string | null = null;
-  let sessionId: string | null = null;
   
   try {
     const url = new URL(request.url);
     chunkParam = url.searchParams.get('chunk');
-    sessionId = url.searchParams.get('sessionId') || `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
-    console.log(`[Chunked API] ${chunkParam ? `Chunk ${chunkParam}` : 'Session init'} request for session ${sessionId}`);
+    console.log(`[Chunked API] ${chunkParam ? `Chunk ${chunkParam}` : 'Session init'} request`);
     
     const body: AITripPlanningRequest = await request.json();
 
@@ -688,23 +669,7 @@ export async function POST(request: NextRequest) {
         throw new Error(`Invalid JSON in chunk ${chunkId}: ${parseError}`);
       }
 
-      // Store chunk in session
-      if (!chunkSessions.has(sessionId)) {
-        chunkSessions.set(sessionId, {
-          chunks: new Array(TRAVEL_PLAN_CHUNKS.length),
-          totalChunks: TRAVEL_PLAN_CHUNKS.length,
-          completedChunks: 0,
-          createdAt: Date.now()
-        });
-      }
-
-      const session = chunkSessions.get(sessionId)!;
-      session.chunks[chunkId - 1] = parsedResponse;
-      session.completedChunks++;
-
-      const isComplete = session.completedChunks === session.totalChunks;
-      
-      console.log(`[Chunked API] Chunk ${chunkId} completed. Progress: ${session.completedChunks}/${session.totalChunks}`);
+      console.log(`[Chunked API] Chunk ${chunkId} completed successfully`);
 
       const response: ChunkedAIResponse = {
         chunk: {
@@ -714,33 +679,14 @@ export async function POST(request: NextRequest) {
           description: chunk.description
         },
         data: parsedResponse,
-        isComplete,
-        sessionId
+        isComplete: false // Individual chunks are never complete by themselves
       };
-
-      // If complete, combine all chunks
-      if (isComplete) {
-        console.log(`[Chunked API] All chunks completed for session ${sessionId}, combining data`);
-        const combinedData = session.chunks.reduce((acc, chunk) => {
-          return { ...acc, ...chunk };
-        }, {});
-        
-        response.data = {
-          destination: body.destination,
-          ...combinedData
-        };
-        
-        // Log success metrics
-        const duration = Date.now() - startTime;
-        console.log(`[Chunked API] Session ${sessionId} completed successfully in ${duration}ms`);
-      }
 
       return NextResponse.json(response);
     }
 
     // Return chunk information for client to request individual chunks
     return NextResponse.json({
-      sessionId,
       chunks: TRAVEL_PLAN_CHUNKS.map(chunk => ({
         id: chunk.id,
         section: chunk.section,
@@ -752,7 +698,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const duration = Date.now() - startTime;
     const errorInfo = {
-      sessionId,
       chunkId: chunkParam,
       duration,
       error: error instanceof Error ? error.message : String(error),
@@ -765,7 +710,6 @@ export async function POST(request: NextRequest) {
       {
         error: "Failed to generate chunked trip plan",
         details: error instanceof Error ? error.message : String(error),
-        sessionId,
         chunkId: chunkParam,
       },
       { status: 500 }

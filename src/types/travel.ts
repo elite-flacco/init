@@ -279,34 +279,7 @@ export interface DestinationRecommendation {
   bestFor: string[];
 }
 
-// Manifest and streaming types for hybrid trip planning
-export interface TravelPlanManifest {
-  sessionId: string;
-  destination: Destination;
-  overview: {
-    duration: string;
-    budget: string;
-    bestFor: string[];
-    highlights: string[];
-    vibe: string;
-  };
-  sections: ManifestSection[];
-  quickRecommendations: {
-    topAttractions: string[];
-    mustTryFood: string[];
-    neighborhoods: string[];
-    budgetTips: string[];
-  };
-}
-
-export interface ManifestSection {
-  id: string;
-  title: string;
-  description: string;
-  estimatedItems: number;
-  priority: number;
-  preview: string[];
-}
+// Streaming types for trip planning
 
 export interface ChunkInfo {
   chunkId: number;
@@ -324,15 +297,12 @@ export interface ChunkedResponse {
 
 export interface ParallelChunkingState {
   isLoading: boolean;
-  manifest: TravelPlanManifest | null;
-  manifestLoaded: boolean;
   completedChunks: number;
   totalChunks: number;
   chunks: Record<number, Record<string, unknown>>;
   chunkStatuses: Record<number, 'pending' | 'loading' | 'completed' | 'error'>;
   combinedData: EnhancedTravelPlan | null;
   error: string | null;
-  sessionId: string | null;
 }
 
 export interface StreamingPlanSection {

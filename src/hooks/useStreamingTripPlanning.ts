@@ -3,14 +3,12 @@ import {
   AITripPlanningRequest
 } from '../services/aiTripPlanningService';
 import {
-  TravelPlanManifest,
   EnhancedTravelPlan
 } from '../types/travel';
 
 interface StreamingEvent {
   type: 'start' | 'content_delta' | 'complete' | 'error';
   chunkId?: number;
-  sessionId?: string;
   delta?: string;
   accumulated?: string;
   data?: any;
@@ -28,14 +26,11 @@ export interface ChunkStreamingState {
 
 export interface StreamingTripPlanningState {
   isLoading: boolean;
-  manifest: TravelPlanManifest | null;
-  manifestLoaded: boolean;
   chunks: Record<number, ChunkStreamingState>;
   completedChunks: number;
   totalChunks: number;
   combinedData: EnhancedTravelPlan | null;
   error: string | null;
-  sessionId: string | null;
 }
 
 interface StreamingPlanningHook {
@@ -55,14 +50,11 @@ const initialChunkState: ChunkStreamingState = {
 
 const initialState: StreamingTripPlanningState = {
   isLoading: false,
-  manifest: null,
-  manifestLoaded: false,
   chunks: {},
   completedChunks: 0,
   totalChunks: 4,
   combinedData: null,
-  error: null,
-  sessionId: null
+  error: null
 };
 
 const CHUNK_DEFINITIONS = [
@@ -88,7 +80,7 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
 
 
   const createStreamingConnection = useCallback(
-    (chunkId: number, sessionId: string, request: AITripPlanningRequest) => {
+    (chunkId: number, request: AITripPlanningRequest) => {
       return new Promise<void>((resolve, reject) => {
         // Close existing connection for this chunk if any
         if (abortControllersRef.current[chunkId]) {
@@ -101,7 +93,7 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
 
         // Use EventSource like the working example
         const streamChunk = async () => {
-          const url = `/api/ai/trip-planning/stream?chunk=${chunkId}&sessionId=${sessionId}`;
+          const url = `/api/ai/trip-planning/stream?chunk=${chunkId}`;
 
           // Initialize chunk state  
           setState(prev => ({
@@ -287,8 +279,6 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
 
   const retryChunk = useCallback(
     async (chunkId: number, request: AITripPlanningRequest) => {
-      if (!state.sessionId) return;
-
       setState(prev => ({
         ...prev,
         chunks: {
@@ -299,9 +289,9 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
         }
       }));
 
-      await createStreamingConnection(chunkId, state.sessionId, request);
+      await createStreamingConnection(chunkId, request);
     },
-    [state.sessionId, createStreamingConnection]
+    [createStreamingConnection]
   );
 
   const generateStreamingPlan = useCallback(
@@ -312,35 +302,15 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
         setState(prev => ({
           ...prev,
           isLoading: true,
-          error: null
-        }));
-
-        // Step 1: Generate manifest quickly
-        const manifestResponse = await fetch('/api/ai/trip-planning/manifest', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(request)
-        });
-
-        if (!manifestResponse.ok) {
-          throw new Error('Failed to generate travel plan manifest');
-        }
-
-        const manifest: TravelPlanManifest = await manifestResponse.json();
-
-        setState(prev => ({
-          ...prev,
-          manifest,
-          manifestLoaded: true,
-          sessionId: manifest.sessionId,
+          error: null,
           chunks: Object.fromEntries(
             CHUNK_DEFINITIONS.map(chunk => [chunk.id, { ...initialChunkState }])
           )
         }));
 
-        // Step 2: Start streaming all chunks in parallel
+        // Start streaming all chunks in parallel
         const streamingPromises = CHUNK_DEFINITIONS.map(chunk =>
-          createStreamingConnection(chunk.id, manifest.sessionId, request)
+          createStreamingConnection(chunk.id, request)
         );
 
         await Promise.allSettled(streamingPromises);

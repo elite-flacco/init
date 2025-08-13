@@ -3,7 +3,6 @@ import {
   AITripPlanningRequest 
 } from '../services/aiTripPlanningService';
 import {
-  TravelPlanManifest,
   ParallelChunkingState,
   ChunkedResponse,
   EnhancedTravelPlan
@@ -17,15 +16,12 @@ interface ParallelPlanningHook {
 
 const initialState: ParallelChunkingState = {
   isLoading: false,
-  manifest: null,
-  manifestLoaded: false,
   completedChunks: 0,
   totalChunks: 0,
   chunks: {},
   chunkStatuses: {},
   combinedData: null,
-  error: null,
-  sessionId: null
+  error: null
 };
 
 // Define chunk configuration matching the backend
@@ -53,39 +49,21 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
         completedChunks: 0,
         chunks: {},
         chunkStatuses: {},
-        combinedData: null,
-        manifest: null,
-        manifestLoaded: false
+        combinedData: null
       }));
 
-      // Step 1: Generate manifest quickly (2-3 seconds)
-      console.log('[Parallel Planning] Fetching manifest...');
-      const manifestResponse = await fetch('/api/ai/trip-planning/manifest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request)
-      });
-
-      if (!manifestResponse.ok) {
-        throw new Error('Failed to generate travel plan manifest');
-      }
-
-      const manifest: TravelPlanManifest = await manifestResponse.json();
-      
+      // Initialize state for chunked processing
       setState(prev => ({ 
-        ...prev, 
-        manifest,
-        manifestLoaded: true,
-        sessionId: manifest.sessionId,
+        ...prev,
         totalChunks: CHUNK_DEFINITIONS.length,
         chunkStatuses: Object.fromEntries(
           CHUNK_DEFINITIONS.map(chunk => [chunk.id, 'pending' as const])
         )
       }));
 
-      console.log('[Parallel Planning] Manifest loaded, starting parallel chunks...');
+      console.log('[Parallel Planning] Starting parallel chunks...');
 
-      // Step 2: Initialize chunked session
+      // Initialize chunked session
       const sessionResponse = await fetch('/api/ai/trip-planning/chunked', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -114,7 +92,7 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
             const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
 
             const chunkResponse = await fetch(
-              `/api/ai/trip-planning/chunked?chunk=${chunkDef.id}&sessionId=${manifest.sessionId}`,
+              `/api/ai/trip-planning/chunked?chunk=${chunkDef.id}`,
               {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
