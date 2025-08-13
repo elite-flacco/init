@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { trackTravelEvent } from "../lib/analytics";
 import { useStreamingTripPlanning } from "../hooks/useStreamingTripPlanning";
 import { useParallelTripPlanning } from "../hooks/useParallelTripPlanning";
@@ -62,7 +63,7 @@ export function AITravelPlan({
 }: AITravelPlanProps) {
   const [activeTab, setActiveTab] = useState<
     "itinerary" | "info" | "practical"
-  >("itinerary");
+  >("info");
   const [isExportingKML, setIsExportingKML] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [, setShareUrl] = useState<string | null>(null);
@@ -72,18 +73,18 @@ export function AITravelPlan({
   // Initialize streaming hooks
   const { state: parallelState, generatePlan } = useParallelTripPlanning();
   const { state: streamingState, generateStreamingPlan, retryChunk } = useStreamingTripPlanning();
-  
+
   // Determine if we're in streaming mode
   const isStreamingMode = !!streamingRequest;
   const [useStreaming, setUseStreaming] = useState(false);
 
   // Start streaming when component mounts if we have a streaming request
   const [hasStartedStreaming, setHasStartedStreaming] = useState(false);
-  
+
   useEffect(() => {
     if (streamingRequest && !hasStartedStreaming) {
       setHasStartedStreaming(true);
-      
+
       const startStreaming = async () => {
         try {
           setUseStreaming(true);
@@ -103,14 +104,13 @@ export function AITravelPlan({
   const staticStreamingState = aiResponse?.streamingState;
   const staticStreamingHooks = aiResponse?.streamingHooks;
   const { plan } = aiResponse || {};
-  
+
   // Determine which streaming state to use (live streaming or static from props)
   const activeStreamingState = isStreamingMode ? streamingState : staticStreamingState;
-  const activeStreamingHooks = isStreamingMode ? { generateStreamingPlan, retryChunk } : staticStreamingHooks;
   const isActivelyStreaming = isStreamingMode ? (useStreaming && streamingState.isLoading) : (staticStreamingState && staticStreamingHooks);
-  
+
   // Get the live plan data 
-  const livePlan = isStreamingMode 
+  const livePlan = isStreamingMode
     ? (useStreaming ? streamingState.combinedData : parallelState.combinedData) || plan
     : (activeStreamingState?.combinedData || plan);
 
@@ -118,27 +118,27 @@ export function AITravelPlan({
   // Check which tabs have content vs are still loading based on chunk completion
   const getTabLoadingState = (tab: 'itinerary' | 'info' | 'practical') => {
     if (!isActivelyStreaming) return { isLoading: false, hasContent: !!livePlan };
-    
+
     if (!activeStreamingState?.chunks) return { isLoading: true, hasContent: false };
-    
+
     // Map tabs to their required chunks
     const tabChunkMap = {
       itinerary: [4], // Cultural chunk has activities and itinerary
       info: [1, 2],   // Basics (places) + dining chunks
       practical: [3]  // Practical chunk
     };
-    
+
     const requiredChunks = tabChunkMap[tab];
-    const completedChunks = requiredChunks.filter(chunkId => 
+    const completedChunks = requiredChunks.filter(chunkId =>
       activeStreamingState.chunks[chunkId]?.finalData
     );
-    
+
     const result = {
       isLoading: completedChunks.length < requiredChunks.length,
       hasContent: completedChunks.length > 0,
       progress: Math.round((completedChunks.length / requiredChunks.length) * 100)
     };
-    
+
     return result;
   };
 
@@ -286,14 +286,14 @@ export function AITravelPlan({
   };
 
   // Generic section loading component
-  const SectionLoading = ({ 
-    title, 
-    emoji, 
-    color = 'primary', 
-    layout = 'grid', 
-    columns = 2, 
-    items = 4, 
-    customContent = null 
+  const SectionLoading = ({
+    title,
+    emoji,
+    color = 'primary',
+    layout = 'grid',
+    columns = 2,
+    items = 4,
+    customContent = null
   }: {
     title: string;
     emoji: string;
@@ -305,7 +305,7 @@ export function AITravelPlan({
   }) => {
     const colorClasses = {
       primary: 'bg-primary/20 text-primary',
-      secondary: 'bg-secondary/20 text-secondary', 
+      secondary: 'bg-secondary/20 text-secondary',
       accent: 'bg-accent/20 text-accent'
     };
 
@@ -328,7 +328,7 @@ export function AITravelPlan({
 
     const renderContent = () => {
       if (customContent) return customContent;
-      
+
       if (layout === 'list') {
         return (
           <div className="space-y-3">
@@ -382,45 +382,15 @@ export function AITravelPlan({
   const SafetyTipsLoading = () => <SectionLoading title="Safety Tips" emoji="⚠️" color="primary" layout="list" items={4} />;
   const CulturalInsightsLoading = () => <SectionLoading title="Cultural Insights" emoji="🏹" color="primary" layout="list" items={4} />;
   const DrinkingWaterLoading = () => <SectionLoading title="Drinking Water" emoji="💧" color="primary" layout="list" items={2} />;
-  const LocalHistoryLoading = () => <SectionLoading title="Local History" emoji="🏰" color="secondary" layout="list" items={5} />;
-  
-  const PaymentGuideLoading = () => <SectionLoading 
-    title="Payment Guide" 
-    emoji="💰" 
-    color="primary" 
-    layout="custom" 
-    customContent={
-      <div className="space-y-3">
-        <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-        <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
-        <div className="h-3 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-        <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse"></div>
-      </div>
-    } 
-  />;
-  
-  const TippingEtiquetteLoading = () => <SectionLoading 
-    title="Tipping Etiquette" 
-    emoji="💰" 
-    color="primary" 
-    layout="custom" 
-    customContent={
-      <div className="space-y-3">
-        {[1, 2, 3].map(item => (
-          <div key={item} className="space-y-2">
-            <div className="h-4 bg-gray-200 rounded w-1/3 animate-pulse"></div>
-            <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-          </div>
-        ))}
-      </div>
-    } 
-  />;
-  
-  const DiningLoading = () => <SectionLoading 
-    title="Where to Eat & Drink" 
-    emoji="🍴" 
-    color="primary" 
-    layout="custom" 
+  const LocalHistoryLoading = () => <SectionLoading title="Local History" emoji="🏰" color="secondary" layout="list" items={3} />;
+  const PaymentGuideLoading = () => <SectionLoading title="Payment Guide" emoji="💰" color="primary" layout="list" items={2} />;
+  const TippingEtiquetteLoading = () => <SectionLoading title="Tipping Etiquette" emoji="💰" color="primary" layout="list" items={2} />;
+
+  const DiningLoading = () => <SectionLoading
+    title="Where to Eat & Drink"
+    emoji="🍴"
+    color="primary"
+    layout="custom"
     customContent={
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
@@ -448,14 +418,14 @@ export function AITravelPlan({
           ))}
         </div>
       </div>
-    } 
+    }
   />;
-  
-  const LocalFoodLoading = () => <SectionLoading 
-    title="Must-Try Local Flavors" 
-    emoji="🤤" 
-    color="accent" 
-    layout="custom" 
+
+  const LocalFoodLoading = () => <SectionLoading
+    title="Must-Try Local Flavors"
+    emoji="🤤"
+    color="accent"
+    layout="custom"
     customContent={
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
@@ -473,7 +443,7 @@ export function AITravelPlan({
         </div>
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-3">
-            <BeerIcon className="w-5 h-5 text-accent" />
+            <Coffee className="w-5 h-5 text-accent" />
             <span className="font-medium">Desserts & Drinks</span>
           </div>
           {[1, 2].map(item => (
@@ -484,7 +454,7 @@ export function AITravelPlan({
           ))}
         </div>
       </div>
-    } 
+    }
   />;
 
   // Helper function to get icon component based on icon name
@@ -589,21 +559,78 @@ export function AITravelPlan({
   // Streaming content will appear directly in the tabs as it becomes available
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.8,
+        ease: [0.25, 0.46, 0.45, 0.94],
+        delay: 0.1
+      }}
+      className="min-h-screen"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          duration: 0.6,
+          ease: [0.25, 0.46, 0.45, 0.94],
+          delay: 0.3
+        }}
+        className="max-w-5xl mx-auto px-4 py-4 sm:px-6 lg:px-8"
+      >
         {/* Header - Compact */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.6,
+            delay: 0.5,
+            ease: [0.25, 0.46, 0.45, 0.94]
+          }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6"
+        >
           <div className="mb-3 sm:mb-0">
             <div className="flex items-start">
-              <Sparkles className="w-16 h-16 text-primary mr-2" />
-              <h2 className="text-3d-gradient">
-                Your Travel Info Packet
-              </h2>
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{
+                  duration: 0.8,
+                  delay: 0.6,
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 15
+                }}
+              >
+                <Sparkles className="w-12 h-12 text-primary mr-2" />
+              </motion.div>
+              <motion.h2
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.8,
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
+                className="text-3d-gradient"
+              >
+                Your Info Packet
+              </motion.h2>
             </div>
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden sm:flex items-center space-x-2">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              duration: 0.6,
+              delay: 1.0,
+              ease: [0.25, 0.46, 0.45, 0.94]
+            }}
+            className="hidden sm:flex items-center space-x-2"
+          >
             <button
               onClick={onRegeneratePlan}
               className="flex items-center p-2 btn-3d-outline"
@@ -641,7 +668,7 @@ export function AITravelPlan({
                 <Share2 className="w-4 h-4" />
               )}
             </button>
-          </div>
+          </motion.div>
 
           {/* Mobile Actions Dropdown */}
           <div className="relative sm:hidden" ref={mobileActionsRef}>
@@ -710,10 +737,19 @@ export function AITravelPlan({
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Navigation Tabs */}
-        <div className="mb-4 relative">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.6,
+            delay: 1.2,
+            ease: [0.25, 0.46, 0.45, 0.94]
+          }}
+          className="mb-4 relative"
+        >
           <div className="flex flex-col xl:flex-row justify-center items-center gap-2 xl:gap-2 px-2 max-w-none mx-auto">
             <button
               onClick={() => setActiveTab("itinerary")}
@@ -766,20 +802,13 @@ export function AITravelPlan({
               </div>
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Tab Content */}
         {activeTab === "itinerary" && (
           <div className="space-y-8 relative">
             {/* Travel Itinerary */}
             <div className="relative z-10">
-              {/* <div className="text-center mb-12">
-                <p className="text-lg text-foreground-secondary ml-8 max-w-2xl mx-auto leading-relaxed">
-                  Your personalized travel roadmap - crafted to match your
-                  travel style! 🗺️
-                </p>
-              </div> */}
-
               {livePlan?.itinerary && livePlan?.itinerary.length > 0 ? (
                 <div className="space-y-8">
                   {livePlan?.itinerary.map((day) => renderDayItinerary(day))}
@@ -797,7 +826,7 @@ export function AITravelPlan({
                           </span>
                         </div>
                       </div>
-                      
+
                       {/* Day skeleton loaders */}
                       {[1, 2, 3].map(day => (
                         <div key={day} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
@@ -836,18 +865,9 @@ export function AITravelPlan({
 
         {activeTab === "info" && (
           <div className="space-y-12">
-            {/* Travel Info Header */}
-            {/* <div className="text-center mb-12">
-              <p className="text-lg text-foreground-secondary max-w-3xl mx-auto leading-relaxed">
-                Everything you need to know for a successful expedition \u2014
-                from must-see landmarks to local secrets that'll make your
-                adventure legendary!
-              </p>
-            </div> */}
-
             {/* Streaming progress indicator for info tab */}
             {isActivelyStreaming && getTabLoadingState('info').isLoading && (
-              <div className="text-center mb-8">
+              <div className="text-center mb-2">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-full">
                   <Loader2 className="w-4 h-4 animate-spin text-secondary" />
                   <span className="text-sm font-medium text-secondary">
@@ -859,86 +879,86 @@ export function AITravelPlan({
 
             {/* Top Attractions */}
             {livePlan?.placesToVisit ? (
-            <TravelPlanSection rotation="right" glowColor="primary">
-              <SectionHeader
-                icon={MapPin}
-                title="Must-See Spots"
-                emoji="🏛️"
-                badgeColor="primary"
-              />
-              {(() => {
-                // Group places by category
-                const placesByCategory = livePlan?.placesToVisit?.reduce(
-                  (acc, place) => {
-                    const category = place.category || "Other";
-                    if (!acc[category]) {
-                      acc[category] = [];
-                    }
-                    acc[category].push(place);
-                    return acc;
-                  },
-                  {} as Record<string, NonNullable<typeof livePlan>['placesToVisit']>,
-                );
-
-                return Object.entries(placesByCategory || {}).map(
-                  ([category, places]) => (
-                    <CategoryGroup
-                      key={category}
-                      title={
-                        category.charAt(0).toUpperCase() + category.slice(1)
+              <TravelPlanSection rotation="right" glowColor="primary">
+                <SectionHeader
+                  icon={MapPin}
+                  title="Must-See Spots"
+                  emoji="🏛️"
+                  badgeColor="primary"
+                />
+                {(() => {
+                  // Group places by category
+                  const placesByCategory = livePlan?.placesToVisit?.reduce(
+                    (acc, place) => {
+                      const category = place.category || "Other";
+                      if (!acc[category]) {
+                        acc[category] = [];
                       }
-                    >
-                      <ItemGrid columns={2}>
-                        {places?.map((place, index) => (
-                          <ItemCard
-                            key={index}
-                            title={place.name}
-                            description={place.description}
-                            searchLink={generateGoogleSearchLink(place.name)}
-                          >
-                            {place.ticketInfo && (
-                              <div className="mt-3 space-y-2">
-                                {(place.ticketInfo.required || place.ticketInfo.recommended) && (
-                                  <div className="flex flex-col items-start justify-start space-y-2">
-                                    {place.ticketInfo.required && (
-                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-error/10 text-error border border-error/20">
-                                        🎫 Tickets Required
-                                      </span>
-                                    )}
-                                    {place.ticketInfo.recommended && !place.ticketInfo.required && (
-                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber/10 text-amber border border-amber/20">
-                                        🎫 Tickets Recommended
-                                      </span>
-                                    )}
+                      acc[category].push(place);
+                      return acc;
+                    },
+                    {} as Record<string, NonNullable<typeof livePlan>['placesToVisit']>,
+                  );
 
-                                    <div>
-                                      <p className="text-sm text-foreground-secondary">
-                                        💡 {place.ticketInfo.bookingAdvice}
-                                      </p>
-                                      {place.ticketInfo.peakTime && (
-                                        <p className="text-xs text-foreground-muted">
-                                          <strong>Peak time:</strong> {place.ticketInfo.peakTime.join(", ")}
-                                        </p>
+                  return Object.entries(placesByCategory || {}).map(
+                    ([category, places]) => (
+                      <CategoryGroup
+                        key={category}
+                        title={
+                          category.charAt(0).toUpperCase() + category.slice(1)
+                        }
+                      >
+                        <ItemGrid columns={2}>
+                          {places?.map((place, index) => (
+                            <ItemCard
+                              key={index}
+                              title={place.name}
+                              description={place.description}
+                              searchLink={generateGoogleSearchLink(place.name)}
+                            >
+                              {place.ticketInfo && (
+                                <div className="mt-3 space-y-2">
+                                  {(place.ticketInfo.required || place.ticketInfo.recommended) && (
+                                    <div className="flex flex-col items-start justify-start space-y-2">
+                                      {place.ticketInfo.required && (
+                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-error/10 text-error border border-error/20">
+                                          🎫 Tickets Required
+                                        </span>
                                       )}
-                                      {place.ticketInfo.averageWaitTime && (
-                                        <p className="text-xs text-foreground-muted">
-                                          <strong>Wait time:</strong> {place.ticketInfo.averageWaitTime}
-                                        </p>
+                                      {place.ticketInfo.recommended && !place.ticketInfo.required && (
+                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber/10 text-amber border border-amber/20">
+                                          🎫 Tickets Recommended
+                                        </span>
                                       )}
+
+                                      <div>
+                                        <p className="text-sm text-foreground-secondary">
+                                          💡 {place.ticketInfo.bookingAdvice}
+                                        </p>
+                                        {place.ticketInfo.peakTime && (
+                                          <p className="text-xs text-foreground-muted">
+                                            <strong>Peak time:</strong> {place.ticketInfo.peakTime.join(", ")}
+                                          </p>
+                                        )}
+                                        {place.ticketInfo.averageWaitTime && (
+                                          <p className="text-xs text-foreground-muted">
+                                            <strong>Wait time:</strong> {place.ticketInfo.averageWaitTime}
+                                          </p>
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
 
-                              </div>
-                            )}
-                          </ItemCard>
-                        ))}
-                      </ItemGrid>
-                    </CategoryGroup>
-                  ),
-                );
-              })()}
-            </TravelPlanSection>
+                                </div>
+                              )}
+                            </ItemCard>
+                          ))}
+                        </ItemGrid>
+                      </CategoryGroup>
+                    ),
+                  );
+                })()}
+              </TravelPlanSection>
             ) : isActivelyStreaming && <AttractionsLoading />}
 
             {/* Best Neighborhoods */}
@@ -959,7 +979,7 @@ export function AITravelPlan({
                       description={neighborhood.summary}
                     >
                       <div className="mt-4">
-                        <p className="italic mb-2">
+                        <p className="italic mb-2 text-sm">
                           Best for: {neighborhood.bestFor.slice(9)}
                         </p>
                         <p className="inline-block bg-success/10 border border-success/20 rounded-lg p-1 font-medium text-sm text-success mt-4 mb-2">Pros</p>
@@ -1034,139 +1054,139 @@ export function AITravelPlan({
 
             {/* Dining & Nightlife */}
             {(livePlan?.restaurants && livePlan?.bars) ? (
-            <TravelPlanSection rotation="left" glowColor="primary">
-              <SectionHeader
-                icon={Utensils}
-                title="Where to Eat & Drink"
-                emoji="🍴"
-                badgeColor="primary"
-              />
-              {(() => {
-                // Separate restaurants and bars with type indicators
-                const restaurants = (livePlan?.restaurants || []).map((restaurant) => ({
-                  ...restaurant,
-                  type: "restaurant" as const,
-                  searchType: "restaurant",
-                }));
+              <TravelPlanSection rotation="left" glowColor="primary">
+                <SectionHeader
+                  icon={Utensils}
+                  title="Where to Eat & Drink"
+                  emoji="🍴"
+                  badgeColor="primary"
+                />
+                {(() => {
+                  // Separate restaurants and bars with type indicators
+                  const restaurants = (livePlan?.restaurants || []).map((restaurant) => ({
+                    ...restaurant,
+                    type: "restaurant" as const,
+                    searchType: "restaurant",
+                  }));
 
-                const bars = (livePlan?.bars || []).map((bar) => ({
-                  name: bar.name,
-                  cuisine: bar.category,
-                  priceRange: bar.atmosphere,
-                  neighborhood: bar.neighborhood || "Other Areas",
-                  description: bar.description,
-                  type: "bar" as const,
-                  searchType: "bar",
-                }));
+                  const bars = (livePlan?.bars || []).map((bar) => ({
+                    name: bar.name,
+                    cuisine: bar.category,
+                    priceRange: bar.atmosphere,
+                    neighborhood: bar.neighborhood || "Other Areas",
+                    description: bar.description,
+                    type: "bar" as const,
+                    searchType: "bar",
+                  }));
 
-                // Group restaurants by neighborhood
-                const restaurantsByNeighborhood = restaurants.reduce(
-                  (acc, restaurant) => {
-                    const neighborhood =
-                      restaurant.neighborhood || "Other Areas";
-                    if (!acc[neighborhood]) {
-                      acc[neighborhood] = [];
-                    }
-                    acc[neighborhood].push(restaurant);
-                    return acc;
-                  },
-                  {} as Record<string, typeof restaurants>,
-                );
+                  // Group restaurants by neighborhood
+                  const restaurantsByNeighborhood = restaurants.reduce(
+                    (acc, restaurant) => {
+                      const neighborhood =
+                        restaurant.neighborhood || "Other Areas";
+                      if (!acc[neighborhood]) {
+                        acc[neighborhood] = [];
+                      }
+                      acc[neighborhood].push(restaurant);
+                      return acc;
+                    },
+                    {} as Record<string, typeof restaurants>,
+                  );
 
-                // Group bars by neighborhood
-                const barsByNeighborhood = bars.reduce(
-                  (acc, bar) => {
-                    const neighborhood = bar.neighborhood || "Other Areas";
-                    if (!acc[neighborhood]) {
-                      acc[neighborhood] = [];
-                    }
-                    acc[neighborhood].push(bar);
-                    return acc;
-                  },
-                  {} as Record<string, typeof bars>,
-                );
+                  // Group bars by neighborhood
+                  const barsByNeighborhood = bars.reduce(
+                    (acc, bar) => {
+                      const neighborhood = bar.neighborhood || "Other Areas";
+                      if (!acc[neighborhood]) {
+                        acc[neighborhood] = [];
+                      }
+                      acc[neighborhood].push(bar);
+                      return acc;
+                    },
+                    {} as Record<string, typeof bars>,
+                  );
 
-                // Get all unique neighborhoods
-                const allNeighborhoods = Array.from(
-                  new Set([
-                    ...Object.keys(restaurantsByNeighborhood),
-                    ...Object.keys(barsByNeighborhood),
-                  ]),
-                );
+                  // Get all unique neighborhoods
+                  const allNeighborhoods = Array.from(
+                    new Set([
+                      ...Object.keys(restaurantsByNeighborhood),
+                      ...Object.keys(barsByNeighborhood),
+                    ]),
+                  );
 
-                return allNeighborhoods.map((neighborhood) => (
-                  <CategoryGroup
-                    key={neighborhood}
-                    title={neighborhood}
-                    icon={MapPin}
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      {/* Restaurants column */}
-                      {restaurantsByNeighborhood[neighborhood] &&
-                        restaurantsByNeighborhood[neighborhood].length > 0 && (
-                          <div>
-                            <h5 className="mb-3 flex items-center">
-                              <Utensils className="w-5 h-5 mr-2 text-accent" />
-                              Restaurants
-                            </h5>
-                            <div className="space-y-4">
-                              {restaurantsByNeighborhood[neighborhood].map(
-                                (restaurant, index) => (
-                                  <ItemCard
-                                    key={`restaurant-${index}`}
-                                    title={restaurant.name}
-                                    subtitle={`${restaurant.cuisine} • ${restaurant.priceRange}`}
-                                    description={restaurant.description}
-                                    searchLink={generateGoogleSearchLink(
-                                      restaurant.name,
-                                      "restaurant",
-                                    )}
-                                    tags={restaurant.specialDishes}
-                                  >
-                                    {restaurant.reservationsRecommended ===
-                                      "Yes" && (
-                                        <div className="mt-3 text-sm text-amber font-medium">
-                                          💡 Reservations recommended
-                                        </div>
+                  return allNeighborhoods.map((neighborhood) => (
+                    <CategoryGroup
+                      key={neighborhood}
+                      title={neighborhood}
+                      icon={MapPin}
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Restaurants column */}
+                        {restaurantsByNeighborhood[neighborhood] &&
+                          restaurantsByNeighborhood[neighborhood].length > 0 && (
+                            <div>
+                              <h5 className="mb-3 flex items-center">
+                                <Utensils className="w-5 h-5 mr-2 text-accent" />
+                                Restaurants
+                              </h5>
+                              <div className="space-y-4">
+                                {restaurantsByNeighborhood[neighborhood].map(
+                                  (restaurant, index) => (
+                                    <ItemCard
+                                      key={`restaurant-${index}`}
+                                      title={restaurant.name}
+                                      subtitle={`${restaurant.cuisine} • ${restaurant.priceRange}`}
+                                      description={restaurant.description}
+                                      searchLink={generateGoogleSearchLink(
+                                        restaurant.name,
+                                        "restaurant",
                                       )}
-                                  </ItemCard>
-                                ),
-                              )}
+                                      tags={restaurant.specialDishes}
+                                    >
+                                      {restaurant.reservationsRecommended ===
+                                        "Yes" && (
+                                          <div className="mt-3 text-sm text-amber font-medium">
+                                            💡 Reservations recommended
+                                          </div>
+                                        )}
+                                    </ItemCard>
+                                  ),
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
-                      {/* Bars column */}
-                      {barsByNeighborhood[neighborhood] &&
-                        barsByNeighborhood[neighborhood].length > 0 && (
-                          <div>
-                            <h5 className="mb-3 flex items-center">
-                              <BeerIcon className="w-5 h-5 mr-2 text-secondary" />
-                              Bars & Nightlife
-                            </h5>
-                            <div className="space-y-4">
-                              {barsByNeighborhood[neighborhood].map(
-                                (bar, index) => (
-                                  <ItemCard
-                                    key={`bar-${index}`}
-                                    title={bar.name}
-                                    subtitle={`${bar.cuisine} • ${bar.priceRange}`}
-                                    description={bar.description}
-                                    searchLink={generateGoogleSearchLink(
-                                      bar.name,
-                                      "bar",
-                                    )}
-                                  />
-                                ),
-                              )}
+                        {/* Bars column */}
+                        {barsByNeighborhood[neighborhood] &&
+                          barsByNeighborhood[neighborhood].length > 0 && (
+                            <div>
+                              <h5 className="mb-3 flex items-center">
+                                <BeerIcon className="w-5 h-5 mr-2 text-secondary" />
+                                Bars & Nightlife
+                              </h5>
+                              <div className="space-y-4">
+                                {barsByNeighborhood[neighborhood].map(
+                                  (bar, index) => (
+                                    <ItemCard
+                                      key={`bar-${index}`}
+                                      title={bar.name}
+                                      subtitle={`${bar.cuisine} • ${bar.priceRange}`}
+                                      description={bar.description}
+                                      searchLink={generateGoogleSearchLink(
+                                        bar.name,
+                                        "bar",
+                                      )}
+                                    />
+                                  ),
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                    </div>
-                  </CategoryGroup>
-                ));
-              })()}
-            </TravelPlanSection>
+                          )}
+                      </div>
+                    </CategoryGroup>
+                  ));
+                })()}
+              </TravelPlanSection>
             ) : isActivelyStreaming && <DiningLoading />}
 
             {/* Local Specialties */}
@@ -1334,18 +1354,9 @@ export function AITravelPlan({
 
         {activeTab === "practical" && (
           <div className="space-y-12">
-            {/* Practical Guide Header */}
-            {/* <div className="text-center mb-12">
-              <p className="text-lg text-foreground-secondary max-w-3xl mx-auto leading-relaxed">
-                Essential practical information to make your adventure smooth
-                and worry-free \u2014 from weather tips to safety guidelines and
-                local customs!
-              </p>
-            </div> */}
-
             {/* Streaming progress indicator for practical tab */}
             {isActivelyStreaming && getTabLoadingState('practical').isLoading && (
-              <div className="text-center mb-8">
+              <div className="text-center mb-2">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
                   <Loader2 className="w-4 h-4 animate-spin text-accent" />
                   <span className="text-sm font-medium text-accent">
@@ -1357,168 +1368,168 @@ export function AITravelPlan({
 
             {/* Getting Around */}
             {livePlan?.transportationInfo ? (
-            <TravelPlanSection rotation="left" glowColor="primary">
-              <SectionHeader
-                icon={Compass}
-                title="Getting Around"
-                emoji="🚌"
-                badgeColor="primary"
-              />
+              <TravelPlanSection rotation="left" glowColor="primary">
+                <SectionHeader
+                  icon={Compass}
+                  title="Getting Around"
+                  emoji="🚌"
+                  badgeColor="primary"
+                />
 
-              {/* City Transportation - 2-column layout */}
-              <ContentGrid columns={2} className="mb-8">
-                <ContentCard title="Public Transport" icon="🚇">
-                  <p className="text-foreground-secondary mb-3">
-                    {livePlan?.transportationInfo.publicTransport}
-                  </p>
-                  <div className="flex items-center">
-                    <span className="text-sm text-foreground-secondary mr-2">
-                      💳 Credit cards:
-                    </span>
-                    <span
-                      className={`text-sm font-medium px-2 py-1 rounded-full ${livePlan?.transportationInfo.creditCardPayment
-                        ? "bg-green-100 text-green-700"
-                        : "bg-amber-100 text-amber-700"
-                        }`}
-                    >
-                      {livePlan?.transportationInfo.creditCardPayment
-                        ? "Accepted"
-                        : "Not accepted"}
-                    </span>
-                  </div>
-                </ContentCard>
-
-                <ContentCard title="Taxis & Rideshare" icon="🚕">
-                  <p className="text-foreground-secondary mb-3">
-                    {livePlan?.transportationInfo.ridesharing}
-                  </p>
-                  <div className="flex items-center mb-3">
-                    <span className="text-sm text-foreground-secondary mr-2">
-                      💰 Average cost:
-                    </span>
-                    <span className="text-sm font-bold text-primary">
-                      {livePlan?.transportationInfo.taxiInfo?.averageCost}
-                    </span>
-                  </div>
-                  {livePlan?.transportationInfo.taxiInfo?.tips && (
-                    <div>
-                      <div className="flex items-center mb-2">
-                        {/* <span className="text-sm mr-2">💡</span> */}
-                        <span className="text-sm font-medium text-foreground-secondary">
-                          💡 Pro Tips:
-                        </span>
-                      </div>
-                      <ul className="space-y-1">
-                        {livePlan?.transportationInfo.taxiInfo.tips.map(
-                          (tip, index) => (
-                            <li
-                              key={index}
-                              className="flex items-start text-sm"
-                            >
-                              <span className="text-primary mr-2">
-                                •
-                              </span>
-                              <span className="text-foreground-secondary">
-                                {tip}
-                              </span>
-                            </li>
-                          ),
-                        )}
-                      </ul>
-                    </div>
-                  )}
-                </ContentCard>
-              </ContentGrid>
-
-              {/* Airport Transportation - Full width dedicated section */}
-
-              <div className="border-t border-border/30 pt-8">
-                <div className="flex items-center mb-6">
-                  <h6>
-                    ✈️ Airport Transportation
-                  </h6>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {livePlan?.transportationInfo.airportTransport?.airports?.map(
-                    (airport, airportIndex) => (
-                      <div
-                        key={airportIndex}
-                        className="bg-gradient-to-br from-background/80 to-background-card/70 backdrop-blur-sm border-2 border-border/30 hover:border-primary/40 rounded-2xl p-6 shadow-card hover:shadow-adventure-float transition-all duration-300"
+                {/* City Transportation - 2-column layout */}
+                <ContentGrid columns={2} className="mb-8">
+                  <ContentCard title="Public Transport" icon="🚇">
+                    <p className="text-foreground-secondary mb-3">
+                      {livePlan?.transportationInfo.publicTransport}
+                    </p>
+                    <div className="flex items-center">
+                      <span className="text-sm text-foreground-secondary mr-2">
+                        💳 Credit cards:
+                      </span>
+                      <span
+                        className={`text-sm font-medium px-2 py-1 rounded-full ${livePlan?.transportationInfo.creditCardPayment
+                          ? "bg-green-100 text-green-700"
+                          : "bg-amber-100 text-amber-700"
+                          }`}
                       >
-                        <div className="mb-6">
-                          <div className="flex items-center mb-2">
-                            <h6 className="font-medium text-foreground">
-                              {airport.name}
-                            </h6>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full">
-                              {airport.code}
-                            </span>
-                            <span className="text-foreground-secondary text-sm">
-                              📍 {airport.distanceToCity}
-                            </span>
-                          </div>
+                        {livePlan?.transportationInfo.creditCardPayment
+                          ? "Accepted"
+                          : "Not accepted"}
+                      </span>
+                    </div>
+                  </ContentCard>
+
+                  <ContentCard title="Taxis & Rideshare" icon="🚕">
+                    <p className="text-foreground-secondary mb-3">
+                      {livePlan?.transportationInfo.ridesharing}
+                    </p>
+                    <div className="flex items-center mb-3">
+                      <span className="text-sm text-foreground-secondary mr-2">
+                        💰 Average cost:
+                      </span>
+                      <span className="text-sm font-bold text-primary">
+                        {livePlan?.transportationInfo.taxiInfo?.averageCost}
+                      </span>
+                    </div>
+                    {livePlan?.transportationInfo.taxiInfo?.tips && (
+                      <div>
+                        <div className="flex items-center mb-2">
+                          {/* <span className="text-sm mr-2">💡</span> */}
+                          <span className="text-sm font-medium text-foreground-secondary">
+                            💡 Pro Tips:
+                          </span>
                         </div>
-
-                        <div className="space-y-4">
-                          {airport.transportOptions?.map(
-                            (option, optionIndex) => (
-                              <div
-                                key={optionIndex}
-                                className="bg-gradient-to-r from-background/60 to-background-card/50 backdrop-blur-sm border border-border/20 rounded-xl p-4"
+                        <ul className="space-y-1">
+                          {livePlan?.transportationInfo.taxiInfo.tips.map(
+                            (tip, index) => (
+                              <li
+                                key={index}
+                                className="flex items-start text-sm"
                               >
-                                <div className="flex justify-between items-start mb-3">
-                                  <p className="font-bold text-foreground">
-                                    {option.type}
-                                  </p>
-                                  <div className="text-right">
-                                    <div className="font-semibold text-primary text-xs">
-                                      {option.cost}
-                                    </div>
-                                    <div className="text-xs text-foreground-muted">
-                                      ⏱️ {option.duration}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <p className="mb-3">
-                                  {option.description}
-                                </p>
-
-                                {option.notes && option.notes.length > 0 && (
-                                  <div className="flex items-start bg-accent/10 border border-accent/20 rounded-lg p-3">
-                                    <div className="flex items-center mb-2">
-                                      <span className="text-lg mr-2">💡</span>
-                                    </div>
-                                    <ul className="space-y-1">
-                                      {option.notes.map((note, noteIndex) => (
-                                        <li
-                                          key={noteIndex}
-                                          className="flex items-start"
-                                        >
-                                          <span className="text-accent mr-2 text-xs">
-                                            •
-                                          </span>
-                                          <span className="text-sm">
-                                            {note}
-                                          </span>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )}
-                              </div>
+                                <span className="text-primary mr-2">
+                                  •
+                                </span>
+                                <span className="text-foreground-secondary">
+                                  {tip}
+                                </span>
+                              </li>
                             ),
                           )}
-                        </div>
+                        </ul>
                       </div>
-                    ),
-                  )}
-                </div>
-              </div>
+                    )}
+                  </ContentCard>
+                </ContentGrid>
 
-            </TravelPlanSection>
+                {/* Airport Transportation - Full width dedicated section */}
+
+                <div className="border-t border-border/30 pt-8">
+                  <div className="flex items-center mb-6">
+                    <h6>
+                      ✈️ Airport Transportation
+                    </h6>
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {livePlan?.transportationInfo.airportTransport?.airports?.map(
+                      (airport, airportIndex) => (
+                        <div
+                          key={airportIndex}
+                          className="bg-gradient-to-br from-background/80 to-background-card/70 backdrop-blur-sm border-2 border-border/30 hover:border-primary/40 rounded-2xl p-6 shadow-card hover:shadow-adventure-float transition-all duration-300"
+                        >
+                          <div className="mb-6">
+                            <div className="flex items-center mb-2">
+                              <h6 className="font-medium text-foreground">
+                                {airport.name}
+                              </h6>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full">
+                                {airport.code}
+                              </span>
+                              <span className="text-foreground-secondary text-sm">
+                                📍 {airport.distanceToCity}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            {airport.transportOptions?.map(
+                              (option, optionIndex) => (
+                                <div
+                                  key={optionIndex}
+                                  className="bg-gradient-to-r from-background/60 to-background-card/50 backdrop-blur-sm border border-border/30 rounded-xl px-4 py-2"
+                                >
+                                  <div className="flex justify-between items-start mb-2">
+                                    <p className="font-bold text-foreground">
+                                      {option.type}
+                                    </p>
+                                    <div className="text-right">
+                                      <div className="font-semibold text-primary text-xs">
+                                        {option.cost}
+                                      </div>
+                                      <div className="text-xs text-foreground-muted">
+                                        ⏱️ {option.duration}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <p>
+                                    {option.description}
+                                  </p>
+
+                                  {option.notes && option.notes.length > 0 && (
+                                    <div className="flex items-start bg-accent/10 border border-accent/20 rounded-lg p-2 mt-2">
+                                      <div className="flex items-center">
+                                        <span className="text-sm mr-2">💡</span>
+                                      </div>
+                                      <ul className="space-y-1">
+                                        {option.notes.map((note, noteIndex) => (
+                                          <li
+                                            key={noteIndex}
+                                            className="flex items-start"
+                                          >
+                                            <span className="text-accent mr-2 text-xs">
+                                              •
+                                            </span>
+                                            <span className="text-sm">
+                                              {note}
+                                            </span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </div>
+
+              </TravelPlanSection>
             ) : isActivelyStreaming && <TransportationLoading />}
 
             {/* Weather Information */}
@@ -1591,105 +1602,105 @@ export function AITravelPlan({
 
               {/* Cultural Quest Guide */}
               {livePlan?.socialEtiquette ? (
-              <TravelPlanSection rotation="left" glowColor="primary">
-                <SectionHeader
-                  icon={BookOpen}
-                  title="Cultural Insights"
-                  emoji="🏹"
-                  badgeColor="primary"
-                />
-                <ul className="space-y-1">
-                  {(livePlan?.socialEtiquette || []).map((tip, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="text-accent mr-2">•</span>
-                      <p className="text-foreground-secondary">{tip}</p>
-                    </li>
-                  ))}
-                </ul>
-              </TravelPlanSection>
+                <TravelPlanSection rotation="left" glowColor="primary">
+                  <SectionHeader
+                    icon={BookOpen}
+                    title="Cultural Insights"
+                    emoji="🏹"
+                    badgeColor="primary"
+                  />
+                  <ul className="space-y-1">
+                    {(livePlan?.socialEtiquette || []).map((tip, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="text-accent mr-2">•</span>
+                        <p className="text-foreground-secondary">{tip}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </TravelPlanSection>
               ) : isActivelyStreaming && <CulturalInsightsLoading />}
             </div>
 
             {/* Currency & Payments */}
             {livePlan?.localCurrency ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Local Currency */}
-              <TravelPlanSection>
-                <SectionHeader
-                  icon={CreditCard}
-                  title="Payment Guide"
-                  emoji="💰"
-                  badgeColor="primary"
-                />
-                <p>
-                  The local currency is{" "}
-                  <span className="font-semibold">
-                    {livePlan?.localCurrency.currency}
-                  </span>
-                  .
-                  {livePlan?.localCurrency.cashNeeded
-                    ? " Cash is recommended for some purchases."
-                    : " Credit cards are widely accepted."}
-                </p>
-                {livePlan?.localCurrency.exchangeRate && (
-                  <div className="mt-3 mb-2rounded-lg">
-                    <h6 className="mb-2">Current Exchange Rate</h6>
-                    <p>
-                      1 {livePlan?.localCurrency.exchangeRate.from} ={" "}
-                      {livePlan?.localCurrency.exchangeRate.rate}{" "}
-                      {livePlan?.localCurrency.exchangeRate.to}
-                    </p>
-                  </div>
-                )}
-                {livePlan?.localCurrency.tips &&
-                  livePlan?.localCurrency.tips.length > 0 && (
-                    <div className="mt-4">
-                      <h6 className="mb-2">Money Tips:</h6>
-                      <ul className="space-y-1">
-                        <li className="flex items-start">
-                          <p className="text-accent mr-2">•</p>
-                          <p>Credit card usage</p>
-                        </li>
-                        <span className="text-sm ml-4">
-                          {livePlan?.localCurrency.creditCardUsage}
-                        </span>
-                        {livePlan?.localCurrency.tips.map((tip, index) => (
-                          <li key={index} className="flex items-start">
-                            <p className="text-accent mr-2">•</p>
-                            <p>{tip}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-              </TravelPlanSection>
-
-              {/* Tipping Etiquette */}
-              {livePlan?.tipEtiquette && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Local Currency */}
                 <TravelPlanSection>
                   <SectionHeader
                     icon={CreditCard}
-                    title="Tipping Etiquette"
+                    title="Payment Guide"
                     emoji="💰"
                     badgeColor="primary"
                   />
-                  <div className="space-y-3">
-                    {Object.entries(livePlan?.tipEtiquette).map(
-                      ([category, tip], index) => (
-                        <div key={index} className="mb-2">
-                          <p className="font-semibold">
-                            {category.charAt(0).toUpperCase() +
-                              category.slice(1)}
-                            :
-                          </p>
-                          <p>{tip}</p>
-                        </div>
-                      ),
+                  <p>
+                    The local currency is{" "}
+                    <span className="font-semibold">
+                      {livePlan?.localCurrency.currency}
+                    </span>
+                    .
+                    {livePlan?.localCurrency.cashNeeded
+                      ? " Cash is recommended for some purchases."
+                      : " Credit cards are widely accepted."}
+                  </p>
+                  {livePlan?.localCurrency.exchangeRate && (
+                    <div className="mt-3 mb-2rounded-lg">
+                      <h6 className="mb-2">Current Exchange Rate</h6>
+                      <p>
+                        1 {livePlan?.localCurrency.exchangeRate.from} ={" "}
+                        {livePlan?.localCurrency.exchangeRate.rate}{" "}
+                        {livePlan?.localCurrency.exchangeRate.to}
+                      </p>
+                    </div>
+                  )}
+                  {livePlan?.localCurrency.tips &&
+                    livePlan?.localCurrency.tips.length > 0 && (
+                      <div className="mt-4">
+                        <h6 className="mb-2">Money Tips:</h6>
+                        <ul className="space-y-1">
+                          <li className="flex items-start">
+                            <p className="text-accent mr-2">•</p>
+                            <p>Credit card usage</p>
+                          </li>
+                          <span className="text-sm ml-4">
+                            {livePlan?.localCurrency.creditCardUsage}
+                          </span>
+                          {livePlan?.localCurrency.tips.map((tip, index) => (
+                            <li key={index} className="flex items-start">
+                              <p className="text-accent mr-2">•</p>
+                              <p>{tip}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
-                  </div>
                 </TravelPlanSection>
-              )}
-            </div>
+
+                {/* Tipping Etiquette */}
+                {livePlan?.tipEtiquette && (
+                  <TravelPlanSection>
+                    <SectionHeader
+                      icon={CreditCard}
+                      title="Tipping Etiquette"
+                      emoji="💰"
+                      badgeColor="primary"
+                    />
+                    <div className="space-y-3">
+                      {Object.entries(livePlan?.tipEtiquette).map(
+                        ([category, tip], index) => (
+                          <div key={index} className="mb-2">
+                            <p className="font-semibold">
+                              {category.charAt(0).toUpperCase() +
+                                category.slice(1)}
+                              :
+                            </p>
+                            <p>{tip}</p>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </TravelPlanSection>
+                )}
+              </div>
             ) : isActivelyStreaming && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <PaymentGuideLoading />
@@ -1742,21 +1753,28 @@ export function AITravelPlan({
             ) : isActivelyStreaming && <LocalHistoryLoading />}
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* KML Export Loading Overlay */}
       <KMLExportLoading isVisible={isExportingKML} />
 
       {/* Back/Edit Button - Bottom Right */}
       {onBack && (
-        <button
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            duration: 0.4,
+            delay: 0.8,
+            ease: [0.25, 0.46, 0.45, 0.94]
+          }}
           onClick={onBack}
           className="fixed bottom-18 right-6 btn-3d-primary z-50 flex items-center p-2"
           aria-label="Go back to edit plan"
         >
           <Edit className="w-4 h-4" />
-        </button>
+        </motion.button>
       )}
-    </div>
+    </motion.div>
   );
 }

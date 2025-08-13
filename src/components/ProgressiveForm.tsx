@@ -93,7 +93,7 @@ export function ProgressiveForm({
       } else {
         // All questions are answered, show smooth transition
         setIsTransitioning(true);
-        setTimeout(() => onComplete(answers), 2000);
+        setTimeout(() => onComplete(answers), 2500);
       }
       return;
     }
@@ -115,7 +115,7 @@ export function ProgressiveForm({
     } else {
       // All questions completed, show smooth transition
       setIsTransitioning(true);
-      setTimeout(() => onComplete(answers), 2000);
+      setTimeout(() => onComplete(answers), 2500);
     }
   };
 
@@ -313,7 +313,7 @@ export function ProgressiveForm({
               )}
           </AnimatePresence>
 
-          {/* Smooth Transition Animation */}
+          {/* Enhanced Transition Animation with Journey to Results */}
           {isTransitioning && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -321,7 +321,7 @@ export function ProgressiveForm({
               transition={{
                 duration: 0.8,
               }}
-              className="min-h-screen flex items-center justify-center"
+              className="min-h-screen flex items-center justify-center relative overflow-hidden"
             >
               <motion.div
                 initial={{ y: 30, opacity: 0 }}
@@ -330,32 +330,10 @@ export function ProgressiveForm({
                   delay: 0.2,
                   duration: 0.8,
                 }}
-                className="text-center"
+                className="text-center relative z-10"
               >
-                {/* <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ 
-                    delay: 0.1, 
-                    duration: 0.6, 
-                    type: "spring", 
-                    stiffness: 200, 
-                    damping: 12,
-                  }}
-                  className="inline-flex items-center justify-center w-20 h-20 bg-success/20 rounded-full mb-6 shadow-lg"
-                >
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ 
-                      duration: 2, 
-                      repeat: Infinity, 
-                      ease: "linear" 
-                    }}
-                    className="text-2xl"
-                  >
-                    ✨
-                  </motion.div>
-                </motion.div> */}
+
+                {/* Progressive text sequence */}
                 <motion.h3
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -367,17 +345,30 @@ export function ProgressiveForm({
                 >
                   🎯 Got it! Looking for your perfect trip
                 </motion.h3>
-                {/* <motion.p
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    delay: 0.6,
-                    duration: 0.6,
-                  }}
-                  className="text-xl text-foreground-secondary font-medium"
+                
+                {/* Animated dots to show processing */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8, duration: 0.5 }}
+                  className="flex justify-center items-center space-x-2 mt-6"
                 >
-                  Finding destinations that match what you're looking for...
-                </motion.p> */}
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      animate={{
+                        scale: [1, 1.5, 1],
+                        opacity: [0.5, 1, 0.5]
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        delay: i * 0.3
+                      }}
+                      className="w-2 h-2 bg-primary rounded-full"
+                    />
+                  ))}
+                </motion.div>
               </motion.div>
             </motion.div>
           )}

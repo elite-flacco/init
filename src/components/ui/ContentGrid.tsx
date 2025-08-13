@@ -35,7 +35,7 @@ export function ContentCard({
 }: ContentCardProps) {
   return (
     <div
-      className={`bg-gradient-to-r from-background/60 to-background-card/50 backdrop-blur-sm border border-border/20 rounded-xl p-6 ${className}`}
+      className={`bg-gradient-to-r from-background/60 to-background-card/50 backdrop-blur-sm border border-border/30 rounded-xl p-6 shadow-card ${className}`}
     >
       {title && (
         <div className="flex items-center mb-4">

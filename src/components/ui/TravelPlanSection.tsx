@@ -15,8 +15,8 @@ export function TravelPlanSection({
   className = "",
 }: TravelPlanSectionProps) {
   const rotationClass = {
-    left: "transform -rotate-1 hover:rotate-0",
-    right: "transform rotate-1 hover:rotate-0",
+    left: "transform -rotate-[0.8deg] hover:rotate-0",
+    right: "transform rotate-[0.5deg] hover:rotate-0",
     none: "",
   }[rotation];
 

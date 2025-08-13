@@ -3,19 +3,18 @@ import {
   ArrowLeft,
   Compass,
 } from "lucide-react";
-import React, { useState, useEffect } from "react";
-import { trackTravelEvent } from "../lib/analytics";
+import React, { useEffect, useState } from "react";
 import {
-  commonTripPlanningQuestions,
   commonFinalTripPlanningQuestions,
+  commonTripPlanningQuestions,
   destinationInputQuestion,
   getTripPlanningQuestionsByTravelerType,
 } from "../data/travelQuestions";
+import { trackTravelEvent } from "../lib/analytics";
 import {
+  AITripPlanningRequest,
   AITripPlanningResponse,
 } from "../services/aiTripPlanningService";
-import { AITripPlanningRequest } from "../services/aiTripPlanningService";
-// Removed intermediate loading components - streaming now happens directly in final page
 import {
   Destination,
   DestinationKnowledge,
@@ -25,7 +24,6 @@ import {
 } from "../types/travel";
 import { ProgressiveForm } from "./ProgressiveForm";
 import { Question } from "./QuestionStep";
-// TravelPlanLoading replaced with ChunkedLoadingProgress
 
 interface AITripPlanningPromptsProps {
   destination: Destination | null;
@@ -100,18 +98,18 @@ export function AITripPlanningPrompts({
       destination ||
       (destinationKnowledge?.type === "yes"
         ? {
-            id: "user-destination",
-            name: answers.destination || "Your Destination",
-            country: "Unknown",
-            description: "Your chosen destination",
-            image: "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-            highlights: ["User selected destination"],
-            bestTime: "Year-round",
-            budget: "$$$",
-            estimatedCost: "",
-            matchReason: "",
-            keyActivities: [],
-          }
+          id: "user-destination",
+          name: answers.destination || "Your Destination",
+          country: "Unknown",
+          description: "Your chosen destination",
+          image: "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+          highlights: ["User selected destination"],
+          bestTime: "Year-round",
+          budget: "$$$",
+          estimatedCost: "",
+          matchReason: "",
+          keyActivities: [],
+        }
         : null);
 
     if (!effectiveDestination) {
@@ -121,7 +119,7 @@ export function AITripPlanningPrompts({
 
     setGenerationError(null);
 
-    // Add delay to allow the form's transition to complete and fade out
+    // Add delay to allow the form's transition to complete and create anticipation
     setTimeout(async () => {
 
       try {
@@ -162,14 +160,14 @@ export function AITripPlanningPrompts({
 
         // Track AI trip planning request
         trackTravelEvent.requestAIRecommendations('trip_plan');
-        
+
         // Create streaming request data
         const streamingRequest: AITripPlanningRequest = {
           destination: effectiveDestination,
           preferences,
           travelerType,
         };
-        
+
         // Pass the streaming request to the travel plan component
         onComplete(undefined, streamingRequest);
       } catch (error) {
@@ -178,13 +176,13 @@ export function AITripPlanningPrompts({
           error instanceof Error
             ? error.message
             : "Failed to create trip planning request. Please try again.";
-        
+
         // Track trip planning error
         trackTravelEvent.error('trip_planning_request_failed', errorMessage);
-        
+
         setGenerationError(errorMessage);
       }
-    }, 2100);
+    }, 2600);
   };
 
   if (generationError) {
@@ -239,9 +237,6 @@ export function AITripPlanningPrompts({
       </div>
     );
   }
-
-  // No intermediate loading UI needed - we navigate directly to final page  
-  // All loading and streaming is now handled in the AITravelPlan component
 
   return (
     <div className="min-h-screen">
