@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Plane } from "lucide-react";
 import { trackTravelEvent, trackPageView } from "../src/lib/analytics";
 import { useTypingEffect } from "../src/hooks/useTypingEffect";
@@ -77,6 +76,11 @@ export default function HomePage() {
     trackPageView(`/step/${currentStep}`, `Travel Planning - ${currentStep}`);
 
     setPreviousStep(currentStep);
+
+    // Scroll to top when navigating to plan results or any step change
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, [currentStep, previousStep]);
 
   // Development shortcuts - check for URL parameters

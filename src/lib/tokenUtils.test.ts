@@ -1,10 +1,8 @@
 import { describe, test, expect } from 'vitest';
 import {
   estimateTokens,
-  wouldExceedTokenLimit,
   calculateMaxTokensForRequest,
   getModelTokenLimit,
-  calculateTokenBudget
 } from './tokenUtils';
 
 describe('Token Utils', () => {
@@ -15,14 +13,6 @@ describe('Token Utils', () => {
     expect(estimate.tokens).toBeGreaterThan(0);
     expect(estimate.characters).toBe(text.length);
     expect(estimate.isApproximate).toBe(true);
-  });
-
-  test('wouldExceedTokenLimit should correctly identify large prompts', () => {
-    const shortText = 'Short text';
-    const longText = 'This is a very long text '.repeat(1000);
-    
-    expect(wouldExceedTokenLimit(shortText, 10000, 'openai')).toBe(false);
-    expect(wouldExceedTokenLimit(longText, 1000, 'openai')).toBe(true);
   });
 
   test('calculateMaxTokensForRequest should leave room for response', () => {
@@ -41,17 +31,6 @@ describe('Token Utils', () => {
     expect(getModelTokenLimit('gpt-4-turbo')).toBe(128000);
     expect(getModelTokenLimit('claude-3-sonnet')).toBe(200000);
     expect(getModelTokenLimit('unknown-model')).toBe(4096); // Default
-  });
-
-  test('calculateTokenBudget should determine chunking needs', () => {
-    const shortPrompt = 'Short prompt';
-    const longPrompt = 'Very long prompt that should require chunking because it is extremely long and verbose and contains many words '.repeat(200);
-    
-    const shortBudget = calculateTokenBudget(shortPrompt, 4000, 1000, 'openai');
-    expect(shortBudget.chunksNeeded).toBe(1);
-    
-    const longBudget = calculateTokenBudget(longPrompt, 4000, 8000, 'openai');
-    expect(longBudget.chunksNeeded).toBeGreaterThan(1);
   });
 
   test('different providers should have different token estimates', () => {

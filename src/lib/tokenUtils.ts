@@ -27,19 +27,6 @@ export function estimateTokens(text: string, provider: 'openai' | 'anthropic' = 
 }
 
 /**
- * Check if a prompt would exceed token limits
- */
-export function wouldExceedTokenLimit(
-  prompt: string, 
-  maxTokens: number, 
-  provider: 'openai' | 'anthropic' = 'openai',
-  reserveForResponse: number = 2000
-): boolean {
-  const estimate = estimateTokens(prompt, provider);
-  return estimate.tokens + reserveForResponse > maxTokens;
-}
-
-/**
  * Calculate recommended max_tokens for API request
  */
 export function calculateMaxTokensForRequest(
@@ -118,50 +105,4 @@ export function chunkTextByTokens(
   }
   
   return chunks;
-}
-
-/**
- * Token budget calculator for multi-part responses
- */
-export interface TokenBudget {
-  totalTokens: number;
-  promptTokens: number;
-  responseTokens: number;
-  chunksNeeded: number;
-  tokensPerChunk: number;
-}
-
-export function calculateTokenBudget(
-  prompt: string,
-  modelTokenLimit: number,
-  targetResponseTokens: number,
-  provider: 'openai' | 'anthropic' = 'openai'
-): TokenBudget {
-  const promptTokens = estimateTokens(prompt, provider).tokens;
-  const safetyBuffer = 200;
-  const availableTokens = modelTokenLimit - safetyBuffer;
-  
-  if (promptTokens + targetResponseTokens <= availableTokens) {
-    // Single request is sufficient
-    return {
-      totalTokens: availableTokens,
-      promptTokens,
-      responseTokens: targetResponseTokens,
-      chunksNeeded: 1,
-      tokensPerChunk: targetResponseTokens
-    };
-  }
-  
-  // Calculate chunks needed
-  const maxResponsePerRequest = Math.max(500, availableTokens - promptTokens);
-  const chunksNeeded = Math.max(1, Math.ceil(targetResponseTokens / maxResponsePerRequest));
-  const tokensPerChunk = Math.floor(targetResponseTokens / chunksNeeded);
-  
-  return {
-    totalTokens: availableTokens,
-    promptTokens,
-    responseTokens: targetResponseTokens,
-    chunksNeeded,
-    tokensPerChunk
-  };
 }
