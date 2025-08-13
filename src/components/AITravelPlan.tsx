@@ -285,6 +285,208 @@ export function AITravelPlan({
     ];
   };
 
+  // Generic section loading component
+  const SectionLoading = ({ 
+    title, 
+    emoji, 
+    color = 'primary', 
+    layout = 'grid', 
+    columns = 2, 
+    items = 4, 
+    customContent = null 
+  }: {
+    title: string;
+    emoji: string;
+    color?: 'primary' | 'secondary' | 'accent';
+    layout?: 'grid' | 'list' | 'custom';
+    columns?: number;
+    items?: number;
+    customContent?: React.ReactNode;
+  }) => {
+    const colorClasses = {
+      primary: 'bg-primary/20 text-primary',
+      secondary: 'bg-secondary/20 text-secondary', 
+      accent: 'bg-accent/20 text-accent'
+    };
+
+    const spinnerColorClasses = {
+      primary: 'text-primary',
+      secondary: 'text-secondary',
+      accent: 'text-accent'
+    };
+
+    const getGridClasses = () => {
+      const gridMap = {
+        1: 'grid-cols-1',
+        2: 'grid-cols-1 md:grid-cols-2',
+        3: 'grid-cols-1 md:grid-cols-3',
+        4: 'grid-cols-1 md:grid-cols-4',
+        6: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+      };
+      return gridMap[columns as keyof typeof gridMap] || 'grid-cols-1 md:grid-cols-2';
+    };
+
+    const renderContent = () => {
+      if (customContent) return customContent;
+      
+      if (layout === 'list') {
+        return (
+          <div className="space-y-3">
+            {Array.from({ length: items }).map((_, index) => (
+              <div key={index} className="h-3 bg-gray-200 rounded animate-pulse"></div>
+            ))}
+          </div>
+        );
+      }
+
+      if (layout === 'grid') {
+        return (
+          <div className={`grid ${getGridClasses()} gap-4`}>
+            {Array.from({ length: items }).map((_, index) => (
+              <div key={index} className="space-y-3">
+                <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      return null;
+    };
+
+    return (
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <div className={`px-3 py-1 ${colorClasses[color]} rounded-full`}>
+              <span className="text-sm font-bold">{emoji} {title}</span>
+            </div>
+            <Loader2 className={`w-4 h-4 animate-spin ${spinnerColorClasses[color]}`} />
+          </div>
+        </div>
+        {renderContent()}
+      </div>
+    );
+  };
+
+  // Simplified loading components using the generic SectionLoading
+  const AttractionsLoading = () => <SectionLoading title="Must-See Spots" emoji="🏛️" color="primary" columns={2} items={4} />;
+  const NeighborhoodsLoading = () => <SectionLoading title="Perfect Base Camps" emoji="🏡" color="accent" columns={3} items={3} />;
+  const HotelsLoading = () => <SectionLoading title="Great Places to Stay" emoji="🛏️" color="secondary" columns={3} items={3} />;
+  const TransportationLoading = () => <SectionLoading title="Getting Around" emoji="🚌" color="primary" columns={2} items={2} />;
+  const WeatherLoading = () => <SectionLoading title="Weather Info" emoji="☀️" color="secondary" columns={2} items={2} />;
+  const LocalEventsLoading = () => <SectionLoading title="Local Festivities" emoji="🎪" color="primary" columns={3} items={3} />;
+  const ActivitiesLoading = () => <SectionLoading title="Cool Local Experiences" emoji="⚡" color="accent" columns={2} items={4} />;
+  const SafetyTipsLoading = () => <SectionLoading title="Safety Tips" emoji="⚠️" color="primary" layout="list" items={4} />;
+  const CulturalInsightsLoading = () => <SectionLoading title="Cultural Insights" emoji="🏹" color="primary" layout="list" items={4} />;
+  const DrinkingWaterLoading = () => <SectionLoading title="Drinking Water" emoji="💧" color="primary" layout="list" items={2} />;
+  const LocalHistoryLoading = () => <SectionLoading title="Local History" emoji="🏰" color="secondary" layout="list" items={5} />;
+  
+  const PaymentGuideLoading = () => <SectionLoading 
+    title="Payment Guide" 
+    emoji="💰" 
+    color="primary" 
+    layout="custom" 
+    customContent={
+      <div className="space-y-3">
+        <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+        <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+        <div className="h-3 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+        <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+      </div>
+    } 
+  />;
+  
+  const TippingEtiquetteLoading = () => <SectionLoading 
+    title="Tipping Etiquette" 
+    emoji="💰" 
+    color="primary" 
+    layout="custom" 
+    customContent={
+      <div className="space-y-3">
+        {[1, 2, 3].map(item => (
+          <div key={item} className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+            <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+          </div>
+        ))}
+      </div>
+    } 
+  />;
+  
+  const DiningLoading = () => <SectionLoading 
+    title="Where to Eat & Drink" 
+    emoji="🍴" 
+    color="primary" 
+    layout="custom" 
+    customContent={
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Utensils className="w-5 h-5 text-accent" />
+            <span className="font-medium">Restaurants</span>
+          </div>
+          {[1, 2].map(item => (
+            <div key={item} className="space-y-3">
+              <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+              <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <BeerIcon className="w-5 h-5 text-secondary" />
+            <span className="font-medium">Bars & Nightlife</span>
+          </div>
+          {[1, 2].map(item => (
+            <div key={item} className="space-y-3">
+              <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+              <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    } 
+  />;
+  
+  const LocalFoodLoading = () => <SectionLoading 
+    title="Must-Try Local Flavors" 
+    emoji="🤤" 
+    color="accent" 
+    layout="custom" 
+    customContent={
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Utensils className="w-5 h-5 text-secondary" />
+            <span className="font-medium">Main Dishes</span>
+          </div>
+          {[1, 2, 3].map(item => (
+            <div key={item} className="space-y-3">
+              <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+              <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+              <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <BeerIcon className="w-5 h-5 text-accent" />
+            <span className="font-medium">Desserts & Drinks</span>
+          </div>
+          {[1, 2].map(item => (
+            <div key={item} className="space-y-3">
+              <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+              <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    } 
+  />;
+
   // Helper function to get icon component based on icon name
   const getIconComponent = (iconName: string) => {
     const getAnimationFromIconName = (name: string) => {
@@ -656,6 +858,7 @@ export function AITravelPlan({
             )}
 
             {/* Top Attractions */}
+            {livePlan?.placesToVisit ? (
             <TravelPlanSection rotation="right" glowColor="primary">
               <SectionHeader
                 icon={MapPin}
@@ -736,9 +939,10 @@ export function AITravelPlan({
                 );
               })()}
             </TravelPlanSection>
+            ) : isActivelyStreaming && <AttractionsLoading />}
 
             {/* Best Neighborhoods */}
-            {livePlan?.neighborhoods && (
+            {livePlan?.neighborhoods ? (
               <TravelPlanSection rotation="left" glowColor="accent">
                 <SectionHeader
                   icon={Home}
@@ -775,10 +979,10 @@ export function AITravelPlan({
                   ))}
                 </ItemGrid>
               </TravelPlanSection>
-            )}
+            ) : isActivelyStreaming && <NeighborhoodsLoading />}
 
             {/* Hotel Recommendations */}
-            {livePlan?.hotelRecommendations && (
+            {livePlan?.hotelRecommendations ? (
               <TravelPlanSection rotation="right" glowColor="secondary">
                 <SectionHeader
                   icon={Home}
@@ -826,9 +1030,10 @@ export function AITravelPlan({
                   );
                 })()}
               </TravelPlanSection>
-            )}
+            ) : isActivelyStreaming && <HotelsLoading />}
 
             {/* Dining & Nightlife */}
+            {(livePlan?.restaurants && livePlan?.bars) ? (
             <TravelPlanSection rotation="left" glowColor="primary">
               <SectionHeader
                 icon={Utensils}
@@ -962,9 +1167,10 @@ export function AITravelPlan({
                 ));
               })()}
             </TravelPlanSection>
+            ) : isActivelyStreaming && <DiningLoading />}
 
             {/* Local Specialties */}
-            {livePlan?.mustTryFood && livePlan?.mustTryFood.items && (
+            {livePlan?.mustTryFood?.items ? (
               <TravelPlanSection rotation="right" glowColor="accent">
                 <SectionHeader
                   icon={Utensils}
@@ -1059,10 +1265,10 @@ export function AITravelPlan({
                   );
                 })()}
               </TravelPlanSection>
-            )}
+            ) : isActivelyStreaming && <LocalFoodLoading />}
 
             {/* Local Events */}
-            {livePlan?.localEvents && livePlan?.localEvents.length > 0 && (
+            {(livePlan?.localEvents && livePlan.localEvents.length > 0) ? (
               <TravelPlanSection rotation="left" glowColor="primary">
                 <SectionHeader
                   icon={Calendar}
@@ -1082,10 +1288,10 @@ export function AITravelPlan({
                   ))}
                 </ItemGrid>
               </TravelPlanSection>
-            )}
+            ) : isActivelyStreaming && <LocalEventsLoading />}
 
             {/* Activities & Experiences */}
-            {livePlan?.activities && (
+            {livePlan?.activities ? (
               <TravelPlanSection rotation="right" glowColor="accent">
                 <SectionHeader
                   icon={Compass}
@@ -1120,7 +1326,7 @@ export function AITravelPlan({
                   })}
                 </ItemGrid>
               </TravelPlanSection>
-            )}
+            ) : isActivelyStreaming && <ActivitiesLoading />}
 
 
           </div>
@@ -1150,6 +1356,7 @@ export function AITravelPlan({
             )}
 
             {/* Getting Around */}
+            {livePlan?.transportationInfo ? (
             <TravelPlanSection rotation="left" glowColor="primary">
               <SectionHeader
                 icon={Compass}
@@ -1312,9 +1519,10 @@ export function AITravelPlan({
               </div>
 
             </TravelPlanSection>
+            ) : isActivelyStreaming && <TransportationLoading />}
 
             {/* Weather Information */}
-            {livePlan?.weatherInfo && (
+            {livePlan?.weatherInfo ? (
               <TravelPlanSection rotation="right" glowColor="secondary">
                 <SectionHeader
                   icon={Calendar}
@@ -1354,12 +1562,12 @@ export function AITravelPlan({
                   </ContentCard>
                 </ContentGrid>
               </TravelPlanSection>
-            )}
+            ) : isActivelyStreaming && <WeatherLoading />}
 
             {/* Safety & Cultural Tips */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Safety Tips */}
-              {livePlan?.safetyTips && (
+              {livePlan?.safetyTips ? (
                 <TravelPlanSection rotation="left" glowColor="primary">
                   <SectionHeader
                     icon={Shield}
@@ -1379,9 +1587,10 @@ export function AITravelPlan({
                     ))}
                   </ul>
                 </TravelPlanSection>
-              )}
+              ) : isActivelyStreaming && <SafetyTipsLoading />}
 
               {/* Cultural Quest Guide */}
+              {livePlan?.socialEtiquette ? (
               <TravelPlanSection rotation="left" glowColor="primary">
                 <SectionHeader
                   icon={BookOpen}
@@ -1398,9 +1607,11 @@ export function AITravelPlan({
                   ))}
                 </ul>
               </TravelPlanSection>
+              ) : isActivelyStreaming && <CulturalInsightsLoading />}
             </div>
 
             {/* Currency & Payments */}
+            {livePlan?.localCurrency ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Local Currency */}
               <TravelPlanSection>
@@ -1479,9 +1690,15 @@ export function AITravelPlan({
                 </TravelPlanSection>
               )}
             </div>
+            ) : isActivelyStreaming && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <PaymentGuideLoading />
+                <TippingEtiquetteLoading />
+              </div>
+            )}
 
             {/* Drinking Water */}
-            {livePlan?.tapWaterSafe && (
+            {livePlan?.tapWaterSafe ? (
               <TravelPlanSection rotation="left" glowColor="primary">
                 <SectionHeader
                   icon={Droplets}
@@ -1506,10 +1723,10 @@ export function AITravelPlan({
                   </div>
                 </div>
               </TravelPlanSection>
-            )}
+            ) : isActivelyStreaming && <DrinkingWaterLoading />}
 
             {/* Local History */}
-            {livePlan?.history && (
+            {livePlan?.history ? (
               <TravelPlanSection rotation="right" glowColor="secondary">
                 <SectionHeader
                   icon={BookOpen}
@@ -1522,7 +1739,7 @@ export function AITravelPlan({
                   {livePlan?.history}
                 </p>
               </TravelPlanSection>
-            )}
+            ) : isActivelyStreaming && <LocalHistoryLoading />}
           </div>
         )}
       </div>
