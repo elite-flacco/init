@@ -1,9 +1,8 @@
-// import { motion } from "framer-motion"; // Removed - no longer used
 import {
   ArrowLeft,
   Compass,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   commonFinalTripPlanningQuestions,
   commonTripPlanningQuestions,

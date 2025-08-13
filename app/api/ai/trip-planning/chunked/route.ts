@@ -107,15 +107,15 @@ async function callAI(prompt: string, maxTokens?: number): Promise<string> {
 const TRAVEL_PLAN_CHUNKS = [
   {
     id: 1,
-    section: "basics",
-    description: "Places to visit, neighborhoods, and accommodations",
-    prompt: (request: AITripPlanningRequest) => generateBasicsPrompt(request)
+    section: "locations",
+    description: "Neighborhoods, hotels, restaurants, and bars",
+    prompt: (request: AITripPlanningRequest) => generateLocationsPrompt(request)
   },
   {
     id: 2,
-    section: "dining",
-    description: "Restaurants, bars, and local food recommendations",
-    prompt: (request: AITripPlanningRequest) => generateDiningPrompt(request)
+    section: "attractions",
+    description: "Places to visit and must-try local food and drink",
+    prompt: (request: AITripPlanningRequest) => generateFoodPrompt(request)
   },
   {
     id: 3,
@@ -131,7 +131,7 @@ const TRAVEL_PLAN_CHUNKS = [
   }
 ];
 
-export function generateBasicsPrompt(request: AITripPlanningRequest): string {
+export function generateLocationsPrompt(request: AITripPlanningRequest): string {
   const { destination, travelerType, preferences } = request;
   
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
@@ -139,7 +139,6 @@ export function generateBasicsPrompt(request: AITripPlanningRequest): string {
 DESTINATION: ${destination.name}, ${destination.country}
 Destination Description: ${destination.description}
 Best Time to Visit: ${destination.bestTime}
-Typical Budget: ${destination.budget}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
@@ -195,32 +194,41 @@ TRIP PREFERENCES:
   }
 
   const baseDays = parseInt(preferences.duration) || 7;
-  const activityMultiplier = preferences.activityLevel === "high" ? 4 : preferences.activityLevel === "low" ? 2 : 3;
-  const placesCount = Math.ceil(baseDays * activityMultiplier);
+  const restaurantCount = Math.ceil(baseDays * 4);
+  const barCount = Math.ceil(baseDays * 2);
 
   prompt += `
 
 Please create a comprehensive travel plan that includes ALL of the following detailed sections:
 
-1. PLACES TO VISIT
-   - Adjust number of attractions based on trip length and activity level: ${placesCount} recommendations
-   - Main attractions categorized by type (cultural, historical, natural, entertainment, etc.)
-   - Include priority ranking for each attraction based on user preferences and general popularity
-   - For each place, include ticket booking information: whether tickets are required or recommended, booking advice (e.g. "Book at least 2 weeks in advance during peak season"), peak time DURING THE DAY (e.g. ["early morning", "late afternoon"]), average wait times to get in (e.g. "15-30 minutes")
-
-2. NEIGHBORHOOD BREAKDOWNS (3-5 MOST POPULAR NEIGHBORHOODS)
+1. NEIGHBORHOOD BREAKDOWNS (3-5 MOST POPULAR NEIGHBORHOODS)
    - Summary of 3-5 most popular neighborhoods with their unique vibes
    - Pros and cons of each neighborhood for travelers, especially in terms of accommodation and food options, location (whether it's close to major attractions), touristy v.s. local, safety, accessibility
    - Best neighborhoods for different types of activities
    - What makes each neighborhood unique and worth visiting, include this in the summary
    - One-liner suggestion on best for, e.g. "Best for first-timers" or "Best for families"
 
-3. HOTEL RECOMMENDATIONS
+2. HOTEL RECOMMENDATIONS
    - For each neighborhood listed above, provide EXACTLY THREE (3) separate and distinct accommodation options
    - Each option must match the traveler's accommodation type preference (${preferences.accommodation}) and budget (${preferences.budget})
    - For each of the 3 options per neighborhood, include: name, amenities, price range, and detailed descriptions
    - Include link to Airbnb listing if applicable (for Airbnb preferences), otherwise use empty string ""
    - CRITICAL: You must provide 3 different accommodation options for EACH neighborhood - do not provide only 1 option per neighborhood
+
+3. RESTAURANT RECOMMENDATIONS
+   - Adjust number based on trip length and activity level: ${restaurantCount} recommendations
+   - Include AT LEAST FIVE (5) restaurants for each neighborhood listed above that align with the traveler's budget preferences
+   - Vary by cuisine type and neighborhood
+   - Include specific dishes to try at each restaurant
+   - Include if reservations are recommended / required - "Yes" or "No"
+
+4. BAR/NIGHTLIFE RECOMMENDATIONS
+   - Adjust the number of bars based on trip length and activity level: ${barCount} recommendations
+   - Only return data if traveler's preference for "Wants Bar/Nightlife Recommendations" is "Yes"
+   - Include AT LEAST THREE (2) bars for each neighborhood listed above that align with the traveler's budget preferences
+   - Categorize by type: beer bars, wine bars, cocktail lounges, dive bars
+   - Include atmosphere descriptions and what makes each unique
+   - Match to traveler's nightlife preferences
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
 
@@ -229,9 +237,10 @@ CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any tex
 Use this exact structure, MAKE SURE there is a comma after each field:
 
 {
-  "placesToVisit": [{"name": "string", "description": "string", "category": "string", "priority": number, "ticketInfo": {"required": boolean, "recommended": boolean, "bookingAdvice": "string", "peakTime": ["string"], "averageWaitTime": "string"}}],
   "neighborhoods": [{"name": "string", "summary": "string", "vibe": "string", "pros": ["string"], "cons": ["string"], "bestFor": "string"}],
-  "hotelRecommendations": [{"name": "string", "neighborhood": "string", "priceRange": "string", "description": "string", "amenities": ["string"], "airbnbLink": "string"}]
+  "hotelRecommendations": [{"name": "string", "neighborhood": "string", "priceRange": "string", "description": "string", "amenities": ["string"], "airbnbLink": "string"}],
+  ${preferences.wantRestaurants ? `"restaurants": [{"name": "string", "cuisine": "string", "priceRange": "string", "description": "string", "neighborhood": "string", "specialDishes": ["string"], "reservationsRecommended": "string"}],` : ''}
+  ${preferences.wantBars ? `"bars": [{"name": "string", "type": "string", "atmosphere": "string", "description": "string", "category": "string", "neighborhood": "string"}]` : ''}
 }
 
 START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
@@ -239,16 +248,17 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
   return prompt;
 }
 
-export function generateDiningPrompt(request: AITripPlanningRequest): string {
+export function generateFoodPrompt(request: AITripPlanningRequest): string {
   const { destination, travelerType, preferences } = request;
-  const days = parseInt(preferences.duration) || 7;
-  
+  const baseDays = parseInt(preferences.duration) || 7;
+  const activityMultiplier = preferences.activityLevel === "high" ? 4 : preferences.activityLevel === "low" ? 2 : 3;
+  const placesCount = Math.ceil(baseDays * activityMultiplier);
+
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
 
 DESTINATION: ${destination.name}, ${destination.country}
 Destination Description: ${destination.description}
 Best Time to Visit: ${destination.bestTime}
-Typical Budget: ${destination.budget}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
@@ -303,32 +313,23 @@ TRIP PREFERENCES:
     prompt += `- Stress Level: ${preferences.stressLevel}\n`;
   }
 
-  const restaurantCount = Math.ceil(days * 4);
-  const barCount = Math.ceil(days * 2);
-
   prompt += `
 
 Please create a comprehensive travel plan that includes ALL of the following detailed sections:
 
-4. RESTAURANT RECOMMENDATIONS
-   - Adjust number based on trip length and activity level: ${restaurantCount} recommendations
-   - Include AT LEAST FIVE (5) restaurants per neighborhood that align with the traveler's budget preferences
-   - Vary by cuisine type and neighborhood
-   - Include specific dishes to try at each restaurant
-   - Include if reservations are recommended / required - "Yes" or "No"
+1. PLACES TO VISIT
+   - Adjust number of attractions based on trip length and activity level: ${placesCount} recommendations
+   - Main attractions categorized by type (cultural, historical, natural, entertainment, etc.)
+   - Include priority ranking for each attraction based on user preferences and general popularity
+   - For each place, include ticket booking information: whether tickets are required or recommended, booking advice (e.g. "Book at least 2 weeks in advance during peak season"), peak time DURING THE DAY (e.g. ["early morning", "late afternoon"]), average wait times to get in (e.g. "15-30 minutes")
 
-5. BAR/NIGHTLIFE RECOMMENDATIONS
-   - Adjust the number of bars based on trip length and activity level: ${barCount} recommendations
-   - Only return data if traveler's preference for "Wants Bar/Nightlife Recommendations" is "Yes"
-   - Categorize by type: beer bars, wine bars, cocktail lounges, dive bars
-   - Include atmosphere descriptions and what makes each unique
-   - Match to traveler's nightlife preferences
-   - Include neighborhood of each bar
-
-13. MUST-TRY LOCAL FOOD AND DRINK
-    - Provide most quintessential food items as structured objects with names, descriptions, and categories
-    - Include main dishes, desserts, drinks, and snacks with specific descriptions
-    - Add where to find each item and price ranges when relevant
+2. MUST-TRY LOCAL FOOD AND DRINK
+   - Provide most quintessential food items as structured objects with names, descriptions, and categories
+   - Include main dishes, desserts, drinks, and snacks with specific descriptions
+   - Add where to find each item and price ranges when relevant
+   - Focus on authentic local specialties that are unique to this destination
+   - Include seasonal or regional variations if applicable
+    - Provide cultural context about why these foods are important to the local culture
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
 
@@ -337,9 +338,8 @@ CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any tex
 Use this exact structure, MAKE SURE there is a comma after each field:
 
 {
-  ${preferences.wantRestaurants ? `"restaurants": [{"name": "string", "cuisine": "string", "priceRange": "string", "description": "string", "neighborhood": "string", "specialDishes": ["string"], "reservationsRecommended": "string"}],` : ''}
-  ${preferences.wantBars ? `"bars": [{"name": "string", "type": "string", "atmosphere": "string", "description": "string", "category": "string", "neighborhood": "string"}],` : ''}
-  "mustTryFood": {"items": [{"name": "string", "description": "string", "category": "main|dessert|drink|snack", "whereToFind": "string", "priceRange": "string"}]}
+  "placesToVisit": [{"name": "string", "description": "string", "category": "string", "priority": number, "ticketInfo": {"required": boolean, "recommended": boolean, "bookingAdvice": "string", "peakTime": ["string"], "averageWaitTime": "string"}}],
+  "mustTryFood": {"items": [{"name": "string", "description": "string", "category": "main|dessert|drink|snack", "whereToFind": "string", "priceRange": "string", "culturalContext": "string"}]}
 }
 
 START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
@@ -355,7 +355,6 @@ export function generatePracticalPrompt(request: AITripPlanningRequest): string 
 DESTINATION: ${destination.name}, ${destination.country}
 Destination Description: ${destination.description}
 Best Time to Visit: ${destination.bestTime}
-Typical Budget: ${destination.budget}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
@@ -453,7 +452,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
     - Expected percentages or amounts
     - Cultural context around tipping
 
-14. TAP WATER SAFETY
+12. TAP WATER SAFETY
     - Is tap water safe to drink?
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
@@ -480,14 +479,12 @@ START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
 export function generateCulturalPrompt(request: AITripPlanningRequest): string {
   const { destination, preferences, travelerType } = request;
   const days = parseInt(preferences.duration) || 7;
-  const activityLevel = preferences.activityLevel || "medium";
   
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
 
 DESTINATION: ${destination.name}, ${destination.country}
 Destination Description: ${destination.description}
 Best Time to Visit: ${destination.bestTime}
-Typical Budget: ${destination.budget}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
@@ -542,31 +539,30 @@ TRIP PREFERENCES:
     prompt += `- Stress Level: ${preferences.stressLevel}\n`;
   }
 
-  const activitiesPerDay = activityLevel === "high" ? "4-6" : activityLevel === "low" ? "2-3" : "3-4";
 
   prompt += `
 
 Please create a comprehensive travel plan that includes ALL of the following detailed sections:
 
-12. LOCAL ACTIVITIES AND EXPERIENCES
+1. LOCAL ACTIVITIES AND EXPERIENCES
     - Destination-specific experiences (cooking classes, cultural workshops, unique tours)
     - Activities that can't be found elsewhere
     - Seasonal or time-sensitive opportunities during their travel dates
     - Specify experience provider type for each activity
 
-15. LOCAL EVENTS DURING TRAVEL TIME
+2. LOCAL EVENTS DURING TRAVEL TIME
     - Festivals, markets, or special events happening during their visit
     - Cultural celebrations or seasonal events
     - How to participate or attend (e.g. best place to celebrate NYE in Bangkok)
 
-16. EXTENDED HISTORICAL CONTEXT (AROUND 300 WORDS)
+3. EXTENDED HISTORICAL CONTEXT (AROUND 300 WORDS)
     - Comprehensive modern history covering major periods
     - Key historical sites and their significance
     - How history influences current culture and attractions
     - Cultural evolution and modern-day implications
     - Stories and legends that shaped the destination
 
-17. DETAILED DAY-BY-DAY ITINERARY
+4. DETAILED DAY-BY-DAY ITINERARY
     - Incorporate all above elements into a practical daily schedule
     - Adjust daily activities based on preferred activity level: ${preferences.activityLevel || "medium"}
     - High activity: 4-6 activities per day

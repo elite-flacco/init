@@ -14,92 +14,55 @@ export interface AITripPlanningRequest {
 }
 
 // JSON Schema for structured outputs (keeping existing schemas)
-const BASICS_SCHEMA = {
-  type: "object",
-  properties: {
-    placesToVisit: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          description: { type: "string" },
-          category: { type: "string" },
-          priority: { type: "number" },
-          ticketInfo: {
-            type: "object",
-            properties: {
-              required: { type: "boolean" },
-              recommended: { type: "boolean" },
-              bookingAdvice: { type: "string" },
-              peakTime: {
-                type: "array",
-                items: { type: "string" }
-              },
-              averageWaitTime: { type: "string" }
-            },
-            required: ["required", "recommended", "bookingAdvice", "peakTime", "averageWaitTime"],
-            additionalProperties: false
-          }
-        },
-        required: ["name", "description", "category", "priority", "ticketInfo"],
-        additionalProperties: false
-      }
-    },
-    neighborhoods: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          summary: { type: "string" },
-          vibe: { type: "string" },
-          pros: {
-            type: "array",
-            items: { type: "string" }
-          },
-          cons: {
-            type: "array",
-            items: { type: "string" }
-          },
-          bestFor: { type: "string" }
-        },
-        required: ["name", "summary", "vibe", "pros", "cons", "bestFor"],
-        additionalProperties: false
-      }
-    },
-    hotelRecommendations: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          neighborhood: { type: "string" },
-          priceRange: { type: "string" },
-          description: { type: "string" },
-          amenities: {
-            type: "array",
-            items: { type: "string" }
-          },
-          airbnbLink: {
-            type: "string",
-            description: "Airbnb link if applicable, otherwise empty string"
-          }
-        },
-        required: ["name", "neighborhood", "priceRange", "description", "amenities", "airbnbLink"],
-        additionalProperties: false
-      }
-    }
-  },
-  required: ["placesToVisit", "neighborhoods", "hotelRecommendations"],
-  additionalProperties: false
-};
-
 const CHUNK_SCHEMAS = {
-  1: BASICS_SCHEMA,
-  2: { // Dining schema
+  1: { // Locations
     type: "object",
     properties: {
+
+      neighborhoods: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            summary: { type: "string" },
+            vibe: { type: "string" },
+            pros: {
+              type: "array",
+              items: { type: "string" }
+            },
+            cons: {
+              type: "array",
+              items: { type: "string" }
+            },
+            bestFor: { type: "string" }
+          },
+          required: ["name", "summary", "vibe", "pros", "cons", "bestFor"],
+          additionalProperties: false
+        }
+      },
+      hotelRecommendations: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            neighborhood: { type: "string" },
+            priceRange: { type: "string" },
+            description: { type: "string" },
+            amenities: {
+              type: "array",
+              items: { type: "string" }
+            },
+            airbnbLink: {
+              type: "string",
+              description: "Airbnb link if applicable, otherwise empty string"
+            }
+          },
+          required: ["name", "neighborhood", "priceRange", "description", "amenities", "airbnbLink"],
+          additionalProperties: false
+        }
+      },
       restaurants: {
         type: "array",
         items: {
@@ -136,6 +99,42 @@ const CHUNK_SCHEMAS = {
           additionalProperties: false
         }
       },
+    },
+    required: ["neighborhoods", "hotelRecommendations", "restaurants", "bars"],
+    additionalProperties: false
+  },
+  2: { // Attractions & food schema
+    type: "object",
+    properties: {
+      placesToVisit: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            description: { type: "string" },
+            category: { type: "string" },
+            priority: { type: "number" },
+            ticketInfo: {
+              type: "object",
+              properties: {
+                required: { type: "boolean" },
+                recommended: { type: "boolean" },
+                bookingAdvice: { type: "string" },
+                peakTime: {
+                  type: "array",
+                  items: { type: "string" }
+                },
+                averageWaitTime: { type: "string" }
+              },
+              required: ["required", "recommended", "bookingAdvice", "peakTime", "averageWaitTime"],
+              additionalProperties: false
+            }
+          },
+          required: ["name", "description", "category", "priority", "ticketInfo"],
+          additionalProperties: false
+        }
+      },
       mustTryFood: {
         type: "object",
         properties: {
@@ -162,7 +161,7 @@ const CHUNK_SCHEMAS = {
         additionalProperties: false
       }
     },
-    required: ["restaurants", "bars", "mustTryFood"],
+    required: ["placesToVisit", "mustTryFood"],
     additionalProperties: false
   },
   3: { // Practical info schema
@@ -380,15 +379,15 @@ const CHUNK_SCHEMAS = {
 
 // Import the existing prompt generators from chunked route
 import {
-  generateBasicsPrompt,
-  generateDiningPrompt,
+  generateLocationsPrompt,
+  generateFoodPrompt,
   generatePracticalPrompt,
   generateCulturalPrompt
 } from '../chunked/route';
 
 const CHUNK_GENERATORS = {
-  1: generateBasicsPrompt,
-  2: generateDiningPrompt,
+  1: generateLocationsPrompt,
+  2: generateFoodPrompt,
   3: generatePracticalPrompt,
   4: generateCulturalPrompt
 };
