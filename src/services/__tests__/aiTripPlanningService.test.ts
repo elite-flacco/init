@@ -43,9 +43,52 @@ describe("aiTripPlanningService", () => {
       ],
     };
 
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockResponse),
+    // Mock the chunked session initialization
+    const mockSession = {
+      sessionId: "test-session-123",
+      chunks: [
+        { id: 1, section: "places", description: "Places to visit and hotels" },
+        { id: 2, section: "food", description: "Restaurants and bars" },
+        { id: 3, section: "info", description: "Weather, safety and transport" },
+        { id: 4, section: "activities", description: "Activities and itinerary" }
+      ],
+      totalChunks: 4
+    };
+
+    // Mock the individual chunk responses - chunk 4 contains the complete plan as per service logic
+    const mockChunkData = {
+      1: { placesToVisit: mockPlan.placesToVisit, hotelRecommendations: mockPlan.hotelRecommendations, neighborhoods: mockPlan.neighborhoods },
+      2: { restaurants: mockPlan.restaurants, bars: mockPlan.bars, mustTryFood: mockPlan.mustTryFood },
+      3: { weatherInfo: mockPlan.weatherInfo, safetyTips: mockPlan.safetyTips, transportationInfo: mockPlan.transportationInfo, localCurrency: mockPlan.localCurrency, socialEtiquette: mockPlan.socialEtiquette, tipEtiquette: mockPlan.tipEtiquette, tapWaterSafe: mockPlan.tapWaterSafe },
+      4: mockPlan // Complete plan in the final chunk as per service implementation
+    };
+
+    globalThis.fetch = vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/api/ai/trip-planning/chunked') && !url.includes('?chunk=')) {
+        // Initialize chunked session
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockSession),
+        });
+      } else if (url.includes('?chunk=')) {
+        // Return specific chunk
+        const chunkId = parseInt(url.match(/chunk=(\d+)/)?.[1] || '1');
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            chunk: mockSession.chunks.find(c => c.id === chunkId),
+            data: mockChunkData[chunkId as keyof typeof mockChunkData] || {},
+            isComplete: chunkId === 4,
+            sessionId: "test-session-123"
+          }),
+        });
+      }
+      
+      // Fallback for any other requests
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
     });
   });
 
@@ -75,7 +118,7 @@ describe("aiTripPlanningService", () => {
       expect(response.reasoning).toBeDefined();
       expect(response.confidence).toBeGreaterThan(0.8);
       expect(response.personalizations).toBeInstanceOf(Array);
-      expect(globalThis.fetch).toHaveBeenCalledWith("/api/ai/trip-planning", {
+      expect(globalThis.fetch).toHaveBeenCalledWith("/api/ai/trip-planning/chunked", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(baseRequest),
@@ -118,7 +161,7 @@ describe("aiTripPlanningService", () => {
       expect(response).toBeDefined();
       expect(response.plan).toBeDefined();
       expect(response.reasoning).toBeDefined();
-      expect(globalThis.fetch).toHaveBeenCalledWith("/api/ai/trip-planning", {
+      expect(globalThis.fetch).toHaveBeenCalledWith("/api/ai/trip-planning/chunked", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestWithKnowledge),
@@ -135,7 +178,7 @@ describe("aiTripPlanningService", () => {
 
       await expect(
         aiTripPlanningService.generateTravelPlan(baseRequest),
-      ).rejects.toThrow("Server error");
+      ).rejects.toThrow("Failed to initialize chunked session: Internal Server Error");
     });
 
     it("should handle network errors gracefully", async () => {

@@ -4,6 +4,16 @@ import userEvent from "@testing-library/user-event";
 import { AIDestinationRecommendationResults } from "../AIDestinationRecommendationResults";
 import { mockDestinations, resetMocks } from "../../test/mocks";
 
+// Mock the useDestinationImage hook to prevent async state updates
+vi.mock("../../hooks/useDestinationImage", () => ({
+  useDestinationImage: vi.fn(() => ({
+    imageUrl: null,
+    imageUrls: null,
+    isLoading: false,
+    error: null,
+  })),
+}));
+
 const mockOnSelect = vi.fn();
 const mockOnBack = vi.fn();
 const mockOnRegenerate = vi.fn();

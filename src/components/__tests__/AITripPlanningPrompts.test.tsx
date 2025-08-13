@@ -18,12 +18,8 @@ import {
   CurrencyInfo,
 } from "../../types/travel";
 
-// Mock the AI service
-vi.mock("../../services/aiTripPlanningService", () => ({
-  aiTripPlanningService: {
-    generateTravelPlan: vi.fn(),
-  },
-}));
+// Note: This component no longer directly uses aiTripPlanningService
+// It now passes streaming requests to the parent component
 
 // Mock the ProgressiveForm component
 vi.mock("../ProgressiveForm", () => ({
@@ -107,138 +103,68 @@ describe("AITripPlanningPrompts", () => {
   });
 
   it("should show loading state when generating plan", async () => {
-    const { aiTripPlanningService } = await import(
-      "../../services/aiTripPlanningService"
-    );
-
-    // Mock a delayed response
-    vi.mocked(aiTripPlanningService.generateTravelPlan).mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve({
-                plan: {
-                  destination: mockDestinations.tokyo,
-                  neighborhoods: [],
-                  hotelRecommendations: [],
-                  tipEtiquette: mockTipEtiquette,
-                  placesToVisit: [],
-                  restaurants: [],
-                  bars: [],
-                  weatherInfo: {} as WeatherInfo,
-                  socialEtiquette: [],
-                  safetyTips: [],
-                  transportationInfo: {} as TransportationInfo,
-                  localCurrency: {} as CurrencyInfo,
-                  activities: [],
-                  mustTryFood: { items: [] },
-                  tapWaterSafe: mockTapWaterSafe,
-                  localEvents: [],
-                  history: "",
-                  itinerary: [],
-                },
-                reasoning: "Generated plan",
-                confidence: 0.9,
-                personalizations: [],
-              }),
-            1000,
-          ),
-        ),
-    );
-
     render(<AITripPlanningPrompts {...defaultProps} />);
 
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
 
-    // Wait for the 2.1 second delay plus the form completion transition
+    // After clicking complete form, onComplete should be called with streaming request
     await waitFor(
       () => {
-        expect(
-          screen.getByText(/Creating Your Perfect Trip/),
-        ).toBeInTheDocument();
+        expect(mockOnComplete).toHaveBeenCalledWith(
+          undefined,
+          expect.objectContaining({
+            destination: mockDestinations.tokyo,
+            preferences: expect.any(Object),
+            travelerType: mockTravelerTypes.culture,
+          })
+        );
       },
       { timeout: 5000 }
     );
   });
 
-  it("should call AI service with correct parameters", async () => {
-    const { aiTripPlanningService } = await import(
-      "../../services/aiTripPlanningService"
-    );
+  it("should call onComplete with correct streaming request parameters", async () => {
+    render(<AITripPlanningPrompts {...defaultProps} />);
 
-    const mockResponse = {
-      plan: {
-        destination: mockDestinations.tokyo,
-        neighborhoods: [],
-        hotelRecommendations: [],
-        tipEtiquette: mockTipEtiquette,
-        placesToVisit: [],
-        restaurants: [],
-        bars: [],
-        weatherInfo: {} as WeatherInfo,
-        socialEtiquette: [],
-        safetyTips: [],
-        transportationInfo: {} as TransportationInfo,
-        localCurrency: {} as CurrencyInfo,
-        activities: [],
-        mustTryFood: { items: [] },
-        tapWaterSafe: mockTapWaterSafe,
-        localEvents: [],
-        history: "",
-        itinerary: [],
+    const completeButton = screen.getByText("Complete Form");
+    await userEvent.click(completeButton);
+
+    // Wait for the setTimeout delay (2600ms) and onComplete call
+    await waitFor(
+      () => {
+        expect(mockOnComplete).toHaveBeenCalledWith(
+          undefined,
+          expect.objectContaining({
+            destination: mockDestinations.tokyo,
+            preferences: expect.objectContaining({
+              accommodation: "hotel",
+              transportation: "public transport",
+              wantRestaurants: true,
+              wantBars: true,
+              duration: "7 days",
+              budget: "mid-range",
+              tripType: "cultural",
+              timeOfYear: "Summer",
+              priority: "authentic experiences",
+              specialActivities: "cultural",
+            }),
+            travelerType: mockTravelerTypes.culture,
+          })
+        );
       },
-      reasoning: "Perfect plan generated",
-      confidence: 0.92,
-      personalizations: ["Customized for culture lover"],
+      { timeout: 8000 }
+    );
+  }, 10000);
+
+  it("should handle missing destination errors gracefully", async () => {
+    const propsWithoutDestination = {
+      ...defaultProps,
+      destination: null,
+      destinationKnowledge: null,
     };
 
-    vi.mocked(aiTripPlanningService.generateTravelPlan).mockResolvedValue(
-      mockResponse,
-    );
-
-    render(<AITripPlanningPrompts {...defaultProps} />);
-
-    const completeButton = screen.getByText("Complete Form");
-    await userEvent.click(completeButton);
-
-    // Wait for the setTimeout delay and service call to complete
-    await waitFor(
-      () => {
-        expect(aiTripPlanningService.generateTravelPlan).toHaveBeenCalledWith({
-          destination: mockDestinations.tokyo,
-          preferences: expect.objectContaining({
-            accommodation: "hotel",
-            transportation: "public transport",
-            wantRestaurants: true,
-            wantBars: true,
-            duration: "7 days",
-            budget: "mid-range",
-            tripType: "cultural",
-            timeOfYear: "Summer",
-          }),
-          travelerType: mockTravelerTypes.culture,
-          destinationKnowledge: mockDestinationKnowledge,
-          pickDestinationPreferences: mockPickDestinationPreferences,
-        });
-      },
-      { timeout: 5000 }
-    );
-
-    expect(mockOnComplete).toHaveBeenCalledWith(mockResponse);
-  });
-
-  it("should handle AI service errors gracefully", async () => {
-    const { aiTripPlanningService } = await import(
-      "../../services/aiTripPlanningService"
-    );
-
-    vi.mocked(aiTripPlanningService.generateTravelPlan).mockRejectedValue(
-      new Error("AI service failed"),
-    );
-
-    render(<AITripPlanningPrompts {...defaultProps} />);
+    render(<AITripPlanningPrompts {...propsWithoutDestination} />);
 
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
@@ -255,15 +181,13 @@ describe("AITripPlanningPrompts", () => {
   });
 
   it("should allow retrying after error", async () => {
-    const { aiTripPlanningService } = await import(
-      "../../services/aiTripPlanningService"
-    );
+    const propsWithoutDestination = {
+      ...defaultProps,
+      destination: null,
+      destinationKnowledge: null,
+    };
 
-    vi.mocked(aiTripPlanningService.generateTravelPlan).mockRejectedValue(
-      new Error("Network error"),
-    );
-
-    render(<AITripPlanningPrompts {...defaultProps} />);
+    render(<AITripPlanningPrompts {...propsWithoutDestination} />);
 
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
@@ -306,15 +230,13 @@ describe("AITripPlanningPrompts", () => {
   });
 
   it("should call onBack when back button is clicked in error state", async () => {
-    const { aiTripPlanningService } = await import(
-      "../../services/aiTripPlanningService"
-    );
+    const propsWithoutDestination = {
+      ...defaultProps,
+      destination: null,
+      destinationKnowledge: null,
+    };
 
-    vi.mocked(aiTripPlanningService.generateTravelPlan).mockRejectedValue(
-      new Error("Service error"),
-    );
-
-    render(<AITripPlanningPrompts {...defaultProps} />);
+    render(<AITripPlanningPrompts {...propsWithoutDestination} />);
 
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
@@ -358,82 +280,19 @@ describe("AITripPlanningPrompts", () => {
   });
 
   it("should show loading tips during AI processing", async () => {
-    const { aiTripPlanningService } = await import(
-      "../../services/aiTripPlanningService"
-    );
-
-    vi.mocked(aiTripPlanningService.generateTravelPlan).mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve({
-                plan: {
-                  destination: mockDestinations.tokyo,
-                  neighborhoods: [],
-                  hotelRecommendations: [],
-                  tipEtiquette: mockTipEtiquette,
-                  placesToVisit: [],
-                  restaurants: [],
-                  bars: [],
-                  weatherInfo: {} as WeatherInfo,
-                  socialEtiquette: [],
-                  safetyTips: [],
-                  transportationInfo: {} as TransportationInfo,
-                  localCurrency: {} as CurrencyInfo,
-                  activities: [],
-                  mustTryFood: { items: [] },
-                  tapWaterSafe: mockTapWaterSafe,
-                  localEvents: [],
-                  history: "",
-                  itinerary: [],
-                },
-                reasoning: "Generated",
-                confidence: 0.9,
-                personalizations: [],
-              }),
-            1000,
-          ),
-        ),
-    );
-
     render(<AITripPlanningPrompts {...defaultProps} />);
 
     const completeButton = screen.getByText("Complete Form");
     await userEvent.click(completeButton);
+
+    // This test just verifies the component doesn't crash during the process
+    // The actual loading tips would be shown in the parent component that handles streaming
+    await waitFor(() => {
+      expect(mockOnComplete).toHaveBeenCalled();
+    }, { timeout: 8000 });
   });
 
   it("should merge preferences from pick destination flow", async () => {
-    const { aiTripPlanningService } = await import(
-      "../../services/aiTripPlanningService"
-    );
-
-    vi.mocked(aiTripPlanningService.generateTravelPlan).mockResolvedValue({
-      plan: {
-        destination: mockDestinations.tokyo,
-        neighborhoods: [],
-        hotelRecommendations: [],
-        tipEtiquette: mockTipEtiquette,
-        placesToVisit: [],
-        restaurants: [],
-        bars: [],
-        weatherInfo: {} as WeatherInfo,
-        socialEtiquette: [],
-        safetyTips: [],
-        transportationInfo: {} as TransportationInfo,
-        localCurrency: {} as CurrencyInfo,
-        activities: [],
-        mustTryFood: { items: [] },
-        tapWaterSafe: mockTapWaterSafe,
-        localEvents: [],
-        history: "",
-        itinerary: [],
-      },
-      reasoning: "Perfect",
-      confidence: 0.9,
-      personalizations: [],
-    });
-
     render(<AITripPlanningPrompts {...defaultProps} />);
 
     const completeButton = screen.getByText("Complete Form");
@@ -441,7 +300,8 @@ describe("AITripPlanningPrompts", () => {
 
     await waitFor(
       () => {
-        expect(aiTripPlanningService.generateTravelPlan).toHaveBeenCalledWith(
+        expect(mockOnComplete).toHaveBeenCalledWith(
+          undefined,
           expect.objectContaining({
             preferences: expect.objectContaining({
               duration: "7 days", // From pickDestinationPreferences
@@ -451,11 +311,13 @@ describe("AITripPlanningPrompts", () => {
               accommodation: "hotel", // From form
               wantRestaurants: true, // Hardcoded in implementation
               wantBars: true, // Hardcoded in implementation
+              priority: "authentic experiences", // From pickDestinationPreferences
+              specialActivities: "cultural", // From form
             }),
           }),
         );
       },
-      { timeout: 5000 }
+      { timeout: 8000 }
     );
-  });
+  }, 10000);
 });
