@@ -36,7 +36,6 @@ export interface TravelPlanManifest {
     neighborhoods: string[];
     budgetTips: string[];
   };
-  estimatedCompletionTime: number; // in seconds
 }
 
 async function callAI(prompt: string, maxTokens?: number): Promise<string> {
@@ -249,8 +248,7 @@ export async function POST(request: NextRequest) {
       destination: body.destination,
       overview: parsedManifest.overview,
       sections: parsedManifest.sections,
-      quickRecommendations: parsedManifest.quickRecommendations,
-      estimatedCompletionTime: 180 // 3 minutes for parallel chunks
+      quickRecommendations: parsedManifest.quickRecommendations
     };
 
     const duration = Date.now() - startTime;

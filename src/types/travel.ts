@@ -297,7 +297,6 @@ export interface TravelPlanManifest {
     neighborhoods: string[];
     budgetTips: string[];
   };
-  estimatedCompletionTime: number; // in seconds
 }
 
 export interface ManifestSection {
@@ -327,7 +326,6 @@ export interface ParallelChunkingState {
   isLoading: boolean;
   manifest: TravelPlanManifest | null;
   manifestLoaded: boolean;
-  progress: number; // 0-100
   completedChunks: number;
   totalChunks: number;
   chunks: Record<number, Record<string, unknown>>;

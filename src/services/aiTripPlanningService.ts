@@ -111,13 +111,7 @@ class AITripPlanningService {
   }
 
   async generateChunkedTravelPlan(
-    request: AITripPlanningRequest,
-    onProgress?: (progress: {
-      completedChunks: number;
-      totalChunks: number;
-      currentSection: string;
-      percentage: number;
-    }) => void
+    request: AITripPlanningRequest
   ): Promise<AITripPlanningResponse> {
     try {
       // Initialize chunked session
@@ -130,26 +124,10 @@ class AITripPlanningService {
       for (let i = 0; i < session.chunks.length; i++) {
         const chunk = session.chunks[i];
         
-        // Update progress
-        onProgress?.({
-          completedChunks: i,
-          totalChunks,
-          currentSection: chunk.description,
-          percentage: Math.round((i / totalChunks) * 100)
-        });
-
         const chunkResponse = await this.getChunk(request, chunk.id, session.sessionId);
         
         // Merge chunk data
         combinedData = { ...combinedData, ...chunkResponse.data };
-        
-        // Update progress
-        onProgress?.({
-          completedChunks: i + 1,
-          totalChunks,
-          currentSection: chunk.description,
-          percentage: Math.round(((i + 1) / totalChunks) * 100)
-        });
 
         // If complete, use the combined data from the API
         if (chunkResponse.isComplete && chunkResponse.data.destination) {

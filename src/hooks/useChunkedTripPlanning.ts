@@ -20,7 +20,6 @@ interface ChunkedResponse {
 
 interface ChunkedPlanningState {
   isLoading: boolean;
-  progress: number; // 0-100
   completedChunks: number;
   totalChunks: number;
   currentSection: string;
@@ -38,7 +37,6 @@ interface ChunkedPlanningHook {
 
 const initialState: ChunkedPlanningState = {
   isLoading: false,
-  progress: 0,
   completedChunks: 0,
   totalChunks: 0,
   currentSection: '',
@@ -61,7 +59,6 @@ export function useChunkedTripPlanning(): ChunkedPlanningHook {
         ...prev, 
         isLoading: true, 
         error: null,
-        progress: 0,
         completedChunks: 0,
         chunks: {},
         combinedData: null
@@ -96,8 +93,7 @@ export function useChunkedTripPlanning(): ChunkedPlanningHook {
         
         setState(prev => ({
           ...prev,
-          currentSection: chunk.description,
-          progress: Math.round((i / totalChunks) * 100)
+          currentSection: chunk.description
         }));
 
         const chunkResponse = await fetch(
@@ -119,8 +115,7 @@ export function useChunkedTripPlanning(): ChunkedPlanningHook {
         setState(prev => ({
           ...prev,
           chunks: { ...prev.chunks, [chunk.id]: chunkData.data },
-          completedChunks: prev.completedChunks + 1,
-          progress: Math.round(((i + 1) / totalChunks) * 100)
+          completedChunks: prev.completedChunks + 1
         }));
 
         // If this is the last chunk and it's complete, get combined data
@@ -129,7 +124,6 @@ export function useChunkedTripPlanning(): ChunkedPlanningHook {
             ...prev,
             combinedData: chunkData.data,
             currentSection: 'Complete!',
-            progress: 100,
             isLoading: false
           }));
           return;
@@ -145,7 +139,6 @@ export function useChunkedTripPlanning(): ChunkedPlanningHook {
         ...prev,
         combinedData,
         currentSection: 'Complete!',
-        progress: 100,
         isLoading: false
       }));
 
@@ -153,8 +146,7 @@ export function useChunkedTripPlanning(): ChunkedPlanningHook {
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'An error occurred',
-        progress: 0
+        error: error instanceof Error ? error.message : 'An error occurred'
       }));
     }
   }, []);

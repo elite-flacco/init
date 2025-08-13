@@ -135,8 +135,7 @@ export function AITravelPlan({
 
     const result = {
       isLoading: completedChunks.length < requiredChunks.length,
-      hasContent: completedChunks.length > 0,
-      progress: Math.round((completedChunks.length / requiredChunks.length) * 100)
+      hasContent: completedChunks.length > 0
     };
 
     return result;
@@ -818,7 +817,7 @@ export function AITravelPlan({
                   {/* Streaming skeleton for itinerary */}
                   {isActivelyStreaming && getTabLoadingState('itinerary').isLoading ? (
                     <div className="space-y-4">
-                      <div className="text-center mb-6">
+                      <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
                           <Loader2 className="w-4 h-4 animate-spin text-primary" />
                           <span className="text-sm font-medium text-primary">
@@ -864,10 +863,10 @@ export function AITravelPlan({
         )}
 
         {activeTab === "info" && (
-          <div className="space-y-12">
+          <div className="space-y-8">
             {/* Streaming progress indicator for info tab */}
             {isActivelyStreaming && getTabLoadingState('info').isLoading && (
-              <div className="text-center mb-2">
+              <div className="text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-full">
                   <Loader2 className="w-4 h-4 animate-spin text-secondary" />
                   <span className="text-sm font-medium text-secondary">
@@ -1353,10 +1352,10 @@ export function AITravelPlan({
         )}
 
         {activeTab === "practical" && (
-          <div className="space-y-12">
+          <div className="space-y-8">
             {/* Streaming progress indicator for practical tab */}
             {isActivelyStreaming && getTabLoadingState('practical').isLoading && (
-              <div className="text-center mb-2">
+              <div className="text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
                   <Loader2 className="w-4 h-4 animate-spin text-accent" />
                   <span className="text-sm font-medium text-accent">

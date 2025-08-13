@@ -19,7 +19,6 @@ const initialState: ParallelChunkingState = {
   isLoading: false,
   manifest: null,
   manifestLoaded: false,
-  progress: 0,
   completedChunks: 0,
   totalChunks: 0,
   chunks: {},
@@ -44,18 +43,6 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
     setState(initialState);
   }, []);
 
-  const updateProgress = useCallback((chunkStatuses: Record<number, 'pending' | 'loading' | 'completed' | 'error'>) => {
-    const totalWeight = CHUNK_DEFINITIONS.reduce((sum, chunk) => sum + chunk.weight, 0);
-    let completedWeight = 0;
-    
-    CHUNK_DEFINITIONS.forEach(chunk => {
-      if (chunkStatuses[chunk.id] === 'completed') {
-        completedWeight += chunk.weight;
-      }
-    });
-    
-    return Math.round((completedWeight / totalWeight) * 100);
-  }, []);
 
   const generatePlan = useCallback(async (request: AITripPlanningRequest) => {
     try {
@@ -63,7 +50,6 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
         ...prev, 
         isLoading: true, 
         error: null,
-        progress: 0,
         completedChunks: 0,
         chunks: {},
         chunkStatuses: {},
@@ -176,7 +162,6 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
             const newChunkStatuses = { ...prev.chunkStatuses, [chunkDef.id]: 'completed' as const };
             const newChunks = { ...prev.chunks, [chunkDef.id]: chunkData.data };
             const newCompletedChunks = prev.completedChunks + 1;
-            const newProgress = updateProgress(newChunkStatuses);
 
             console.log(`[Parallel Planning] Chunk ${chunkDef.id} (${chunkDef.section}) completed after ${retryCount + 1} attempts`);
 
@@ -200,7 +185,6 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
                 chunks: newChunks,
                 chunkStatuses: newChunkStatuses,
                 completedChunks: newCompletedChunks,
-                progress: isFullyComplete ? 100 : Math.max(75, newProgress),
                 combinedData,
                 isLoading: false
               };
@@ -210,8 +194,7 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
               ...prev,
               chunks: newChunks,
               chunkStatuses: newChunkStatuses,
-              completedChunks: newCompletedChunks,
-              progress: newProgress
+              completedChunks: newCompletedChunks
             };
           });
 
@@ -252,8 +235,7 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
             return {
               ...prev,
               combinedData,
-              isLoading: false,
-              progress: Math.max(prev.progress, 60) // Ensure at least 60% for partial data
+              isLoading: false
             };
           }
           return prev;
@@ -267,11 +249,10 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: errorMessage,
-        progress: 0
+        error: errorMessage
       }));
     }
-  }, [updateProgress]);
+  }, []);
 
   return {
     state,

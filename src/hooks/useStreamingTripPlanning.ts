@@ -24,7 +24,6 @@ export interface ChunkStreamingState {
   accumulatedContent: string;
   finalData: any;
   error: string | null;
-  progress: number; // 0-100 based on content length
 }
 
 export interface StreamingTripPlanningState {
@@ -37,7 +36,6 @@ export interface StreamingTripPlanningState {
   combinedData: EnhancedTravelPlan | null;
   error: string | null;
   sessionId: string | null;
-  overallProgress: number;
 }
 
 interface StreamingPlanningHook {
@@ -52,8 +50,7 @@ const initialChunkState: ChunkStreamingState = {
   hasStarted: false,
   accumulatedContent: '',
   finalData: null,
-  error: null,
-  progress: 0
+  error: null
 };
 
 const initialState: StreamingTripPlanningState = {
@@ -65,8 +62,7 @@ const initialState: StreamingTripPlanningState = {
   totalChunks: 4,
   combinedData: null,
   error: null,
-  sessionId: null,
-  overallProgress: 0
+  sessionId: null
 };
 
 const CHUNK_DEFINITIONS = [
@@ -90,22 +86,6 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
     setState(initialState);
   }, []);
 
-  const calculateOverallProgress = useCallback((chunks: Record<number, ChunkStreamingState>, manifestLoaded: boolean) => {
-    const manifestWeight = 0.1;
-    let progress = manifestLoaded ? manifestWeight : 0;
-
-    CHUNK_DEFINITIONS.forEach(chunk => {
-      const chunkState = chunks[chunk.id];
-      if (chunkState?.finalData) {
-        progress += chunk.weight;
-      } else if (chunkState?.isStreaming) {
-        // Add partial progress based on content streaming
-        progress += chunk.weight * (chunkState.progress / 100);
-      }
-    });
-
-    return Math.round(progress * 100);
-  }, []);
 
   const createStreamingConnection = useCallback(
     (chunkId: number, sessionId: string, request: AITripPlanningRequest) => {
@@ -205,8 +185,7 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
                           ...prev.chunks,
                           [chunkId]: {
                             ...prev.chunks[chunkId],
-                            accumulatedContent: eventData.accumulated || '',
-                            progress: Math.min((eventData.accumulated?.length || 0) / 4000 * 100, 95)
+                            accumulatedContent: eventData.accumulated || ''
                           }
                         }
                       };
@@ -222,8 +201,7 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
                           [chunkId]: {
                             ...prev.chunks[chunkId],
                             finalData: eventData.data,
-                            isStreaming: false,
-                            progress: 100
+                            isStreaming: false
                           }
                         };
 
@@ -251,7 +229,6 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
                           chunks: updatedChunks,
                           completedChunks: completedCount,
                           isLoading: completedCount < 4,
-                          overallProgress: Math.round((completedCount / 4) * 100),
                           combinedData
                         };
 
@@ -305,7 +282,7 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
         });
       });
     },
-    [calculateOverallProgress]
+    []
   );
 
   const retryChunk = useCallback(
@@ -358,8 +335,7 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
           sessionId: manifest.sessionId,
           chunks: Object.fromEntries(
             CHUNK_DEFINITIONS.map(chunk => [chunk.id, { ...initialChunkState }])
-          ),
-          overallProgress: calculateOverallProgress({}, true)
+          )
         }));
 
         // Step 2: Start streaming all chunks in parallel
@@ -380,7 +356,7 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
         }));
       }
     },
-    [reset, calculateOverallProgress, createStreamingConnection]
+    [reset, createStreamingConnection]
   );
 
   return {
