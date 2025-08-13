@@ -838,7 +838,7 @@ export function AITravelPlan({
               />
               {(() => {
                 // Separate restaurants and bars with type indicators
-                const restaurants = livePlan?.restaurants.map((restaurant) => ({
+                const restaurants = (livePlan?.restaurants || []).map((restaurant) => ({
                   ...restaurant,
                   type: "restaurant" as const,
                   searchType: "restaurant",
@@ -974,7 +974,7 @@ export function AITravelPlan({
                 />
                 {(() => {
                   // Group food items by category
-                  const foodByCategory = livePlan?.mustTryFood.items.reduce(
+                  const foodByCategory = (livePlan?.mustTryFood?.items || []).reduce(
                     (acc, item) => {
                       const category = item.category;
                       if (!acc[category]) {
@@ -1390,7 +1390,7 @@ export function AITravelPlan({
                   badgeColor="primary"
                 />
                 <ul className="space-y-1">
-                  {livePlan?.socialEtiquette.map((tip, index) => (
+                  {(livePlan?.socialEtiquette || []).map((tip, index) => (
                     <li key={index} className="flex items-start">
                       <span className="text-accent mr-2">•</span>
                       <p className="text-foreground-secondary">{tip}</p>
