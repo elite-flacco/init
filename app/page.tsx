@@ -20,7 +20,7 @@ import {
   DestinationKnowledge,
   PickDestinationPreferences,
 } from "../src/types/travel";
-import { AITripPlanningResponse } from "../src/services/aiTripPlanningService";
+import { AITripPlanningResponse, AITripPlanningRequest } from "../src/services/aiTripPlanningService";
 import {
   AIDestinationResponse,
   aiDestinationService,
@@ -52,6 +52,8 @@ export default function HomePage() {
     useState<Destination | null>(null);
   const [aiTripPlanningResponse, setAiTripPlanningResponse] =
     useState<AITripPlanningResponse | null>(null);
+  const [streamingTripPlanningRequest, setStreamingTripPlanningRequest] =
+    useState<AITripPlanningRequest | null>(null);
   const [aiDestinationResponse, setAiDestinationResponse] =
     useState<AIDestinationResponse | null>(null);
   const [isLoadingDestinations, setIsLoadingDestinations] = useState(false);
@@ -197,9 +199,17 @@ export default function HomePage() {
     setCurrentStep("planning");
   };
 
-  const handleTripPlanningComplete = (response: AITripPlanningResponse) => {
+  const handleTripPlanningComplete = (response?: AITripPlanningResponse, streamingRequest?: AITripPlanningRequest) => {
     try {
-      setAiTripPlanningResponse(response);
+      if (response) {
+        // Traditional response - set the response data
+        setAiTripPlanningResponse(response);
+        setStreamingTripPlanningRequest(null);
+      } else if (streamingRequest) {
+        // Streaming mode - set the request data
+        setStreamingTripPlanningRequest(streamingRequest);
+        setAiTripPlanningResponse(null);
+      }
 
       // Track trip planning completion
       trackTravelEvent.completeTripPlanning();
@@ -215,6 +225,10 @@ export default function HomePage() {
     // Track plan regeneration
     trackTravelEvent.regeneratePlan();
 
+    // Clear both response types
+    setAiTripPlanningResponse(null);
+    setStreamingTripPlanningRequest(null);
+    
     setCurrentStep("planning");
   };
 
@@ -286,6 +300,7 @@ export default function HomePage() {
       case "plan":
         setCurrentStep("planning");
         setAiTripPlanningResponse(null);
+        setStreamingTripPlanningRequest(null);
         break;
     }
   };
@@ -371,7 +386,8 @@ export default function HomePage() {
           <AITravelPlan
             destination={selectedDestination!}
             travelerType={selectedTravelerType!}
-            aiResponse={aiTripPlanningResponse!}
+            aiResponse={aiTripPlanningResponse || undefined}
+            streamingRequest={streamingTripPlanningRequest || undefined}
             onRegeneratePlan={handleRegeneratePlan}
             onBack={handleBack}
           />

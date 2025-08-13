@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { trackTravelEvent } from "../lib/analytics";
+import { useStreamingTripPlanning } from "../hooks/useStreamingTripPlanning";
+import { useParallelTripPlanning } from "../hooks/useParallelTripPlanning";
+import { AITripPlanningRequest } from "../services/aiTripPlanningService";
 import {
   Sparkles,
   MapPin,
@@ -43,7 +46,8 @@ import { MapIcon3D, NotebookIcon3D, SuitcaseIcon3D, CalendarIcon3D } from "./ui/
 interface AITravelPlanProps {
   destination: Destination;
   travelerType: TravelerType;
-  aiResponse: AITripPlanningResponse;
+  aiResponse?: AITripPlanningResponse; // Make optional for streaming mode
+  streamingRequest?: AITripPlanningRequest; // Add streaming request data
   onRegeneratePlan: () => void;
   onBack?: () => void;
 }
@@ -52,6 +56,7 @@ export function AITravelPlan({
   destination,
   travelerType,
   aiResponse,
+  streamingRequest,
   onRegeneratePlan,
   onBack,
 }: AITravelPlanProps) {
@@ -64,36 +69,57 @@ export function AITravelPlan({
   const [showMobileActions, setShowMobileActions] = useState(false);
   const mobileActionsRef = useRef<HTMLDivElement>(null);
 
-  // Handle both streaming and completed plans
-  const { plan, streamingState: staticStreamingState, streamingHooks } = aiResponse;
+  // Initialize streaming hooks
+  const { state: parallelState, generatePlan } = useParallelTripPlanning();
+  const { state: streamingState, generateStreamingPlan, retryChunk } = useStreamingTripPlanning();
   
-  // Use the streaming state directly (will be updated reactively)
-  const streamingState = staticStreamingState;
-  const isStreaming = streamingState && streamingHooks; // Has streaming capability
-  const hasStreamingData = streamingState?.combinedData;
-  
-  // For streaming mode, get the live plan data from streaming state
-  // Fall back to original plan if streaming is complete
-  const livePlan = hasStreamingData 
-    ? streamingState.combinedData 
-    : plan;
+  // Determine if we're in streaming mode
+  const isStreamingMode = !!streamingRequest;
+  const [useStreaming, setUseStreaming] = useState(false);
 
-  // Debug logging
-  console.log('[AITravelPlan] Render state:', {
-    isStreaming,
-    hasStreamingData: !!hasStreamingData,
-    hasPlan: !!plan,
-    hasLivePlan: !!livePlan,
-    streamingStateKeys: streamingState ? Object.keys(streamingState) : null,
-    livePlanKeys: livePlan ? Object.keys(livePlan) : null,
-    streamingChunks: streamingState?.chunks ? Object.keys(streamingState.chunks) : null
-  });
+  // Start streaming when component mounts if we have a streaming request
+  const [hasStartedStreaming, setHasStartedStreaming] = useState(false);
+  
+  useEffect(() => {
+    if (streamingRequest && !hasStartedStreaming) {
+      setHasStartedStreaming(true);
+      
+      const startStreaming = async () => {
+        try {
+          setUseStreaming(true);
+          await generateStreamingPlan(streamingRequest);
+        } catch (streamingError) {
+          console.log('[AITravelPlan] Streaming failed, falling back to parallel approach:', streamingError);
+          setUseStreaming(false);
+          await generatePlan(streamingRequest);
+        }
+      };
+
+      startStreaming();
+    }
+  }, [streamingRequest, hasStartedStreaming, generateStreamingPlan, generatePlan]);
+
+  // Handle both streaming and completed plans
+  const staticStreamingState = aiResponse?.streamingState;
+  const staticStreamingHooks = aiResponse?.streamingHooks;
+  const { plan } = aiResponse || {};
+  
+  // Determine which streaming state to use (live streaming or static from props)
+  const activeStreamingState = isStreamingMode ? streamingState : staticStreamingState;
+  const activeStreamingHooks = isStreamingMode ? { generateStreamingPlan, retryChunk } : staticStreamingHooks;
+  const isActivelyStreaming = isStreamingMode ? (useStreaming && streamingState.isLoading) : (staticStreamingState && staticStreamingHooks);
+  
+  // Get the live plan data 
+  const livePlan = isStreamingMode 
+    ? (useStreaming ? streamingState.combinedData : parallelState.combinedData) || plan
+    : (activeStreamingState?.combinedData || plan);
+
 
   // Check which tabs have content vs are still loading based on chunk completion
   const getTabLoadingState = (tab: 'itinerary' | 'info' | 'practical') => {
-    if (!isStreaming) return { isLoading: false, hasContent: !!livePlan };
+    if (!isActivelyStreaming) return { isLoading: false, hasContent: !!livePlan };
     
-    if (!streamingState?.chunks) return { isLoading: true, hasContent: false };
+    if (!activeStreamingState?.chunks) return { isLoading: true, hasContent: false };
     
     // Map tabs to their required chunks
     const tabChunkMap = {
@@ -104,7 +130,7 @@ export function AITravelPlan({
     
     const requiredChunks = tabChunkMap[tab];
     const completedChunks = requiredChunks.filter(chunkId => 
-      streamingState.chunks[chunkId]?.finalData
+      activeStreamingState.chunks[chunkId]?.finalData
     );
     
     const result = {
@@ -112,17 +138,6 @@ export function AITravelPlan({
       hasContent: completedChunks.length > 0,
       progress: Math.round((completedChunks.length / requiredChunks.length) * 100)
     };
-    
-    console.log(`[AITravelPlan] Tab ${tab} loading state:`, {
-      requiredChunks,
-      completedChunks,
-      result,
-      chunkData: requiredChunks.map(id => ({
-        id,
-        hasFinalData: !!streamingState.chunks[id]?.finalData,
-        keys: streamingState.chunks[id]?.finalData ? Object.keys(streamingState.chunks[id].finalData) : null
-      }))
-    });
     
     return result;
   };
@@ -570,7 +585,7 @@ export function AITravelPlan({
               ) : (
                 <div className="space-y-6">
                   {/* Streaming skeleton for itinerary */}
-                  {isStreaming && getTabLoadingState('itinerary').isLoading ? (
+                  {isActivelyStreaming && getTabLoadingState('itinerary').isLoading ? (
                     <div className="space-y-4">
                       <div className="text-center mb-6">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
@@ -629,7 +644,7 @@ export function AITravelPlan({
             </div> */}
 
             {/* Streaming progress indicator for info tab */}
-            {isStreaming && getTabLoadingState('info').isLoading && (
+            {isActivelyStreaming && getTabLoadingState('info').isLoading && (
               <div className="text-center mb-8">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-full">
                   <Loader2 className="w-4 h-4 animate-spin text-secondary" />
@@ -1123,7 +1138,7 @@ export function AITravelPlan({
             </div> */}
 
             {/* Streaming progress indicator for practical tab */}
-            {isStreaming && getTabLoadingState('practical').isLoading && (
+            {isActivelyStreaming && getTabLoadingState('practical').isLoading && (
               <div className="text-center mb-8">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
                   <Loader2 className="w-4 h-4 animate-spin text-accent" />

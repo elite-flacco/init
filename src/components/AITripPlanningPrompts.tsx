@@ -14,8 +14,6 @@ import {
 import {
   AITripPlanningResponse,
 } from "../services/aiTripPlanningService";
-import { useParallelTripPlanning } from "../hooks/useParallelTripPlanning";
-import { useStreamingTripPlanning } from "../hooks/useStreamingTripPlanning";
 import { AITripPlanningRequest } from "../services/aiTripPlanningService";
 // Removed intermediate loading components - streaming now happens directly in final page
 import {
@@ -34,7 +32,7 @@ interface AITripPlanningPromptsProps {
   travelerType: TravelerType;
   destinationKnowledge: DestinationKnowledge | null;
   pickDestinationPreferences: PickDestinationPreferences | null;
-  onComplete: (response: AITripPlanningResponse) => void;
+  onComplete: (response?: AITripPlanningResponse, streamingRequest?: AITripPlanningRequest) => void;
   onBack: () => void;
 }
 
@@ -46,63 +44,8 @@ export function AITripPlanningPrompts({
   onComplete,
   onBack,
 }: AITripPlanningPromptsProps) {
-  const { state: parallelState, generatePlan } = useParallelTripPlanning();
-  const { state: streamingState, generateStreamingPlan, retryChunk } = useStreamingTripPlanning();
-  
-  // Choose which approach to use based on AI provider
-  const [useStreaming, setUseStreaming] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
-  // Handle completion of parallel response
-  useEffect(() => {
-    if (!useStreaming && parallelState.combinedData && !parallelState.isLoading && !parallelState.error) {
-      const aiResponse: AITripPlanningResponse = {
-        plan: parallelState.combinedData as any,
-        reasoning: "AI-generated travel plan created using parallel processing and manifest-driven approach",
-        confidence: 0.9,
-        personalizations: [
-          `Customized for ${travelerType.name} traveler type`,
-          "Tailored to your specific preferences",
-          "Generated with fast manifest preview and parallel chunk loading",
-        ],
-      };
-      onComplete(aiResponse);
-    }
-  }, [useStreaming, parallelState.combinedData, parallelState.isLoading, parallelState.error, onComplete, travelerType.name]);
-
-  // Handle completion of streaming response AND show live updates  
-  useEffect(() => {
-    if (useStreaming && streamingState.manifest) {
-      // Show the travel plan page immediately with live streaming state
-      const aiResponse: AITripPlanningResponse = {
-        plan: streamingState.combinedData as any || null,
-        reasoning: "AI-generated travel plan streaming in real-time with structured outputs",
-        confidence: 0.95,
-        personalizations: [
-          `Customized for ${travelerType.name} traveler type`,
-          "Generated with real-time streaming for immediate feedback",
-          "Structured outputs with JSON schema validation",
-          "Live content updates as AI generates responses",
-        ],
-        streamingState: streamingState, // Pass the live streaming state
-        streamingHooks: { 
-          generateStreamingPlan, 
-          retryChunk,
-          streamingRequest: undefined // Will be set when form completes
-        },
-      };
-      onComplete(aiResponse);
-    }
-  }, [useStreaming, streamingState, onComplete, travelerType.name, destination, generateStreamingPlan, retryChunk]);
-
-  // Handle errors from both approaches
-  useEffect(() => {
-    if (useStreaming && streamingState.error) {
-      setGenerationError(streamingState.error);
-    } else if (!useStreaming && parallelState.error) {
-      setGenerationError(parallelState.error);
-    }
-  }, [useStreaming, parallelState.error, streamingState.error]);
 
   const getDestinationName = () => {
     if (destination) return destination.name;
@@ -220,38 +163,24 @@ export function AITripPlanningPrompts({
         // Track AI trip planning request
         trackTravelEvent.requestAIRecommendations('trip_plan');
         
-        // Check if streaming is available (OpenAI provider)
-        const streamingRequest = {
+        // Create streaming request data
+        const streamingRequest: AITripPlanningRequest = {
           destination: effectiveDestination,
           preferences,
           travelerType,
         };
         
-        // Try streaming first, fall back to parallel if not available
-        try {
-          console.log('[Trip Planning] Attempting streaming approach...');
-          setUseStreaming(true);
-          
-          // Start streaming - the useEffect above will handle navigation
-          await generateStreamingPlan(streamingRequest);
-          
-        } catch (streamingError) {
-          console.log('[Trip Planning] Streaming failed, falling back to parallel approach:', streamingError);
-          setUseStreaming(false);
-          await generatePlan(streamingRequest);
-        }
-
-        // Check for completion and call onComplete when ready
-        // This will be handled by useEffect when parallelState.combinedData is ready
+        // Pass the streaming request to the travel plan component
+        onComplete(undefined, streamingRequest);
       } catch (error) {
-        console.error("Failed to generate AI travel plan:", error);
+        console.error("Failed to create trip planning request:", error);
         const errorMessage =
           error instanceof Error
             ? error.message
-            : "Our AI had a brain freeze. Mind giving it another shot?";
+            : "Failed to create trip planning request. Please try again.";
         
         // Track trip planning error
-        trackTravelEvent.error('trip_planning_failed', errorMessage);
+        trackTravelEvent.error('trip_planning_request_failed', errorMessage);
         
         setGenerationError(errorMessage);
       }
@@ -285,7 +214,6 @@ export function AITripPlanningPrompts({
                 <button
                   onClick={() => {
                     setGenerationError(null);
-                    setIsFormCompleted(false);
                   }}
                   className="group btn-3d-gradient"
                 >

@@ -80,8 +80,7 @@ const CHUNK_DEFINITIONS = [
 export function useStreamingTripPlanning(): StreamingPlanningHook {
   const [state, setState] = useState<StreamingTripPlanningState>(initialState);
   const abortControllersRef = useRef<Record<number, AbortController>>({});
-  const completedDataRef = useRef<Record<number, any>>({});
-
+  const mounted = useRef(true);
   const reset = useCallback(() => {
     // Abort any active fetch requests
     Object.values(abortControllersRef.current).forEach(controller => {
@@ -164,7 +163,6 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
           const { done, value } = await reader.read();
           
           if (done) {
-            console.log(`[EventSource Style] Chunk ${chunkId} stream ended`);
             break;
           }
           
@@ -186,40 +184,41 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
                 
                 // Handle events like the working example - simple and direct
                 if (eventData.type === 'start') {
-                  setState(prev => ({
-                    ...prev,
-                    chunks: {
-                      ...prev.chunks,
-                      [chunkId]: {
-                        ...prev.chunks[chunkId],
-                        hasStarted: true,
-                        isStreaming: true
+                  setState(prev => {
+                    return {
+                      ...prev,
+                      chunks: {
+                        ...prev.chunks,
+                        [chunkId]: {
+                          ...prev.chunks[chunkId],
+                          hasStarted: true,
+                          isStreaming: true
+                        }
                       }
-                    }
-                  }));
+                    };
+                  });
                 }
                 
                 else if (eventData.type === 'content_delta' && eventData.accumulated) {
-                  setState(prev => ({
-                    ...prev,
-                    chunks: {
-                      ...prev.chunks,
-                      [chunkId]: {
-                        ...prev.chunks[chunkId],
-                        accumulatedContent: eventData.accumulated || '',
-                        progress: Math.min((eventData.accumulated?.length || 0) / 4000 * 100, 95)
+                  setState(prev => {
+                    return {
+                      ...prev,
+                      chunks: {
+                        ...prev.chunks,
+                        [chunkId]: {
+                          ...prev.chunks[chunkId],
+                          accumulatedContent: eventData.accumulated || '',
+                          progress: Math.min((eventData.accumulated?.length || 0) / 4000 * 100, 95)
+                        }
                       }
-                    }
-                  }));
+                    };
+                  });
                 }
                 
                 else if (eventData.type === 'complete') {
-                  console.log(`[EventSource Style] Chunk ${chunkId} completing with data:`, !!eventData.data);
-                  console.log(`[EventSource Style] About to call setState for chunk ${chunkId} completion`);
                   
                   setState(prev => {
-                    console.log(`[EventSource Style] INSIDE setState callback for chunk ${chunkId} completion!`);
-                    console.log(`[EventSource Style] Current completedChunks before update:`, prev.completedChunks);
+                    try {
                     
                     const updatedChunks = {
                       ...prev.chunks,
@@ -233,33 +232,40 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
                     
                     const completedCount = Object.values(updatedChunks).filter(chunk => chunk.finalData !== null).length;
                     
-                    console.log(`[EventSource Style] Setting completedChunks to ${completedCount}, isLoading to ${completedCount < 4}`);
+                    
+                    // *** CRITICAL FIX: Combine chunk data when we have completed chunks ***
+                    let combinedData = prev.combinedData;
+                    if (completedCount > 0) {
+                      // Combine all completed chunks into a single travel plan
+                      const completedChunkData = Object.values(updatedChunks)
+                        .filter(chunk => chunk.finalData !== null)
+                        .map(chunk => chunk.finalData);
+                      
+                      if (completedChunkData.length > 0) {
+                        combinedData = completedChunkData.reduce((acc, chunkData) => {
+                          return { ...acc, ...chunkData };
+                        }, {}) as EnhancedTravelPlan;
+                        
+                      }
+                    }
                     
                     const newState = {
                       ...prev,
                       chunks: updatedChunks,
                       completedChunks: completedCount,
                       isLoading: completedCount < 4,
-                      overallProgress: Math.round((completedCount / 4) * 100)
+                      overallProgress: Math.round((completedCount / 4) * 100),
+                      combinedData
                     };
                     
-                    console.log(`[EventSource Style] Returning new state for chunk ${chunkId}:`, {
-                      completedChunks: newState.completedChunks,
-                      isLoading: newState.isLoading,
-                      totalChunks: Object.keys(newState.chunks).length
-                    });
-                    
-                    console.log(`[EventSource Style] Final state chunks:`, Object.fromEntries(
-                      Object.entries(newState.chunks).map(([id, chunk]) => [
-                        id, 
-                        { hasFinalData: !!chunk.finalData, isStreaming: chunk.isStreaming, progress: chunk.progress }
-                      ])
-                    ));
                     
                     return newState;
+                    } catch (error) {
+                      console.error(`[EventSource Style] Error in setState callback for chunk ${chunkId}:`, error);
+                      return prev; // Return previous state if error occurs
+                    }
                   });
                   
-                  console.log(`[EventSource Style] setState call completed for chunk ${chunkId}`);
                 }
                 
                 else if (eventData.type === 'error') {
@@ -283,7 +289,6 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
           }
         }
         
-          console.log(`[EventSource Style] Chunk ${chunkId} processing completed, resolving`);
           resolve();
         };
 
@@ -337,7 +342,6 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
         }));
 
         // Step 1: Generate manifest quickly
-        console.log('[Streaming Planning] Fetching manifest...');
         const manifestResponse = await fetch('/api/ai/trip-planning/manifest', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -360,8 +364,6 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
           ),
           overallProgress: calculateOverallProgress({}, true)
         }));
-
-        console.log('[Streaming Planning] Manifest loaded, starting streaming chunks...');
 
         // Step 2: Start streaming all chunks in parallel
         const streamingPromises = CHUNK_DEFINITIONS.map(chunk =>
