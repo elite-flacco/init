@@ -109,7 +109,7 @@ export function AIDestinationRecommendationResults({
         </div>
         {onRegenerate && destinations.length > 0 && (
           <button onClick={onRegenerate} className="btn-3d-primary">
-            <RefreshCw className="w-4 h-4 mr-2" />
+            <RefreshCw className="w-4 h-4 mr-1" />
             Show Me More
           </button>
         )}

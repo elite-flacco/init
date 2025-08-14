@@ -66,22 +66,27 @@ function renderTravelerCard(
       <div className="traveler-card">
         <div className="relative z-10 h-full flex flex-col">
           {/* Icon */}
-          <div className="text-center mb-6">
+          <div className="text-center mb-4 sm:mb-6">
             <div className="inline-block rotate-hover group-hover:scale-110 group-hover:rotate-12 transition-transform duration-500">
+            <div className="block sm:block md:hidden">
+              {getTravelerTypeIcon(type.id, "md")}
+            </div>
+            <div className="hidden sm:hidden md:block">
               {getTravelerTypeIcon(type.id, "xl")}
+            </div>
             </div>
           </div>
 
           {/* Title */}
-          <div className="text-center mb-8">
-            <h5 className={`text-3d-title text-xl lg:text-2xl ${colors.titleHover} transition-colors duration-500`}>
+          <div className="text-center mb-4 sm:mb-6 md:mb-8">
+            <h5 className={`text-3d-title text-lg sm:text-xl lg:text-2xl ${colors.titleHover} transition-colors duration-500`}>
               {type.name}
             </h5>
           </div>
 
           {/* Description */}
           <div className="flex-grow flex items-center justify-center">
-            <p className={`text-sm sm:text-base lg:text-lg text-foreground-secondary text-center font-medium ${colors.textHover} transition-colors duration-500 max-w-sm`}>
+            <p className={`text-sm sm:text-base lg:text-lg text-foreground-secondary text-center font-medium ${colors.textHover} mb-2 sm:mb-4 transition-colors duration-500 max-w-sm`}>
               {type.description}
             </p>
           </div>
@@ -118,31 +123,31 @@ export function TravelerTypeSelection({
 
       <div className="container mx-auto relative z-10">
         {/* Hero Section */}
-        <div className="text-center min-h-screen flex items-start justify-center mb-12">
+        <div className="text-center min-h-screen flex items-center justify-center mb-12">
           <div
             className={`transition-all duration-1000 ${isLoaded
-              ? "opacity-100 translate-y-0"
+              ? "opacity-100 -translate-y-16"
               : "opacity-0 translate-y-12"
               }`}
           >
             {/* Hero Icons Section */}
-            <div className="relative max-w-6xl mx-auto mb-12">
+            <div className="relative max-w-6xl mx-auto mb-8 sm:mb-12">
               {/* 3D Icons container */}
               <HeroIconsComposition />
             </div>
 
             {/* Hero Title */}
-            <h1 className="text-3d-gradient text-4xl md:text-6xl lg:text-7xl mb-6">
+            <h1 className="text-3d-gradient text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 sm:mb-6 px-2">
               {typedHeroTitle}
-              <span className={`inline-block w-1 h-12 md:h-16 lg:h-20 bg-primary ml-2 ${!heroTitleComplete ? 'animate-pulse' : 'opacity-0'} transition-opacity duration-500`}>
+              <span className={`inline-block w-1 h-8 sm:h-10 md:h-12 lg:h-16 xl:h-20 bg-primary ml-1 sm:ml-2 ${!heroTitleComplete ? 'animate-pulse' : 'opacity-0'} transition-opacity duration-500`}>
               </span>
             </h1>
             {/* Hero Subtitle */}
-            <p className={`text-3d-title text-lg md:text-xl lg:text-2xl text-foreground-secondary max-w-3xl mx-auto mb-8 leading-relaxed transition-all duration-700 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <p className={`text-3d-title text-base sm:text-lg md:text-xl lg:text-2xl text-foreground-secondary max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed transition-all duration-700 px-4 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Spreadsheets or vibes - we've got you.
             </p>
             {/* Blurb */}
-            <p className={`text-base md:text-lg max-w-3xl mx-auto mb-12 leading-relaxed transition-all duration-700 delay-300 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <p className={`text-sm sm:text-base md:text-lg max-w-3xl mx-auto mb-8 sm:mb-12 leading-relaxed transition-all duration-700 delay-300 px-4 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               Not a travel agent. Just the smart, judgment-free co-pilot that helps you figure out where to go and what to do — based on how you travel.
             </p>
 
@@ -159,7 +164,7 @@ export function TravelerTypeSelection({
         </div>
 
         {/* Asymmetrical Adventure Header */}
-        <div id="traveler-types-section" className="relative mb-24 pt-20">
+        <div id="traveler-types-section" className="relative mb-8 sm:mb-12 md:mb-16 lg:mb-20">
           {/* Main title section - offset left */}
           <div
             className={`ml-8 md:ml-16 lg:ml-24 transition-all duration-1000 ${isLoaded

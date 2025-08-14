@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { User, MapPin, Calendar, MapIcon } from "lucide-react";
 import { getProgressStepIcon } from "../utils/iconMapping";
 
 interface ProgressStep {
@@ -23,58 +21,72 @@ export function TravelProgressIndicator({
   className = "",
   vertical = false,
 }: TravelProgressIndicatorProps) {
-  // Define the travel journey steps with 3D travel-themed icons
-  const steps: ProgressStep[] = [
-    // {
-    //   id: "traveler-type",
-    //   label: "",
-    //   icon: () => getProgressStepIcon("traveler-type", currentStep === "traveler-type" ? "md" : "sm"),
-    //   active: currentStep === "traveler-type",
-    //   completed: [
-    //     "destination-knowledge",
-    //     "destination-input",
-    //     "pick-destination",
-    //     "destination-recommendations",
-    //     "planning",
-    //     "plan",
-    //   ].includes(currentStep),
-    // },
+  // Helper function to get responsive icon size
+  const getResponsiveIconSize = (isActive: boolean, isDesktop: boolean = false) => {
+    if (isDesktop) {
+      return isActive ? "md" : "sm";
+    }
+    return isActive ? "xs" : "2xs";
+  };
+
+  // Define step configuration
+  const stepConfigs = [
     {
       id: "destination",
       label: "",
-      icon: () => getProgressStepIcon("destination", [
-        "destination-knowledge",
-        "destination-input", 
-        "pick-destination",
-        "destination-recommendations",
-      ].includes(currentStep) ? "md" : "sm"),
-      active: [
-        "destination-knowledge",
-        "destination-input",
-        "pick-destination",
-        "destination-recommendations",
-      ].includes(currentStep),
-      completed: ["planning", "plan"].includes(currentStep),
+      stepIds: ["destination-knowledge", "destination-input", "pick-destination", "destination-recommendations"],
+      completedBy: ["planning", "plan"],
     },
     {
-      id: "planning",
+      id: "planning", 
       label: "",
-      icon: () => getProgressStepIcon("planning", currentStep === "planning" ? "md" : "sm"),
-      active: currentStep === "planning",
-      completed: currentStep === "plan",
+      stepIds: ["planning"],
+      completedBy: ["plan"],
     },
     {
       id: "plan",
       label: "",
-      icon: () => getProgressStepIcon("plan", currentStep === "plan" ? "md" : "sm"),
-      active: currentStep === "plan",
-      completed: false,
+      stepIds: ["plan"],
+      completedBy: [],
     },
   ];
 
-  const currentStepIndex = steps.findIndex((step) => step.active);
+  // Create steps dynamically based on screen size
+  const createSteps = (isDesktop: boolean): ProgressStep[] => {
+    return stepConfigs.map(config => ({
+      id: config.id,
+      label: config.label,
+      icon: () => {
+        const isActive = config.stepIds.includes(currentStep);
+        return getProgressStepIcon(config.id, getResponsiveIconSize(isActive, isDesktop));
+      },
+      active: config.stepIds.includes(currentStep),
+      completed: config.completedBy.includes(currentStep),
+    }));
+  };
+
+  const mobileSteps = createSteps(false);
+  const desktopSteps = createSteps(true);
+
+  const currentStepIndex = mobileSteps.findIndex((step) => step.active);
   const progressPercentage =
-    currentStepIndex >= 0 ? (currentStepIndex / (steps.length - 1)) * 100 : 0;
+    currentStepIndex >= 0 ? (currentStepIndex / (mobileSteps.length - 1)) * 100 : 0;
+
+  // Helper function to render step icons
+  const renderStepIcon = (step: ProgressStep, containerClass: string) => {
+    const IconComponent = step.icon;
+    return (
+      <div key={step.id} className="flex flex-col items-center relative z-20">
+        <div className="relative group z-20">
+          <div className={`relative ${containerClass} rounded-full flex items-center justify-center bg-transparent`}>
+            <div className={`${step.active ? "text-primary" : step.completed ? "text-primary" : "text-foreground"}`}>
+              <IconComponent />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   if (vertical) {
     return (
@@ -111,120 +123,18 @@ export function TravelProgressIndicator({
             />
           </svg>
 
-          {steps.map((step) => {
-            const IconComponent = step.icon;
-
-            return (
-              <div key={step.id} className="flex flex-col items-center relative z-20">
-                {/* Step Icon Container */}
-                <div className="relative group z-20">
-                  {/* Step Circle */}
-                  <div className="relative w-10 h-10 rounded-full flex items-center justify-center bg-transparent">
-                    {/* Travel Icon - Always show */}
-                    <div className={`${step.active ? "text-primary" : step.completed ? "text-primary" : "text-foreground"}`}>
-                      <IconComponent />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {/* Responsive step icons */}
+          {[
+            { steps: mobileSteps, containerClass: "w-8 h-8", displayClass: "block md:hidden" },
+            { steps: desktopSteps, containerClass: "w-10 h-10", displayClass: "hidden md:block" }
+          ].map(({ steps, containerClass, displayClass }, index) => (
+            <div key={index} className={`${displayClass} flex flex-col items-center space-y-6 sm:space-y-8 md:space-y-10`}>
+              {steps.map((step) => renderStepIcon(step, containerClass))}
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
-  return (
-    <div className={`flex items-center justify-center ${className}`}>
-      {/* Desktop Version - Full Journey Visualization */}
-      <div className="hidden lg:flex items-center space-x-6 relative">
-        {/* Progress Trail */}
-        <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-border/60 -translate-y-1/2 z-0">
-          <div
-            className="h-full bg-primary"
-            style={{ width: `${progressPercentage}%` }}
-          />
-        </div>
-
-        {steps.map((step) => {
-          const IconComponent = step.icon;
-
-          return (
-            <div key={step.id} className="flex items-center relative z-10">
-              {/* Step Icon Container */}
-              <div className="relative group">
-                {/* Step Circle */}
-                <div className="relative w-12 h-12 rounded-full flex items-center justify-center bg-transparent">
-                  {/* Travel Icon - Always show */}
-                  <div className={`${step.active ? "text-white" : step.completed ? "text-primary" : "text-foreground"}`}>
-                    <IconComponent />
-                  </div>
-                </div>
-
-                {/* Step Label */}
-                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                  <span
-                    className={`text-xs font-medium ${
-                      step.active
-                        ? "text-primary font-semibold"
-                        : step.completed
-                          ? "text-primary/30 font-medium"
-                          : "text-foreground-muted"
-                    }`}
-                  >
-                    {step.label}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Mobile & Tablet Version - Compact Journey Indicator */}
-      <div className="flex lg:hidden items-center space-x-4">
-        {/* Current Step Info */}
-        <div className="flex items-center space-x-3 bg-transparent rounded-2xl px-4 py-2 border border-border/50">
-          {/* Current Step Icon */}
-          <div className="relative">
-            {steps.map((step) => {
-              if (!step.active) return null;
-              const IconComponent = step.icon;
-
-              return (
-                <div
-                  key={step.id}
-                  className="w-8 h-8 bg-transparent rounded-full flex items-center justify-center"
-                >
-                  <div className="text-primary">
-                    <IconComponent />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Step Progress Text */}
-          <div className="flex flex-col">
-            <span className="text-xs font-medium text-foreground-muted">
-              Step {currentStepIndex + 1} of {steps.length}
-            </span>
-            <span className="text-sm font-semibold text-primary">
-              {steps.find((step) => step.active)?.label || ""}
-            </span>
-          </div>
-        </div>
-
-        {/* Mini Progress Bar */}
-        <div className="flex-1 max-w-20 h-2 bg-border/60 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary"
-            style={{
-              width: `${((currentStepIndex + 1) / steps.length) * 100}%`,
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  );
 }

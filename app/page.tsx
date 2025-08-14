@@ -119,7 +119,7 @@ export default function HomePage() {
     setSelectedTravelerType(type);
 
     // Track traveler type selection
-    trackTravelEvent.selectTravelerType(type.title);
+    trackTravelEvent.selectTravelerType(type.name);
 
     // Show placeholder for types that have it enabled
     if (type.showPlaceholder) {
@@ -257,7 +257,9 @@ export default function HomePage() {
       image: "",
       highlights: [],
       bestTime: "As per your preference",
-      budget: "Variable",
+      estimatedCost: "Variable",
+      keyActivities: [],
+      matchReason: "",
     };
     setSelectedDestination(customDestination);
     setCurrentStep("planning");
@@ -324,10 +326,7 @@ export default function HomePage() {
 
       case "destination-knowledge":
         return (
-          <DestinationKnowledgeSelection
-            travelerType={selectedTravelerType!}
-            onSelect={handleDestinationKnowledgeSelect}
-          />
+          <DestinationKnowledgeSelection onSelect={handleDestinationKnowledgeSelect} />
         );
 
       case "destination-input":
@@ -413,22 +412,22 @@ export default function HomePage() {
       ></div>
 
       {/* Logo - Top Left */}
-      <div className="fixed top-3 left-3 z-50">
+      <div className="fixed top-2 left-2 sm:top-3 sm:left-3 z-50">
         <button
           onClick={() => setCurrentStep("traveler-type")}
-          className="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-300"
+          className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity duration-300"
           aria-label="Return to home"
         >
-          <div className="bg-gradient-to-br from-primary to-primary p-2 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:scale-105 group">
-            <Plane className="w-5 h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
+          <div className="hidden md:block bg-gradient-to-br from-primary to-primary p-1.5 sm:p-2 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:scale-105 group">
+            <Plane className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
           </div>
           <div className="flex flex-col items-start">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+            <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent hidden md:block">
               {typedTitle}
-              <span className={`inline-block w-0.5 h-5 bg-primary ml-1 ${!titleComplete ? 'animate-pulse' : 'opacity-0'}`}>
+              <span className={`inline-block w-0.5 h-4 sm:h-5 bg-primary ml-1 ${!titleComplete ? 'animate-pulse' : 'opacity-0'}`}>
               </span>
             </h1>
-            <p className={`text-xs text-foreground-secondary font-medium hidden sm:block transition-opacity duration-500 ${titleComplete ? 'opacity-100' : 'opacity-0'}`}>
+            <p className={`text-xs text-foreground-secondary font-medium hidden md:block transition-opacity duration-500 ${titleComplete ? 'opacity-100' : 'opacity-0'}`}>
               AI-Powered Travel Planning
             </p>
           </div>
@@ -437,25 +436,23 @@ export default function HomePage() {
 
       {/* Navigation Elements - Right Side */}
       {currentStep !== "plan" && currentStep !== "traveler-type" && (
-        <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center space-y-4">
+        <div className="fixed right-3 sm:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center space-y-4">
           {/* Back Button */}
 
           <button
             onClick={handleBack}
-            className="btn-3d-outline group inline-flex items-center p-2 text-sm font-medium"
+            className="btn-3d-outline group inline-flex items-center p-1 sm:p-2 text-xs sm:text-sm font-medium"
             aria-label="Go back to previous step"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
+              className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300"
             >
               <path d="m12 19-7-7 7-7"></path>
               <path d="M19 12H5"></path>
@@ -468,7 +465,7 @@ export default function HomePage() {
       )}
 
       {/* Main content */}
-      <main className="relative p-20 px-4 sm:px-6">
+      <main className="relative py-8 px-4 sm:px-6 md:py-12 lg:py-16">
         <div className="container mx-auto relative z-10">
           <div className="relative">{renderCurrentStep()}</div>
         </div>

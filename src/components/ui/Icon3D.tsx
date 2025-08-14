@@ -5,12 +5,13 @@ export interface Icon3DProps {
   src: string;
   alt: string;
   className?: string;
-  size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
+  size?: "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
   animation?: "float" | "pulse" | "bounce" | "spin" | "spin-horizontal" | "none";
   animationDelay?: string;
 }
 
 const sizeClasses = {
+  "2xs": "w-8 h-8",
   xs: "w-12 h-12",
   sm: "w-16 h-16",
   md: "w-24 h-24",

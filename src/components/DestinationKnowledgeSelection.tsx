@@ -99,7 +99,7 @@ export function DestinationKnowledgeSelection({
                 </div>
 
                 {/* Selection Arrow */}
-                <div className="ml-6 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                <div className="ml-4 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0 hidden sm:block">
                   <div className="w-8 h-8 gradient-primary rounded-full flex items-center justify-center">
                     <ArrowRight className="w-4 h-4 text-white" />
                   </div>

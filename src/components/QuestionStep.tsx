@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowRight } from "lucide-react";
 
 export interface QuestionOption {
   label: string;
@@ -107,7 +106,7 @@ export function QuestionStep({
                   disabled={isCompleted && !isEditing}
                 >
                   <div className="relative z-10 flex items-center justify-center">
-                    <span className="font-medium text-foreground group-hover:text-primary transition-colors duration-300">
+                    <span className="text-sm sm:text-base font-medium text-foreground group-hover:text-primary transition-colors duration-300">
                       {label}
                     </span>
                   </div>
@@ -196,7 +195,12 @@ export function QuestionStep({
               </span>
             </button>
             <button
-              type="submit"
+              type="button"
+              onClick={() => {
+                setLocalValue("");
+                onChange("");
+                onComplete();
+              }}
               className="btn-3d-outline py-2.5 px-6 group"
             >
               <span className="flex items-center">

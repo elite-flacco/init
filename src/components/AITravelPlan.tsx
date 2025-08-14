@@ -310,43 +310,44 @@ export function AITravelPlan({
           {/* Activity Highlight */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-2xl"></div>
 
-          <div className="flex items-start relative z-10">
+          <div className="flex flex-col md:flex-row items-start relative z-10">
             {/* Time Badge */}
-            <div className="flex-shrink-0 mr-4">
-              <div className="inline-flex items-center justify-start bg-primary/20 text-primary px-3 py-2 rounded-full font-bold text-sm transform -rotate-1 group-hover:rotate-0 transition-transform duration-300">
+            <div className="flex-shrink-0 mr-4 mb-4">
+              <div className="inline-flex items-center justify-start bg-primary/20 text-primary px-3 py-2 rounded-full font-bold text-xs sm:text-sm transform -rotate-1 group-hover:rotate-0 transition-transform duration-300">
                 {activity.time}
               </div>
             </div>
 
             {/* Activity Content */}
             <div className="flex-1">
-              <div className="flex items-center mb-1">
-                <div className="flex-shrink-0 mr-3">
+              <div className="flex items-start">
+                <div className="hidden md:block flex-shrink-0 mr-3">
                   {activity.icon ? (
                     getIconComponent(activity.icon)
                   ) : (
                     <Compass className="w-6 h-6 text-primary" />
                   )}
                 </div>
-                <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
-                  {activity.title}
-                </h3>
+                <div className="">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                    {activity.title}
+                  </h3>
+                  {activity.location && (
+                    <div className="flex items-center text-sm text-foreground-secondary mb-3">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      <span className="font-medium text-xs">{activity.location}</span>
+                    </div>
+                  )}
+                  {activity.description && (
+                    <div className="mt-4">
+                      <p className="group-hover:text-foreground transition-colors duration-300 leading-relaxed">
+                        {activity.description}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
               </div>
-
-              {activity.location && (
-                <div className="flex items-center text-sm text-foreground-secondary mb-3 ml-9">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  <span className="font-medium text-xs">{activity.location}</span>
-                </div>
-              )}
-
-              {activity.description && (
-                <div className="ml-9">
-                  <p className="group-hover:text-foreground transition-colors duration-300 leading-relaxed">
-                    {activity.description}
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -356,7 +357,7 @@ export function AITravelPlan({
 
   // Render a single day's itinerary
   const renderDayItinerary = (day: ItineraryDay) => (
-    <div key={day.day} className="mb-12 relative">
+    <div key={day.day} className="mb-2 md:mb-6 relative">
       {/* Daily Itinerary Card */}
       <div className="transform hover:-rotate-1 transition-transform duration-500">
         <div className="bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 hover:border-primary/50 rounded-3xl p-8 lg:p-10 shadow-card hover:shadow-adventure-float transition-all duration-500 relative overflow-hidden">
@@ -364,15 +365,15 @@ export function AITravelPlan({
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 rounded-3xl blur-xl opacity-0 hover:opacity-100 transition-all duration-700 -z-10"></div>
 
           {/* Day Header */}
-          <div className="flex items-center mb-8">
-            <div className="inline-flex items-center bg-primary/20 text-primary px-6 py-3 rounded-full font-bold text-base md:text-lg lg:text-lg mr-4 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+          <div className="flex items-center mb-4 sm:mb-6 md:mb-8">
+            <div className="inline-flex items-center bg-primary/20 text-primary px-2 py-1 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-base lg:text-lg mr-4 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
               <CalendarIcon3D size="xs" />
               {day.title}
             </div>
           </div>
 
           {/* Daily Activities */}
-          <div className="space-y-6 ml-8 mr-4">
+          <div className="space-y-4 m-2 sm:m-4 md:m-6">
             {day.activities.map((activity, index) =>
               renderActivity(activity, index),
             )}
@@ -430,7 +431,7 @@ export function AITravelPlan({
                   damping: 15
                 }}
               >
-                <Sparkles className="w-12 h-12 text-primary mr-2" />
+                <Sparkles className="w-8 h-8 sm:w-8 sm:h-8 md:w-12 md:h-12 text-primary mr-2" />
               </motion.div>
               <motion.h2
                 initial={{ opacity: 0, x: -20 }}
@@ -498,12 +499,12 @@ export function AITravelPlan({
           </motion.div>
 
           {/* Mobile Actions Dropdown */}
-          <div className="relative sm:hidden" ref={mobileActionsRef}>
+          <div className="relative mt-4 sm:hidden" ref={mobileActionsRef}>
             <button
               onClick={() => setShowMobileActions(!showMobileActions)}
               className="flex items-center px-4 py-2 text-sm btn-3d-outline w-full justify-between"
             >
-              <span>Actions</span>
+              <span className="text-foreground/50">Select...</span>
               <ChevronDown
                 className={`w-4 h-4 transition-transform ${showMobileActions ? "rotate-180" : ""}`}
               />
@@ -577,18 +578,18 @@ export function AITravelPlan({
           }}
           className="mb-4 relative"
         >
-          <div className="flex flex-col xl:flex-row justify-center items-center gap-2 xl:gap-2 px-2 max-w-none mx-auto">
+          <div className="flex justify-center items-center gap-0 sm:gap-2 px-0 sm:px-2 max-w-none mx-auto">
             <button
               onClick={() => setActiveTab("itinerary")}
-              className={`group transition-all duration-300 transform hover:scale-105 w-full xl:w-auto border-0 shadow-none ${activeTab === "itinerary" ? "scale-110" : "hover:-translate-y-1"
+              className={`group px-0 sm:px-2 transition-all duration-300 transform hover:scale-105 w-fit xl:w-auto border-0 shadow-none ${activeTab === "itinerary" ? "scale-110" : "hover:-translate-y-1"
                 }`}
             >
-              <div className={`inline-flex items-center justify-center px-6 py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "itinerary"
+              <div className={`inline-flex flex-col sm:flex-row items-center justify-center p-1 sm:px-6 sm:py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "itinerary"
                 ? "bg-primary/20 text-primary -rotate-1 shadow-glow"
                 : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-primary/10 hover:to-primary/5 hover:text-primary hover:border-primary/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
                 }`}>
                 <MapIcon3D size="xs" />
-                <span>Adventure Blueprint</span>
+                <span className="hidden sm:block">Adventure Blueprint</span>
                 {getTabLoadingState('itinerary').isLoading && (
                   <Loader2 className="w-3 h-3 ml-2 animate-spin" />
                 )}
@@ -597,15 +598,15 @@ export function AITravelPlan({
 
             <button
               onClick={() => setActiveTab("info")}
-              className={`group transition-all duration-300 transform hover:scale-105 w-full xl:w-auto border-0 shadow-none ${activeTab === "info" ? "scale-110" : "hover:-translate-y-1"
+              className={`group px-2 transition-all duration-300 transform hover:scale-105 w-fit xl:w-auto border-0 shadow-none ${activeTab === "info" ? "scale-110" : "hover:-translate-y-1"
                 }`}
             >
-              <div className={`inline-flex items-center justify-center px-6 py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "info"
+              <div className={`inline-flex flex-col sm:flex-row items-center justify-center p-1 sm:px-6 sm:py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "info"
                 ? "bg-secondary/20 text-secondary -rotate-2 shadow-glow-teal"
                 : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-secondary/10 hover:to-secondary/5 hover:text-secondary hover:border-secondary/20 rotate-2 hover:rotate-0 shadow-card hover:shadow-adventure-float"
                 }`}>
                 <NotebookIcon3D size="xs" />
-                <span>Intelligence Briefing</span>
+                <span className="hidden sm:block">Intelligence Briefing</span>
                 {getTabLoadingState('info').isLoading && (
                   <Loader2 className="w-3 h-3 ml-2 animate-spin" />
                 )}
@@ -614,15 +615,15 @@ export function AITravelPlan({
 
             <button
               onClick={() => setActiveTab("practical")}
-              className={`group transition-all duration-300 transform hover:scale-105 w-full xl:w-auto border-0 shadow-none ${activeTab === "practical" ? "scale-110" : "hover:-translate-y-1"
+              className={`group px-2 transition-all duration-300 transform hover:scale-105 w-fit xl:w-auto border-0 shadow-none ${activeTab === "practical" ? "scale-110" : "hover:-translate-y-1"
                 }`}
             >
-              <div className={`inline-flex items-center justify-center px-6 py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "practical"
+              <div className={`inline-flex flex-col sm:flex-row items-center justify-center p-1 sm:px-6 sm:py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "practical"
                 ? "bg-accent/20 text-accent -rotate-2 shadow-glow-coral"
                 : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-accent/10 hover:to-accent/5 hover:text-accent hover:border-accent/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
                 }`}>
                 <SuitcaseIcon3D size="xs" />
-                <span>Practical Guide</span>
+                <span className="hidden sm:block">Practical Guide</span>
                 {getTabLoadingState('practical').isLoading && (
                   <Loader2 className="w-3 h-3 ml-2 animate-spin" />
                 )}
@@ -797,7 +798,7 @@ export function AITravelPlan({
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[1,2,3,4].map(i => (
+                  {[1, 2, 3, 4].map(i => (
                     <div key={i} className="space-y-3">
                       <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
                       <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
@@ -857,7 +858,7 @@ export function AITravelPlan({
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[1,2,3].map(i => (
+                  {[1, 2, 3].map(i => (
                     <div key={i} className="space-y-3">
                       <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
                       <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
@@ -928,7 +929,7 @@ export function AITravelPlan({
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[1,2,3].map(i => (
+                  {[1, 2, 3].map(i => (
                     <div key={i} className="space-y-3">
                       <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
                       <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
@@ -1281,7 +1282,7 @@ export function AITravelPlan({
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[1,2,3].map(i => (
+                  {[1, 2, 3].map(i => (
                     <div key={i} className="space-y-3">
                       <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
                       <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
@@ -1339,7 +1340,7 @@ export function AITravelPlan({
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[1,2,3,4].map(i => (
+                  {[1, 2, 3, 4].map(i => (
                     <div key={i} className="space-y-3">
                       <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
                       <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
@@ -1543,7 +1544,7 @@ export function AITravelPlan({
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[1,2].map(i => (
+                  {[1, 2].map(i => (
                     <div key={i} className="space-y-3">
                       <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
                       <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
@@ -1606,7 +1607,7 @@ export function AITravelPlan({
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[1,2].map(i => (
+                  {[1, 2].map(i => (
                     <div key={i} className="space-y-3">
                       <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
                       <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
@@ -1651,7 +1652,7 @@ export function AITravelPlan({
                     </div>
                   </div>
                   <div className="space-y-3">
-                    {[1,2,3,4].map(i => (
+                    {[1, 2, 3, 4].map(i => (
                       <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
                     ))}
                   </div>
@@ -1687,7 +1688,7 @@ export function AITravelPlan({
                     </div>
                   </div>
                   <div className="space-y-3">
-                    {[1,2,3,4].map(i => (
+                    {[1, 2, 3, 4].map(i => (
                       <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
                     ))}
                   </div>
@@ -1787,7 +1788,7 @@ export function AITravelPlan({
                     </div>
                   </div>
                   <div className="space-y-3">
-                    {[1,2].map(i => (
+                    {[1, 2].map(i => (
                       <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
                     ))}
                   </div>
@@ -1802,7 +1803,7 @@ export function AITravelPlan({
                     </div>
                   </div>
                   <div className="space-y-3">
-                    {[1,2].map(i => (
+                    {[1, 2].map(i => (
                       <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
                     ))}
                   </div>
@@ -1836,21 +1837,21 @@ export function AITravelPlan({
                   </div>
                 </div>
               </TravelPlanSection>
-            ) : isActivelyStreaming && (              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                      <span className="text-sm font-bold">💧 Drinking Water</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+            ) : isActivelyStreaming && (<div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                    <span className="text-sm font-bold">💧 Drinking Water</span>
                   </div>
-                </div>
-                <div className="space-y-3">
-                  {[1,2].map(i => (
-                    <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                  ))}
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
                 </div>
               </div>
+              <div className="space-y-3">
+                {[1, 2].map(i => (
+                  <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                ))}
+              </div>
+            </div>
             )}
 
             {/* Local History */}
@@ -1878,7 +1879,7 @@ export function AITravelPlan({
                   </div>
                 </div>
                 <div className="space-y-3">
-                  {[1,2,3].map(i => (
+                  {[1, 2, 3].map(i => (
                     <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
                   ))}
                 </div>
