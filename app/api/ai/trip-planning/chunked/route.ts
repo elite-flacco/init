@@ -570,7 +570,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
     - Low activity: 2-3 activities per day
     - Consider travel time between locations
     - Balance must-see attractions with authentic local experiences
-    - ENSURE number of days aligns with trip duration
+    - ENSURE number of days aligns with trip duration, and include AT LEAST FOUR (4) days of activities
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
 
