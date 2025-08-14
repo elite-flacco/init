@@ -44,60 +44,82 @@ async function callAI(prompt: string, maxTokens?: number): Promise<string> {
 
   if (provider === "openai") {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 300000);
+    // Reduce timeout to 120 seconds for better UX
+    const timeoutId = setTimeout(() => {
+      console.warn('OpenAI API request timed out after 120s');
+      controller.abort();
+    }, 120000);
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: config.model,
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: actualMaxTokens,
-        temperature: config.temperature,
-      }),
-      signal: controller.signal,
-    });
+    try {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: config.model,
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: actualMaxTokens,
+          temperature: config.temperature,
+        }),
+        signal: controller.signal,
+      });
 
-    clearTimeout(timeoutId);
+      // Clear timeout on successful response
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.statusText}`);
+      }
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`);
+      const data = await response.json();
+      return data.choices[0]?.message?.content || "No response from AI";
+    } catch (error) {
+      // Ensure timeout is always cleared
+      clearTimeout(timeoutId);
+      throw error;
     }
-
-    const data = await response.json();
-    return data.choices[0]?.message?.content || "No response from AI";
   }
 
   if (provider === "anthropic") {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 180000);
+    // Reduce timeout to 60 seconds for better UX  
+    const timeoutId = setTimeout(() => {
+      console.warn('Anthropic API request timed out after 60s');
+      controller.abort();
+    }, 60000);
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "Content-Type": "application/json",
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: config.model || "claude-3-sonnet-20240229",
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": apiKey,
+          "Content-Type": "application/json",
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: config.model || "claude-3-sonnet-20240229",
         max_tokens: actualMaxTokens,
         messages: [{ role: "user", content: prompt }],
       }),
       signal: controller.signal,
-    });
+      });
 
-    clearTimeout(timeoutId);
+      // Clear timeout on successful response
+      clearTimeout(timeoutId);
 
-    if (!response.ok) {
-      throw new Error(`Anthropic API error: ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Anthropic API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.content[0]?.text || "No response from AI";
+    } catch (error) {
+      // Ensure timeout is always cleared
+      clearTimeout(timeoutId);
+      throw error;
     }
-
-    const data = await response.json();
-    return data.content[0]?.text || "No response from AI";
   }
 
   throw new Error(`Unsupported AI provider: ${provider}`);
@@ -574,7 +596,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
 
-CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON. 
+CRITICAL: Your response MUST be ONLY ONE valid JSON object. Do not include any text before or after the JSON. 
 
 Use this exact structure, MAKE SURE there is a comma after each field:
 
@@ -585,7 +607,7 @@ Use this exact structure, MAKE SURE there is a comma after each field:
   "itinerary": [{"day": number, "title": "string", "activities": [{"time": "string", "title": "string", "description": "string", "location": "string", "icon": "string"}]}]
 }
 
-Ensure itinerary has exactly ${days} days. START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
+Ensure itinerary has at least ${days} days. START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
 
   return prompt;
 }

@@ -69,9 +69,14 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
   const abortControllersRef = useRef<Record<number, AbortController>>({});
 
   const reset = useCallback(() => {
-    // Abort any active fetch requests
+    // Abort any active fetch requests with proper error handling
     Object.values(abortControllersRef.current).forEach(controller => {
-      controller.abort();
+      try {
+        controller.abort();
+      } catch (error) {
+        // AbortController.abort() can throw in some browsers - ignore safely
+        console.warn('Failed to abort controller:', error);
+      }
     });
     abortControllersRef.current = {};
 

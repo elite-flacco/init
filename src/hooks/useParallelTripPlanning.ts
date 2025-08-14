@@ -87,35 +87,45 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
               chunkStatuses: { ...prev.chunkStatuses, [chunkDef.id]: 'loading' }
             }));
 
-            // Add timeout to chunk requests
+            // Add timeout to chunk requests - reduced to 50s for better UX
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
+            const timeoutId = setTimeout(() => {
+              console.warn(`Chunk ${chunkDef.id} request timed out after 50s`);
+              controller.abort();
+            }, 50000);
 
-            const chunkResponse = await fetch(
-              `/api/ai/trip-planning/chunked?chunk=${chunkDef.id}`,
-              {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(request),
-                signal: controller.signal
+            try {
+              const chunkResponse = await fetch(
+                `/api/ai/trip-planning/chunked?chunk=${chunkDef.id}`,
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(request),
+                  signal: controller.signal
+                }
+              );
+
+              // Clear timeout on successful response
+              clearTimeout(timeoutId);
+              
+              if (!chunkResponse.ok) {
+                // Handle different HTTP error codes
+                if (chunkResponse.status >= 500) {
+                  throw new Error(`Server error for chunk ${chunkDef.id}`);
+                } else if (chunkResponse.status === 429) {
+                  throw new Error(`Rate limited for chunk ${chunkDef.id}`);
+                } else {
+                  throw new Error(`Failed to get chunk ${chunkDef.id}: ${chunkResponse.statusText}`);
+                }
               }
-            );
 
-            clearTimeout(timeoutId);
-
-            if (!chunkResponse.ok) {
-              // Handle different HTTP error codes
-              if (chunkResponse.status >= 500) {
-                throw new Error(`Server error for chunk ${chunkDef.id}`);
-              } else if (chunkResponse.status === 429) {
-                throw new Error(`Rate limited for chunk ${chunkDef.id}`);
-              } else {
-                throw new Error(`Failed to get chunk ${chunkDef.id}: ${chunkResponse.statusText}`);
-              }
+              const chunkData: ChunkedResponse = await chunkResponse.json();
+              return chunkData;
+            } catch (error) {
+              // Ensure timeout is always cleared
+              clearTimeout(timeoutId);
+              throw error;
             }
-
-            const chunkData: ChunkedResponse = await chunkResponse.json();
-            return chunkData;
           } catch (error) {
             retryCount++;
             console.warn(`[Parallel Planning] Chunk ${chunkDef.id} attempt ${retryCount} failed:`, error);

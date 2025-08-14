@@ -530,21 +530,43 @@ export async function POST(request: NextRequest) {
           } catch (e: any) {
             console.error(`[Streaming API v2] Final JSON parse failed for chunk ${chunkId}:`, e);
             console.error(`[Streaming API v2] Buffer preview (first 500 chars):`, buffer.substring(0, 500));
-            // If parsing fails, ship a helpful preview for debugging
+            // Sanitized error for client - don't expose internal details in production
             push({
               type: "error",
-              error: "final_json_parse_failed",
-              parseError: e?.message ?? "unknown_parse_error",
-              preview: buffer.slice(0, 4000),
+              error: "response_parse_failed",
+              message: process.env.NODE_ENV === 'development' 
+                ? `Parse error: ${e?.message ?? "unknown"}` 
+                : "Failed to parse AI response",
               timestamp: Date.now(),
             });
           }
 
         } catch (err: any) {
           console.error(`[Streaming API v2] Stream error for chunk ${chunkId}:`, err);
+          
+          // Sanitize error message for security
+          let sanitizedError = "streaming_error";
+          if (err instanceof Error) {
+            // Only expose safe error messages in production
+            if (process.env.NODE_ENV === 'development') {
+              sanitizedError = err.message.length < 100 ? err.message : err.message.substring(0, 100);
+            } else {
+              // Production: categorize common errors
+              if (err.message.includes('timeout')) {
+                sanitizedError = "Request timeout";
+              } else if (err.message.includes('abort')) {
+                sanitizedError = "Request cancelled";
+              } else if (err.message.includes('network')) {
+                sanitizedError = "Network error";
+              } else {
+                sanitizedError = "Service temporarily unavailable";
+              }
+            }
+          }
+          
           push({
             type: "error",
-            error: err?.message ?? "unknown_error",
+            error: sanitizedError,
             timestamp: Date.now()
           });
         } finally {
@@ -571,10 +593,16 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('[Streaming API v2] Request failed:', error);
+    
+    // Generic error handler - sanitize error message for security
+    const sanitizedError = error instanceof Error && error.message.length < 200 
+      ? error.message 
+      : 'Internal server error';
+      
     return new NextResponse(
       JSON.stringify({
-        error: 'Failed to start streaming',
-        details: error instanceof Error ? error.message : String(error)
+        error: 'Failed to process request',
+        message: sanitizedError
       }),
       {
         status: 500,
