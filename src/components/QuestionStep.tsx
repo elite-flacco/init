@@ -188,7 +188,7 @@ export function QuestionStep({
               className="question-submit-btn group"
             >
               <span className="flex items-center">
-                <span className="mr-2">Continue</span>
+                <span className="mr-2 text-white">Continue</span>
                 <div className="p-2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center transform group-hover:translate-x-1 transition-transform duration-300">
                   <span className="text-white text-sm">→</span>
                 </div>

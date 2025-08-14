@@ -3,6 +3,7 @@ import {
   TravelerType,
   Destination,
   TripPreferences,
+  ACTIVITY_ICON_CATEGORIES,
 } from "../../../../../src/types/travel";
 import { getAIConfig } from "../../config";
 import { 
@@ -28,6 +29,8 @@ export interface ChunkedAIResponse {
   data: Record<string, unknown>;
   isComplete: boolean;
 }
+
+// Icon categories are now imported from types file
 
 // Note: Individual chunks are processed independently without session storage
 
@@ -593,6 +596,15 @@ Please create a comprehensive travel plan that includes ALL of the following det
     - Consider travel time between locations
     - Balance must-see attractions with authentic local experiences
     - ENSURE number of days aligns with trip duration, and include AT LEAST FOUR (4) days of activities
+    - IMPORTANT: For each activity, you MUST choose an icon from this EXACT list: ${ACTIVITY_ICON_CATEGORIES.join(', ')}
+    - Icon selection guide:
+      * "coffee" - for cafes, drinks, beverages, relaxing
+      * "hotel" - for accommodation, check-in/out, rest
+      * "utensils" - for meals, restaurants, food experiences
+      * "compass" - for exploration, wandering, discovery
+      * "camera" - for sightseeing, photography, attractions, monuments
+      * "travel" - for transportation, flights, getting around
+      * "adventure" - for activities, outdoor experiences, tours, excursions
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
 
@@ -604,7 +616,7 @@ Use this exact structure, MAKE SURE there is a comma after each field:
   "activities": [{"name": "string", "type": "string", "description": "string", "duration": "string", "localSpecific": boolean, "experienceType": "airbnb|getyourguide|viator|other"}],
   "localEvents": [{"name": "string", "type": "string", "description": "string", "dates": "string", "location": "string"}],
   "history": "string",
-  "itinerary": [{"day": number, "title": "string", "activities": [{"time": "string", "title": "string", "description": "string", "location": "string", "icon": "string"}]}]
+  "itinerary": [{"day": number, "title": "string", "activities": [{"time": "string", "title": "string", "description": "string", "location": "string", "icon": "coffee|hotel|map|utensils|compass|camera|travel|suitcase|planning|adventure"}]}]
 }
 
 Ensure itinerary has at least ${days} days. START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;

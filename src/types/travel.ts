@@ -260,12 +260,25 @@ export interface ItineraryDay {
   activities: Activity[];
 }
 
+// Define fixed icon categories that map to our icon system
+export const ACTIVITY_ICON_CATEGORIES = [
+  "coffee",        // Coffee/drinks/beverages
+  "hotel",         // Hotels/accommodation/lodging  
+  "utensils",      // Food/restaurants/dining/meals
+  "compass",       // Exploration/discovery/wandering
+  "camera",        // Sightseeing/photography/attractions/monuments
+  "travel",        // Transportation/flights/journeys
+  "adventure"      // Activities/outdoor/excursions/tours
+] as const;
+
+export type ActivityIconCategory = typeof ACTIVITY_ICON_CATEGORIES[number];
+
 export interface Activity {
   time: string;
   title: string;
   description: string;
   location: string;
-  icon: string;
+  icon: ActivityIconCategory;
 }
 
 export interface DestinationRecommendation {
