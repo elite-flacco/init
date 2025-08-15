@@ -108,7 +108,7 @@ export function AIDestinationRecommendationResults({
           <p className="page-subtitle text-left">We think you'll love these 😉</p>
         </div>
         {onRegenerate && destinations.length > 0 && (
-          <button onClick={onRegenerate} className="btn-3d-primary">
+          <button onClick={onRegenerate} className="btn-3d-primary py-2 text-xs sm:text-sm">
             <RefreshCw className="w-4 h-4 mr-1" />
             Show Me More
           </button>

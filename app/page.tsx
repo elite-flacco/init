@@ -57,6 +57,7 @@ export default function HomePage() {
     useState<AIDestinationResponse | null>(null);
   const [isLoadingDestinations, setIsLoadingDestinations] = useState(false);
   const [destinationError, setDestinationError] = useState<string | null>(null);
+  const [previouslyShownDestinations, setPreviouslyShownDestinations] = useState<string[]>([]);
   const [previousStep, setPreviousStep] = useState<AppStep | null>(null);
 
   // Typing effect for hero title
@@ -160,6 +161,7 @@ export default function HomePage() {
 
   const generateDestinationRecommendations = async (
     preferences?: PickDestinationPreferences,
+    isRegeneration = false,
   ) => {
     if (!selectedTravelerType || !destinationKnowledge) {
       return;
@@ -173,13 +175,29 @@ export default function HomePage() {
     trackTravelEvent.requestAIRecommendations('destinations');
 
     try {
+      // For regeneration, pass previously shown destinations to exclude them
+      const excludeDestinations = isRegeneration ? previouslyShownDestinations : [];
+      
       const response = await aiDestinationService.getDestinationRecommendations(
         {
           travelerType: selectedTravelerType,
           preferences: preferences || pickDestinationPreferences || undefined,
           destinationKnowledge,
+          excludeDestinations,
         },
       );
+
+      // Track new destinations being shown
+      if (response.destinations) {
+        const newDestinationNames = response.destinations.map(d => d.name);
+        if (isRegeneration) {
+          // Add new destinations to the list of previously shown
+          setPreviouslyShownDestinations(prev => [...prev, ...newDestinationNames]);
+        } else {
+          // Reset for fresh start, then track initial destinations
+          setPreviouslyShownDestinations(newDestinationNames);
+        }
+      }
 
       setAiDestinationResponse(response);
     } catch (error) {
@@ -290,10 +308,12 @@ export default function HomePage() {
       case "pick-destination":
         setCurrentStep("destination-knowledge");
         setDestinationKnowledge(null);
+        setPreviouslyShownDestinations([]); // Reset exclusions when going back
         break;
       case "destination-recommendations":
         setCurrentStep("pick-destination");
         setPickDestinationPreferences(null);
+        setPreviouslyShownDestinations([]); // Reset exclusions when going back
         break;
       case "planning":
         if (destinationKnowledge?.type === "yes") {
@@ -360,7 +380,7 @@ export default function HomePage() {
             aiResponse={aiDestinationResponse}
             onSelect={handleDestinationSelect}
             onBack={() => setCurrentStep("pick-destination")}
-            onRegenerate={() => generateDestinationRecommendations()}
+            onRegenerate={() => generateDestinationRecommendations(undefined, true)}
             isLoading={isLoadingDestinations}
             error={destinationError}
           />

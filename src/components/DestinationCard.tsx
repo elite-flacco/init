@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Calendar, DollarSign, ArrowRight } from "lucide-react";
+import { Calendar, DollarSign, ArrowRight, Search } from "lucide-react";
 import { Destination } from "../types/travel";
 import { MapPinIcon3D } from "./ui/Icon3D";
 import { useDestinationImage } from '../hooks/useDestinationImage';
@@ -114,9 +114,18 @@ export function DestinationCard({
             <h6 className="text-3d-title mb-3">Highlights</h6>
             <div className="flex flex-wrap gap-2">
               {destination.highlights.slice(0, 3).map((highlight, index) => (
-                <span key={index} className="badge-secondary lift-hover">
-                  {highlight}
-                </span>
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(`https://www.google.com/search?q=${encodeURIComponent(highlight + ' ' + destination.name + ' ' + destination.country)}`, '_blank');
+                  }}
+                  className="badge-secondary group flex items-center gap-1.5 hover:bg-secondary/20 transition-all duration-200"
+                  title={`Search Google for ${highlight} in ${destination.name}`}
+                >
+                  <span className="text-xs font-semibold text-secondary">{highlight}</span>
+                  <Search className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity duration-200" />
+                </button>
               ))}
               {destination.highlights.length > 3 && (
                 <span className="badge text-foreground-muted bg-foreground-muted/10 border border-foreground-muted/30">
@@ -131,7 +140,7 @@ export function DestinationCard({
             <h6 className="text-3d-title mb-3">Adventure Awaits</h6>
             <div className="flex flex-wrap gap-2">
               {destination.keyActivities.slice(0, 2).map((activity, index) => (
-                <span key={index} className="badge-primary lift-hover">
+                <span key={index} className="badge-primary">
                   {activity}
                 </span>
               ))}

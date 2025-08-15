@@ -14,9 +14,10 @@ export interface AIDestinationRequest {
     label: string;
     description: string;
   };
+  excludeDestinations?: string[];
 }
 
-async function callAI(prompt: string): Promise<string> {
+async function callAI(prompt: string, excludeDestinations: string[] = []): Promise<string> {
   const config = getAIConfig();
   const { provider, apiKey } = config;
 
@@ -24,8 +25,18 @@ async function callAI(prompt: string): Promise<string> {
     // Mock response for development using actual destinations data
     await new Promise((resolve) => setTimeout(resolve, 30000));
 
-    // Select 2-3 random destinations from our mock data
-    const shuffledDestinations = [...destinations].sort(
+    // Filter out previously shown destinations
+    const availableDestinations = destinations.filter(dest => 
+      !excludeDestinations.some(excluded => 
+        excluded.toLowerCase() === dest.name.toLowerCase()
+      )
+    );
+
+    // If no destinations are available after filtering, use all destinations
+    const destinationsToUse = availableDestinations.length > 0 ? availableDestinations : destinations;
+
+    // Select 2-3 random destinations from filtered data
+    const shuffledDestinations = [...destinationsToUse].sort(
       () => 0.5 - Math.random(),
     );
     const selectedDestinations = shuffledDestinations.slice(0, 3);
@@ -111,13 +122,19 @@ async function callAI(prompt: string): Promise<string> {
 }
 
 function generatePrompt(request: AIDestinationRequest): string {
-  const { travelerType, preferences, destinationKnowledge } = request;
+  const { travelerType, preferences, destinationKnowledge, excludeDestinations } = request;
 
   const prompt = `You are an expert travel advisor specializing in personalized destination recommendations. Your task is to recommend 3-6 destinations that perfectly match this traveler's personality and preferences.
 
 ## TRAVELER PROFILE
 **Type:** ${travelerType.name} - ${travelerType.description}
 **Destination Knowledge:** ${destinationKnowledge.label} - ${destinationKnowledge.description}
+
+${excludeDestinations && excludeDestinations.length > 0 ? `## PREVIOUS RECOMMENDATIONS TO AVOID
+The following destinations have already been recommended and should NOT be included in your response:
+${excludeDestinations.map(dest => `- ${dest}`).join('\n')}
+
+Please suggest completely different destinations that have not been mentioned before.` : ''}
 
 ${
   preferences
@@ -217,7 +234,7 @@ export async function POST(request: NextRequest) {
     // Generate comprehensive prompt based on traveler type and preferences
     const prompt = generatePrompt(body);
 
-    const aiResponse = await callAI(prompt);
+    const aiResponse = await callAI(prompt, body.excludeDestinations || []);
 
     // Parse AI response - it might be wrapped in markdown code blocks
     let cleanResponse = aiResponse.trim();
