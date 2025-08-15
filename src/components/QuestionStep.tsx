@@ -86,7 +86,7 @@ export function QuestionStep({
       case "select":
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {question.options?.map((option, index) => {
+            {question.options?.map((option) => {
               const isObject = typeof option === "object";
               const label = isObject ? option.label : option;
               const value = isObject ? option.value : option;

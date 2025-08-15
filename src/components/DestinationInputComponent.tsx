@@ -8,7 +8,6 @@ interface DestinationInputComponentProps {
 }
 
 export function DestinationInputComponent({
-  travelerType,
   onSubmit,
 }: DestinationInputComponentProps) {
   const [destination, setDestination] = useState("");

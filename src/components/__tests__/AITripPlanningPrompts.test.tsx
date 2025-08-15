@@ -11,11 +11,6 @@ import {
 } from "../../test/mocks";
 import {
   TripPreferences,
-  WeatherInfo,
-  TransportationInfo,
-  TapWaterInfo,
-  TipEtiquette,
-  CurrencyInfo,
 } from "../../types/travel";
 
 // Note: This component no longer directly uses aiTripPlanningService
@@ -75,18 +70,19 @@ const defaultProps = {
 };
 
 // Use mock objects for tipEtiquette and tapWaterSafe:
-const mockTipEtiquette: TipEtiquette = {
-  restaurants: "",
-  bars: "",
-  taxis: "",
-  hotels: "",
-  tours: "",
-  general: "",
-};
-const mockTapWaterSafe: TapWaterInfo = {
-  safe: true,
-  details: "",
-};
+// Removed unused mock objects - kept for potential future use
+// const mockTipEtiquette: TipEtiquette = {
+//   restaurants: "",
+//   bars: "",
+//   taxis: "",
+//   hotels: "",
+//   tours: "",
+//   general: "",
+// };
+// const mockTapWaterSafe: TapWaterInfo = {
+//   safe: true,
+//   details: "",
+// };
 
 describe("AITripPlanningPrompts", () => {
   beforeEach(() => {

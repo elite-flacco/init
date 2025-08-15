@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   // Define where Tailwind should look for class names in your files
   content: [
     "./index.html",

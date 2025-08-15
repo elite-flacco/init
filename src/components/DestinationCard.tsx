@@ -13,7 +13,7 @@ export function DestinationCard({
   destination,
   onViewDetails,
 }: DestinationCardProps) {
-  const { imageUrl, isLoading, error } = useDestinationImage({
+  const { imageUrl } = useDestinationImage({
     destination: destination.name,
     country: destination.country,
     count: 1

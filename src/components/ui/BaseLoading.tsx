@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Icon3D, TravelIcon3D, Icon3DProps } from "./Icon3D";
+import { TravelIcon3D, Icon3DProps } from "./Icon3D";
 
 export interface LoadingStage {
   icon: React.ComponentType<Omit<Icon3DProps, "src" | "alt">>;
@@ -40,7 +40,7 @@ export function BaseLoading({
   showStageIndicators = true,
   simpleStageIndicators = false,
   showProgressDots = false,
-  showOrbitingIcon: _showOrbitingIcon = true,
+  // showOrbitingIcon = true, // Removed unused parameter
   centralIcon: CentralIcon = TravelIcon3D,
   children,
   className = "",

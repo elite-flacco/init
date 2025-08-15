@@ -21,7 +21,7 @@ export interface AITripPlanningResponse {
   confidence: number;
   personalizations: string[];
   // Optional streaming state for real-time plan building
-  streamingState?: any;
+  streamingState?: object;
   streamingHooks?: {
     generateStreamingPlan: (request: AITripPlanningRequest) => Promise<void>;
     retryChunk: (chunkId: number, request: AITripPlanningRequest) => Promise<void>;
@@ -118,7 +118,7 @@ class AITripPlanningService {
       const session = await this.initializeChunkedTravelPlan(request);
       
       let combinedData: Record<string, unknown> = {};
-      const totalChunks = session.totalChunks;
+      // Removed unused totalChunks variable
       
       // Request each chunk
       for (let i = 0; i < session.chunks.length; i++) {

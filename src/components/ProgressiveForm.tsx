@@ -39,12 +39,13 @@ export function ProgressiveForm({
     [questions, answers],
   );
 
-  const isStepActive = useCallback(
-    (stepIndex: number) => {
-      return currentStep === stepIndex;
-    },
-    [currentStep],
-  );
+  // Helper function for step state checking (kept for potential future use)
+  // const isStepActive = useCallback(
+  //   (stepIndex: number) => {
+  //     return currentStep === stepIndex;
+  //   },
+  //   [currentStep],
+  // );
 
   // Auto-scroll to current step - happens before animation starts
   useEffect(() => {

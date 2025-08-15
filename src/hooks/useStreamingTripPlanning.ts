@@ -11,7 +11,7 @@ interface StreamingEvent {
   chunkId?: number;
   delta?: string;
   accumulated?: string;
-  data?: any;
+  data?: object;
   error?: string;
   timestamp: number;
 }
@@ -20,7 +20,7 @@ export interface ChunkStreamingState {
   isStreaming: boolean;
   hasStarted: boolean;
   accumulatedContent: string;
-  finalData: any;
+  finalData: object | null;
   error: string | null;
 }
 
@@ -253,7 +253,7 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
                     }));
                   }
 
-                } catch (e) {
+                } catch {
                   console.warn('Failed to parse SSE event:', line);
                 }
               }

@@ -161,8 +161,8 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
             if (isFullyComplete || (isMinimumViable && Object.values(newChunkStatuses).every(status => status !== 'loading'))) {
               // Combine all completed chunks
               const combinedData = Object.entries(newChunks)
-                .filter(([_, chunkData]) => chunkData)
-                .reduce((acc, [_, chunkData]) => {
+                .filter(([, chunkData]) => chunkData)
+                .reduce((acc, [, chunkData]) => {
                   return { ...acc, ...chunkData };
                 }, { destination: request.destination }) as EnhancedTravelPlan;
 
@@ -215,8 +215,8 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
         setState(prev => {
           if (!prev.combinedData && prev.completedChunks > 0) {
             const combinedData = Object.entries(prev.chunks)
-              .filter(([_, chunkData]) => chunkData)
-              .reduce((acc, [_, chunkData]) => {
+              .filter(([, chunkData]) => chunkData)
+              .reduce((acc, [, chunkData]) => {
                 return { ...acc, ...chunkData };
               }, { destination: request.destination }) as EnhancedTravelPlan;
 

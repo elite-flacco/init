@@ -27,9 +27,12 @@ export const initGA = () => {
   document.head.appendChild(script);
 
   // Initialize gtag function
-  window.gtag = function(...args: any[]) {
-    (window as any).dataLayer = (window as any).dataLayer || [];
-    (window as any).dataLayer.push(arguments);
+  window.gtag = function(...args: unknown[]) {
+    // Initialize dataLayer if it doesn't exist
+    if (!(window as typeof window & { dataLayer?: unknown[] }).dataLayer) {
+      (window as typeof window & { dataLayer?: unknown[] }).dataLayer = [];
+    }
+    (window as typeof window & { dataLayer: unknown[] }).dataLayer.push(args);
   };
 
   // Configure gtag

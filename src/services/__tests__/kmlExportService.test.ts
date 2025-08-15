@@ -181,7 +181,7 @@ describe("KMLExportService", () => {
             title: "Tokyo National Museum",
             description: "Learn about Japanese history and culture",
             location: "Ueno",
-            icon: "map",
+            icon: "travel",
           },
         ],
       },
@@ -302,7 +302,10 @@ describe("KMLExportService", () => {
   });
 
   it("should handle missing destination gracefully", async () => {
-    const { destination, ...planWithoutDestination } = mockTravelPlan;
+    const planWithoutDestination = {
+      ...mockTravelPlan
+    };
+    delete (planWithoutDestination as Record<string, unknown>).destination;
 
     await expect(
       KMLExportService.generateKML(

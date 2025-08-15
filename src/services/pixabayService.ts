@@ -105,7 +105,7 @@ class PixabayService {
     }
   }
 
-  private getFallbackImage(destinationName: string): string {
+  private getFallbackImage(): string {
     // Use a default Pexels travel image as fallback
     return "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
   }

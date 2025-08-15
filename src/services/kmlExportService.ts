@@ -90,7 +90,7 @@ export class KMLExportService {
       // Cache the result
       this.destinationCache.set(cacheKey, geocodingResult.coordinates);
       return geocodingResult.coordinates;
-    } catch (error) {
+    } catch {
       // Fall back to hardcoded coordinates if available
       const fallback = this.getDestinationCoordinates(destinationName);
       this.destinationCache.set(cacheKey, fallback);
@@ -232,7 +232,7 @@ export class KMLExportService {
           
           // Add delay between requests to avoid rate limiting
           await this.delay(200);
-        } catch (error) {
+        } catch {
           // Fall back to random coordinates on geocoding error
           coordinates = this.generateRandomNearbyCoordinates(baseCoords, 15);
         }
@@ -293,7 +293,7 @@ ${placemarks}
             coordinates = this.generateRandomNearbyCoordinates(baseCoords, 20);
           }
           
-        } catch (error) {
+        } catch {
           // Fall back to random coordinates on geocoding error
           coordinates = this.generateRandomNearbyCoordinates(baseCoords, 20);
         }
@@ -350,7 +350,7 @@ ${placemarks}
             coordinates = this.generateRandomNearbyCoordinates(baseCoords, 18);
           }
           
-        } catch (error) {
+        } catch {
           // Fall back to random coordinates on geocoding error
           coordinates = this.generateRandomNearbyCoordinates(baseCoords, 18);
         }
@@ -411,7 +411,7 @@ ${placemarks}
             coordinates = this.generateRandomNearbyCoordinates(baseCoords, 16);
           }
 
-        } catch (error) {
+        } catch {
           // Fall back to random coordinates on geocoding error
           coordinates = this.generateRandomNearbyCoordinates(baseCoords, 16);
         }
@@ -473,7 +473,7 @@ ${placemarks}
           
           // Add delay between requests to avoid rate limiting
           await this.delay(200);
-        } catch (error) {
+        } catch {
           // Fall back to random coordinates on geocoding error
           coordinates = this.generateRandomNearbyCoordinates(baseCoords, 12);
         }

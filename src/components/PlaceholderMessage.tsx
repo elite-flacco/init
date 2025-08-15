@@ -8,7 +8,6 @@ interface PlaceholderMessageProps {
 
 export function PlaceholderMessage({
   travelerType,
-  onContinue,
 }: PlaceholderMessageProps) {
   if (!travelerType.showPlaceholder || !travelerType.placeholderMessage) {
     return null;

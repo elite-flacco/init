@@ -219,7 +219,7 @@ export default function HomePage() {
       trackTravelEvent.completeTripPlanning();
 
       setCurrentStep("plan");
-    } catch (error) {
+    } catch {
       // Track error and stay on planning step
       trackTravelEvent.error('trip_planning_failed');
     }

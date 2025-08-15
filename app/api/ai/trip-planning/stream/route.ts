@@ -396,7 +396,7 @@ export const runtime = "nodejs"; // More efficient for streaming workloads
 
 // Tiny helper for SSE framing
 const enc = new TextEncoder();
-const sse = (obj: any) => enc.encode(`data: ${JSON.stringify(obj)}\n\n`);
+const sse = (obj: object) => enc.encode(`data: ${JSON.stringify(obj)}\n\n`);
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -453,7 +453,9 @@ export async function POST(request: NextRequest) {
         // Handle client aborts (e.g., tab closed)
         const abort = () => {
           if (!controllerClosed) {
-            try { respStream?.abort?.(); } catch { }
+            try { respStream?.abort?.(); } catch (error) {
+              console.error('Error aborting stream:', error);
+            }
             controller.enqueue(sse({ type: "error", error: "client_aborted", timestamp: Date.now() }));
             controller.enqueue(enc.encode("data: [DONE]\n\n"));
             controller.close();
@@ -462,7 +464,7 @@ export async function POST(request: NextRequest) {
         };
         request.signal.addEventListener("abort", abort);
 
-        const push = (obj: any) => controller.enqueue(sse(obj));
+        const push = (obj: object) => controller.enqueue(sse(obj));
 
         try {
           push({ type: "start", chunkId, timestamp: Date.now() });
@@ -527,7 +529,7 @@ export async function POST(request: NextRequest) {
               timestamp: Date.now()
             });
             console.log(`[Streaming API v2] Successfully completed chunk ${chunkId}`);
-          } catch (e: any) {
+          } catch (e: unknown) {
             console.error(`[Streaming API v2] Final JSON parse failed for chunk ${chunkId}:`, e);
             console.error(`[Streaming API v2] Buffer preview (first 500 chars):`, buffer.substring(0, 500));
             // Sanitized error for client - don't expose internal details in production
@@ -541,7 +543,7 @@ export async function POST(request: NextRequest) {
             });
           }
 
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error(`[Streaming API v2] Stream error for chunk ${chunkId}:`, err);
           
           // Sanitize error message for security

@@ -72,7 +72,7 @@ export function AITravelPlan({
 
   // Initialize streaming hooks
   const { state: parallelState, generatePlan } = useParallelTripPlanning();
-  const { state: streamingState, generateStreamingPlan, retryChunk } = useStreamingTripPlanning();
+  const { state: streamingState, generateStreamingPlan } = useStreamingTripPlanning();
 
   // Determine if we're in streaming mode
   const isStreamingMode = !!streamingRequest;
@@ -299,7 +299,7 @@ export function AITravelPlan({
       }
     };
 
-    return getActivityIcon(iconName, "xs", getAnimationFromIconName(iconName) as any);
+    return getActivityIcon(iconName, "xs", getAnimationFromIconName(iconName) as "bounce" | "pulse" | "spin" | "float" | "rotate" | "glow" | "none");
   };
 
   // Render a single activity

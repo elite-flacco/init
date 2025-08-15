@@ -4,9 +4,6 @@ import {
   Destination,
   TripPreferences,
 } from "../../../../src/types/travel";
-import { getAIConfig } from "../config";
-import { generateDevMockData } from "../../../../src/data/mock/travelData";
-// Token utilities no longer needed since we always use chunked approach
 
 export interface AITripPlanningRequest {
   destination: Destination;
@@ -92,26 +89,7 @@ async function callAI(prompt: string, maxTokens?: number): Promise<string> {
 }
 */
 
-function getRestaurantCount(preferences: TripPreferences): string {
-  const baseDays = parseInt(preferences.duration) || 7;
-  return Math.ceil(baseDays * 4).toString();
-}
-
-function getBarCount(preferences: TripPreferences): string {
-  const baseDays = parseInt(preferences.duration) || 7;
-  return Math.ceil(baseDays * 2).toString();
-}
-
-function getPlacesCount(preferences: TripPreferences): string {
-  const baseDays = parseInt(preferences.duration) || 7;
-  const activityMultiplier =
-    preferences.activityLevel === "high"
-      ? 4
-      : preferences.activityLevel === "low"
-        ? 2
-        : 3;
-  return Math.ceil(baseDays * activityMultiplier).toString();
-}
+// Helper functions moved to chunked endpoint where they are actually used
 
 // Removed generateTripPlanningPrompt function - now handled by chunked endpoint  
 /*

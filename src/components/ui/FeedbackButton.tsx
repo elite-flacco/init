@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { MessageSquare } from "lucide-react";
 
 const FeedbackButton = () => {
-  const [isHovered, setIsHovered] = useState(false);
 
   const handleFeedbackClick = () => {
     window.open(
@@ -17,8 +15,6 @@ const FeedbackButton = () => {
   return (
     <button
       onClick={handleFeedbackClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       className="fixed bottom-6 right-6 btn-3d-primary z-50 p-2"
       aria-label="Submit feedback"
     >

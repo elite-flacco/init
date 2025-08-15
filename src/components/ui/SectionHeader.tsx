@@ -10,7 +10,6 @@ interface SectionHeaderProps {
 }
 
 export function SectionHeader({
-  icon: Icon,
   title,
   emoji = "🎯",
   badgeColor = "primary",
