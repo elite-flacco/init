@@ -537,7 +537,7 @@ export async function POST(request: NextRequest) {
               type: "error",
               error: "response_parse_failed",
               message: process.env.NODE_ENV === 'development' 
-                ? `Parse error: ${e?.message ?? "unknown"}` 
+                ? `Parse error: ${e instanceof Error ? e.message : "unknown"}` 
                 : "Failed to parse AI response",
               timestamp: Date.now(),
             });

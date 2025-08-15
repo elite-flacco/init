@@ -175,7 +175,10 @@ describe("SharedPlanService", () => {
 
       // Mock the deleteSharedPlan method
       const mockDeleteEq = vi.fn(() => ({ error: null }));
-      mockDelete.mockReturnValue({ eq: mockDeleteEq });
+      const mockDeleteLt = vi.fn(() => ({
+        select: vi.fn(() => ({ data: [], error: null })),
+      }));
+      mockDelete.mockReturnValue({ eq: mockDeleteEq, lt: mockDeleteLt });
 
       const { SharedPlanService } = await import("../sharedPlanService");
       const result = await SharedPlanService.getSharedPlan("expired-plan");
@@ -209,7 +212,8 @@ describe("SharedPlanService", () => {
         error: null,
       }));
       const mockLt = vi.fn(() => ({ select: mockSelectForCleanup }));
-      mockDelete.mockReturnValue({ lt: mockLt });
+      const mockEq = vi.fn(() => ({ error: null }));
+      mockDelete.mockReturnValue({ eq: mockEq, lt: mockLt });
 
       const { SharedPlanService } = await import("../sharedPlanService");
       const count = await SharedPlanService.cleanupExpiredPlans();
@@ -225,7 +229,8 @@ describe("SharedPlanService", () => {
         error: { message: "Cleanup failed" },
       }));
       const mockLt = vi.fn(() => ({ select: mockSelectForCleanup }));
-      mockDelete.mockReturnValue({ lt: mockLt });
+      const mockEq = vi.fn(() => ({ error: null }));
+      mockDelete.mockReturnValue({ eq: mockEq, lt: mockLt });
 
       const { SharedPlanService } = await import("../sharedPlanService");
       const count = await SharedPlanService.cleanupExpiredPlans();

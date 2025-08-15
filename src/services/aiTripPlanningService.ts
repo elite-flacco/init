@@ -6,6 +6,7 @@ import {
   PickDestinationPreferences,
   EnhancedTravelPlan as ImportedEnhancedTravelPlan,
 } from "../types/travel";
+import { StreamingTripPlanningState } from '../hooks/useStreamingTripPlanning';
 
 export interface AITripPlanningRequest {
   destination: Destination;
@@ -21,7 +22,7 @@ export interface AITripPlanningResponse {
   confidence: number;
   personalizations: string[];
   // Optional streaming state for real-time plan building
-  streamingState?: object;
+  streamingState?: StreamingTripPlanningState;
   streamingHooks?: {
     generateStreamingPlan: (request: AITripPlanningRequest) => Promise<void>;
     retryChunk: (chunkId: number, request: AITripPlanningRequest) => Promise<void>;
@@ -143,7 +144,7 @@ class AITripPlanningService {
 
       // Return in standard format
       return {
-        plan: combinedData,
+        plan: combinedData as unknown as ImportedEnhancedTravelPlan,
         reasoning: "AI-generated travel plan created using chunked processing",
         confidence: 0.9,
         personalizations: [

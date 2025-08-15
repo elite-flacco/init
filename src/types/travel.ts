@@ -24,8 +24,8 @@ export interface Destination {
 
 export interface DestinationKnowledge {
   type: "yes" | "country" | "no-clue";
-  label?: string;
-  description?: string;
+  label: string;
+  description: string;
 }
 
 export interface PickDestinationPreferences {

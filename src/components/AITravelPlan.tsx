@@ -160,6 +160,8 @@ export function AITravelPlan({
   }, [showMobileActions]);
 
   const handleExportToPdf = async () => {
+    if (!livePlan) return;
+    
     try {
       // Track PDF export
       trackTravelEvent.exportPlan('pdf');
@@ -181,6 +183,8 @@ export function AITravelPlan({
   };
 
   const handleExportToGoogleMaps = async () => {
+    if (!livePlan) return;
+    
     setIsExportingKML(true);
 
     // Track KML export
@@ -299,7 +303,7 @@ export function AITravelPlan({
       }
     };
 
-    return getActivityIcon(iconName, "xs", getAnimationFromIconName(iconName) as "bounce" | "pulse" | "spin" | "float" | "rotate" | "glow" | "none");
+    return getActivityIcon(iconName, "xs", getAnimationFromIconName(iconName) as "bounce" | "pulse" | "spin" | "float" | "none");
   };
 
   // Render a single activity

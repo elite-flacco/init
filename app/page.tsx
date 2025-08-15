@@ -395,7 +395,7 @@ export default function HomePage() {
             pickDestinationPreferences={pickDestinationPreferences}
             onComplete={handleTripPlanningComplete}
             onBack={
-              aiDestinationResponse ? handleBackToDestinations : undefined
+              aiDestinationResponse ? handleBackToDestinations : () => {}
             }
           />
         );

@@ -49,7 +49,7 @@ async function callAI(prompt: string, excludeDestinations: string[] = []): Promi
       bestTimeToVisit: dest.bestTime,
       keyActivities: dest.highlights.join(", "),
       matchReason: `Perfect match for your travel style with ${dest.highlights[0].toLowerCase()} and authentic experiences`,
-      estimatedCost: dest.budget,
+      estimatedCost: dest.estimatedCost,
       details: `${
         dest.description
       }. This destination offers amazing experiences including ${dest.highlights
@@ -151,7 +151,7 @@ ${Object.entries({
   "Preferred Region": preferences.region,
 })
   .filter(([, value]) => value?.trim())
-  .map(([key, value]) => `- **${key}:** ${value.trim()}`)
+  .map(([key, value]) => `- **${key}:** ${value?.trim()}`)
   .join("\n")}`
     : ""
 }

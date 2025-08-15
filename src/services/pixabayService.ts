@@ -36,7 +36,7 @@ class PixabayService {
 
   async searchDestinationImage(destinationName: string, country?: string): Promise<string> {
     if (!this.apiKey) {
-      return this.getFallbackImage(destinationName);
+      return this.getFallbackImage();
     }
 
     try {
@@ -60,16 +60,16 @@ class PixabayService {
         return image.webformatURL;
       }
       
-      return this.getFallbackImage(destinationName);
+      return this.getFallbackImage();
     } catch (error) {
       console.error('Error fetching image from Pixabay:', error);
-      return this.getFallbackImage(destinationName);
+      return this.getFallbackImage();
     }
   }
 
   async getDestinationImages(destinationName: string, country?: string, count: number = 3): Promise<string[]> {
     if (!this.apiKey) {
-      return Array(count).fill(this.getFallbackImage(destinationName));
+      return Array(count).fill(this.getFallbackImage());
     }
 
     try {
@@ -95,13 +95,13 @@ class PixabayService {
       
       // Fill remaining slots with fallback if needed
       while (images.length < count) {
-        images.push(this.getFallbackImage(destinationName));
+        images.push(this.getFallbackImage());
       }
       
       return images;
     } catch (error) {
       console.error('Error fetching images from Pixabay:', error);
-      return Array(count).fill(this.getFallbackImage(destinationName));
+      return Array(count).fill(this.getFallbackImage());
     }
   }
 

@@ -37,18 +37,22 @@ export const mockPickDestinationPreferences: PickDestinationPreferences = {
   specialActivities: "museums and historical sites",
   weather: "warm",
   priority: "authentic experiences",
+  vibe: "relaxed",
 };
 
 export const mockTripPreferences: TripPreferences = {
   timeOfYear: "Summer",
   duration: "7 days",
   budget: "mid-range",
+  specialActivities: "museums and historical sites",
   activities: ["sightseeing", "food"],
   accommodation: "hotel",
   transportation: "public transport",
   wantRestaurants: true,
   wantBars: false,
   tripType: "cultural",
+  priority: "authentic experiences",
+  vibe: "relaxed",
   activityLevel: "moderate",
   riskTolerance: "low",
   spontaneity: "planned",
@@ -115,8 +119,8 @@ export const resetMocks = () => {
   vi.clearAllMocks();
   if (
     global.fetch &&
-    typeof (global.fetch as { mockReset?: () => void }).mockReset === "function"
+    typeof (global.fetch as unknown as { mockReset?: () => void }).mockReset === "function"
   ) {
-    (global.fetch as { mockReset: () => void }).mockReset();
+    (global.fetch as unknown as { mockReset: () => void }).mockReset();
   }
 };
