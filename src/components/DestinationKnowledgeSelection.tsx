@@ -40,7 +40,7 @@ export function DestinationKnowledgeSelection({
   }, []);
 
   return (
-    <div className="container max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header Section */}
       <div
         className={`page-header transition-all duration-700 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
@@ -48,7 +48,7 @@ export function DestinationKnowledgeSelection({
         role="banner"
         aria-labelledby="step-title"
       >
-        <h1 className="text-3d-hero text-4xl md:text-5xl lg:text-6xl mb-6">Where are we headed?</h1>
+        <h1 className="page-title">Where are we headed?</h1>
         <p className="page-subtitle max-w-2xl mx-auto mb-4">
           Whether you've got your heart set on somewhere specific or you're completely open to suggestions, we're here for it.
         </p>
@@ -85,7 +85,12 @@ export function DestinationKnowledgeSelection({
 
               <div className="flex items-center justify-between">
                 <span className="text-2xl mr-2 md:mr-3 lg:mr-4">
-                  {getDestinationKnowledgeIcon(option.type)}
+                  <div className="hidden sm:block">
+                    {getDestinationKnowledgeIcon(option.type)}
+                  </div>
+                  <div className="block sm:hidden">
+                    {getDestinationKnowledgeIcon(option.type, "2xs")}
+                  </div>
                 </span>
                 <div className="flex-1">
                   <div className="flex items-center">

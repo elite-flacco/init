@@ -148,7 +148,7 @@ export function TravelerTypeSelection({
             </p>
             {/* Blurb */}
             <p className={`text-sm sm:text-base md:text-lg max-w-3xl mx-auto mb-8 sm:mb-12 leading-relaxed transition-all duration-700 delay-300 px-4 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              Not a travel agent. Just the smart, judgment-free co-pilot that helps you figure out where to go and what to do — based on how you travel.
+              Not a travel agent. Just the smart, thoughtful co-pilot that helps you figure out where to go and what to do — based on how you travel.
             </p>
 
             <button

@@ -50,7 +50,7 @@ export function DestinationLoading({ isVisible }: DestinationLoadingProps) {
       showOrbitingIcon={false}
       centralIcon={GlobeIcon3D}
       progressLabel="Sifting through thousands of destinations"
-      footerMessage="We're looking for places you'll be excited to visit ✈️"
+      footerMessage=""
       ariaLabel="Searching for destination recommendations"
     />
   );

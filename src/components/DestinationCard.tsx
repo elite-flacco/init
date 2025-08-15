@@ -59,7 +59,7 @@ export function DestinationCard({
           <div className="absolute top-6 left-6">
             <div className="glass px-3 py-1 rounded-full text-sm text-white font-semibold depth-light flex items-center">
               <div>
-                <MapPinIcon3D size="xs" />
+                <MapPinIcon3D size="2xs" />
               </div>
               {destination.country}
             </div>
@@ -83,7 +83,7 @@ export function DestinationCard({
         {/* Details */}
         <div className="p-6">
           {/* Key Info */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="flex flex-col gap-2 sm:gap-4 mb-2 sm:mb-4">
             <div className="card-3d-soft p-4">
               <div className="flex items-center mb-2">
                 <Calendar className="w-4 h-4 text-secondary mr-2" />
@@ -153,13 +153,13 @@ export function DestinationCard({
 
           {/* CTA Button */}
           <button
-            className="btn-3d-primary w-full py-4 px-6"
+            className="btn-3d-primary w-full"
             onClick={(e) => {
               e.stopPropagation();
               onViewDetails(destination);
             }}
           >
-            <span className="flex items-center justify-center gap-2">
+            <span className="flex items-center justify-center gap-2 text-white">
               🚀 Explore This
               <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
             </span>

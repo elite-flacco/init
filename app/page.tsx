@@ -137,11 +137,12 @@ export default function HomePage() {
     // Track destination knowledge selection
     trackTravelEvent.selectDestinationKnowledge(knowledge.type);
 
-    if (knowledge.type === "no-clue") {
-      setCurrentStep("pick-destination");
-    } else {
-      // User knows where they want to go, ask them to specify
+    if (knowledge.type === "yes") {
+      // User knows exactly where they want to go, ask them to specify
       setCurrentStep("destination-input");
+    } else {
+      // User needs help finding destinations (either no clue or has region in mind)
+      setCurrentStep("pick-destination");
     }
   };
 
@@ -465,7 +466,7 @@ export default function HomePage() {
       )}
 
       {/* Main content */}
-      <main className="relative py-8 px-4 sm:px-6 md:py-12 lg:py-16">
+      <main className={`relative ${currentStep === 'placeholder' ? 'min-h-screen flex items-center justify-center' : 'py-8 px-4 sm:px-6 md:py-12 lg:py-16'}`}>
         <div className="container mx-auto relative z-10">
           <div className="relative">{renderCurrentStep()}</div>
         </div>

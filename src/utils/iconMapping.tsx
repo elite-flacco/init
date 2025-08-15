@@ -141,7 +141,7 @@ export function getTravelerTypeIcon(
 
 export function getDestinationKnowledgeIcon(
   destinationKnowledgeId: string,
-  size: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" = "sm"
+  size: "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" = "sm"
 ) {
   const iconProps = { size, className: "object-contain" };
 
