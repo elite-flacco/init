@@ -439,6 +439,7 @@ TRIP PREFERENCES:
 Please create a comprehensive travel plan that includes ALL of the following detailed sections:
 
 6. DETAILED WEATHER INFORMATION
+   - Show weather information based on traveler's preferences for time of year
    - Humidity levels and hydration recommendations
    - Day vs night temperature differences
    - Air quality concerns if applicable

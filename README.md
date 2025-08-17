@@ -1,4 +1,4 @@
-# TravelAI - AI-Powered Travel Planning App
+# TripWise - AI-Powered Travel Planning App
 
 A Next.js + TypeScript full-stack travel planning application that helps users discover destinations and plan their trips through an interactive wizard interface with AI-powered recommendations.
 

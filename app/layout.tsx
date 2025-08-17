@@ -7,7 +7,7 @@ import "../src/index.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Travel Planner",
+  title: "TripWise",
   description: "AI-powered travel planning app",
 };
 

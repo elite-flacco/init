@@ -409,7 +409,7 @@ export function AITravelPlan({
           ease: [0.25, 0.46, 0.45, 0.94],
           delay: 0.3
         }}
-        className="max-w-5xl mx-auto px-4 py-4 sm:px-6 lg:px-8"
+        className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8"
       >
         {/* Header - Compact */}
         <motion.div
@@ -1355,7 +1355,37 @@ export function AITravelPlan({
               </div>
             )}
 
+            {/* Local History */}
+            {livePlan?.history ? (
+              <TravelPlanSection rotation="right" glowColor="secondary">
+                <SectionHeader
+                  icon={BookOpen}
+                  title="Local History"
+                  emoji="🏰"
+                  badgeColor="secondary"
+                />
 
+                <p className="text-foreground-secondary leading-relaxed">
+                  {livePlan?.history}
+                </p>
+              </TravelPlanSection>
+            ) : isActivelyStreaming && (
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
+                      <span className="text-sm font-bold">🏰 Local History</span>
+                    </div>
+                    <Loader2 className="w-4 h-4 animate-spin text-secondary" />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -1410,9 +1440,9 @@ export function AITravelPlan({
                     <p className="text-foreground-secondary mb-3">
                       {livePlan?.transportationInfo.ridesharing}
                     </p>
-                    <div className="flex items-center mb-3">
+                    <div className="flex flex-col justify-start items-start mb-3">
                       <span className="text-sm text-foreground-secondary mr-2">
-                        💰 Average cost:
+                        💰 Taxi Average cost:
                       </span>
                       <span className="text-sm font-bold text-primary">
                         {livePlan?.transportationInfo.taxiInfo?.averageCost}
@@ -1858,37 +1888,6 @@ export function AITravelPlan({
             </div>
             )}
 
-            {/* Local History */}
-            {livePlan?.history ? (
-              <TravelPlanSection rotation="right" glowColor="secondary">
-                <SectionHeader
-                  icon={BookOpen}
-                  title="Local History"
-                  emoji="🏰"
-                  badgeColor="secondary"
-                />
-
-                <p className="text-foreground-secondary leading-relaxed">
-                  {livePlan?.history}
-                </p>
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
-                      <span className="text-sm font-bold">🏰 Local History</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-secondary" />
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
       </motion.div>

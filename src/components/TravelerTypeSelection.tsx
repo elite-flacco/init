@@ -139,7 +139,7 @@ export function TravelerTypeSelection({
             {/* Hero Title */}
             <h1 className="text-3d-gradient text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 sm:mb-6 px-2">
               {typedHeroTitle}
-              <span className={`inline-block w-1 h-8 sm:h-10 md:h-12 lg:h-16 xl:h-20 bg-primary ml-1 sm:ml-2 ${!heroTitleComplete ? 'animate-pulse' : 'opacity-0'} transition-opacity duration-500`}>
+              <span className={`inline-block w-1 h-4 sm:h-6 md:h-8 lg:h-12 xl:h-16 bg-primary ml-1 sm:ml-2 ${!heroTitleComplete ? 'animate-pulse' : 'opacity-0'} transition-opacity duration-500`}>
               </span>
             </h1>
             {/* Hero Subtitle */}
@@ -148,7 +148,7 @@ export function TravelerTypeSelection({
             </p>
             {/* Blurb */}
             <p className={`text-sm sm:text-base md:text-lg max-w-3xl mx-auto mb-8 sm:mb-12 leading-relaxed transition-all duration-700 delay-300 px-4 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              Not a travel agent. Just the smart, thoughtful co-pilot that helps you figure out where to go and what to do — based on how you travel.
+              Not a travel agent. Just the smart, thoughtful co-pilot that helps you figure out where to go and what to do — so that you can focus on the fun stuff.
             </p>
 
             <button

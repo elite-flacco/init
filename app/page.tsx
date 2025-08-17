@@ -62,7 +62,7 @@ export default function HomePage() {
 
   // Typing effect for hero title
   const { displayedText: typedTitle, isComplete: titleComplete } = useTypingEffect({
-    text: "TravelAI",
+    text: "TripWise",
     speed: 150,
     delay: 500
   });
@@ -436,22 +436,30 @@ export default function HomePage() {
       <div className="fixed top-2 left-2 sm:top-3 sm:left-3 z-50">
         <button
           onClick={() => setCurrentStep("traveler-type")}
-          className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity duration-300"
+          className="flex items-center space-x-1 hover:opacity-80 transition-opacity duration-300"
           aria-label="Return to home"
         >
-          <div className="hidden md:block bg-gradient-to-br from-primary to-primary p-1.5 sm:p-2 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 hover:scale-105 group">
-            <Plane className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
-          </div>
-          <div className="flex flex-col items-start">
-            <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent hidden md:block">
-              {typedTitle}
-              <span className={`inline-block w-0.5 h-4 sm:h-5 bg-primary ml-1 ${!titleComplete ? 'animate-pulse' : 'opacity-0'}`}>
-              </span>
-            </h1>
-            <p className={`text-xs text-foreground-secondary font-medium hidden md:block transition-opacity duration-500 ${titleComplete ? 'opacity-100' : 'opacity-0'}`}>
-              AI-Powered Travel Planning
-            </p>
-          </div>
+          {currentStep === "traveler-type" ? (
+            <>
+              <div className="logo-3d p-1.5 sm:p-2 group">
+                <Plane className="w-3 h-3 sm:w-4 sm:h-4 text-white group-hover:rotate-12 transition-transform duration-300" />
+              </div>
+              <div className="flex flex-col items-start">
+                <h1 className="text-base sm:text-lg font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent hidden md:block">
+                  {typedTitle}
+                  <span className={`inline-block w-0.5 h-3 sm:h-4 bg-primary ml-1 ${!titleComplete ? 'animate-pulse' : 'opacity-0'}`}>
+                  </span>
+                </h1>
+                <p className={`text-xs sm:text-sm text-foreground-secondary font-medium hidden md:block transition-opacity duration-500 ${titleComplete ? 'opacity-100' : 'opacity-0'}`}>
+                  Your travel planning partner
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="logo-3d p-1.5 sm:p-2 group">
+              <Plane className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
+            </div>
+          )}
         </button>
       </div>
 
@@ -486,7 +494,7 @@ export default function HomePage() {
       )}
 
       {/* Main content */}
-      <main className={`relative ${currentStep === 'placeholder' ? 'min-h-screen flex items-center justify-center' : 'py-8 px-4 sm:px-6 md:py-12 lg:py-16'}`}>
+      <main className={`relative ${currentStep === 'placeholder' ? 'min-h-screen flex items-center justify-center' : 'py-4 px-4 sm:px-6 md:py-6 lg:py-8'}`}>
         <div className="container mx-auto relative z-10">
           <div className="relative">{renderCurrentStep()}</div>
         </div>
