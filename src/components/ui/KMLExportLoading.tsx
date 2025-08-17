@@ -1,5 +1,5 @@
 import React from "react";
-import { MapPin, Plane, Compass } from "lucide-react";
+import { GlobeIcon3D, MapIcon3D,  TravelIcon3D, MapPinIcon3D } from "./Icon3D";
 import { BaseLoading, LoadingStage } from "./BaseLoading";
 
 interface KMLExportLoadingProps {
@@ -8,42 +8,42 @@ interface KMLExportLoadingProps {
 
 const loadingStages: LoadingStage[] = [
   {
-    icon: Compass,
+    icon: GlobeIcon3D,
     message: "🗺️ Creating your map...",
     detail: "Setting up the map structure and framework",
   },
   {
-    icon: MapPin,
+    icon: MapPinIcon3D,
     message: "✨ Getting locations ready...",
     detail: "Preparing your travel destinations",
   },
   {
-    icon: Plane,
+    icon: TravelIcon3D,
     message: "📍 Finding exact coordinates...",
     detail: "Locating precise GPS coordinates",
   },
   {
-    icon: MapPin,
+    icon: MapPinIcon3D,
     message: "🧳 Packing your digital itinerary...",
     detail: "Organizing your travel information",
   },
   {
-    icon: Compass,
+    icon: MapIcon3D,
     message: "🌍 Geocoding destinations...",
     detail: "Converting addresses to map coordinates",
   },
   {
-    icon: Plane,
+    icon: TravelIcon3D,
     message: "🗺️ Building your personalized map...",
     detail: "Creating your custom travel map",
   },
   {
-    icon: MapPin,
+    icon: MapPinIcon3D,
     message: "📱 Preparing for Google Maps...",
     detail: "Formatting for Google Maps compatibility",
   },
   {
-    icon: Compass,
+    icon: TravelIcon3D,
     message: "🚀 Almost ready!",
     detail: "Finalizing your KML export",
   },
@@ -62,11 +62,12 @@ export function KMLExportLoading({ isVisible }: KMLExportLoadingProps) {
         stageInterval={2000}
         progressInterval={800}
         progressIncrement={() => Math.random() * 15}
-        centralIcon={Compass}
+        centralIcon={MapIcon3D}
         footerMessage="This may take a moment while we geocode your destinations..."
         ariaLabel="Exporting travel plan to KML format"
         showStageIndicators={false}
         showOrbitingIcon={true}
+        showProgressDots={true}
       />
     </div>
   );

@@ -87,7 +87,7 @@ export default function SharedPlanPage() {
   return (
     <div className="min-h-screen">
       {/* Shared plan banner */}
-      <div className="bg-primary/10 border-b border-primary/20 py-3">
+      <div className="bg-primary/10 border-b border-primary/20 py-3 mb-4">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -99,7 +99,7 @@ export default function SharedPlanPage() {
               href="/"
               className="text-sm text-primary hover:text-primary/80 transition-colors"
             >
-              Create Your Own Plan →
+              Create Your Own →
             </a>
           </div>
         </div>
