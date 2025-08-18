@@ -4,7 +4,7 @@ import {
   PickDestinationPreferences,
   TravelerType,
 } from "../../../../src/types/travel";
-import { getAIConfig } from "../config";
+import { getAIConfig, modelSupportsTemperature } from "../config";
 
 export interface AIDestinationRequest {
   travelerType: TravelerType;
@@ -77,7 +77,7 @@ async function callAI(prompt: string, excludeDestinations: string[] = []): Promi
         model: config.model,
         messages: [{ role: "user", content: prompt }],
         max_tokens: config.maxTokens,
-        temperature: config.temperature,
+        ...(modelSupportsTemperature(config.model || '') && { temperature: config.temperature }),
       }),
     });
 

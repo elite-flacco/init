@@ -5,7 +5,7 @@ import {
   Destination,
   TripPreferences,
 } from "../../../../../src/types/travel";
-import { getAIConfig } from "../../config";
+import { getAIConfig, modelSupportsTemperature } from "../../config";
 
 export interface AITripPlanningRequest {
   destination: Destination;
@@ -482,7 +482,7 @@ export async function POST(request: NextRequest) {
               },
             },
             max_output_tokens: config.chunkTokenLimit || 4000,
-            temperature: config.temperature || 0.3
+            ...(modelSupportsTemperature(config.model || '') && { temperature: config.temperature || 0.3 })
           });
 
           let buffer = "";

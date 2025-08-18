@@ -22,6 +22,23 @@ export const defaultAIConfig: AIConfig = {
   maxChunks: 4, // Maximum number of chunks for a single request
 };
 
+// Models that don't support temperature parameter
+const MODELS_WITHOUT_TEMPERATURE = [
+  'gpt-5-mini',
+  'gpt-5-nano',
+  'o1-mini',
+  'o1-preview',
+  'o3-mini',
+];
+
+// Helper function to check if a model supports temperature
+export const modelSupportsTemperature = (model?: string): boolean => {
+  if (!model) return true; // Default to supporting temperature if model is not specified
+  return !MODELS_WITHOUT_TEMPERATURE.some(noTempModel => 
+    model.toLowerCase().includes(noTempModel.toLowerCase())
+  );
+};
+
 export const getAIConfig = (): AIConfig => {
   return {
     ...defaultAIConfig,

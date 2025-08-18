@@ -5,7 +5,7 @@ import {
   TripPreferences,
   ACTIVITY_ICON_CATEGORIES,
 } from "../../../../../src/types/travel";
-import { getAIConfig } from "../../config";
+import { getAIConfig, modelSupportsTemperature } from "../../config";
 import { 
   calculateMaxTokensForRequest, 
   getModelTokenLimit 
@@ -64,7 +64,7 @@ async function callAI(prompt: string, maxTokens?: number): Promise<string> {
           model: config.model,
           messages: [{ role: "user", content: prompt }],
           max_tokens: actualMaxTokens,
-          temperature: config.temperature,
+          ...(modelSupportsTemperature(config.model || '') && { temperature: config.temperature }),
         }),
         signal: controller.signal,
       });
