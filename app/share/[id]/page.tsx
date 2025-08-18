@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { AITravelPlan } from "../../../src/components/AITravelPlan";
 import { TravelerType, Destination } from "../../../src/types/travel";
 import { AITripPlanningResponse } from "../../../src/services/aiTripPlanningService";
@@ -69,12 +70,12 @@ export default function SharedPlanPage() {
             Travel Plan Not Found
           </h1>
           <p className="text-muted-foreground mb-6">{error}</p>
-          <a
+          <Link
             href="/"
             className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
           >
             Create Your Own Travel Plan
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -95,12 +96,12 @@ export default function SharedPlanPage() {
                 📤 Shared Travel Plan
               </span>
             </div>
-            <a
+            <Link
               href="/"
               className="text-sm text-primary hover:text-primary/80 transition-colors"
             >
               Create Your Own →
-            </a>
+            </Link>
           </div>
         </div>
       </div>

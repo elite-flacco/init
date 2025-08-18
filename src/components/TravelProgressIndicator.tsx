@@ -1,6 +1,6 @@
 "use client";
 
-import { getProgressStepIcon } from "../utils/iconMapping";
+import { getProgressStepIcon } from "../utils/iconMappingUtils";
 
 interface ProgressStep {
   id: string;
@@ -26,7 +26,7 @@ export function TravelProgressIndicator({
     if (isDesktop) {
       return isActive ? "md" : "sm";
     }
-    return isActive ? "xs" : "2xs";
+    return isActive ? "sm" : "xs";
   };
 
   // Define step configuration

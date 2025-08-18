@@ -191,7 +191,7 @@ export function ProgressiveForm({
                     delay: index * 0.15,
                   }}
                   className="flex justify-center items-center py-2"
-                  ref={(el) => (stepRefs.current[index] = el)}
+                  ref={(el) => { stepRefs.current[index] = el; }}
                 >
                   {/* Asymmetrical question layout */}
                   <motion.div
@@ -285,7 +285,7 @@ export function ProgressiveForm({
                         scale: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
                         y: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] },
                       }}
-                      ref={(el) => (stepRefs.current[currentStep] = el)}
+                      ref={(el) => { stepRefs.current[currentStep] = el; }}
                     >
                       <motion.div
                         initial={{

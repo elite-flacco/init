@@ -79,6 +79,9 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
         const maxRetries = 2;
         let retryCount = 0;
         
+        // Create controller outside the try block so it's accessible in catch
+        let controller: AbortController | null = null;
+        
         const attemptChunk = async (): Promise<ChunkedResponse> => {
           try {
             // Update status to loading
@@ -88,10 +91,10 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
             }));
 
             // Add timeout to chunk requests - reduced to 50s for better UX
-            const controller = new AbortController();
+            controller = new AbortController();
             const timeoutId = setTimeout(() => {
               console.warn(`Chunk ${chunkDef.id} request timed out after 50s`);
-              controller.abort();
+              controller?.abort();
             }, 50000);
 
             try {
@@ -101,7 +104,7 @@ export function useParallelTripPlanning(): ParallelPlanningHook {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(request),
-                  signal: controller.signal
+                  signal: controller?.signal
                 }
               );
 

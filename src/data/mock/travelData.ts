@@ -8,6 +8,8 @@ import {
   TransportationInfo,
   CurrencyInfo,
   TipEtiquette,
+  ActivityIconCategory,
+  Activity,
   RecommendedActivity,
   MustTryFood,
   LocalEvent,
@@ -709,41 +711,41 @@ export const generateItinerary = (destination: Destination, days: number) => {
   const itinerary = [];
 
   // Define activities with their corresponding icon names
-  const dailyActivities = [
+  const dailyActivities: Activity[] = [
     {
       time: "09:00 AM",
       title: "Breakfast at Hotel",
       description: "Enjoy a delicious breakfast to start your day.",
       location: "Hotel Restaurant",
-      icon: "coffee",
+      icon: "coffee" as ActivityIconCategory,
     },
     {
       time: "10:30 AM",
       title: "Morning Activity",
       description: "Visit local attractions and landmarks.",
       location: "City Center",
-      icon: "map",
+      icon: "compass" as ActivityIconCategory,
     },
     {
       time: "01:00 PM",
       title: "Lunch at Local Restaurant",
       description: "Taste authentic local cuisine.",
       location: "Downtown",
-      icon: "utensils",
+      icon: "utensils" as ActivityIconCategory,
     },
     {
       time: "03:00 PM",
       title: "Afternoon Exploration",
       description: "Continue exploring the city.",
       location: "Various Locations",
-      icon: "compass",
+      icon: "compass" as ActivityIconCategory,
     },
     {
       time: "07:00 PM",
       title: "Dinner",
       description: "Enjoy dinner at a recommended restaurant.",
       location: "Local Restaurant",
-      icon: "utensils",
+      icon: "utensils" as ActivityIconCategory,
     },
   ];
 
@@ -831,6 +833,7 @@ export const generateDevMockData = (): {
     timeOfYear: "Spring",
     duration: "7 days",
     budget: "mid-range" as const,
+    specialActivities: "sightseeing, food tours",
     activities: ["sightseeing", "food"],
     accommodation: "hotel" as const,
     transportation: "public transport" as const,
@@ -838,6 +841,8 @@ export const generateDevMockData = (): {
     wantBars: false,
     tripType: "cultural" as const,
     activityLevel: "moderate" as const,
+    priority: "culture",
+    vibe: "relaxed",
   };
 
   // Use the main travel plan generator instead of hardcoded data

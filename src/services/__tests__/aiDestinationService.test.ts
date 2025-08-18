@@ -11,10 +11,6 @@ import { destinations } from "../../data/mock/destinations";
 // Type declaration for Node.js global
 declare const global: typeof globalThis & { fetch: typeof globalThis.fetch };
 
-declare global {
-  // eslint-disable-next-line no-var
-  var fetch: typeof globalThis.fetch;
-}
 
 // Add global.fetch mock for Node.js environment
 beforeAll(() => {

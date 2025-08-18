@@ -197,7 +197,7 @@ export function useStreamingTripPlanning(): StreamingPlanningHook {
                           ...prev.chunks,
                           [chunkId]: {
                             ...prev.chunks[chunkId],
-                            finalData: eventData.data,
+                            finalData: eventData.data || null,
                             isStreaming: false
                           }
                         };

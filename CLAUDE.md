@@ -106,7 +106,10 @@ AI settings can be configured via environment variables:
 - `OPENAI_API_KEY`: Your OpenAI API key (for server-side usage)
 - `ANTHROPIC_API_KEY`: Your Anthropic API key (for server-side usage)
 - `AI_MODEL`: AI model to use (default: 'gpt-4')
+- `AI_MAX_TOKENS`: Maximum tokens per request (default: 8000)
 - `AI_TEMPERATURE`: AI temperature setting (default: 0.7)
+- `AI_BASE_URL`: Custom OpenAI-compatible endpoint URL (optional)
+- `AI_ENABLE_CHUNKING`: Enable request chunking (default: true)
 - `AI_CHUNK_TOKEN_LIMIT`: Max tokens per individual chunk (default: 4000)
 - `AI_MAX_CHUNKS`: Maximum number of chunks allowed (default: 4)
 - `PIXABAY_API_KEY`: Your Pixabay API key for dynamic destination images

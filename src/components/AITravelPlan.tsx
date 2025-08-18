@@ -25,7 +25,7 @@ import {
   Edit,
   Coffee,
 } from "lucide-react";
-import { getActivityIcon } from "../utils/iconMapping";
+import { getActivityIcon } from "../utils/iconMappingUtils";
 import {
   Destination,
   TravelerType,

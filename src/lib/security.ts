@@ -71,8 +71,8 @@ export class SecurityMiddleware {
       return cfConnectingIP;
     }
 
-    // Fallback to connection remote address
-    return request.ip || "unknown";
+    // No other IP source available
+    return "unknown";
   }
 
   /**

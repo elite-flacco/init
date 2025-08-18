@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import { DestinationKnowledge } from "../types/travel";
-import { getDestinationKnowledgeIcon } from "../utils/iconMapping";
+import { getDestinationKnowledgeIcon } from "../utils/iconMappingUtils";
 
 interface DestinationKnowledgeSelectionProps {
   onSelect: (knowledge: DestinationKnowledge) => void;

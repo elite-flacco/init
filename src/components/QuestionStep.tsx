@@ -36,9 +36,13 @@ export function QuestionStep({
   onEdit,
 }: QuestionStepProps) {
   const [localValue, setLocalValue] = useState(value);
-  const [localLabel, setLocalLabel] = useState(
-    question.options?.find((option) => option.value === value)?.label || "",
-  );
+  const [localLabel, setLocalLabel] = useState(() => {
+    if (!question.options) return "";
+    const matchingOption = question.options.find((option) => 
+      typeof option === 'string' ? option === value : option.value === value
+    );
+    return typeof matchingOption === 'string' ? matchingOption : (matchingOption?.label || "");
+  });
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   useEffect(() => {

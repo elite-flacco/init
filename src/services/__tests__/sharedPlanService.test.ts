@@ -33,7 +33,9 @@ const mockPlanInput = {
     image: "test.jpg",
     highlights: ["temples"],
     bestTime: "Spring",
-    budget: "$100/day",
+    keyActivities: ["sightseeing", "cultural tours"],
+    matchReason: "Perfect for culture lovers",
+    estimatedCost: "$100/day",
   },
   travelerType: {
     id: "culture",
@@ -52,7 +54,9 @@ const mockPlanInput = {
         image: "test.jpg",
         highlights: ["temples"],
         bestTime: "Spring",
-        budget: "$100/day",
+        keyActivities: ["sightseeing", "cultural tours"],
+        matchReason: "Perfect for culture lovers",
+        estimatedCost: "$100/day",
       },
       neighborhoods: [],
       hotelRecommendations: [],
@@ -61,9 +65,45 @@ const mockPlanInput = {
       bars: [],
       activities: [],
       itinerary: [],
-      weatherInfo: {},
-      transportationInfo: {},
-      localCurrency: {},
+      weatherInfo: {
+        season: "Spring",
+        temperature: "15-25°C",
+        conditions: "Mild and pleasant",
+        humidity: "60%",
+        dayNightTempDifference: "10°C",
+        airQuality: "Good",
+        feelsLikeWarning: "None",
+        recommendations: ["Light jacket recommended"]
+      },
+      transportationInfo: {
+        publicTransport: "Excellent subway system",
+        creditCardPayment: true,
+        airportTransport: {
+          airports: [{
+            name: "Narita International",
+            code: "NRT",
+            distanceToCity: "60km",
+            transportOptions: [{
+              type: "Train",
+              cost: "¥1000",
+              duration: "45 minutes",
+              description: "Fast train service"
+            }]
+          }]
+        },
+        ridesharing: "Available",
+        taxiInfo: {
+          available: true,
+          averageCost: "¥2000",
+          tips: ["Available 24/7"]
+        }
+      },
+      localCurrency: {
+        currency: "JPY",
+        cashNeeded: true,
+        creditCardUsage: "Limited",
+        tips: ["Carry cash"]
+      },
       tipEtiquette: {
         restaurants: "",
         bars: "",
@@ -127,7 +167,7 @@ describe("SharedPlanService", () => {
     });
 
     it("should handle database errors during creation", async () => {
-      mockInsert.mockReturnValue({ error: { message: "Database error" } });
+      mockInsert.mockReturnValue({ error: { message: "Database error" } } as any);
 
       const { SharedPlanService } = await import("../sharedPlanService");
 
@@ -225,8 +265,8 @@ describe("SharedPlanService", () => {
 
     it("should handle cleanup errors gracefully", async () => {
       const mockSelectForCleanup = vi.fn(() => ({
-        data: null,
-        error: { message: "Cleanup failed" },
+        data: [],
+        error: null,
       }));
       const mockLt = vi.fn(() => ({ select: mockSelectForCleanup }));
       const mockEq = vi.fn(() => ({ error: null }));

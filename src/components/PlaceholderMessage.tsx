@@ -1,5 +1,5 @@
 import { TravelerType } from "../types/travel";
-import { getTravelerTypeIcon } from "../utils/iconMapping";
+import { getTravelerTypeIcon } from "../utils/iconMappingUtils";
 
 interface PlaceholderMessageProps {
   travelerType: TravelerType;

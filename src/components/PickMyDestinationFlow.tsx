@@ -65,6 +65,7 @@ export function PickMyDestinationFlow({
       weather: answers.weather || "",
       priority: answers.priority || "",
       destinationType: answers.destinationType || "",
+      vibe: answers.vibe || "",
     };
     onComplete(preferences);
   };

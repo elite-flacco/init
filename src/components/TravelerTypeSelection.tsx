@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ArrowDown } from "lucide-react";
 import { travelerTypes } from "../data/travelerTypes";
 import { TravelerType } from "../types/travel";
-import { getTravelerTypeIcon } from "../utils/iconMapping";
+import { getTravelerTypeIcon } from "../utils/iconMappingUtils";
 import { HeroIconsComposition } from "../utils/iconMapping";
 import { useTypingEffect } from "../hooks/useTypingEffect";
 

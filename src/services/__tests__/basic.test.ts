@@ -28,11 +28,14 @@ describe("Basic Service Tests", () => {
   });
 
   it("should have valid AI config", async () => {
-    const { getAIConfig } = await import("../../config/ai");
+    const { getAIConfig } = await import("../../../app/api/ai/config");
     const config = getAIConfig();
 
     expect(config).toBeDefined();
     expect(config.provider).toBe("mock");
     expect(config.model).toBe("gpt-4");
+    expect(config.enableChunking).toBe(true);
+    expect(config.chunkTokenLimit).toBe(4000);
+    expect(config.maxChunks).toBe(4);
   });
 });
