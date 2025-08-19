@@ -90,7 +90,6 @@ export function AITravelPlan({
           setUseStreaming(true);
           await generateStreamingPlan(streamingRequest);
         } catch (streamingError) {
-          console.log('[AITravelPlan] Streaming failed, falling back to parallel approach:', streamingError);
           setUseStreaming(false);
           await generatePlan(streamingRequest);
         }
@@ -161,7 +160,7 @@ export function AITravelPlan({
 
   const handleExportToPdf = async () => {
     if (!livePlan) return;
-    
+
     try {
       // Track PDF export
       trackTravelEvent.exportPlan('pdf');
@@ -184,7 +183,7 @@ export function AITravelPlan({
 
   const handleExportToGoogleMaps = async () => {
     if (!livePlan) return;
-    
+
     setIsExportingKML(true);
 
     // Track KML export
@@ -214,29 +213,50 @@ export function AITravelPlan({
   };
 
   const handleShare = async () => {
+    if (!livePlan) {
+      alert("Please wait for your plan to finish loading before sharing.");
+      return;
+    }
+
     setIsSharing(true);
 
     // Track share attempt
     trackTravelEvent.sharePlan('url');
 
     try {
+      // Construct the AI response object from live data
+      const shareableAiResponse = aiResponse || {
+        plan: livePlan,
+        streamingState: activeStreamingState,
+        streamingHooks: null,
+      };
+
+      const requestPayload = {
+        destination,
+        travelerType,
+        aiResponse: shareableAiResponse,
+      };
       const response = await fetch("/api/shared-plans", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          destination,
-          travelerType,
-          aiResponse,
-        }),
+        body: JSON.stringify(requestPayload),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create shared plan");
+        let errorText;
+        try {
+          errorText = await response.text();
+        } catch (parseError) {
+          errorText = 'Unknown error response';
+        }
+        throw new Error(`Failed to create shared plan - Status: ${response.status}, Body: ${errorText}`);
       }
 
-      const { shareUrl: newShareUrl } = await response.json();
+      const responseData = await response.json();
+      
+      const { shareUrl: newShareUrl } = responseData;
       setShareUrl(newShareUrl);
 
       // Copy to clipboard
@@ -254,8 +274,8 @@ export function AITravelPlan({
         alert(`Got your share link: ${newShareUrl}`);
       }
     } catch (error) {
-      console.error("Error creating share link:", error);
-      alert("Couldn't create the share link. Try again?");
+      
+      alert(`Couldn't create the share link. Error: ${error instanceof Error ? error.message : String(error)}`);
 
       // Track share error
       trackTravelEvent.error('share_failed');
@@ -333,11 +353,11 @@ export function AITravelPlan({
                   )}
                 </div>
                 <div className="">
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold group-hover:text-primary transition-colors duration-300">
                     {activity.title}
                   </h3>
                   {activity.location && (
-                    <div className="flex items-center text-sm text-foreground-secondary mb-3">
+                    <div className="flex items-center text-sm mb-3">
                       <MapPin className="w-3 h-3 mr-1" />
                       <span className="font-medium text-xs">{activity.location}</span>
                     </div>
@@ -680,10 +700,10 @@ export function AITravelPlan({
                         <div className="flex items-center justify-center mb-4">
                           <MapIcon3D size="xl" animation="bounce" />
                         </div>
-                        <h3 className="text-xl font-bold text-foreground mb-2">
+                        <h3 className="text-xl font-bold mb-2">
                           Adventure Map Loading...
                         </h3>
-                        <p className="text-foreground-secondary">
+                        <p>
                           No expedition details available for this destination yet.
                         </p>
                       </div>
@@ -764,16 +784,16 @@ export function AITravelPlan({
                                       )}
 
                                       <div>
-                                        <p className="text-sm text-foreground-secondary">
+                                        <p className="text-sm">
                                           💡 {place.ticketInfo.bookingAdvice}
                                         </p>
                                         {place.ticketInfo.peakTime && (
-                                          <p className="text-xs text-foreground-muted">
+                                          <p className="text-xs mt-2">
                                             <strong>Peak time:</strong> {place.ticketInfo.peakTime.join(", ")}
                                           </p>
                                         )}
                                         {place.ticketInfo.averageWaitTime && (
-                                          <p className="text-xs text-foreground-muted">
+                                          <p className="text-xs">
                                             <strong>Wait time:</strong> {place.ticketInfo.averageWaitTime}
                                           </p>
                                         )}
@@ -822,7 +842,7 @@ export function AITravelPlan({
                   emoji="🏡"
                   badgeColor="accent"
                 />
-                <ItemGrid columns={3}>
+                <ItemGrid columns={1}>
                   {livePlan?.neighborhoods.map((neighborhood, index) => (
                     <ItemCard
                       key={index}
@@ -830,22 +850,28 @@ export function AITravelPlan({
                       subtitle={neighborhood.vibe}
                       description={neighborhood.summary}
                     >
-                      <div className="mt-4">
-                        <p className="italic mb-2 text-sm">
-                          Best for: {neighborhood.bestFor.slice(9)}
+                      <div className="mt-2">
+                        <p className="italic mb-4 text-sm">
+                          <span className="font-bold text-sm text-primary">Best for:</span> {neighborhood.bestFor.slice(9)}
                         </p>
-                        <p className="inline-block bg-success/10 border border-success/20 rounded-lg p-1 font-medium text-sm text-success mt-4 mb-2">Pros</p>
-                        <ul className="text-foreground/80">
-                          {neighborhood.pros.map((pro, idx) => (
-                            <li className="mr-2 text-sm" key={idx}>• {pro}</li>
-                          ))}
-                        </ul>
-                        <p className="inline-block bg-error/10 border border-error/20 rounded-lg p-1 font-medium text-sm text-error mt-4 mb-2">Cons</p>
-                        <ul className="text-foreground/80">
-                          {neighborhood.cons.map((con, idx) => (
-                            <li className="mr-2 text-sm" key={idx}>• {con}</li>
-                          ))}
-                        </ul>
+                        <div className="flex gap-4">
+                          <div className="flex-1 flex flex-col items-start">
+                            <p className="bg-success/10 border border-success/20 rounded-lg p-1 font-medium text-sm text-success mb-2">Pros</p>
+                            <ul className="text-foreground/80">
+                              {neighborhood.pros.map((pro, idx) => (
+                                <li className="mr-2 text-sm" key={idx}>• {pro}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div className="flex-1 flex flex-col items-start">
+                            <p className="bg-error/10 border border-error/20 rounded-lg p-1 font-medium text-sm text-error mb-2">Cons</p>
+                            <ul className="text-foreground/80">
+                              {neighborhood.cons.map((con, idx) => (
+                                <li className="mr-2 text-sm" key={idx}>• {con}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
                       </div>
                     </ItemCard>
                   ))}
@@ -1365,7 +1391,7 @@ export function AITravelPlan({
                   badgeColor="secondary"
                 />
 
-                <p className="text-foreground-secondary leading-relaxed">
+                <p className="leading-relaxed">
                   {livePlan?.history}
                 </p>
               </TravelPlanSection>
@@ -1416,11 +1442,11 @@ export function AITravelPlan({
                 {/* City Transportation - 2-column layout */}
                 <ContentGrid columns={2} className="mb-8">
                   <ContentCard title="Public Transport" icon="🚇">
-                    <p className="text-foreground-secondary mb-3">
+                    <p className="mb-3">
                       {livePlan?.transportationInfo.publicTransport}
                     </p>
                     <div className="flex items-center">
-                      <span className="text-sm text-foreground-secondary mr-2">
+                      <span className="text-sm mr-2">
                         💳 Credit cards:
                       </span>
                       <span
@@ -1437,14 +1463,14 @@ export function AITravelPlan({
                   </ContentCard>
 
                   <ContentCard title="Taxis & Rideshare" icon="🚕">
-                    <p className="text-foreground-secondary mb-3">
+                    <p className="mb-3">
                       {livePlan?.transportationInfo.ridesharing}
                     </p>
                     <div className="flex flex-col justify-start items-start mb-3">
-                      <span className="text-sm text-foreground-secondary mr-2">
-                        💰 Taxi Average cost:
-                      </span>
-                      <span className="text-sm font-bold text-primary">
+                      <p className="font-bold mb-2">
+                        💰 Taxi Average cost
+                      </p>
+                      <span className="text-sm text-primary">
                         {livePlan?.transportationInfo.taxiInfo?.averageCost}
                       </span>
                     </div>
@@ -1452,9 +1478,9 @@ export function AITravelPlan({
                       <div>
                         <div className="flex items-center mb-2">
                           {/* <span className="text-sm mr-2">💡</span> */}
-                          <span className="text-sm font-medium text-foreground-secondary">
-                            💡 Pro Tips:
-                          </span>
+                          <p className="font-bold">
+                            💡 Pro Tips
+                          </p>
                         </div>
                         <ul className="space-y-1">
                           {livePlan?.transportationInfo.taxiInfo.tips.map(
@@ -1466,7 +1492,7 @@ export function AITravelPlan({
                                 <span className="text-primary mr-2">
                                   •
                                 </span>
-                                <span className="text-foreground-secondary">
+                                <span>
                                   {tip}
                                 </span>
                               </li>
@@ -1495,7 +1521,7 @@ export function AITravelPlan({
                         >
                           <div className="mb-6">
                             <div className="flex items-center mb-2">
-                              <h6 className="font-medium text-foreground">
+                              <h6 className="font-medium">
                                 {airport.name}
                               </h6>
                             </div>
@@ -1503,25 +1529,25 @@ export function AITravelPlan({
                               <span className="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full">
                                 {airport.code}
                               </span>
-                              <span className="text-foreground-secondary text-sm">
+                              <span className="text-sm">
                                 📍 {airport.distanceToCity}
                               </span>
                             </div>
                           </div>
 
-                          <div className="space-y-2">
+                          <div className="space-y-2 sm:space-y-4">
                             {airport.transportOptions?.map(
                               (option, optionIndex) => (
                                 <div
                                   key={optionIndex}
-                                  className="bg-gradient-to-r from-background/60 to-background-card/50 backdrop-blur-sm border border-border/30 rounded-xl px-4 py-2"
+                                  className="bg-gradient-to-r from-background/60 to-background-card/50 backdrop-blur-sm border border-border/60 rounded-xl px-4 py-2 sm:py-4"
                                 >
-                                  <div className="flex justify-between items-start mb-2">
-                                    <p className="font-bold text-foreground">
+                                  <div className="flex flex-col justify-start items-start">
+                                    <p className="font-bold mb-2">
                                       {option.type}
                                     </p>
-                                    <div className="text-right">
-                                      <div className="font-semibold text-primary text-xs">
+                                    <div className="">
+                                      <div className="font-semibold text-primary text-xs mb-1">
                                         {option.cost}
                                       </div>
                                       <div className="text-xs text-foreground-muted">
@@ -1601,18 +1627,24 @@ export function AITravelPlan({
 
                 <ContentGrid columns={2}>
                   <ContentCard
-                    title="Current Conditions"
+                    title="Weather Conditions"
                     icon="🌡️"
                   >
-                    <p className="font-medium text-primary mb-2">
-                      {livePlan?.weatherInfo.temperature} •{" "}
+                    <p className="font-bold">Temperature</p>
+                    <p className="mb-4">
+                      {livePlan?.weatherInfo.temperature}
+                    </p>
+                    <p className="font-bold">Conditions</p>
+                    <p className="mb-4">
                       {livePlan?.weatherInfo.conditions}
                     </p>
-                    <p className="text-foreground-secondary mb-1">
-                      Humidity: {livePlan?.weatherInfo.humidity}
+                    <p className="font-bold">Humidity</p>
+                    <p className="mb-4">
+                      {livePlan?.weatherInfo.humidity}
                     </p>
-                    <p className="text-foreground-secondary">
-                      Day/Night Temp Difference: {livePlan?.weatherInfo.dayNightTempDifference}
+                    <p className="font-bold">Day/Night Temp Difference</p>
+                    <p className="mb-4">
+                      {livePlan?.weatherInfo.dayNightTempDifference}
                     </p>
                   </ContentCard>
                   <ContentCard
@@ -1623,7 +1655,7 @@ export function AITravelPlan({
                       {livePlan?.weatherInfo.recommendations?.map((rec, index) => (
                         <li key={index} className="flex items-start">
                           <span className="text-primary mr-2">•</span>
-                          <p className="text-foreground-secondary">{rec}</p>
+                          <p>{rec}</p>
                         </li>
                       ))}
                     </ul>
@@ -1670,7 +1702,7 @@ export function AITravelPlan({
                         <span className="text-secondary mr-2">
                           •
                         </span>
-                        <p className="text-foreground-secondary">{tip}</p>
+                        <p>{tip}</p>
                       </li>
                     ))}
                   </ul>
@@ -1706,7 +1738,7 @@ export function AITravelPlan({
                     {(livePlan?.socialEtiquette || []).map((tip, index) => (
                       <li key={index} className="flex items-start">
                         <span className="text-accent mr-2">•</span>
-                        <p className="text-foreground-secondary">{tip}</p>
+                        <p>{tip}</p>
                       </li>
                     ))}
                   </ul>
@@ -1753,7 +1785,7 @@ export function AITravelPlan({
                   </p>
                   {livePlan?.localCurrency.exchangeRate && (
                     <div className="mt-3 mb-2rounded-lg">
-                      <h6 className="mb-2">Current Exchange Rate</h6>
+                      <p className="font-bold mb-2">Current Exchange Rate</p>
                       <p>
                         1 {livePlan?.localCurrency.exchangeRate.from} ={" "}
                         {livePlan?.localCurrency.exchangeRate.rate}{" "}
@@ -1764,7 +1796,7 @@ export function AITravelPlan({
                   {livePlan?.localCurrency.tips &&
                     livePlan?.localCurrency.tips.length > 0 && (
                       <div className="mt-4">
-                        <h6 className="mb-2">Money Tips:</h6>
+                        <p className="font-bold mb-2">Money Tips</p>
                         <ul className="space-y-1">
                           <li className="flex items-start">
                             <p className="text-accent mr-2">•</p>
@@ -1797,10 +1829,9 @@ export function AITravelPlan({
                       {Object.entries(livePlan?.tipEtiquette).map(
                         ([category, tip], index) => (
                           <div key={index} className="mb-2">
-                            <p className="font-semibold">
+                            <p className="font-bold">
                               {category.charAt(0).toUpperCase() +
                                 category.slice(1)}
-                              :
                             </p>
                             <p>{tip}</p>
                           </div>

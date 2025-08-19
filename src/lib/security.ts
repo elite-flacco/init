@@ -213,8 +213,8 @@ export class SecurityMiddleware {
 
     // Check for reasonable data sizes (prevent huge payloads)
     const jsonString = JSON.stringify(data);
-    if (jsonString.length > 100000) {
-      // 100KB limit
+    if (jsonString.length > 500000) {
+      // 500KB limit - increased to accommodate comprehensive travel plans
       return false;
     }
 

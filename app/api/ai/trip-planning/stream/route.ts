@@ -48,7 +48,7 @@ const CHUNK_SCHEMAS = {
           properties: {
             name: { type: "string" },
             neighborhood: { type: "string" },
-            priceRange: { type: "string" },
+            priceRange: { type: "string", maxLength: 100, pattern: "^[^\\r\\n]+$" },
             description: { type: "string" },
             amenities: {
               type: "array",
@@ -70,7 +70,7 @@ const CHUNK_SCHEMAS = {
           properties: {
             name: { type: "string" },
             cuisine: { type: "string" },
-            priceRange: { type: "string" },
+            priceRange: { type: "string", maxLength: 100, pattern: "^[^\\r\\n]+$" },
             description: { type: "string" },
             neighborhood: { type: "string" },
             specialDishes: {
@@ -91,7 +91,7 @@ const CHUNK_SCHEMAS = {
             name: { type: "string" },
             type: { type: "string" },
             atmosphere: { type: "string" },
-            description: { type: "string" },
+            description: { type: "string", maxLength: 200, pattern: "^[^\\r\\n]+$" },
             category: { type: "string" },
             neighborhood: { type: "string" }
           },
@@ -112,8 +112,19 @@ const CHUNK_SCHEMAS = {
           type: "object",
           properties: {
             name: { type: "string" },
-            description: { type: "string" },
-            category: { type: "string" },
+            description: { type: "string", pattern: "^[^\\r\\n]+$" },
+            category: { 
+              type: "string",
+              enum: [
+                "cultural",
+                "historical", 
+                "nature",
+                "entertainment",
+                "museum",
+                "landmark",
+                "culinary"
+              ]
+            },
             priority: { type: "number" },
             ticketInfo: {
               type: "object",
@@ -144,13 +155,13 @@ const CHUNK_SCHEMAS = {
               type: "object",
               properties: {
                 name: { type: "string" },
-                description: { type: "string" },
+                description: { type: "string", pattern: "^[^\\r\\n]+$" },
                 category: {
                   type: "string",
                   enum: ["main", "dessert", "drink", "snack"]
                 },
                 whereToFind: { type: "string" },
-                priceRange: { type: "string" }
+                priceRange: { type: "string", maxLength: 100, pattern: "^[^\\r\\n]+$" }
               },
               required: ["name", "description", "category", "whereToFind", "priceRange"],
               additionalProperties: false

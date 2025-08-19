@@ -21,13 +21,13 @@ describe("KMLExportService", () => {
       {
         name: "Senso-ji Temple",
         description: "Ancient Buddhist temple",
-        category: "Religious Site",
+        category: "cultural",
         priority: 5,
       },
       {
         name: "Tokyo Skytree",
         description: "Tallest tower in Japan",
-        category: "Landmark",
+        category: "landmark",
         priority: 4,
       },
     ],
@@ -255,7 +255,7 @@ describe("KMLExportService", () => {
         {
           name: 'Place with <special> & "characters"',
           description: 'Description with <tags> & "quotes"',
-          category: "Test",
+          category: "cultural",
           priority: 1,
         },
       ],

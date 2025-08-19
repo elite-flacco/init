@@ -14,6 +14,8 @@ import {
   MustTryFood,
   LocalEvent,
   Bar,
+  PlaceCategory,
+  PlaceToVisit,
 } from "../../types/travel";
 import { AITripPlanningResponse } from "../../services/aiTripPlanningService";
 import { destinations } from "./destinations";
@@ -170,12 +172,12 @@ export const generatePlacesToVisit = (
   destination: Destination,
   preferences: TripPreferences,
 ) => {
-  const commonPlaces = [
+  const commonPlaces: PlaceToVisit[] = [
     {
       name: "Historic Downtown",
       description:
         "Explore the charming streets and historic architecture of the city center.",
-      category: "Sightseeing",
+      category: "landmark",
       priority: 1,
       ticketInfo: {
         required: false,
@@ -183,15 +185,13 @@ export const generatePlacesToVisit = (
         bookingAdvice: "Free to explore, just walk around and enjoy the architecture",
         peakTime: [],
         averageWaitTime: "No wait time",
-        bookingWindow: "No booking needed",
-        alternativeOptions: "Consider guided walking tours for deeper insights",
       },
     },
     {
       name: "Local Market",
       description:
         "Experience local culture and cuisine at the bustling market.",
-      category: "Food & Shopping",
+      category: "cultural",
       priority: 2,
       ticketInfo: {
         required: false,
@@ -199,14 +199,12 @@ export const generatePlacesToVisit = (
         bookingAdvice: "Free entry, just bring cash for purchases",
         peakTime: ["Weekend mornings"],
         averageWaitTime: "5-10 minutes during peak hours",
-        bookingWindow: "No booking needed",
-        alternativeOptions: "Visit early morning or evening for fewer crowds",
       },
     },
     {
       name: `${destination.name} Museum`,
       description: "Learn about the rich history and culture of the region.",
-      category: "Cultural",
+      category: "cultural",
       priority: 3,
       ticketInfo: {
         required: true,
@@ -214,15 +212,13 @@ export const generatePlacesToVisit = (
         bookingAdvice: "Advance booking highly recommended, especially during peak season",
         peakTime: ["Summer", "Holiday weekends"],
         averageWaitTime: "30-60 minutes without advance tickets",
-        bookingWindow: "Book 1-2 weeks in advance during peak season",
-        alternativeOptions: "Early morning or late afternoon visits typically less crowded",
       },
     },
     {
       name: "Scenic Viewpoint",
       description:
         "Enjoy breathtaking panoramic views of the city and surroundings.",
-      category: "Nature",
+      category: "nature",
       priority: 4,
       ticketInfo: {
         required: false,
@@ -230,8 +226,6 @@ export const generatePlacesToVisit = (
         bookingAdvice: "Free access, but check weather conditions before visiting",
         peakTime: ["Sunset hours", "Clear weather days"],
         averageWaitTime: "No wait time typically",
-        bookingWindow: "No booking needed",
-        alternativeOptions: "Consider sunrise visits for fewer crowds and better lighting",
       },
     },
   ];
@@ -240,7 +234,7 @@ export const generatePlacesToVisit = (
     commonPlaces.push({
       name: "Adventure Park",
       description: "Experience thrilling outdoor activities and adventures.",
-      category: "Adventure",
+      category: "entertainment",
       priority: 5,
       ticketInfo: {
         required: true,
@@ -248,8 +242,6 @@ export const generatePlacesToVisit = (
         bookingAdvice: "Advance booking required for most activities, especially during peak season",
         peakTime: ["Summer", "School holidays"],
         averageWaitTime: "45-90 minutes without booking",
-        bookingWindow: "Book 3-7 days in advance",
-        alternativeOptions: "Weekday visits typically have shorter wait times",
       },
     });
   }
@@ -258,7 +250,7 @@ export const generatePlacesToVisit = (
     commonPlaces.push({
       name: "Entertainment District",
       description: "Vibrant area with clubs, bars, and live music venues.",
-      category: "Nightlife",
+      category: "entertainment",
       priority: 6,
       ticketInfo: {
         required: false,
@@ -266,8 +258,6 @@ export const generatePlacesToVisit = (
         bookingAdvice: "No tickets needed for most venues, but VIP tables may require reservations",
         peakTime: ["Weekend nights", "Holiday weekends"],
         averageWaitTime: "15-30 minutes at popular venues",
-        bookingWindow: "Same-day reservations usually sufficient",
-        alternativeOptions: "Start early in the evening to avoid peak crowds",
       },
     });
   }

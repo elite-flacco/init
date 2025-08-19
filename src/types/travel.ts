@@ -93,10 +93,23 @@ export interface EnhancedTravelPlan {
   itinerary: ItineraryDay[];
 }
 
+// Place categories for structured classification
+export const PLACE_CATEGORIES = [
+  "cultural",
+  "historical", 
+  "nature",
+  "entertainment",
+  "museum",
+  "landmark",
+  "culinary"
+] as const;
+
+export type PlaceCategory = typeof PLACE_CATEGORIES[number];
+
 export interface PlaceToVisit {
   name: string;
   description: string;
-  category: string;
+  category: PlaceCategory;
   priority: number;
   ticketInfo?: TicketBookingInfo;
 }

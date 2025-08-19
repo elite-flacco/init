@@ -344,7 +344,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
 
 1. PLACES TO VISIT
    - Adjust number of attractions based on trip length and activity level: ${placesCount} recommendations
-   - Main attractions categorized by type (cultural, historical, natural, entertainment, etc.)
+   - Main attractions categorized by type using ONLY these categories: cultural, historical, nature, entertainment, museum, landmark, culinary
    - Include priority ranking for each attraction based on user preferences and general popularity
    - For each place, include ticket booking information: whether tickets are required or recommended, booking advice (e.g. "Book at least 2 weeks in advance during peak season"), peak time DURING THE DAY (e.g. ["early morning", "late afternoon"]), average wait times to get in (e.g. "15-30 minutes")
 
@@ -363,7 +363,7 @@ CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any tex
 Use this exact structure, MAKE SURE there is a comma after each field:
 
 {
-  "placesToVisit": [{"name": "string", "description": "string", "category": "string", "priority": number, "ticketInfo": {"required": boolean, "recommended": boolean, "bookingAdvice": "string", "peakTime": ["string"], "averageWaitTime": "string"}}],
+  "placesToVisit": [{"name": "string", "description": "string", "category": "cultural|historical|nature|entertainment|museum|landmark|culinary", "priority": number, "ticketInfo": {"required": boolean, "recommended": boolean, "bookingAdvice": "string", "peakTime": ["string"], "averageWaitTime": "string"}}],
   "mustTryFood": {"items": [{"name": "string", "description": "string", "category": "main|dessert|drink|snack", "whereToFind": "string", "priceRange": "string", "culturalContext": "string"}]}
 }
 
