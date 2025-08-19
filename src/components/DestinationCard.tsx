@@ -91,7 +91,7 @@ export function DestinationCard({
                 </span>
               </div>
               <p className="text-sm text-foreground font-medium">
-                {destination.bestTime}
+                {destination.bestTimeToVisit}
               </p>
             </div>
 
@@ -116,12 +116,12 @@ export function DestinationCard({
                   key={index}
                   onClick={(e) => {
                     e.stopPropagation();
-                    window.open(`https://www.google.com/search?q=${encodeURIComponent(highlight + ' ' + destination.name + ' ' + destination.country)}`, '_blank');
+                    window.open(`https://www.google.com/search?q=${encodeURIComponent(highlight.name + ' ' + destination.name + ' ' + destination.country)}`, '_blank');
                   }}
-                  className="badge-secondary group flex items-center gap-1.5 hover:bg-secondary/20 transition-all duration-200"
-                  title={`Search Google for ${highlight} in ${destination.name}`}
+                  className="badge-secondary group flex items-center justify-start gap-1.5 rounded-lg hover:bg-secondary/20 transition-all duration-200"
+                  title={`Search Google for ${highlight.name} in ${destination.name}`}
                 >
-                  <span className="text-xs font-semibold text-secondary">{highlight}</span>
+                  <span className="text-xs font-semibold text-secondary">{highlight.name}</span>
                   <Search className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity duration-200" />
                 </button>
               ))}
@@ -138,12 +138,12 @@ export function DestinationCard({
             <h6 className="text-3d-title mb-3">Adventure Awaits</h6>
             <div className="flex flex-wrap gap-2">
               {destination.keyActivities.slice(0, 2).map((activity, index) => (
-                <span key={index} className="badge-primary">
+                <span key={index} className="badge-primary rounded-lg">
                   {activity}
                 </span>
               ))}
               {destination.keyActivities.length > 2 && (
-                <span className="badge text-foreground-muted bg-foreground-muted/10 border border-foreground-muted/30">
+                <span className="badge text-foreground-muted bg-foreground-muted/10 border border-foreground-muted/30 rounded-lg">
                   +{destination.keyActivities.length - 2} more
                 </span>
               )}

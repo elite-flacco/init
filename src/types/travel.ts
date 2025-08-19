@@ -17,8 +17,8 @@ export interface Destination {
   matchReason: string;
   estimatedCost: string;
   image: string;
-  highlights: string[];
-  bestTime: string;
+  highlights: { name: string; description: string; }[];
+  bestTimeToVisit: string;
   details?: string;
 }
 
@@ -301,7 +301,7 @@ export interface DestinationRecommendation {
   summary: string;
   images: string[];
   moreInfoLink: string;
-  highlights: string[];
+  highlights: { name: string; description: string; }[];
   bestFor: string[];
 }
 

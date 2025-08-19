@@ -163,7 +163,7 @@ export function generateLocationsPrompt(request: AITripPlanningRequest): string 
 
 DESTINATION: ${destination.name}, ${destination.country}
 Destination Description: ${destination.description}
-Best Time to Visit: ${destination.bestTime}
+Best Time to Visit: ${destination.bestTimeToVisit}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
@@ -283,7 +283,7 @@ export function generateFoodPrompt(request: AITripPlanningRequest): string {
 
 DESTINATION: ${destination.name}, ${destination.country}
 Destination Description: ${destination.description}
-Best Time to Visit: ${destination.bestTime}
+Best Time to Visit: ${destination.bestTimeToVisit}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
@@ -379,7 +379,7 @@ export function generatePracticalPrompt(request: AITripPlanningRequest): string 
 
 DESTINATION: ${destination.name}, ${destination.country}
 Destination Description: ${destination.description}
-Best Time to Visit: ${destination.bestTime}
+Best Time to Visit: ${destination.bestTimeToVisit}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
@@ -510,7 +510,7 @@ export function generateCulturalPrompt(request: AITripPlanningRequest): string {
 
 DESTINATION: ${destination.name}, ${destination.country}
 Destination Description: ${destination.description}
-Best Time to Visit: ${destination.bestTime}
+Best Time to Visit: ${destination.bestTimeToVisit}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from 'openai';
 import { destinations } from "../../../../src/data/mock/destinations";
 import {
+  Destination,
   PickDestinationPreferences,
   TravelerType,
 } from "../../../../src/types/travel";
@@ -33,13 +34,21 @@ const DESTINATION_SCHEMA = {
           bestTimeToVisit: { type: "string" },
           keyActivities: {
             type: "array",
-            items: { type: "string" }
+            items: { type: "string", "pattern": "^[A-Z][^\n\r]*$" }
           },
           matchReason: { type: "string" },
           estimatedCost: { type: "string" },
           highlights: {
             type: "array",
-            items: { type: "string" }
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string", "pattern": "^[A-Z][^\n\r]*$" },
+                description: { type: "string" }
+              },
+              required: ["name", "description"],
+              additionalProperties: false
+            }
           },
           details: { type: "string" }
         },
@@ -82,12 +91,12 @@ async function callAI(prompt: string, excludeDestinations: string[] = []): Promi
       name: dest.name,
       country: dest.country,
       description: dest.description,
-      bestTimeToVisit: dest.bestTime,
+      bestTimeToVisit: dest.bestTimeToVisit,
       keyActivities: dest.highlights,
-      matchReason: `Perfect match for your travel style with ${dest.highlights[0].toLowerCase()} and authentic experiences`,
+      matchReason: dest.matchReason,
       estimatedCost: dest.estimatedCost,
       highlights: dest.highlights,
-      details: `${dest.description}. This destination offers amazing experiences including ${dest.highlights.join(", ").toLowerCase()}.`,
+      details: dest.details,
     }));
 
     return JSON.stringify({
@@ -204,7 +213,7 @@ Match destinations to traveler type:
 
 Destination type priorities:
 - **Major Hits:** Iconic landmarks, world-famous attractions, bucket-list destinations
-- **Off the Beaten Path:** Hidden gems, local secrets, authentic experiences, fewer tourists
+- **Off the Beaten Path:** Hidden gems, little-known, remote locations, local secrets, authentic experiences, FEWER tourists
 - **Up and Coming:** Emerging destinations, trending hotspots, recently accessible places
 
 Please include ALL of the following in your response for each destination:
@@ -218,35 +227,18 @@ Please include ALL of the following in your response for each destination:
 4. Best Time to Visit
   - Optimal timing to visit this destination, explaining the weather conditions, activities available, cultural events, and crowds
 5. Key Activities
-  - Top 4-5 activities that align with their interests and personality, start each activity with upper case
+  - Top 4-5 activities that align with their interests and personality
 6. Match Reason
   - Specific explanation connecting this destination to their traveler type traits
 7. Estimated Cost
   - Typical average daily cost of the destination for the specified budget level and time of year
 8. Highlights
-  - Top 3-4 highlights that align with their interests and personality, start each highlight with upper case
+  - Top 3-4 highlights that align with their interests and personality
 9. Details
   - 3-4 detailed paragraphs covering: cultural highlights, food scene, accommodation options, transportation, must-see attractions, local customs, and practical travel tips (3-4 paragraphs)
 
 ## RESPONSE FORMAT
-Return ONLY valid JSON with this exact structure, make sure there is comma after each field:
-
-{
-  "destinations": [
-    {
-      "name": "string",
-      "country": "string", 
-      "description": "string",
-      "bestTimeToVisit": "string",
-      "keyActivities": ["string"],
-      "matchReason": "string",
-      "estimatedCost": "string",
-      "highlights": ["string"],
-      "details": "string"
-    }
-  ],
-  "summary": "string"
-}
+Return ONLY ONE valid JSON object. 
 
 CRITICAL REQUIREMENTS:
 - All destinations must strongly align with the traveler's personality type
@@ -297,36 +289,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Transform AI response to our destination format
-    const recommendedDestinations = parsedResponse.destinations.map(
-      (aiDest: {
-        name: string;
-        country: string;
-        description: string;
-        bestTimeToVisit: string;
-        keyActivities: string[];
-        matchReason: string;
-        estimatedCost: string;
-        highlights: string[];
-        details: string;
-      }) => {
-        return {
-          id: `ai-${aiDest.name.toLowerCase().replace(/\s+/g, "-")}`,
-          name: aiDest.name,
-          country: aiDest.country,
-          description: aiDest.description,
-          image: "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-          highlights: aiDest.highlights,
-          bestTime: aiDest.bestTimeToVisit,
-          estimatedCost: aiDest.estimatedCost,
-          details: aiDest.details,
-          keyActivities: aiDest.keyActivities,
-          matchReason: aiDest.matchReason,
-        };
-      },
-    );
+    parsedResponse.destinations.forEach((dest: Destination) => {
+      dest.id = `ai-${dest.name.toLowerCase().replace(/\s+/g, "-")}`;
+      dest.image = "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
+    });
 
     return NextResponse.json({
-      destinations: recommendedDestinations,
+      destinations: parsedResponse.destinations,
       reasoning:
         parsedResponse.summary ||
         parsedResponse.reasoning ||

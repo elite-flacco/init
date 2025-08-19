@@ -136,7 +136,7 @@ describe("aiDestinationService", () => {
         expect(destination).toHaveProperty('description')
         expect(destination).toHaveProperty('image')
         expect(destination).toHaveProperty('highlights')
-        expect(destination).toHaveProperty('bestTime')
+        expect(destination).toHaveProperty('bestTimeToVisit')
         expect(destination).toHaveProperty('estimatedCost')
       })
     })

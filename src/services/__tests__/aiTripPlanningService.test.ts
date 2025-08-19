@@ -21,9 +21,11 @@ describe("aiTripPlanningService", () => {
       country: "Japan",
       description: "Perfect blend of traditional culture and modern innovation",
       image: "/images/tokyo.jpg",
-      highlights: ["Ancient temples", "Cherry blossoms"],
-      bestTime: "Spring",
-      budget: "$$",
+      highlights: [{ name: "Ancient temples", description: "Historic shrines and temples" }, { name: "Cherry blossoms", description: "Beautiful sakura season" }],
+      bestTimeToVisit: "Spring",
+      estimatedCost: "$$",
+      keyActivities: ["Temple visits", "Cherry blossom viewing"],
+      matchReason: "Perfect for culture enthusiasts",
     };
 
     const mockPlan = generateTravelPlan(
@@ -101,9 +103,11 @@ describe("aiTripPlanningService", () => {
         description:
           "Perfect blend of traditional culture and modern innovation",
         image: "/images/tokyo.jpg",
-        highlights: ["Ancient temples", "Cherry blossoms"],
-        bestTime: "Spring",
-        budget: "$$",
+        highlights: [{ name: "Ancient temples", description: "Historic shrines and temples" }, { name: "Cherry blossoms", description: "Beautiful sakura season" }],
+        bestTimeToVisit: "Spring",
+        estimatedCost: "$$",
+        keyActivities: ["Temple visits", "Cherry blossom viewing"],
+        matchReason: "Perfect for culture enthusiasts",
       },
       preferences: mockTripPreferences,
       travelerType: mockTravelerTypes.culture,

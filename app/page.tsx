@@ -275,7 +275,7 @@ export default function HomePage() {
       description: `Your chosen destination: ${destinationName}`,
       image: "",
       highlights: [],
-      bestTime: "As per your preference",
+      bestTimeToVisit: "As per your preference",
       estimatedCost: "Variable",
       keyActivities: [],
       matchReason: "",

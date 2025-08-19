@@ -19,8 +19,7 @@ export function DestinationDetailsModal({
   const { imageUrl, isLoading } = useDestinationImage({
     destination: destination.name,
     country: destination.country,
-    count: 1,
-    enabled: isOpen
+    count: 1
   });
 
   if (!isOpen) return null;
@@ -88,7 +87,7 @@ export function DestinationDetailsModal({
 
           {/* Title */}
           <div className="absolute bottom-6 left-6 right-6">
-            <h1 className="mb-4 text-white">{destination.name}</h1>
+            <h2 className="mb-4 text-white">{destination.name}</h2>
             <p className="max-w-2xl text-white">{destination.description}</p>
           </div>
         </div>
@@ -96,13 +95,13 @@ export function DestinationDetailsModal({
         {/* Content */}
         <div className="p-6 md:p-8 max-h-[50vh] overflow-y-auto">
           {/* Quick info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 items-start">
             <div className="flex items-center">
               {/* <Calendar className="w-5 h-5 text-primary mr-3" /> */}
               <div>
                 <p className="font-semibold">📅 Best Time to Visit</p>
                 <p className="font-sm text-foreground ml-6">
-                  {destination.bestTime}
+                  {destination.bestTimeToVisit}
                 </p>
               </div>
             </div>
@@ -120,14 +119,24 @@ export function DestinationDetailsModal({
           {/* Highlights */}
           <div className="mb-8">
             <h6 className="mb-4">Highlights</h6>
-            <div className="flex flex-wrap gap-3">
+            <div className="space-y-3">
               {destination.highlights.map((highlight, index) => (
-                <span
+                <div
                   key={index}
-                  className="px-4 py-2 bg-secondary/10 text-secondary rounded-full text-sm font-medium"
+                  className="px-4 py-2 bg-secondary/10 rounded-lg border border-secondary/20"
                 >
-                  {highlight}
-                </span>
+                  <div className="text-sm">
+                    <span className="font-semibold text-secondary text-sm">
+                      {highlight.name}
+                    </span>
+                    {highlight.description && (
+                      <>
+                        <span className="text-secondary text-sm">: </span>
+                        <span className="text-foreground text-sm">{highlight.description}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -139,7 +148,7 @@ export function DestinationDetailsModal({
               {destination.keyActivities.map((activity, index) => (
                 <span
                   key={index}
-                  className="px-4 py-2 bg-secondary/10 text-secondary rounded-full text-sm font-medium"
+                  className="px-4 py-2 bg-secondary/10 text-primary rounded-lg text-sm font-medium"
                 >
                   {activity}
                 </span>

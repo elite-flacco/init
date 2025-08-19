@@ -82,7 +82,7 @@ export function BaseLoading({
   const currentStage = stages[currentStageIndex];
 
   return (
-    <div className={`flex items-center justify-center p-4 relative overflow-hidden ${className}`}>
+    <div className={`flex items-center justify-center min-h-[calc(100vh-80px)] relative overflow-hidden ${className}`}>
       {children}
 
       <div className="relative z-10 max-w-3xl w-full">
