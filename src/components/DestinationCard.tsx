@@ -86,9 +86,8 @@ export function DestinationCard({
           <div className="flex flex-col gap-2 sm:gap-4 mb-2 sm:mb-4">
             <div className="card-3d-soft p-4">
               <div className="flex items-center mb-2">
-                <Calendar className="w-4 h-4 text-secondary mr-2" />
                 <span className="text-sm font-semibold text-secondary">
-                  Best Time
+                📅 Best Time
                 </span>
               </div>
               <p className="text-sm text-foreground font-medium">
@@ -98,9 +97,8 @@ export function DestinationCard({
 
             <div className="card-3d-soft p-4">
               <div className="flex items-center mb-2">
-                <DollarSign className="w-4 h-4 text-secondary mr-2" />
                 <span className="text-sm font-semibold text-secondary">
-                  Cost
+                💰 Cost
                 </span>
               </div>
               <p className="text-sm text-foreground font-medium">

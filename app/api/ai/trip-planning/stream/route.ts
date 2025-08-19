@@ -453,8 +453,6 @@ export async function POST(request: NextRequest) {
 
     const prompt = promptGenerator(body);
 
-    console.log(`[Streaming API v2] Starting streaming for chunk ${chunkId}`);
-
     let controllerClosed = false;
     let respStream: Awaited<ReturnType<typeof openai.responses.stream>> | null = null;
 
@@ -525,24 +523,16 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          console.log(`[Streaming API v2] Streaming complete for chunk ${chunkId}, parsing final JSON (${buffer.length} chars)`);
-
           // Parse the buffered text once at the end - much more reliable
-          console.log(`[Streaming API v2] Chunk ${chunkId} final buffer length:`, buffer.length);
-          console.log(`[Streaming API v2] Chunk ${chunkId} buffer preview (first 200 chars):`, buffer.substring(0, 200));
           try {
             const finalData = JSON.parse(buffer);
-            console.log(`[Streaming API v2] Chunk ${chunkId} successfully parsed JSON, data keys:`, Object.keys(finalData || {}));
             push({
               type: "complete",
               chunkId,
               data: finalData,
               timestamp: Date.now()
             });
-            console.log(`[Streaming API v2] Successfully completed chunk ${chunkId}`);
           } catch (e: unknown) {
-            console.error(`[Streaming API v2] Final JSON parse failed for chunk ${chunkId}:`, e);
-            console.error(`[Streaming API v2] Buffer preview (first 500 chars):`, buffer.substring(0, 500));
             // Sanitized error for client - don't expose internal details in production
             push({
               type: "error",
@@ -554,9 +544,7 @@ export async function POST(request: NextRequest) {
             });
           }
 
-        } catch (err: unknown) {
-          console.error(`[Streaming API v2] Stream error for chunk ${chunkId}:`, err);
-          
+        } catch (err: unknown) {          
           // Sanitize error message for security
           let sanitizedError = "streaming_error";
           if (err instanceof Error) {
@@ -604,9 +592,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-  } catch (error) {
-    console.error('[Streaming API v2] Request failed:', error);
-    
+  } catch (error) {    
     // Generic error handler - sanitize error message for security
     const sanitizedError = error instanceof Error && error.message.length < 200 
       ? error.message 

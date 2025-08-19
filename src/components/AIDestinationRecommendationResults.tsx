@@ -101,7 +101,7 @@ export function AIDestinationRecommendationResults({
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="mb-2 text-3d-gradient">Your Top Hits</h2>
