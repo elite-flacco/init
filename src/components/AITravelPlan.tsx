@@ -24,6 +24,9 @@ import {
   ChevronDown,
   Edit,
   Coffee,
+  MoreVertical,
+  Menu,
+  X,
 } from "lucide-react";
 import { getActivityIcon } from "../utils/iconMappingUtils";
 import {
@@ -42,7 +45,7 @@ import { ItemGrid } from "./ui/ItemGrid";
 import { CategoryGroup } from "./ui/CategoryGroup";
 import { KMLExportLoading } from "./ui/KMLExportLoading";
 import { ContentGrid, ContentCard } from "./ui/ContentGrid";
-import { MapIcon3D, NotebookIcon3D, SuitcaseIcon3D, CalendarIcon3D } from "./ui/Icon3D";
+import { MapIcon3D, MapPinIcon3D, NotebookIcon3D, CalendarIcon3D, UtensilsIcon3D, CameraIcon3D } from "./ui/Icon3D";
 
 interface AITravelPlanProps {
   destination: Destination;
@@ -62,7 +65,7 @@ export function AITravelPlan({
   onBack,
 }: AITravelPlanProps) {
   const [activeTab, setActiveTab] = useState<
-    "itinerary" | "info" | "practical"
+    "itinerary" | "info" | "food" | "practical"
   >("info");
   const [isExportingKML, setIsExportingKML] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -115,7 +118,7 @@ export function AITravelPlan({
 
 
   // Check which tabs have content vs are still loading based on chunk completion
-  const getTabLoadingState = (tab: 'itinerary' | 'info' | 'practical') => {
+  const getTabLoadingState = (tab: 'itinerary' | 'info' | 'food' | 'practical') => {
     if (!isActivelyStreaming) return { isLoading: false, hasContent: !!livePlan };
 
     if (!activeStreamingState?.chunks) return { isLoading: true, hasContent: false };
@@ -123,7 +126,8 @@ export function AITravelPlan({
     // Map tabs to their required chunks
     const tabChunkMap = {
       itinerary: [4], // Cultural chunk has activities and itinerary
-      info: [1, 2],   // Basics (places) + dining chunks
+      info: [1],      // Places and neighborhoods only
+      food: [2],      // Dining, bars, and local food
       practical: [3]  // Practical chunk
     };
 
@@ -255,7 +259,7 @@ export function AITravelPlan({
       }
 
       const responseData = await response.json();
-      
+
       const { shareUrl: newShareUrl } = responseData;
       setShareUrl(newShareUrl);
 
@@ -274,7 +278,7 @@ export function AITravelPlan({
         alert(`Got your share link: ${newShareUrl}`);
       }
     } catch (error) {
-      
+
       alert(`Couldn't create the share link. Error: ${error instanceof Error ? error.message : String(error)}`);
 
       // Track share error
@@ -333,7 +337,6 @@ export function AITravelPlan({
         <div className="bg-gradient-to-br from-background/80 to-background-card/70 backdrop-blur-sm border-2 border-border/30 hover:border-primary/40 rounded-2xl p-6 shadow-card hover:shadow-adventure-float transition-all duration-300 relative overflow-hidden">
           {/* Activity Highlight */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-2xl"></div>
-
           <div className="flex flex-col md:flex-row items-start relative z-10">
             {/* Time Badge */}
             <div className="flex-shrink-0 mr-4 mb-4">
@@ -397,7 +400,7 @@ export function AITravelPlan({
           </div>
 
           {/* Daily Activities */}
-          <div className="space-y-4 m-2 sm:m-4 md:m-6">
+          <div className="space-y-4 sm:m-4 md:m-6">
             {day.activities.map((activity, index) =>
               renderActivity(activity, index),
             )}
@@ -411,1517 +414,1523 @@ export function AITravelPlan({
   // Streaming content will appear directly in the tabs as it becomes available
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.8,
-        ease: [0.25, 0.46, 0.45, 0.94],
-        delay: 0.1
-      }}
-      className="min-h-screen"
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{
-          duration: 0.6,
-          ease: [0.25, 0.46, 0.45, 0.94],
-          delay: 0.3
-        }}
-        className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8"
-      >
-        {/* Header - Compact */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.6,
-            delay: 0.5,
-            ease: [0.25, 0.46, 0.45, 0.94]
-          }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6"
-        >
-          <div className="mb-3 sm:mb-0">
-            <div className="flex items-start">
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{
-                  duration: 0.8,
-                  delay: 0.6,
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 15
-                }}
-              >
-                <Sparkles className="w-8 h-8 sm:w-8 sm:h-8 md:w-12 md:h-12 text-primary mr-2" />
-              </motion.div>
-              <motion.h2
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{
-                  duration: 0.6,
-                  delay: 0.8,
-                  ease: [0.25, 0.46, 0.45, 0.94]
-                }}
-                className="text-3d-gradient"
-              >
-                Your Info Packet
-              </motion.h2>
+    <div className="min-h-screen">
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-50 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto">
+          {/* Desktop Single Line Layout */}
+          <div className="hidden lg:flex items-center justify-between h-16">
+            {/* Left: Destination Info */}
+            <div className="flex items-center space-x-4 flex-shrink-0">
+              <Sparkles className="w-6 h-6 text-primary" />
+              <div>
+                <h3 className="">{destination.name}</h3>
+              </div>
             </div>
-          </div>
 
-          {/* Desktop Actions */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{
-              duration: 0.6,
-              delay: 1.0,
-              ease: [0.25, 0.46, 0.45, 0.94]
-            }}
-            className="hidden sm:flex items-center space-x-2"
-          >
-            <button
-              onClick={onRegeneratePlan}
-              className="flex items-center p-2 btn-3d-outline"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-            <button
-              className="flex items-center p-2 btn-3d-outline"
-              onClick={handleExportToPdf}
-              title="Export to PDF"
-            >
-              <FileText className="w-4 h-4 " />
-            </button>
-            <button
-              className="flex items-center p-2 btn-3d-outline"
-              onClick={handleExportToGoogleMaps}
-              disabled={isExportingKML}
-              title="Export to Google Maps (KML)"
-            >
-              {isExportingKML ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Download className="w-4 h-4" />
-              )}
-            </button>
-            <button
-              className="flex items-center p-2 btn-3d-outline"
-              onClick={handleShare}
-              disabled={isSharing}
-              title="Share this travel plan"
-            >
-              {isSharing ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent"></div>
-              ) : (
-                <Share2 className="w-4 h-4" />
-              )}
-            </button>
-          </motion.div>
+            {/* Center: Navigation */}
+            <nav className="flex items-center space-x-2 flex-1 justify-center max-w-5xl">
+              {["itinerary", "info", "food", "practical"].map((tab) => {
+                const tabDataMap = {
+                  itinerary: { label: "Itinerary", icon: <MapPinIcon3D size="xs" /> },
+                  info: { label: "What to See & Do", icon: <CameraIcon3D size="xs" /> },
+                  food: { label: "What to Eat", icon: <UtensilsIcon3D size="xs" /> },
+                  practical: { label: "Practical Info", icon: <NotebookIcon3D size="xs" /> },
+                } as const;
+                const tabData = tabDataMap[tab as keyof typeof tabDataMap];
 
-          {/* Mobile Actions Dropdown */}
-          <div className="relative mt-4 sm:hidden" ref={mobileActionsRef}>
-            <button
-              onClick={() => setShowMobileActions(!showMobileActions)}
-              className="flex items-center px-4 py-2 text-sm btn-3d-outline w-full justify-between"
-            >
-              <span className="text-foreground/50">Select...</span>
-              <ChevronDown
-                className={`w-4 h-4 transition-transform ${showMobileActions ? "rotate-180" : ""}`}
-              />
-            </button>
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab as any)}
+                    className={`flex items-center space-x-0 px-4 py-1 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === tab
+                      ? 'btn-3d-gradient !text-white [&>*]:!text-white rotate-1'
+                      : 'text-foreground-secondary hover:text-primary hover:bg-primary/10 hover:transform hover:-rotate-1'
+                      }`}
+                  >
+                    <span className="w-8 h-12">{tabData.icon}</span>
+                    <p className="hidden xl:inline font-bold -ml-6">{tabData.label}</p>
+                    {getTabLoadingState(tab as any).isLoading && (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
 
-            {showMobileActions && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-lg border border-border/50 py-1 z-50">
-                <button
-                  onClick={() => {
-                    onRegeneratePlan();
-                    setShowMobileActions(false);
-                  }}
-                  className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft"
-                >
-                  <RefreshCw className="w-4 h-4 mr-3" />
-                  Regenerate Plan
-                </button>
-                <button
-                  onClick={() => {
-                    handleExportToPdf();
-                    setShowMobileActions(false);
-                  }}
-                  className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft"
-                >
-                  <FileText className="w-4 h-4 mr-3" />
-                  Export to PDF
-                </button>
-                <button
-                  onClick={() => {
-                    handleExportToGoogleMaps();
-                    setShowMobileActions(false);
-                  }}
-                  disabled={isExportingKML}
-                  className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft disabled:opacity-50"
-                >
-                  {isExportingKML ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-3" />
-                  ) : (
-                    <Download className="w-4 h-4 mr-3" />
-                  )}
-                  Export to Maps
-                </button>
-                <button
-                  onClick={() => {
-                    handleShare();
-                    setShowMobileActions(false);
-                  }}
-                  disabled={isSharing}
-                  className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft disabled:opacity-50"
-                >
-                  {isSharing ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent mr-3"></div>
-                  ) : (
-                    <Share2 className="w-4 h-4 mr-3" />
-                  )}
-                  Share Plan
-                </button>
-              </div>
-            )}
-          </div>
-        </motion.div>
+            {/* Right: Hamburger Menu */}
+            <div className="relative flex-shrink-0" ref={mobileActionsRef}>
+              <button
+                onClick={() => setShowMobileActions(!showMobileActions)}
+                className="btn-3d-outline p-2 flex items-center space-x-2"
+                title="Actions"
+              >
+                {showMobileActions ? (
+                  <X className="w-4 h-4" />
+                ) : (
+                  <MoreVertical className="w-4 h-4" />
+                )}              </button>
 
-        {/* Navigation Tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.6,
-            delay: 1.2,
-            ease: [0.25, 0.46, 0.45, 0.94]
-          }}
-          className="mb-4 relative"
-        >
-          <div className="flex justify-center items-center gap-0 sm:gap-2 px-0 sm:px-2 max-w-none mx-auto">
-            <button
-              onClick={() => setActiveTab("itinerary")}
-              className={`group px-0 sm:px-2 transition-all duration-300 transform hover:scale-105 w-fit xl:w-auto border-0 shadow-none ${activeTab === "itinerary" ? "scale-110" : "hover:-translate-y-1"
-                }`}
-            >
-              <div className={`inline-flex flex-col sm:flex-row items-center justify-center p-1 sm:px-6 sm:py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "itinerary"
-                ? "bg-primary/20 text-primary -rotate-1 shadow-glow"
-                : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-primary/10 hover:to-primary/5 hover:text-primary hover:border-primary/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
-                }`}>
-                <MapIcon3D size="xs" />
-                <span className="hidden sm:block">Adventure Blueprint</span>
-                {getTabLoadingState('itinerary').isLoading && (
-                  <Loader2 className="w-3 h-3 ml-2 animate-spin" />
-                )}
-              </div>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("info")}
-              className={`group px-2 transition-all duration-300 transform hover:scale-105 w-fit xl:w-auto border-0 shadow-none ${activeTab === "info" ? "scale-110" : "hover:-translate-y-1"
-                }`}
-            >
-              <div className={`inline-flex flex-col sm:flex-row items-center justify-center p-1 sm:px-6 sm:py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "info"
-                ? "bg-secondary/20 text-secondary -rotate-2 shadow-glow-teal"
-                : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-secondary/10 hover:to-secondary/5 hover:text-secondary hover:border-secondary/20 rotate-2 hover:rotate-0 shadow-card hover:shadow-adventure-float"
-                }`}>
-                <NotebookIcon3D size="xs" />
-                <span className="hidden sm:block">Intelligence Briefing</span>
-                {getTabLoadingState('info').isLoading && (
-                  <Loader2 className="w-3 h-3 ml-2 animate-spin" />
-                )}
-              </div>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("practical")}
-              className={`group px-2 transition-all duration-300 transform hover:scale-105 w-fit xl:w-auto border-0 shadow-none ${activeTab === "practical" ? "scale-110" : "hover:-translate-y-1"
-                }`}
-            >
-              <div className={`inline-flex flex-col sm:flex-row items-center justify-center p-1 sm:px-6 sm:py-1.5 rounded-full font-bold text-sm transform transition-all duration-300 whitespace-nowrap ${activeTab === "practical"
-                ? "bg-accent/20 text-accent -rotate-2 shadow-glow-coral"
-                : "bg-gradient-to-br from-background/90 to-background-card/80 backdrop-blur-sm text-foreground-secondary border-2 border-border/40 hover:bg-gradient-to-br hover:from-accent/10 hover:to-accent/5 hover:text-accent hover:border-accent/20 rotate-1 hover:rotate-0 shadow-card hover:shadow-adventure-float"
-                }`}>
-                <SuitcaseIcon3D size="xs" />
-                <span className="hidden sm:block">Practical Guide</span>
-                {getTabLoadingState('practical').isLoading && (
-                  <Loader2 className="w-3 h-3 ml-2 animate-spin" />
-                )}
-              </div>
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Tab Content */}
-        {activeTab === "itinerary" && (
-          <div className="space-y-8 relative">
-            {/* Travel Itinerary */}
-            <div className="relative z-10">
-              {livePlan?.itinerary && livePlan?.itinerary.length > 0 ? (
-                <div className="space-y-8">
-                  {livePlan?.itinerary.map((day) => renderDayItinerary(day))}
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {/* Streaming skeleton for itinerary */}
-                  {isActivelyStreaming && getTabLoadingState('itinerary').isLoading ? (
-                    <div className="space-y-4">
-                      <div className="text-center mb-8">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
-                          <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                          <span className="text-sm font-medium text-primary">
-                            Crafting your adventure timeline...
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Day skeleton loaders */}
-                      {[1, 2, 3].map(day => (
-                        <div key={day} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 bg-primary/20 rounded-full animate-pulse"></div>
-                            <div className="h-5 bg-gray-200 rounded w-24 animate-pulse"></div>
-                          </div>
-                          <div className="space-y-3">
-                            <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                            <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                            <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-16">
-                      <div className="bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 rounded-3xl p-12 shadow-card transform -rotate-1">
-                        <div className="flex items-center justify-center mb-4">
-                          <MapIcon3D size="xl" animation="bounce" />
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">
-                          Adventure Map Loading...
-                        </h3>
-                        <p>
-                          No expedition details available for this destination yet.
-                        </p>
-                      </div>
-                    </div>
-                  )}
+              {showMobileActions && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-border/50 py-2 z-50">
+                  <button
+                    onClick={() => {
+                      onRegeneratePlan();
+                      setShowMobileActions(false);
+                    }}
+                    className="flex items-center justify-start px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-1" />
+                    Regenerate Plan
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleExportToPdf();
+                      setShowMobileActions(false);
+                    }}
+                    className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors"
+                  >
+                    <FileText className="w-4 h-4 mr-1" />
+                    Export to PDF
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleExportToGoogleMaps();
+                      setShowMobileActions(false);
+                    }}
+                    disabled={isExportingKML}
+                    className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50"
+                  >
+                    {isExportingKML ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                    ) : (
+                      <Download className="w-4 h-4 mr-1" />
+                    )}
+                    Export to Maps
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleShare();
+                      setShowMobileActions(false);
+                    }}
+                    disabled={isSharing}
+                    className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50"
+                  >
+                    {isSharing ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent mr-1"></div>
+                    ) : (
+                      <Share2 className="w-4 h-4 mr-1" />
+                    )}
+                    Share Plan
+                  </button>
                 </div>
               )}
             </div>
           </div>
-        )}
 
-        {activeTab === "info" && (
-          <div className="space-y-8">
-            {/* Streaming progress indicator for info tab */}
-            {isActivelyStreaming && getTabLoadingState('info').isLoading && (
-              <div className="text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-full">
-                  <Loader2 className="w-4 h-4 animate-spin text-secondary" />
-                  <span className="text-sm font-medium text-secondary">
-                    Gathering intelligence on {destination.name}...
-                  </span>
-                </div>
+          {/* Mobile & Tablet Layout */}
+          <div className="lg:hidden">
+            {/* Mobile Header */}
+            <div className="flex items-center justify-between h-12">
+              {/* Left: Destination */}
+              <div className="flex items-center space-x-3">
               </div>
-            )}
 
-            {/* Top Attractions */}
-            {livePlan?.placesToVisit ? (
-              <TravelPlanSection rotation="right" glowColor="primary">
-                <SectionHeader
-                  icon={MapPin}
-                  title="Must-See Spots"
-                  emoji="🏛️"
-                  badgeColor="primary"
-                />
-                {(() => {
-                  // Group places by category
-                  const placesByCategory = livePlan?.placesToVisit?.reduce(
-                    (acc, place) => {
-                      const category = place.category || "Other";
-                      if (!acc[category]) {
-                        acc[category] = [];
-                      }
-                      acc[category].push(place);
-                      return acc;
-                    },
-                    {} as Record<string, NonNullable<typeof livePlan>['placesToVisit']>,
-                  );
+              {/* Mobile Navigation Tabs */}
+              <div>
+                <div className="flex justify-center">
+                  <div className="flex space-x-1rounded-full">
+                    {["itinerary", "info", "food", "practical"].map((tab) => {
+                      const tabDataMap = {
+                        itinerary: { label: "Itinerary", icon: <MapPinIcon3D size="2xs" /> },
+                        info: { label: "Places", icon: <CameraIcon3D size="2xs" /> },
+                        food: { label: "Food", icon: <UtensilsIcon3D size="2xs" /> },
+                        practical: { label: "Practical", icon: <NotebookIcon3D size="2xs" /> },
+                      } as const;
+                      const tabData = tabDataMap[tab as keyof typeof tabDataMap];
 
-                  return Object.entries(placesByCategory || {}).map(
-                    ([category, places]) => (
-                      <CategoryGroup
-                        key={category}
-                        title={
-                          category.charAt(0).toUpperCase() + category.slice(1)
-                        }
-                      >
-                        <ItemGrid columns={2}>
-                          {places?.map((place, index) => (
-                            <ItemCard
-                              key={index}
-                              title={place.name}
-                              description={place.description}
-                              searchLink={generateGoogleSearchLink(place.name)}
-                            >
-                              {place.ticketInfo && (
-                                <div className="mt-3 space-y-2">
-                                  {(place.ticketInfo.required || place.ticketInfo.recommended) && (
-                                    <div className="flex flex-col items-start justify-start space-y-2">
-                                      {place.ticketInfo.required && (
-                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-error/10 text-error border border-error/20">
-                                          🎫 Tickets Required
-                                        </span>
-                                      )}
-                                      {place.ticketInfo.recommended && !place.ticketInfo.required && (
-                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber/10 text-amber border border-amber/20">
-                                          🎫 Tickets Recommended
-                                        </span>
-                                      )}
-
-                                      <div>
-                                        <p className="text-sm">
-                                          💡 {place.ticketInfo.bookingAdvice}
-                                        </p>
-                                        {place.ticketInfo.peakTime && (
-                                          <p className="text-xs mt-2">
-                                            <strong>Peak time:</strong> {place.ticketInfo.peakTime.join(", ")}
-                                          </p>
-                                        )}
-                                        {place.ticketInfo.averageWaitTime && (
-                                          <p className="text-xs">
-                                            <strong>Wait time:</strong> {place.ticketInfo.averageWaitTime}
-                                          </p>
-                                        )}
-                                      </div>
-                                    </div>
-                                  )}
-
-                                </div>
-                              )}
-                            </ItemCard>
-                          ))}
-                        </ItemGrid>
-                      </CategoryGroup>
-                    ),
-                  );
-                })()}
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                      <span className="text-sm font-bold">🏛️ Must-See Spots</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      return (
+                        <button
+                          key={tab}
+                          onClick={() => setActiveTab(tab as any)}
+                          className={`flex items-center space-x-1 p-1 text-xs font-medium rounded-full transition-all duration-300 ${activeTab === tab
+                            ? 'btn-3d-secondary !text-white [&>*]:!text-white transform rotate-1'
+                            : 'text-foreground-secondary hover:text-primary hover:bg-primary/10'
+                            }`}
+                        >
+                          <span>{tabData.icon}</span>
+                          {getTabLoadingState(tab as any).isLoading && (
+                            <Loader2 className="w-2 h-2 animate-spin" />
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="space-y-3">
-                      <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                    </div>
-                  ))}
-                </div>
               </div>
-            )}
 
-            {/* Best Neighborhoods */}
-            {livePlan?.neighborhoods ? (
-              <TravelPlanSection rotation="left" glowColor="accent">
-                <SectionHeader
-                  icon={Home}
-                  title="Perfect Base Camps"
-                  emoji="🏡"
-                  badgeColor="accent"
-                />
-                <ItemGrid columns={1}>
-                  {livePlan?.neighborhoods.map((neighborhood, index) => (
-                    <ItemCard
-                      key={index}
-                      title={neighborhood.name}
-                      subtitle={neighborhood.vibe}
-                      description={neighborhood.summary}
+              {/* Right: Hamburger Menu */}
+              <div className="relative" ref={mobileActionsRef}>
+                <button
+                  onClick={() => setShowMobileActions(!showMobileActions)}
+                  className="btn-3d-outline p-2"
+                  title="Menu"
+                >
+                  {showMobileActions ? (
+                    <X className="w-3 h-3" />
+                  ) : (
+                    <Menu className="w-3 h-3" />
+                  )}
+                </button>
+
+                {showMobileActions && (
+                  <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-lg border border-border/50 py-2 z-50">
+                    <button
+                      onClick={() => {
+                        onRegeneratePlan();
+                        setShowMobileActions(false);
+                      }}
+                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors"
                     >
-                      <div className="mt-2">
-                        <p className="italic mb-4 text-sm">
-                          <span className="font-bold text-sm text-primary">Best for:</span> {neighborhood.bestFor.slice(9)}
-                        </p>
-                        <div className="flex gap-4">
-                          <div className="flex-1 flex flex-col items-start">
-                            <p className="bg-success/10 border border-success/20 rounded-lg p-1 font-medium text-sm text-success mb-2">Pros</p>
-                            <ul className="text-foreground/80">
-                              {neighborhood.pros.map((pro, idx) => (
-                                <li className="mr-2 text-sm" key={idx}>• {pro}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div className="flex-1 flex flex-col items-start">
-                            <p className="bg-error/10 border border-error/20 rounded-lg p-1 font-medium text-sm text-error mb-2">Cons</p>
-                            <ul className="text-foreground/80">
-                              {neighborhood.cons.map((con, idx) => (
-                                <li className="mr-2 text-sm" key={idx}>• {con}</li>
-                              ))}
-                            </ul>
+                      <RefreshCw className="w-4 h-4 mr-1 text-primary" />
+                      <span>Regenerate Plan</span>
+                    </button>
+                    <hr className="border-border/30 mx-2" />
+                    <button
+                      onClick={() => {
+                        handleExportToPdf();
+                        setShowMobileActions(false);
+                      }}
+                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors"
+                    >
+                      <FileText className="w-4 h-4 mr-1 text-secondary" />
+                      <span>Export to PDF</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleExportToGoogleMaps();
+                        setShowMobileActions(false);
+                      }}
+                      disabled={isExportingKML}
+                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50"
+                    >
+                      {isExportingKML ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-1 text-accent" />
+                      ) : (
+                        <Download className="w-4 h-4 mr-1 text-accent" />
+                      )}
+                      <span>Export to Maps</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleShare();
+                        setShowMobileActions(false);
+                      }}
+                      disabled={isSharing}
+                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50"
+                    >
+                      {isSharing ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent mr-1"></div>
+                      ) : (
+                        <Share2 className="w-4 h-4 mr-1 text-primary" />
+                      )}
+                      <span>Share Plan</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2 sm:py-4">
+        <div className="pt-4">
+
+          {/* Tab Content */}
+          {activeTab === "itinerary" && (
+            <div className="space-y-8 relative">
+              {/* Travel Itinerary */}
+              <div className="relative z-10">
+                {livePlan?.itinerary && livePlan?.itinerary.length > 0 ? (
+                  <div className="space-y-8">
+                    {livePlan?.itinerary.map((day) => renderDayItinerary(day))}
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Streaming skeleton for itinerary */}
+                    {isActivelyStreaming && getTabLoadingState('itinerary').isLoading ? (
+                      <div className="space-y-4">
+                        <div className="text-center mb-8">
+                          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
+                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                            <span className="text-sm font-medium text-primary">
+                              Crafting your adventure timeline...
+                            </span>
                           </div>
                         </div>
+
+                        {/* Day skeleton loaders */}
+                        {[1, 2, 3].map(day => (
+                          <div key={day} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
+                            <div className="flex items-center gap-3 mb-4">
+                              <div className="w-8 h-8 bg-primary/20 rounded-full animate-pulse"></div>
+                              <div className="h-5 bg-gray-200 rounded w-24 animate-pulse"></div>
+                            </div>
+                            <div className="space-y-3">
+                              <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                              <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                              <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </ItemCard>
-                  ))}
-                </ItemGrid>
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
-                      <span className="text-sm font-bold">🏡 Perfect Base Camps</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                    ) : (
+                      <div className="text-center py-16">
+                        <div className="bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 rounded-3xl p-12 shadow-card transform -rotate-1">
+                          <div className="flex items-center justify-center mb-4">
+                            <MapIcon3D size="xl" animation="bounce" />
+                          </div>
+                          <h3 className="text-xl font-bold mb-2">
+                            Adventure Map Loading...
+                          </h3>
+                          <p>
+                            No expedition details available for this destination yet.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "info" && (
+            <div className="space-y-8">
+              {/* Streaming progress indicator for info tab */}
+              {isActivelyStreaming && getTabLoadingState('info').isLoading && (
+                <div className="text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-full">
+                    <Loader2 className="w-4 h-4 animate-spin text-secondary" />
+                    <span className="text-sm font-medium text-secondary">
+                      Gathering intelligence on {destination.name}...
+                    </span>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="space-y-3">
-                      <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+              )}
 
-            {/* Hotel Recommendations */}
-            {livePlan?.hotelRecommendations ? (
-              <TravelPlanSection rotation="right" glowColor="secondary">
-                <SectionHeader
-                  icon={Home}
-                  title="Great Places to Stay"
-                  emoji="🛏️"
-                  badgeColor="secondary"
-                />
-                {(() => {
-                  // Group hotels by neighborhood
-                  const hotelsByNeighborhood =
-                    livePlan?.hotelRecommendations?.reduce(
-                      (acc, hotel) => {
+              {/* Top Attractions */}
+              {livePlan?.placesToVisit ? (
+                <TravelPlanSection rotation="right" glowColor="primary">
+                  <SectionHeader
+                    icon={MapPin}
+                    title="Must-See Spots"
+                    emoji="🏛️"
+                    badgeColor="primary"
+                  />
+                  {(() => {
+                    // Group places by category
+                    const placesByCategory = livePlan?.placesToVisit?.reduce(
+                      (acc, place) => {
+                        const category = place.category || "Other";
+                        if (!acc[category]) {
+                          acc[category] = [];
+                        }
+                        acc[category].push(place);
+                        return acc;
+                      },
+                      {} as Record<string, NonNullable<typeof livePlan>['placesToVisit']>,
+                    );
+
+                    return Object.entries(placesByCategory || {}).map(
+                      ([category, places]) => (
+                        <CategoryGroup
+                          key={category}
+                          title={
+                            category.charAt(0).toUpperCase() + category.slice(1)
+                          }
+                        >
+                          <ItemGrid columns={2}>
+                            {places?.map((place, index) => (
+                              <ItemCard
+                                key={index}
+                                title={place.name}
+                                description={place.description}
+                                searchLink={generateGoogleSearchLink(place.name)}
+                              >
+                                {place.ticketInfo && (
+                                  <div className="mt-3 space-y-2">
+                                    {(place.ticketInfo.required || place.ticketInfo.recommended) && (
+                                      <div className="flex flex-col items-start justify-start space-y-2">
+                                        {place.ticketInfo.required && (
+                                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-error/10 text-error border border-error/20">
+                                            🎫 Tickets Required
+                                          </span>
+                                        )}
+                                        {place.ticketInfo.recommended && !place.ticketInfo.required && (
+                                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber/10 text-amber border border-amber/20">
+                                            🎫 Tickets Recommended
+                                          </span>
+                                        )}
+
+                                        <div>
+                                          <p className="text-sm">
+                                            💡 {place.ticketInfo.bookingAdvice}
+                                          </p>
+                                          {place.ticketInfo.peakTime && (
+                                            <p className="text-xs mt-2">
+                                              <strong>Peak time:</strong> {place.ticketInfo.peakTime.join(", ")}
+                                            </p>
+                                          )}
+                                          {place.ticketInfo.averageWaitTime && (
+                                            <p className="text-xs">
+                                              <strong>Wait time:</strong> {place.ticketInfo.averageWaitTime}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                  </div>
+                                )}
+                              </ItemCard>
+                            ))}
+                          </ItemGrid>
+                        </CategoryGroup>
+                      ),
+                    );
+                  })()}
+                </TravelPlanSection>
+              ) : isActivelyStreaming && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                        <span className="text-sm font-bold">🏛️ Must-See Spots</span>
+                      </div>
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[1, 2, 3, 4].map(i => (
+                      <div key={i} className="space-y-3">
+                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Best Neighborhoods */}
+              {livePlan?.neighborhoods ? (
+                <TravelPlanSection rotation="left" glowColor="accent">
+                  <SectionHeader
+                    icon={Home}
+                    title="Perfect Base Camps"
+                    emoji="🏡"
+                    badgeColor="accent"
+                  />
+                  <ItemGrid columns={2}>
+                    {livePlan?.neighborhoods.map((neighborhood, index) => (
+                      <ItemCard
+                        key={index}
+                        title={neighborhood.name}
+                        subtitle={neighborhood.vibe}
+                        description={neighborhood.summary}
+                      >
+                        <div className="mt-2">
+                          <p className="italic mb-4 text-sm">
+                            <span className="font-bold text-sm text-primary">Best for:</span> {neighborhood.bestFor.slice(9)}
+                          </p>
+                          <div className="flex gap-4">
+                            <div className="flex-1 flex flex-col items-start">
+                              <p className="bg-success/10 border border-success/20 rounded-lg p-1 font-medium text-sm text-success mb-2">Pros</p>
+                              <ul className="text-foreground/80">
+                                {neighborhood.pros.map((pro, idx) => (
+                                  <li className="mr-2 text-sm" key={idx}>• {pro}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div className="flex-1 flex flex-col items-start">
+                              <p className="bg-error/10 border border-error/20 rounded-lg p-1 font-medium text-sm text-error mb-2">Cons</p>
+                              <ul className="text-foreground/80">
+                                {neighborhood.cons.map((con, idx) => (
+                                  <li className="mr-2 text-sm" key={idx}>• {con}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </ItemCard>
+                    ))}
+                  </ItemGrid>
+                </TravelPlanSection>
+              ) : isActivelyStreaming && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
+                        <span className="text-sm font-bold">🏡 Perfect Base Camps</span>
+                      </div>
+                      <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="space-y-3">
+                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Hotel Recommendations */}
+              {livePlan?.hotelRecommendations ? (
+                <TravelPlanSection rotation="right" glowColor="secondary">
+                  <SectionHeader
+                    icon={Home}
+                    title="Great Places to Stay"
+                    emoji="🛏️"
+                    badgeColor="secondary"
+                  />
+                  {(() => {
+                    // Group hotels by neighborhood
+                    const hotelsByNeighborhood =
+                      livePlan?.hotelRecommendations?.reduce(
+                        (acc, hotel) => {
+                          const neighborhood =
+                            hotel.neighborhood || "Other Areas";
+                          if (!acc[neighborhood]) {
+                            acc[neighborhood] = [];
+                          }
+                          acc[neighborhood].push(hotel);
+                          return acc;
+                        },
+                        {} as Record<string, NonNullable<typeof livePlan>['hotelRecommendations']>,
+                      );
+
+                    return Object.entries(hotelsByNeighborhood || {}).map(
+                      ([neighborhood, hotels]) => (
+                        <CategoryGroup
+                          key={neighborhood}
+                          title={neighborhood}
+                          icon={MapPin}
+                        >
+                          <ItemGrid columns={3}>
+                            {hotels?.map((hotel, index) => (
+                              <ItemCard
+                                key={index}
+                                title={hotel.name}
+                                subtitle={hotel.priceRange}
+                                description={hotel.description}
+                                searchLink={generateGoogleSearchLink(hotel.name)}
+                                tags={hotel.amenities}
+                              />
+                            ))}
+                          </ItemGrid>
+                        </CategoryGroup>
+                      ),
+                    );
+                  })()}
+                </TravelPlanSection>
+              ) : isActivelyStreaming && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
+                        <span className="text-sm font-bold">🛏️ Great Places to Stay</span>
+                      </div>
+                      <Loader2 className="w-4 h-4 animate-spin text-secondary" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="space-y-3">
+                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Local Events */}
+              {(livePlan?.localEvents && livePlan.localEvents.length > 0) ? (
+                <TravelPlanSection rotation="left" glowColor="primary">
+                  <SectionHeader
+                    icon={Calendar}
+                    title="Local Festivities"
+                    emoji="🎪"
+                    badgeColor="primary"
+                  />
+                  <ItemGrid columns={3}>
+                    {livePlan?.localEvents.map((event, index) => (
+                      <ItemCard
+                        key={index}
+                        title={event.name}
+                        subtitle={`${event.type} • ${event.dates}`}
+                        description={event.description}
+                        metadata={`📍 ${event.location}`}
+                      />
+                    ))}
+                  </ItemGrid>
+                </TravelPlanSection>
+              ) : isActivelyStreaming && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                        <span className="text-sm font-bold">🎪 Local Festivities</span>
+                      </div>
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="space-y-3">
+                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Activities & Experiences */}
+              {livePlan?.activities ? (
+                <TravelPlanSection rotation="right" glowColor="accent">
+                  <SectionHeader
+                    icon={Compass}
+                    title="Cool Local Experiences"
+                    emoji="⚡"
+                    badgeColor="accent"
+                  />
+                  <ItemGrid columns={2}>
+                    {livePlan?.activities.map((activity, index) => {
+                      const tags = [];
+                      if (activity.localSpecific) tags.push("Local Specialty");
+                      if (
+                        activity.experienceType &&
+                        activity.experienceType !== "other"
+                      ) {
+                        tags.push(
+                          activity.experienceType.charAt(0).toUpperCase() +
+                          activity.experienceType.slice(1),
+                        );
+                      }
+
+                      return (
+                        <ItemCard
+                          key={index}
+                          title={activity.name}
+                          subtitle={`${activity.type} • ${activity.duration}`}
+                          description={activity.description}
+                          bookingLinks={generateBookingLinks(activity.name)}
+                          tags={tags}
+                        />
+                      );
+                    })}
+                  </ItemGrid>
+                </TravelPlanSection>
+              ) : isActivelyStreaming && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
+                        <span className="text-sm font-bold">⚡ Cool Local Experiences</span>
+                      </div>
+                      <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[1, 2, 3, 4].map(i => (
+                      <div key={i} className="space-y-3">
+                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Local History */}
+              {livePlan?.history ? (
+                <TravelPlanSection rotation="right" glowColor="secondary">
+                  <SectionHeader
+                    icon={BookOpen}
+                    title="Local History"
+                    emoji="🏰"
+                    badgeColor="secondary"
+                  />
+
+                  <p className="leading-relaxed">
+                    {livePlan?.history}
+                  </p>
+                </TravelPlanSection>
+              ) : isActivelyStreaming && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
+                        <span className="text-sm font-bold">🏰 Local History</span>
+                      </div>
+                      <Loader2 className="w-4 h-4 animate-spin text-secondary" />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "food" && (
+            <div className="space-y-8">
+              {/* Streaming progress indicator for food tab */}
+              {isActivelyStreaming && getTabLoadingState('food').isLoading && (
+                <div className="text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
+                    <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                    <span className="text-sm font-medium text-accent">
+                      Discovering {destination.name}'s culinary scene...
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Dining & Nightlife */}
+              {(livePlan?.restaurants && livePlan?.bars) ? (
+                <TravelPlanSection rotation="left" glowColor="primary">
+                  <SectionHeader
+                    icon={Utensils}
+                    title="Where to Eat & Drink"
+                    emoji="🍴"
+                    badgeColor="primary"
+                  />
+                  {(() => {
+                    // Separate restaurants and bars with type indicators
+                    const restaurants = (livePlan?.restaurants || []).map((restaurant) => ({
+                      ...restaurant,
+                      type: "restaurant" as const,
+                      searchType: "restaurant",
+                    }));
+
+                    const bars = (livePlan?.bars || []).map((bar) => ({
+                      name: bar.name,
+                      cuisine: bar.category,
+                      priceRange: bar.atmosphere,
+                      neighborhood: bar.neighborhood || "Other Areas",
+                      description: bar.description,
+                      type: "bar" as const,
+                      searchType: "bar",
+                    }));
+
+                    // Group restaurants by neighborhood
+                    const restaurantsByNeighborhood = restaurants.reduce(
+                      (acc, restaurant) => {
                         const neighborhood =
-                          hotel.neighborhood || "Other Areas";
+                          restaurant.neighborhood || "Other Areas";
                         if (!acc[neighborhood]) {
                           acc[neighborhood] = [];
                         }
-                        acc[neighborhood].push(hotel);
+                        acc[neighborhood].push(restaurant);
                         return acc;
                       },
-                      {} as Record<string, NonNullable<typeof livePlan>['hotelRecommendations']>,
+                      {} as Record<string, typeof restaurants>,
                     );
 
-                  return Object.entries(hotelsByNeighborhood || {}).map(
-                    ([neighborhood, hotels]) => (
+                    // Group bars by neighborhood
+                    const barsByNeighborhood = bars.reduce(
+                      (acc, bar) => {
+                        const neighborhood = bar.neighborhood || "Other Areas";
+                        if (!acc[neighborhood]) {
+                          acc[neighborhood] = [];
+                        }
+                        acc[neighborhood].push(bar);
+                        return acc;
+                      },
+                      {} as Record<string, typeof bars>,
+                    );
+
+                    // Get all unique neighborhoods
+                    const allNeighborhoods = Array.from(
+                      new Set([
+                        ...Object.keys(restaurantsByNeighborhood),
+                        ...Object.keys(barsByNeighborhood),
+                      ]),
+                    );
+
+                    return allNeighborhoods.map((neighborhood) => (
                       <CategoryGroup
                         key={neighborhood}
                         title={neighborhood}
                         icon={MapPin}
                       >
-                        <ItemGrid columns={3}>
-                          {hotels?.map((hotel, index) => (
-                            <ItemCard
-                              key={index}
-                              title={hotel.name}
-                              subtitle={hotel.priceRange}
-                              description={hotel.description}
-                              searchLink={generateGoogleSearchLink(hotel.name)}
-                              tags={hotel.amenities}
-                            />
-                          ))}
-                        </ItemGrid>
-                      </CategoryGroup>
-                    ),
-                  );
-                })()}
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
-                      <span className="text-sm font-bold">🛏️ Great Places to Stay</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-secondary" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="space-y-3">
-                      <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Dining & Nightlife */}
-            {(livePlan?.restaurants && livePlan?.bars) ? (
-              <TravelPlanSection rotation="left" glowColor="primary">
-                <SectionHeader
-                  icon={Utensils}
-                  title="Where to Eat & Drink"
-                  emoji="🍴"
-                  badgeColor="primary"
-                />
-                {(() => {
-                  // Separate restaurants and bars with type indicators
-                  const restaurants = (livePlan?.restaurants || []).map((restaurant) => ({
-                    ...restaurant,
-                    type: "restaurant" as const,
-                    searchType: "restaurant",
-                  }));
-
-                  const bars = (livePlan?.bars || []).map((bar) => ({
-                    name: bar.name,
-                    cuisine: bar.category,
-                    priceRange: bar.atmosphere,
-                    neighborhood: bar.neighborhood || "Other Areas",
-                    description: bar.description,
-                    type: "bar" as const,
-                    searchType: "bar",
-                  }));
-
-                  // Group restaurants by neighborhood
-                  const restaurantsByNeighborhood = restaurants.reduce(
-                    (acc, restaurant) => {
-                      const neighborhood =
-                        restaurant.neighborhood || "Other Areas";
-                      if (!acc[neighborhood]) {
-                        acc[neighborhood] = [];
-                      }
-                      acc[neighborhood].push(restaurant);
-                      return acc;
-                    },
-                    {} as Record<string, typeof restaurants>,
-                  );
-
-                  // Group bars by neighborhood
-                  const barsByNeighborhood = bars.reduce(
-                    (acc, bar) => {
-                      const neighborhood = bar.neighborhood || "Other Areas";
-                      if (!acc[neighborhood]) {
-                        acc[neighborhood] = [];
-                      }
-                      acc[neighborhood].push(bar);
-                      return acc;
-                    },
-                    {} as Record<string, typeof bars>,
-                  );
-
-                  // Get all unique neighborhoods
-                  const allNeighborhoods = Array.from(
-                    new Set([
-                      ...Object.keys(restaurantsByNeighborhood),
-                      ...Object.keys(barsByNeighborhood),
-                    ]),
-                  );
-
-                  return allNeighborhoods.map((neighborhood) => (
-                    <CategoryGroup
-                      key={neighborhood}
-                      title={neighborhood}
-                      icon={MapPin}
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Restaurants column */}
-                        {restaurantsByNeighborhood[neighborhood] &&
-                          restaurantsByNeighborhood[neighborhood].length > 0 && (
-                            <div>
-                              <h5 className="mb-3 flex items-center">
-                                <Utensils className="w-5 h-5 mr-2 text-accent" />
-                                Restaurants
-                              </h5>
-                              <div className="space-y-4">
-                                {restaurantsByNeighborhood[neighborhood].map(
-                                  (restaurant, index) => (
-                                    <ItemCard
-                                      key={`restaurant-${index}`}
-                                      title={restaurant.name}
-                                      subtitle={`${restaurant.cuisine} • ${restaurant.priceRange}`}
-                                      description={restaurant.description}
-                                      searchLink={generateGoogleSearchLink(
-                                        restaurant.name,
-                                        "restaurant",
-                                      )}
-                                      tags={restaurant.specialDishes}
-                                    >
-                                      {restaurant.reservationsRecommended ===
-                                        "Yes" && (
-                                          <div className="mt-3 text-sm text-amber font-medium">
-                                            💡 Reservations recommended
-                                          </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          {/* Restaurants column */}
+                          {restaurantsByNeighborhood[neighborhood] &&
+                            restaurantsByNeighborhood[neighborhood].length > 0 && (
+                              <div>
+                                <h5 className="mb-3 flex items-center">
+                                  <Utensils className="w-5 h-5 mr-2 text-accent" />
+                                  Restaurants
+                                </h5>
+                                <div className="space-y-4">
+                                  {restaurantsByNeighborhood[neighborhood].map(
+                                    (restaurant, index) => (
+                                      <ItemCard
+                                        key={`restaurant-${index}`}
+                                        title={restaurant.name}
+                                        subtitle={`${restaurant.cuisine} • ${restaurant.priceRange}`}
+                                        description={restaurant.description}
+                                        searchLink={generateGoogleSearchLink(
+                                          restaurant.name,
+                                          "restaurant",
                                         )}
-                                    </ItemCard>
-                                  ),
-                                )}
-                              </div>
-                            </div>
-                          )}
-
-                        {/* Bars column */}
-                        {barsByNeighborhood[neighborhood] &&
-                          barsByNeighborhood[neighborhood].length > 0 && (
-                            <div>
-                              <h5 className="mb-3 flex items-center">
-                                <BeerIcon className="w-5 h-5 mr-2 text-secondary" />
-                                Bars & Nightlife
-                              </h5>
-                              <div className="space-y-4">
-                                {barsByNeighborhood[neighborhood].map(
-                                  (bar, index) => (
-                                    <ItemCard
-                                      key={`bar-${index}`}
-                                      title={bar.name}
-                                      subtitle={`${bar.cuisine} • ${bar.priceRange}`}
-                                      description={bar.description}
-                                      searchLink={generateGoogleSearchLink(
-                                        bar.name,
-                                        "bar",
-                                      )}
-                                    />
-                                  ),
-                                )}
-                              </div>
-                            </div>
-                          )}
-                      </div>
-                    </CategoryGroup>
-                  ));
-                })()}
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                      <span className="text-sm font-bold">🍴 Where to Eat & Drink</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Utensils className="w-5 h-5 text-accent" />
-                      <span className="font-medium">Restaurants</span>
-                    </div>
-                    {[1, 2].map(item => (
-                      <div key={item} className="space-y-3">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <BeerIcon className="w-5 h-5 text-secondary" />
-                      <span className="font-medium">Bars & Nightlife</span>
-                    </div>
-                    {[1, 2].map(item => (
-                      <div key={item} className="space-y-3">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Local Specialties */}
-            {livePlan?.mustTryFood?.items ? (
-              <TravelPlanSection rotation="right" glowColor="accent">
-                <SectionHeader
-                  icon={Utensils}
-                  title="Must-Try Local Flavors"
-                  emoji="🤤"
-                  badgeColor="accent"
-                />
-                {(() => {
-                  // Group food items by category
-                  const foodByCategory = (livePlan?.mustTryFood?.items || []).reduce(
-                    (acc, item) => {
-                      const category = item.category;
-                      if (!acc[category]) {
-                        acc[category] = [];
-                      }
-                      acc[category].push(item);
-                      return acc;
-                    },
-                    {} as Record<string, NonNullable<NonNullable<typeof livePlan>['mustTryFood']>['items']>,
-                  );
-
-                  const categoryTitles: Record<string, string> = {
-                    main: "Main Dishes",
-                    dessert: "Desserts",
-                    drink: "Local Drinks",
-                    snack: "Snacks",
-                  };
-
-                  // Separate main dishes from other categories
-                  const mainDishes = foodByCategory["main"] || [];
-                  const otherCategories = Object.entries(foodByCategory).filter(
-                    ([category]) => category !== "main",
-                  );
-
-                  return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      {/* Main Dishes Column */}
-                      <div>
-                        {mainDishes.length > 0 && (
-                          <CategoryGroup title="Main Dishes">
-                            <div className="space-y-4">
-                              {mainDishes.map((item, index) => (
-                                <ItemCard
-                                  key={index}
-                                  title={item.name}
-                                  description={item.description}
-                                  searchLink={generateGoogleSearchLink(
-                                    item.name,
-                                    "food",
-                                  )}
-                                  metadata={
-                                    item.whereToFind
-                                      ? `📍 ${item.whereToFind}`
-                                      : undefined
-                                  }
-                                />
-                              ))}
-                            </div>
-                          </CategoryGroup>
-                        )}
-                      </div>
-
-                      {/* Other Categories Column */}
-                      <div className="space-y-6">
-                        {otherCategories.map(([category, items]) => (
-                          <CategoryGroup
-                            key={category}
-                            title={categoryTitles[category] || category}
-                          >
-                            <div className="space-y-4">
-                              {items.map((item, index) => (
-                                <ItemCard
-                                  key={index}
-                                  title={item.name}
-                                  description={item.description}
-                                  searchLink={generateGoogleSearchLink(
-                                    item.name,
-                                    "food",
-                                  )}
-                                  metadata={
-                                    item.whereToFind
-                                      ? `📍 ${item.whereToFind}`
-                                      : undefined
-                                  }
-                                />
-                              ))}
-                            </div>
-                          </CategoryGroup>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
-                      <span className="text-sm font-bold">🤤 Must-Try Local Flavors</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-accent" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Utensils className="w-5 h-5 text-secondary" />
-                      <span className="font-medium">Main Dishes</span>
-                    </div>
-                    {[1, 2, 3].map(item => (
-                      <div key={item} className="space-y-3">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Coffee className="w-5 h-5 text-accent" />
-                      <span className="font-medium">Desserts & Drinks</span>
-                    </div>
-                    {[1, 2].map(item => (
-                      <div key={item} className="space-y-3">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Local Events */}
-            {(livePlan?.localEvents && livePlan.localEvents.length > 0) ? (
-              <TravelPlanSection rotation="left" glowColor="primary">
-                <SectionHeader
-                  icon={Calendar}
-                  title="Local Festivities"
-                  emoji="🎪"
-                  badgeColor="primary"
-                />
-                <ItemGrid columns={3}>
-                  {livePlan?.localEvents.map((event, index) => (
-                    <ItemCard
-                      key={index}
-                      title={event.name}
-                      subtitle={`${event.type} • ${event.dates}`}
-                      description={event.description}
-                      metadata={`📍 ${event.location}`}
-                    />
-                  ))}
-                </ItemGrid>
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                      <span className="text-sm font-bold">🎪 Local Festivities</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="space-y-3">
-                      <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Activities & Experiences */}
-            {livePlan?.activities ? (
-              <TravelPlanSection rotation="right" glowColor="accent">
-                <SectionHeader
-                  icon={Compass}
-                  title="Cool Local Experiences"
-                  emoji="⚡"
-                  badgeColor="accent"
-                />
-                <ItemGrid columns={2}>
-                  {livePlan?.activities.map((activity, index) => {
-                    const tags = [];
-                    if (activity.localSpecific) tags.push("Local Specialty");
-                    if (
-                      activity.experienceType &&
-                      activity.experienceType !== "other"
-                    ) {
-                      tags.push(
-                        activity.experienceType.charAt(0).toUpperCase() +
-                        activity.experienceType.slice(1),
-                      );
-                    }
-
-                    return (
-                      <ItemCard
-                        key={index}
-                        title={activity.name}
-                        subtitle={`${activity.type} • ${activity.duration}`}
-                        description={activity.description}
-                        bookingLinks={generateBookingLinks(activity.name)}
-                        tags={tags}
-                      />
-                    );
-                  })}
-                </ItemGrid>
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
-                      <span className="text-sm font-bold">⚡ Cool Local Experiences</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-accent" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="space-y-3">
-                      <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Local History */}
-            {livePlan?.history ? (
-              <TravelPlanSection rotation="right" glowColor="secondary">
-                <SectionHeader
-                  icon={BookOpen}
-                  title="Local History"
-                  emoji="🏰"
-                  badgeColor="secondary"
-                />
-
-                <p className="leading-relaxed">
-                  {livePlan?.history}
-                </p>
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
-                      <span className="text-sm font-bold">🏰 Local History</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-secondary" />
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === "practical" && (
-          <div className="space-y-8">
-            {/* Streaming progress indicator for practical tab */}
-            {isActivelyStreaming && getTabLoadingState('practical').isLoading && (
-              <div className="text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
-                  <Loader2 className="w-4 h-4 animate-spin text-accent" />
-                  <span className="text-sm font-medium text-accent">
-                    Compiling practical travel guide...
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Getting Around */}
-            {livePlan?.transportationInfo ? (
-              <TravelPlanSection rotation="left" glowColor="primary">
-                <SectionHeader
-                  icon={Compass}
-                  title="Getting Around"
-                  emoji="🚌"
-                  badgeColor="primary"
-                />
-
-                {/* City Transportation - 2-column layout */}
-                <ContentGrid columns={2} className="mb-8">
-                  <ContentCard title="Public Transport" icon="🚇">
-                    <p className="mb-3">
-                      {livePlan?.transportationInfo.publicTransport}
-                    </p>
-                    <div className="flex items-center">
-                      <span className="text-sm mr-2">
-                        💳 Credit cards:
-                      </span>
-                      <span
-                        className={`text-sm font-medium px-2 py-1 rounded-full ${livePlan?.transportationInfo.creditCardPayment
-                          ? "bg-green-100 text-green-700"
-                          : "bg-amber-100 text-amber-700"
-                          }`}
-                      >
-                        {livePlan?.transportationInfo.creditCardPayment
-                          ? "Accepted"
-                          : "Not accepted"}
-                      </span>
-                    </div>
-                  </ContentCard>
-
-                  <ContentCard title="Taxis & Rideshare" icon="🚕">
-                    <p className="mb-3">
-                      {livePlan?.transportationInfo.ridesharing}
-                    </p>
-                    <div className="flex flex-col justify-start items-start mb-3">
-                      <p className="font-bold mb-2">
-                        💰 Taxi Average cost
-                      </p>
-                      <span className="text-sm text-primary">
-                        {livePlan?.transportationInfo.taxiInfo?.averageCost}
-                      </span>
-                    </div>
-                    {livePlan?.transportationInfo.taxiInfo?.tips && (
-                      <div>
-                        <div className="flex items-center mb-2">
-                          {/* <span className="text-sm mr-2">💡</span> */}
-                          <p className="font-bold">
-                            💡 Pro Tips
-                          </p>
-                        </div>
-                        <ul className="space-y-1">
-                          {livePlan?.transportationInfo.taxiInfo.tips.map(
-                            (tip, index) => (
-                              <li
-                                key={index}
-                                className="flex items-start text-sm"
-                              >
-                                <span className="text-primary mr-2">
-                                  •
-                                </span>
-                                <span>
-                                  {tip}
-                                </span>
-                              </li>
-                            ),
-                          )}
-                        </ul>
-                      </div>
-                    )}
-                  </ContentCard>
-                </ContentGrid>
-
-                {/* Airport Transportation - Full width dedicated section */}
-
-                <div className="border-t border-border/30 pt-8">
-                  <div className="flex items-center mb-6">
-                    <h6>
-                      ✈️ Airport Transportation
-                    </h6>
-                  </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {livePlan?.transportationInfo.airportTransport?.airports?.map(
-                      (airport, airportIndex) => (
-                        <div
-                          key={airportIndex}
-                          className="bg-gradient-to-br from-background/80 to-background-card/70 backdrop-blur-sm border-2 border-border/30 hover:border-primary/40 rounded-2xl p-6 shadow-card hover:shadow-adventure-float transition-all duration-300"
-                        >
-                          <div className="mb-6">
-                            <div className="flex items-center mb-2">
-                              <h6 className="font-medium">
-                                {airport.name}
-                              </h6>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <span className="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full">
-                                {airport.code}
-                              </span>
-                              <span className="text-sm">
-                                📍 {airport.distanceToCity}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2 sm:space-y-4">
-                            {airport.transportOptions?.map(
-                              (option, optionIndex) => (
-                                <div
-                                  key={optionIndex}
-                                  className="bg-gradient-to-r from-background/60 to-background-card/50 backdrop-blur-sm border border-border/60 rounded-xl px-4 py-2 sm:py-4"
-                                >
-                                  <div className="flex flex-col justify-start items-start">
-                                    <p className="font-bold mb-2">
-                                      {option.type}
-                                    </p>
-                                    <div className="">
-                                      <div className="font-semibold text-primary text-xs mb-1">
-                                        {option.cost}
-                                      </div>
-                                      <div className="text-xs text-foreground-muted">
-                                        ⏱️ {option.duration}
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <p>
-                                    {option.description}
-                                  </p>
-
-                                  {option.notes && option.notes.length > 0 && (
-                                    <div className="flex items-start bg-accent/10 border border-accent/20 rounded-lg p-2 mt-2">
-                                      <div className="flex items-center">
-                                        <span className="text-sm mr-2">💡</span>
-                                      </div>
-                                      <ul className="space-y-1">
-                                        {option.notes.map((note, noteIndex) => (
-                                          <li
-                                            key={noteIndex}
-                                            className="flex items-start"
-                                          >
-                                            <span className="text-accent mr-2 text-xs">
-                                              •
-                                            </span>
-                                            <span className="text-sm">
-                                              {note}
-                                            </span>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
+                                        tags={restaurant.specialDishes}
+                                      >
+                                        {restaurant.reservationsRecommended ===
+                                          "Yes" && (
+                                            <div className="mt-3 text-sm text-amber font-medium">
+                                              💡 Reservations recommended
+                                            </div>
+                                          )}
+                                      </ItemCard>
+                                    ),
                                   )}
                                 </div>
-                              ),
+                              </div>
                             )}
-                          </div>
+
+                          {/* Bars column */}
+                          {barsByNeighborhood[neighborhood] &&
+                            barsByNeighborhood[neighborhood].length > 0 && (
+                              <div>
+                                <h5 className="mb-3 flex items-center">
+                                  <BeerIcon className="w-5 h-5 mr-2 text-secondary" />
+                                  Bars & Nightlife
+                                </h5>
+                                <div className="space-y-4">
+                                  {barsByNeighborhood[neighborhood].map(
+                                    (bar, index) => (
+                                      <ItemCard
+                                        key={`bar-${index}`}
+                                        title={bar.name}
+                                        subtitle={`${bar.cuisine} • ${bar.priceRange}`}
+                                        description={bar.description}
+                                        searchLink={generateGoogleSearchLink(
+                                          bar.name,
+                                          "bar",
+                                        )}
+                                      />
+                                    ),
+                                  )}
+                                </div>
+                              </div>
+                            )}
                         </div>
-                      ),
-                    )}
-                  </div>
-                </div>
-
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                      <span className="text-sm font-bold">🚌 Getting Around</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[1, 2].map(i => (
-                    <div key={i} className="space-y-3">
-                      <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Weather Information */}
-            {livePlan?.weatherInfo ? (
-              <TravelPlanSection rotation="right" glowColor="secondary">
-                <SectionHeader
-                  icon={Calendar}
-                  title="Weather Info"
-                  emoji="☀️"
-                  badgeColor="secondary"
-                />
-
-                <ContentGrid columns={2}>
-                  <ContentCard
-                    title="Weather Conditions"
-                    icon="🌡️"
-                  >
-                    <p className="font-bold">Temperature</p>
-                    <p className="mb-4">
-                      {livePlan?.weatherInfo.temperature}
-                    </p>
-                    <p className="font-bold">Conditions</p>
-                    <p className="mb-4">
-                      {livePlan?.weatherInfo.conditions}
-                    </p>
-                    <p className="font-bold">Humidity</p>
-                    <p className="mb-4">
-                      {livePlan?.weatherInfo.humidity}
-                    </p>
-                    <p className="font-bold">Day/Night Temp Difference</p>
-                    <p className="mb-4">
-                      {livePlan?.weatherInfo.dayNightTempDifference}
-                    </p>
-                  </ContentCard>
-                  <ContentCard
-                    title="What to Pack:"
-                    icon="🎒"
-                  >
-                    <ul className="space-y-2">
-                      {livePlan?.weatherInfo.recommendations?.map((rec, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="text-primary mr-2">•</span>
-                          <p>{rec}</p>
-                        </li>
-                      ))}
-                    </ul>
-                  </ContentCard>
-                </ContentGrid>
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
-                      <span className="text-sm font-bold">☀️ Weather Info</span>
-                    </div>
-                    <Loader2 className="w-4 h-4 animate-spin text-secondary" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[1, 2].map(i => (
-                    <div key={i} className="space-y-3">
-                      <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Safety & Cultural Tips */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Safety Tips */}
-              {livePlan?.safetyTips ? (
-                <TravelPlanSection rotation="left" glowColor="primary">
-                  <SectionHeader
-                    icon={Shield}
-                    title="Safety Tips"
-                    emoji="⚠️"
-                    badgeColor="primary"
-                  />
-
-                  <ul className="space-y-1">
-                    {livePlan?.safetyTips.map((tip, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-secondary mr-2">
-                          •
-                        </span>
-                        <p>{tip}</p>
-                      </li>
-                    ))}
-                  </ul>
+                      </CategoryGroup>
+                    ));
+                  })()}
                 </TravelPlanSection>
               ) : isActivelyStreaming && (
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex items-center gap-2">
                       <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                        <span className="text-sm font-bold">⚠️ Safety Tips</span>
+                        <span className="text-sm font-bold">🍴 Where to Eat & Drink</span>
                       </div>
                       <Loader2 className="w-4 h-4 animate-spin text-primary" />
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                    ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Utensils className="w-5 h-5 text-accent" />
+                        <span className="font-medium">Restaurants</span>
+                      </div>
+                      {[1, 2].map(item => (
+                        <div key={item} className="space-y-3">
+                          <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <BeerIcon className="w-5 h-5 text-secondary" />
+                        <span className="font-medium">Bars & Nightlife</span>
+                      </div>
+                      {[1, 2].map(item => (
+                        <div key={item} className="space-y-3">
+                          <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* Cultural Quest Guide */}
-              {livePlan?.socialEtiquette ? (
-                <TravelPlanSection rotation="left" glowColor="primary">
+              {/* Local Specialties */}
+              {livePlan?.mustTryFood?.items ? (
+                <TravelPlanSection rotation="right" glowColor="accent">
                   <SectionHeader
-                    icon={BookOpen}
-                    title="Cultural Insights"
-                    emoji="🏹"
-                    badgeColor="primary"
+                    icon={Utensils}
+                    title="Must-Try Local Flavors"
+                    emoji="🤤"
+                    badgeColor="accent"
                   />
-                  <ul className="space-y-1">
-                    {(livePlan?.socialEtiquette || []).map((tip, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-accent mr-2">•</span>
-                        <p>{tip}</p>
-                      </li>
-                    ))}
-                  </ul>
+                  {(() => {
+                    // Group food items by category
+                    const foodByCategory = (livePlan?.mustTryFood?.items || []).reduce(
+                      (acc, item) => {
+                        const category = item.category;
+                        if (!acc[category]) {
+                          acc[category] = [];
+                        }
+                        acc[category].push(item);
+                        return acc;
+                      },
+                      {} as Record<string, NonNullable<NonNullable<typeof livePlan>['mustTryFood']>['items']>,
+                    );
+
+                    const categoryTitles: Record<string, string> = {
+                      main: "Main Dishes",
+                      dessert: "Desserts",
+                      drink: "Local Drinks",
+                      snack: "Snacks",
+                    };
+
+                    // Separate main dishes from other categories
+                    const mainDishes = foodByCategory["main"] || [];
+                    const otherCategories = Object.entries(foodByCategory).filter(
+                      ([category]) => category !== "main",
+                    );
+
+                    return (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Main Dishes Column */}
+                        <div>
+                          {mainDishes.length > 0 && (
+                            <CategoryGroup title="Main Dishes">
+                              <div className="space-y-4">
+                                {mainDishes.map((item, index) => (
+                                  <ItemCard
+                                    key={index}
+                                    title={item.name}
+                                    description={item.description}
+                                    searchLink={generateGoogleSearchLink(
+                                      item.name,
+                                      "food",
+                                    )}
+                                    metadata={
+                                      item.whereToFind
+                                        ? `📍 ${item.whereToFind}`
+                                        : undefined
+                                    }
+                                  />
+                                ))}
+                              </div>
+                            </CategoryGroup>
+                          )}
+                        </div>
+
+                        {/* Other Categories Column */}
+                        <div className="space-y-6">
+                          {otherCategories.map(([category, items]) => (
+                            <CategoryGroup
+                              key={category}
+                              title={categoryTitles[category] || category}
+                            >
+                              <div className="space-y-4">
+                                {items.map((item, index) => (
+                                  <ItemCard
+                                    key={index}
+                                    title={item.name}
+                                    description={item.description}
+                                    searchLink={generateGoogleSearchLink(
+                                      item.name,
+                                      "food",
+                                    )}
+                                    metadata={
+                                      item.whereToFind
+                                        ? `📍 ${item.whereToFind}`
+                                        : undefined
+                                    }
+                                  />
+                                ))}
+                              </div>
+                            </CategoryGroup>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </TravelPlanSection>
               ) : isActivelyStreaming && (
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                        <span className="text-sm font-bold">🏹 Cultural Insights</span>
+                      <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
+                        <span className="text-sm font-bold">🤤 Must-Try Local Flavors</span>
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <Loader2 className="w-4 h-4 animate-spin text-accent" />
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                    ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Utensils className="w-5 h-5 text-secondary" />
+                        <span className="font-medium">Main Dishes</span>
+                      </div>
+                      {[1, 2, 3].map(item => (
+                        <div key={item} className="space-y-3">
+                          <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                          <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Coffee className="w-5 h-5 text-accent" />
+                        <span className="font-medium">Desserts & Drinks</span>
+                      </div>
+                      {[1, 2].map(item => (
+                        <div key={item} className="space-y-3">
+                          <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
             </div>
+          )}
 
-            {/* Currency & Payments */}
-            {livePlan?.localCurrency ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Local Currency */}
-                <TravelPlanSection>
+          {activeTab === "practical" && (
+            <div className="space-y-8">
+              {/* Streaming progress indicator for practical tab */}
+              {isActivelyStreaming && getTabLoadingState('practical').isLoading && (
+                <div className="text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
+                    <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                    <span className="text-sm font-medium text-accent">
+                      Compiling practical travel guide...
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Getting Around */}
+              {livePlan?.transportationInfo ? (
+                <TravelPlanSection rotation="left" glowColor="primary">
                   <SectionHeader
-                    icon={CreditCard}
-                    title="Payment Guide"
-                    emoji="💰"
+                    icon={Compass}
+                    title="Getting Around"
+                    emoji="🚌"
                     badgeColor="primary"
                   />
-                  <p>
-                    The local currency is{" "}
-                    <span className="font-semibold">
-                      {livePlan?.localCurrency.currency}
-                    </span>
-                    .
-                    {livePlan?.localCurrency.cashNeeded
-                      ? " Cash is recommended for some purchases."
-                      : " Credit cards are widely accepted."}
-                  </p>
-                  {livePlan?.localCurrency.exchangeRate && (
-                    <div className="mt-3 mb-2rounded-lg">
-                      <p className="font-bold mb-2">Current Exchange Rate</p>
-                      <p>
-                        1 {livePlan?.localCurrency.exchangeRate.from} ={" "}
-                        {livePlan?.localCurrency.exchangeRate.rate}{" "}
-                        {livePlan?.localCurrency.exchangeRate.to}
-                      </p>
-                    </div>
-                  )}
-                  {livePlan?.localCurrency.tips &&
-                    livePlan?.localCurrency.tips.length > 0 && (
-                      <div className="mt-4">
-                        <p className="font-bold mb-2">Money Tips</p>
-                        <ul className="space-y-1">
-                          <li className="flex items-start">
-                            <p className="text-accent mr-2">•</p>
-                            <p>Credit card usage</p>
-                          </li>
-                          <span className="text-sm ml-4">
-                            {livePlan?.localCurrency.creditCardUsage}
-                          </span>
-                          {livePlan?.localCurrency.tips.map((tip, index) => (
-                            <li key={index} className="flex items-start">
-                              <p className="text-accent mr-2">•</p>
-                              <p>{tip}</p>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                </TravelPlanSection>
 
-                {/* Tipping Etiquette */}
-                {livePlan?.tipEtiquette && (
-                  <TravelPlanSection>
-                    <SectionHeader
-                      icon={CreditCard}
-                      title="Tipping Etiquette"
-                      emoji="💰"
-                      badgeColor="primary"
-                    />
-                    <div className="space-y-3">
-                      {Object.entries(livePlan?.tipEtiquette).map(
-                        ([category, tip], index) => (
-                          <div key={index} className="mb-2">
+                  {/* City Transportation - 2-column layout */}
+                  <ContentGrid columns={2} className="mb-8">
+                    <ContentCard title="Public Transport" icon="🚇">
+                      <p className="mb-3">
+                        {livePlan?.transportationInfo.publicTransport}
+                      </p>
+                      <div className="flex items-center">
+                        <span className="text-sm mr-2">
+                          💳 Credit cards:
+                        </span>
+                        <span
+                          className={`text-sm font-medium px-2 py-1 rounded-full ${livePlan?.transportationInfo.creditCardPayment
+                            ? "bg-green-100 text-green-700"
+                            : "bg-amber-100 text-amber-700"
+                            }`}
+                        >
+                          {livePlan?.transportationInfo.creditCardPayment
+                            ? "Accepted"
+                            : "Not accepted"}
+                        </span>
+                      </div>
+                    </ContentCard>
+
+                    <ContentCard title="Taxis & Rideshare" icon="🚕">
+                      <p className="mb-3">
+                        {livePlan?.transportationInfo.ridesharing}
+                      </p>
+                      <div className="flex flex-col justify-start items-start mb-3">
+                        <p className="font-bold mb-2">
+                          💰 Taxi Average cost
+                        </p>
+                        <span className="text-sm text-primary">
+                          {livePlan?.transportationInfo.taxiInfo?.averageCost}
+                        </span>
+                      </div>
+                      {livePlan?.transportationInfo.taxiInfo?.tips && (
+                        <div>
+                          <div className="flex items-center mb-2">
+                            {/* <span className="text-sm mr-2">💡</span> */}
                             <p className="font-bold">
-                              {category.charAt(0).toUpperCase() +
-                                category.slice(1)}
+                              💡 Pro Tips
                             </p>
-                            <p>{tip}</p>
+                          </div>
+                          <ul className="space-y-1">
+                            {livePlan?.transportationInfo.taxiInfo.tips.map(
+                              (tip, index) => (
+                                <li
+                                  key={index}
+                                  className="flex items-start text-sm"
+                                >
+                                  <span className="text-primary mr-2">
+                                    •
+                                  </span>
+                                  <span>
+                                    {tip}
+                                  </span>
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        </div>
+                      )}
+                    </ContentCard>
+                  </ContentGrid>
+
+                  {/* Airport Transportation - Full width dedicated section */}
+
+                  <div className="border-t border-border/30 pt-8">
+                    <div className="flex items-center mb-6">
+                      <h6>
+                        ✈️ Airport Transportation
+                      </h6>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {livePlan?.transportationInfo.airportTransport?.airports?.map(
+                        (airport, airportIndex) => (
+                          <div
+                            key={airportIndex}
+                            className="bg-gradient-to-br from-background/80 to-background-card/70 backdrop-blur-sm border-2 border-border/30 hover:border-primary/40 rounded-2xl p-6 shadow-card hover:shadow-adventure-float transition-all duration-300"
+                          >
+                            <div className="mb-6">
+                              <div className="flex items-center mb-2">
+                                <h6 className="font-medium">
+                                  {airport.name}
+                                </h6>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full">
+                                  {airport.code}
+                                </span>
+                                <span className="text-sm">
+                                  📍 {airport.distanceToCity}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2 sm:space-y-4">
+                              {airport.transportOptions?.map(
+                                (option, optionIndex) => (
+                                  <div
+                                    key={optionIndex}
+                                    className="bg-gradient-to-r from-background/60 to-background-card/50 backdrop-blur-sm border border-border/60 rounded-xl px-4 py-2 sm:py-4"
+                                  >
+                                    <div className="flex flex-col justify-start items-start">
+                                      <p className="font-bold mb-2">
+                                        {option.type}
+                                      </p>
+                                      <div className="">
+                                        <div className="font-semibold text-primary text-xs mb-1">
+                                          {option.cost}
+                                        </div>
+                                        <div className="text-xs text-foreground-muted">
+                                          ⏱️ {option.duration}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <p>
+                                      {option.description}
+                                    </p>
+
+                                    {option.notes && option.notes.length > 0 && (
+                                      <div className="flex items-start bg-accent/10 border border-accent/20 rounded-lg p-2 mt-2">
+                                        <div className="flex items-center">
+                                          <span className="text-sm mr-2">💡</span>
+                                        </div>
+                                        <ul className="space-y-1">
+                                          {option.notes.map((note, noteIndex) => (
+                                            <li
+                                              key={noteIndex}
+                                              className="flex items-start"
+                                            >
+                                              <span className="text-accent mr-2 text-xs">
+                                                •
+                                              </span>
+                                              <span className="text-sm">
+                                                {note}
+                                              </span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                  </div>
+                                ),
+                              )}
+                            </div>
                           </div>
                         ),
                       )}
                     </div>
+                  </div>
+
+                </TravelPlanSection>
+              ) : isActivelyStreaming && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                        <span className="text-sm font-bold">🚌 Getting Around</span>
+                      </div>
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[1, 2].map(i => (
+                      <div key={i} className="space-y-3">
+                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Weather Information */}
+              {livePlan?.weatherInfo ? (
+                <TravelPlanSection rotation="right" glowColor="secondary">
+                  <SectionHeader
+                    icon={Calendar}
+                    title="Weather Info"
+                    emoji="☀️"
+                    badgeColor="secondary"
+                  />
+
+                  <ContentGrid columns={2}>
+                    <ContentCard
+                      title="Weather Conditions"
+                      icon="🌡️"
+                    >
+                      <p className="font-bold">Temperature</p>
+                      <p className="mb-4">
+                        {livePlan?.weatherInfo.temperature}
+                      </p>
+                      <p className="font-bold">Conditions</p>
+                      <p className="mb-4">
+                        {livePlan?.weatherInfo.conditions}
+                      </p>
+                      <p className="font-bold">Humidity</p>
+                      <p className="mb-4">
+                        {livePlan?.weatherInfo.humidity}
+                      </p>
+                      <p className="font-bold">Day/Night Temp Difference</p>
+                      <p className="mb-4">
+                        {livePlan?.weatherInfo.dayNightTempDifference}
+                      </p>
+                    </ContentCard>
+                    <ContentCard
+                      title="What to Pack:"
+                      icon="🎒"
+                    >
+                      <ul className="space-y-2">
+                        {livePlan?.weatherInfo.recommendations?.map((rec, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="text-primary mr-2">•</span>
+                            <p>{rec}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </ContentCard>
+                  </ContentGrid>
+                </TravelPlanSection>
+              ) : isActivelyStreaming && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
+                        <span className="text-sm font-bold">☀️ Weather Info</span>
+                      </div>
+                      <Loader2 className="w-4 h-4 animate-spin text-secondary" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[1, 2].map(i => (
+                      <div key={i} className="space-y-3">
+                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Safety & Cultural Tips */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Safety Tips */}
+                {livePlan?.safetyTips ? (
+                  <TravelPlanSection rotation="left" glowColor="primary">
+                    <SectionHeader
+                      icon={Shield}
+                      title="Safety Tips"
+                      emoji="⚠️"
+                      badgeColor="primary"
+                    />
+
+                    <ul className="space-y-1">
+                      {livePlan?.safetyTips.map((tip, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-secondary mr-2">
+                            •
+                          </span>
+                          <p>{tip}</p>
+                        </li>
+                      ))}
+                    </ul>
                   </TravelPlanSection>
+                ) : isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                          <span className="text-sm font-bold">⚠️ Safety Tips</span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Cultural Quest Guide */}
+                {livePlan?.socialEtiquette ? (
+                  <TravelPlanSection rotation="left" glowColor="primary">
+                    <SectionHeader
+                      icon={BookOpen}
+                      title="Cultural Insights"
+                      emoji="🏹"
+                      badgeColor="primary"
+                    />
+                    <ul className="space-y-1">
+                      {(livePlan?.socialEtiquette || []).map((tip, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-accent mr-2">•</span>
+                          <p>{tip}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </TravelPlanSection>
+                ) : isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                          <span className="text-sm font-bold">🏹 Cultural Insights</span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
-            ) : isActivelyStreaming && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                        <span className="text-sm font-bold">💰 Payment Guide</span>
-                      </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    {[1, 2].map(i => (
-                      <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                    ))}
-                  </div>
-                </div>
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                        <span className="text-sm font-bold">💰 Tipping Etiquette</span>
-                      </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    {[1, 2].map(i => (
-                      <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {/* Drinking Water */}
-            {livePlan?.tapWaterSafe ? (
-              <TravelPlanSection rotation="left" glowColor="primary">
-                <SectionHeader
-                  icon={Droplets}
-                  title="Drinking Water"
-                  emoji="💧"
-                  badgeColor="primary"
-                />
-                <div className="flex items-start">
-                  <span
-                    className={`mr-2 ${livePlan?.tapWaterSafe.safe ? "animate-bounce-subtle" : "animate-pulse-slow"}`}
-                  >
-                    {livePlan?.tapWaterSafe.safe ? "✅" : "⚠️"}
-                  </span>
-                  <div>
-                    <p
-                      className={`${livePlan?.tapWaterSafe.safe ? "text-green-600" : "text-amber-600"}`}
-                    >
-                      {livePlan?.tapWaterSafe.safe
-                        ? "Tap water is safe to drink!"
-                        : "Tap water is not recommended for drinking."}
+              {/* Currency & Payments */}
+              {livePlan?.localCurrency ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Local Currency */}
+                  <TravelPlanSection>
+                    <SectionHeader
+                      icon={CreditCard}
+                      title="Payment Guide"
+                      emoji="💰"
+                      badgeColor="primary"
+                    />
+                    <p>
+                      The local currency is{" "}
+                      <span className="font-semibold">
+                        {livePlan?.localCurrency.currency}
+                      </span>
+                      .
+                      {livePlan?.localCurrency.cashNeeded
+                        ? " Cash is recommended for some purchases."
+                        : " Credit cards are widely accepted."}
                     </p>
-                  </div>
-                </div>
-              </TravelPlanSection>
-            ) : isActivelyStreaming && (<div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                    <span className="text-sm font-bold">💧 Drinking Water</span>
-                  </div>
-                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                </div>
-              </div>
-              <div className="space-y-3">
-                {[1, 2].map(i => (
-                  <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                ))}
-              </div>
-            </div>
-            )}
+                    {livePlan?.localCurrency.exchangeRate && (
+                      <div className="mt-3 mb-2rounded-lg">
+                        <p className="font-bold mb-2">Current Exchange Rate</p>
+                        <p>
+                          1 {livePlan?.localCurrency.exchangeRate.from} ={" "}
+                          {livePlan?.localCurrency.exchangeRate.rate}{" "}
+                          {livePlan?.localCurrency.exchangeRate.to}
+                        </p>
+                      </div>
+                    )}
+                    {livePlan?.localCurrency.tips &&
+                      livePlan?.localCurrency.tips.length > 0 && (
+                        <div className="mt-4">
+                          <p className="font-bold mb-2">Money Tips</p>
+                          <ul className="space-y-1">
+                            <li className="flex items-start">
+                              <p className="text-accent mr-2">•</p>
+                              <p>Credit card usage</p>
+                            </li>
+                            <span className="text-sm ml-4">
+                              {livePlan?.localCurrency.creditCardUsage}
+                            </span>
+                            {livePlan?.localCurrency.tips.map((tip, index) => (
+                              <li key={index} className="flex items-start">
+                                <p className="text-accent mr-2">•</p>
+                                <p>{tip}</p>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                  </TravelPlanSection>
 
-          </div>
-        )}
-      </motion.div>
+                  {/* Tipping Etiquette */}
+                  {livePlan?.tipEtiquette && (
+                    <TravelPlanSection>
+                      <SectionHeader
+                        icon={CreditCard}
+                        title="Tipping Etiquette"
+                        emoji="💰"
+                        badgeColor="primary"
+                      />
+                      <div className="space-y-3">
+                        {Object.entries(livePlan?.tipEtiquette).map(
+                          ([category, tip], index) => (
+                            <div key={index} className="mb-2">
+                              <p className="font-bold">
+                                {category.charAt(0).toUpperCase() +
+                                  category.slice(1)}
+                              </p>
+                              <p>{tip}</p>
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    </TravelPlanSection>
+                  )}
+                </div>
+              ) : isActivelyStreaming && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                          <span className="text-sm font-bold">💰 Payment Guide</span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      {[1, 2].map(i => (
+                        <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                          <span className="text-sm font-bold">💰 Tipping Etiquette</span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      {[1, 2].map(i => (
+                        <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Drinking Water */}
+              {livePlan?.tapWaterSafe ? (
+                <TravelPlanSection rotation="left" glowColor="primary">
+                  <SectionHeader
+                    icon={Droplets}
+                    title="Drinking Water"
+                    emoji="💧"
+                    badgeColor="primary"
+                  />
+                  <div className="flex items-start">
+                    <span
+                      className={`mr-2 ${livePlan?.tapWaterSafe.safe ? "animate-bounce-subtle" : "animate-pulse-slow"}`}
+                    >
+                      {livePlan?.tapWaterSafe.safe ? "✅" : "⚠️"}
+                    </span>
+                    <div>
+                      <p
+                        className={`${livePlan?.tapWaterSafe.safe ? "text-green-600" : "text-amber-600"}`}
+                      >
+                        {livePlan?.tapWaterSafe.safe
+                          ? "Tap water is safe to drink!"
+                          : "Tap water is not recommended for drinking."}
+                      </p>
+                    </div>
+                  </div>
+                </TravelPlanSection>
+              ) : isActivelyStreaming && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                        <span className="text-sm font-bold">💧 Drinking Water</span>
+                      </div>
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    {[1, 2].map(i => (
+                      <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+      </main>
 
       {/* KML Export Loading Overlay */}
       <KMLExportLoading isVisible={isExportingKML} />
@@ -1937,12 +1946,12 @@ export function AITravelPlan({
             ease: [0.25, 0.46, 0.45, 0.94]
           }}
           onClick={onBack}
-          className="fixed bottom-18 right-6 btn-3d-primary z-50 flex items-center p-2"
+          className="fixed bottom-12 sm:bottom-18 right-2 sm:right-6 btn-3d-primary z-50 flex items-center p-2"
           aria-label="Go back to edit plan"
         >
           <Edit className="w-4 h-4" />
         </motion.button>
       )}
-    </motion.div>
+    </div>
   );
 }

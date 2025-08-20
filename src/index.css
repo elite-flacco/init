@@ -357,7 +357,7 @@
 
   /* === QUESTION CARDS === */
   .question-card-active {
-    @apply card-3d p-8 lg:pl-16 lg:pr-8 lg:pt-12 lg:pb-8 mb-6 relative;
+    @apply card-3d p-4 sm:p-8 lg:pl-16 lg:pr-8 lg:pt-12 lg:pb-8 mb-6 relative;
     transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) rotateZ(-2deg) scale(1.02);
   }
 

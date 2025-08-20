@@ -433,10 +433,10 @@ export default function HomePage() {
       ></div>
 
       {/* Logo - Top Left */}
-      <div className="fixed top-2 left-2 sm:top-3 sm:left-3 z-50">
+      <div className="fixed top-4 left-2 sm:top-4 sm:left-4 z-50">
         <button
           onClick={() => setCurrentStep("traveler-type")}
-          className="flex items-center space-x-1 hover:opacity-80 transition-opacity duration-300"
+          className="flex items-center p-2 space-x-1 hover:opacity-80 transition-opacity duration-300"
           aria-label="Return to home"
         >
           {currentStep === "traveler-type" ? (
@@ -495,7 +495,7 @@ export default function HomePage() {
 
       {/* Main content */}
       <main className={`relative ${currentStep === 'placeholder' ? 'min-h-screen flex items-center justify-center' : 'py-4 px-4 sm:px-6 md:py-6 lg:py-8'}`}>
-        <div className="container mx-auto relative z-10">
+        <div className="container mx-auto relative z-10 px-4">
           <div className="relative">{renderCurrentStep()}</div>
         </div>
       </main>
