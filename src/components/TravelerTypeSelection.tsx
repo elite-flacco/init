@@ -137,7 +137,7 @@ export function TravelerTypeSelection({
             </div>
 
             {/* Hero Title */}
-            <h1 className="text-3d-gradient text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 sm:mb-6 px-2">
+            <h1 className="text-3d-gradient mb-4 sm:mb-6 px-2">
               {typedHeroTitle}
               <span className={`inline-block w-1 h-4 sm:h-6 md:h-8 lg:h-12 xl:h-16 bg-primary ml-1 sm:ml-2 ${!heroTitleComplete ? 'animate-pulse' : 'opacity-0'} transition-opacity duration-500`}>
               </span>
@@ -164,7 +164,7 @@ export function TravelerTypeSelection({
         </div>
 
         {/* Asymmetrical Adventure Header */}
-        <div id="traveler-types-section" className="relative mb-8 sm:mb-12 md:mb-16 lg:mb-20">
+        <div id="traveler-types-section" className="relative pt-4 mb-8 sm:mb-12 md:mb-16 lg:mb-20">
           {/* Main title section - offset left */}
           <div
             className={`ml-8 md:ml-16 lg:ml-24 transition-all duration-1000 ${isLoaded

@@ -171,9 +171,9 @@ export function QuestionStep({
       <form onSubmit={handleSubmit}>
         <div className="mb-8">
           {/* Question Header */}
-          <div className="mb-4 -ml-4 lg:-ml-8">
+          <div className="mb-4">
             <div className="flex items-center">
-              <span className="text-2xl mr-3 rotate-subtle">🤔</span>
+              <span className="text-2xl mr-2 rotate-subtle">🤔</span>
               <h4 className="text-3d-title max-w-2xl">
                 {question.question}
               </h4>
@@ -185,7 +185,7 @@ export function QuestionStep({
         <div className="ml-4 lg:ml-8 mr-2 mb-4">{renderInput()}</div>
 
         {isActive && question.type !== "select" && (
-          <div className="mt-8 ml-4 lg:ml-8 mr-4 space-x-4">
+          <div className="flex flex-col sm:flex-row mt-8 ml-4 lg:ml-8 mr-4 gap-2 sm:gap-4">
             <button
               type="submit"
               disabled={!localValue.trim()}

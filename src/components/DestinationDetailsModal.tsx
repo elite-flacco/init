@@ -44,7 +44,7 @@ export function DestinationDetailsModal({
     >
       <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl relative mx-auto animate-in slide-in-from-bottom-4 duration-300">
         {/* Header with image */}
-        <div className="relative h-64 md:h-80">
+        <div className="relative h-80 md:h-96">
           {isLoading ? (
             <div className="w-full h-full bg-muted flex items-center justify-center">
               <div className="flex flex-col items-center gap-2 text-muted-foreground">

@@ -35,7 +35,7 @@ export function TravelPlanSection({
     <div className={`relative ${className}`}>
       <div className={`${rotationClass} transition-transform duration-700`}>
         <div
-          className={`bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 ${borderHoverColor} rounded-3xl p-8 lg:p-10 shadow-card hover:shadow-adventure-float transition-all duration-500 relative overflow-hidden`}
+          className={`bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/40 ${borderHoverColor} rounded-3xl p-6 lg:p-8 shadow-card hover:shadow-adventure-float transition-all duration-500 relative overflow-hidden`}
         >
           {/* Adventure Glow */}
           <div

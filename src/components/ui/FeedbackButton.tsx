@@ -15,7 +15,7 @@ const FeedbackButton = () => {
   return (
     <button
       onClick={handleFeedbackClick}
-      className="fixed bottom-6 right-6 btn-3d-primary z-50 p-2"
+      className="fixed bottom-2 right-2 sm:bottom-6 sm:right-6 btn-3d-primary z-50 p-2"
       aria-label="Submit feedback"
     >
       <MessageSquare className={`w-4 h-4`} />
