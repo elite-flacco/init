@@ -309,6 +309,22 @@ export class SecurityMiddleware {
     response.headers.set("X-XSS-Protection", "1; mode=block");
     response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
+    // Add CORS headers
+    const allowedOrigins = getAllowedOrigins();
+    if (allowedOrigins.length > 0) {
+      // In production, use specific origins; in development, be more permissive
+      if (process.env.NODE_ENV === "development") {
+        response.headers.set("Access-Control-Allow-Origin", "*");
+      } else {
+        // Use the first allowed origin or check the request origin
+        response.headers.set("Access-Control-Allow-Origin", allowedOrigins[0]);
+      }
+    }
+    
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+    response.headers.set("Access-Control-Max-Age", "86400"); // 24 hours
+
     return response;
   }
 

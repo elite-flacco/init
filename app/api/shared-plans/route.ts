@@ -15,6 +15,11 @@ function generateShareId(): string {
   return randomBytes(6).toString("hex");
 }
 
+// OPTIONS /api/shared-plans - Handle preflight CORS requests
+export async function OPTIONS(request: NextRequest) {
+  return SecurityMiddleware.createSecureResponse({}, 200);
+}
+
 // POST /api/shared-plans - Create a new shared plan
 export async function POST(request: NextRequest) {
   try {
