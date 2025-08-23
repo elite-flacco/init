@@ -33,6 +33,11 @@ export class PdfExportService {
 
     try {
       const pdf = new jsPDF("p", "pt", "a4");
+      
+      // Set default font for entire document
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(11);
+      
       let yPosition = PdfExportService.MARGIN;
 
       // Add title page
@@ -66,50 +71,16 @@ export class PdfExportService {
     travelerType: TravelerType,
     yPosition: number,
   ): number {
-    // Main title
+    // Main title - centered horizontally and vertically
     pdf.setFontSize(24);
     pdf.setFont("helvetica", "bold");
     const title = `Your Travel Info Packet for ${destination.name}`;
     const titleWidth = pdf.getTextWidth(title);
     const titleX = (PdfExportService.PAGE_WIDTH - titleWidth) / 2;
-    pdf.text(title, titleX, yPosition);
-    yPosition += 40;
-
-    // Destination description
-    pdf.setFontSize(14);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("About the Destination:", PdfExportService.MARGIN, yPosition);
-    yPosition += 25;
-
-    pdf.setFontSize(12);
-    pdf.setFont("helvetica", "normal");
-    const description = this.wrapText(
-      pdf,
-      destination.description,
-      PdfExportService.CONTENT_WIDTH,
-    );
-    description.forEach((line) => {
-      pdf.text(line, PdfExportService.MARGIN, yPosition);
-      yPosition += 18;
-    });
-    yPosition += 20;
-
-    // Highlights
-    if (destination.highlights && destination.highlights.length > 0) {
-      pdf.setFontSize(14);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Highlights:", PdfExportService.MARGIN, yPosition);
-      yPosition += 25;
-
-      pdf.setFontSize(12);
-      pdf.setFont("helvetica", "normal");
-      destination.highlights.forEach((highlight) => {
-        pdf.text(`• ${highlight}`, PdfExportService.MARGIN + 10, yPosition);
-        yPosition += 18;
-      });
-    }
-
-    return yPosition;
+    const titleY = PdfExportService.PAGE_HEIGHT / 2;
+    pdf.text(title, titleX, titleY);
+    
+    return titleY + 40;
   }
 
   private static addItinerary(
@@ -146,31 +117,40 @@ export class PdfExportService {
           yPosition = PdfExportService.MARGIN;
         }
 
-        pdf.setFontSize(11);
+        pdf.setFontSize(12);
         pdf.setFont("helvetica", "bold");
-        pdf.text(
-          `${activity.time} - ${activity.title}`,
-          PdfExportService.MARGIN + 15,
-          yPosition,
+        const activityText = `${activity.time} - ${activity.title}`;
+        const activityLines = this.wrapText(
+          pdf,
+          activityText,
+          PdfExportService.CONTENT_WIDTH - 20,
         );
+        activityLines.forEach((line) => {
+          pdf.text(line, PdfExportService.MARGIN + 15, yPosition);
+          yPosition += 15;
+        });
         yPosition += 18;
 
+        pdf.setFontSize(11);
+        pdf.setFont("helvetica", "normal");
+
         if (activity.location) {
-          pdf.setFont("helvetica", "normal");
-          pdf.text(
+          const locationLines = this.wrapText(
+            pdf,
             `Location: ${activity.location}`,
-            PdfExportService.MARGIN + 15,
-            yPosition,
+            PdfExportService.CONTENT_WIDTH - 20,
           );
-          yPosition += 15;
+          locationLines.forEach((line) => {
+            pdf.text(line, PdfExportService.MARGIN + 15, yPosition);
+            yPosition += 15;
+          });
         }
 
         if (activity.description) {
-          pdf.setFont("helvetica", "normal");
           const descLines = this.wrapText(
             pdf,
             activity.description,
-            PdfExportService.CONTENT_WIDTH - 15,
+            PdfExportService.CONTENT_WIDTH - 20,
           );
           descLines.forEach((line) => {
             pdf.text(line, PdfExportService.MARGIN + 15, yPosition);
@@ -209,9 +189,10 @@ export class PdfExportService {
         pdf.setFont("helvetica", "bold");
         pdf.text(`• ${place.name}`, PdfExportService.MARGIN + 10, yPosition);
         yPosition += 18;
+        pdf.setFontSize(11);
+        pdf.setFont("helvetica", "normal");
 
         if (place.description) {
-          pdf.setFont("helvetica", "normal");
           const descLines = this.wrapText(
             pdf,
             place.description,
@@ -244,8 +225,9 @@ export class PdfExportService {
           yPosition,
         );
         yPosition += 18;
-
+        pdf.setFontSize(11);
         pdf.setFont("helvetica", "normal");
+
         pdf.text(
           `Vibe: ${neighborhood.vibe}`,
           PdfExportService.MARGIN + 20,
@@ -295,8 +277,9 @@ export class PdfExportService {
         pdf.setFont("helvetica", "bold");
         pdf.text(`• ${hotel.name}`, PdfExportService.MARGIN + 10, yPosition);
         yPosition += 18;
-
+        pdf.setFontSize(11);
         pdf.setFont("helvetica", "normal");
+
         pdf.text(
           `${hotel.neighborhood} • ${hotel.priceRange}`,
           PdfExportService.MARGIN + 20,
@@ -317,11 +300,15 @@ export class PdfExportService {
         }
 
         if (hotel.amenities && hotel.amenities.length > 0) {
-          pdf.text(
-            `Amenities: ${hotel.amenities.join(", ")}`,
-            PdfExportService.MARGIN + 20,
-            yPosition,
-          );
+          // Explicitly reset font right before rendering
+          pdf.setFontSize(11);
+          pdf.setFont("helvetica", "normal");
+          // Normalize Unicode characters that can cause spacing issues
+          const cleanAmenities = hotel.amenities
+            .filter(a => a && a.trim())
+            .map(a => a.replace(/[\u2011\u2012\u2013\u2014\u2015]/g, '-')); // Replace various Unicode dashes with regular hyphen
+          const amenitiesText = `Amenities: ${cleanAmenities.join(", ")}`;
+          pdf.text(amenitiesText, PdfExportService.MARGIN + 20, yPosition);
           yPosition += 15;
         }
         yPosition += 10;
@@ -346,8 +333,9 @@ export class PdfExportService {
           yPosition,
         );
         yPosition += 18;
-
+        pdf.setFontSize(11);
         pdf.setFont("helvetica", "normal");
+
         const details = [
           restaurant.cuisine,
           restaurant.priceRange,
@@ -380,8 +368,9 @@ export class PdfExportService {
         }
 
         if (restaurant.reservationsRecommended === "Yes") {
+          pdf.setFont("helvetica", "normal");
           pdf.text(
-            "💡 Reservations recommended",
+            "Note: Reservations recommended",
             PdfExportService.MARGIN + 20,
             yPosition,
           );
@@ -405,8 +394,9 @@ export class PdfExportService {
         pdf.setFont("helvetica", "bold");
         pdf.text(`• ${bar.name}`, PdfExportService.MARGIN + 10, yPosition);
         yPosition += 18;
-
+        pdf.setFontSize(11);
         pdf.setFont("helvetica", "normal");
+
         const details = [bar.category, bar.atmosphere, bar.neighborhood]
           .filter(Boolean)
           .join(" • ");
@@ -478,17 +468,18 @@ export class PdfExportService {
             yPosition = PdfExportService.MARGIN;
           }
 
-          pdf.setFontSize(11);
+          pdf.setFontSize(12);
           pdf.setFont("helvetica", "bold");
           pdf.text(`• ${item.name}`, PdfExportService.MARGIN + 20, yPosition);
           yPosition += 16;
+          pdf.setFontSize(11);
+          pdf.setFont("helvetica", "normal");
 
           if (item.description) {
-            pdf.setFont("helvetica", "normal");
             const descLines = this.wrapText(
               pdf,
               item.description,
-              PdfExportService.CONTENT_WIDTH - 30,
+              PdfExportService.CONTENT_WIDTH - 20,
             );
             descLines.forEach((line) => {
               pdf.text(line, PdfExportService.MARGIN + 30, yPosition);
@@ -498,12 +489,15 @@ export class PdfExportService {
 
           if (item.whereToFind) {
             pdf.setFont("helvetica", "italic");
-            pdf.text(
+            const whereToFindLines = this.wrapText(
+              pdf,
               `Where to find: ${item.whereToFind}`,
-              PdfExportService.MARGIN + 30,
-              yPosition,
+              PdfExportService.CONTENT_WIDTH - 30,
             );
-            yPosition += 14;
+            whereToFindLines.forEach((line) => {
+              pdf.text(line, PdfExportService.MARGIN + 30, yPosition);
+              yPosition += 14;
+            });
           }
           yPosition += 5;
         });
@@ -529,7 +523,7 @@ export class PdfExportService {
         pdf.setFont("helvetica", "bold");
         pdf.text(`• ${activity.name}`, PdfExportService.MARGIN + 10, yPosition);
         yPosition += 18;
-
+        pdf.setFontSize(11);
         pdf.setFont("helvetica", "normal");
         const details = [activity.type, activity.duration]
           .filter(Boolean)
@@ -571,8 +565,9 @@ export class PdfExportService {
         pdf.setFont("helvetica", "bold");
         pdf.text(`• ${event.name}`, PdfExportService.MARGIN + 10, yPosition);
         yPosition += 18;
-
+        pdf.setFontSize(11);
         pdf.setFont("helvetica", "normal");
+
         pdf.text(
           `${event.type} • ${event.dates}`,
           PdfExportService.MARGIN + 20,
@@ -608,7 +603,6 @@ export class PdfExportService {
       yPosition = this.addSection(pdf, "Transportation Guide", yPosition);
 
       if (plan.transportationInfo.publicTransport) {
-        pdf.setFontSize(12);
         pdf.setFont("helvetica", "bold");
         pdf.text(
           "Public Transportation:",
@@ -617,7 +611,9 @@ export class PdfExportService {
         );
         yPosition += 18;
 
+        pdf.setFontSize(11);
         pdf.setFont("helvetica", "normal");
+
         const transportLines = this.wrapText(
           pdf,
           plan.transportationInfo.publicTransport,
@@ -631,7 +627,6 @@ export class PdfExportService {
       }
 
       if (plan.transportationInfo.ridesharing) {
-        pdf.setFontSize(12);
         pdf.setFont("helvetica", "bold");
         pdf.text(
           "Ridesharing & Taxis:",
@@ -640,7 +635,9 @@ export class PdfExportService {
         );
         yPosition += 18;
 
+        pdf.setFontSize(11);
         pdf.setFont("helvetica", "normal");
+
         const rideLines = this.wrapText(
           pdf,
           plan.transportationInfo.ridesharing,
@@ -658,7 +655,6 @@ export class PdfExportService {
         plan.transportationInfo.airportTransport &&
         plan.transportationInfo.airportTransport.airports
       ) {
-        pdf.setFontSize(12);
         pdf.setFont("helvetica", "bold");
         pdf.text(
           "Airport Transportation:",
@@ -667,6 +663,9 @@ export class PdfExportService {
         );
         yPosition += 18;
 
+        pdf.setFontSize(11);
+        pdf.setFont("helvetica", "normal");
+
         plan.transportationInfo.airportTransport.airports.forEach((airport) => {
           if (yPosition > PdfExportService.PAGE_HEIGHT - 100) {
             pdf.addPage();
@@ -674,35 +673,51 @@ export class PdfExportService {
           }
 
           pdf.setFont("helvetica", "bold");
-          pdf.text(
+          const airportNameLines = this.wrapText(
+            pdf,
             `${airport.name} (${airport.code})`,
-            PdfExportService.MARGIN + 20,
-            yPosition,
+            PdfExportService.CONTENT_WIDTH - 20,
           );
+          airportNameLines.forEach((line) => {
+            pdf.text(line, PdfExportService.MARGIN + 20, yPosition);
+            yPosition += 16;
+          });
+          yPosition -= 16;
           yPosition += 16;
 
+          pdf.setFontSize(11);
           pdf.setFont("helvetica", "normal");
-          pdf.text(
+          const distanceLines = this.wrapText(
+            pdf,
             `Distance: ${airport.distanceToCity}`,
-            PdfExportService.MARGIN + 20,
-            yPosition,
+            PdfExportService.CONTENT_WIDTH - 20,
           );
+          distanceLines.forEach((line) => {
+            pdf.text(line, PdfExportService.MARGIN + 20, yPosition);
+            yPosition += 14;
+          });
+          yPosition -= 14;
           yPosition += 14;
 
           if (airport.transportOptions) {
             airport.transportOptions.forEach((option) => {
-              pdf.text(
+              const optionTextLines = this.wrapText(
+                pdf,
                 `• ${option.type}: ${option.cost} (${option.duration})`,
-                PdfExportService.MARGIN + 30,
-                yPosition,
+                PdfExportService.CONTENT_WIDTH - 30,
               );
+              optionTextLines.forEach((line) => {
+                pdf.text(line, PdfExportService.MARGIN + 30, yPosition);
+                yPosition += 14;
+              });
+              yPosition -= 14;
               yPosition += 14;
 
               if (option.description) {
                 const optionLines = this.wrapText(
                   pdf,
                   option.description,
-                  PdfExportService.CONTENT_WIDTH - 40,
+                  PdfExportService.CONTENT_WIDTH - 30,
                 );
                 optionLines.forEach((line) => {
                   pdf.text(line, PdfExportService.MARGIN + 40, yPosition);
@@ -722,28 +737,38 @@ export class PdfExportService {
     if (plan.weatherInfo) {
       yPosition = this.addSection(pdf, "Weather Information", yPosition);
 
-      pdf.setFontSize(12);
+      pdf.setFontSize(11);
       pdf.setFont("helvetica", "normal");
-      pdf.text(
+
+      const tempLines = this.wrapText(
+        pdf,
         `Temperature: ${plan.weatherInfo.temperature}`,
-        PdfExportService.MARGIN + 10,
-        yPosition,
+        PdfExportService.CONTENT_WIDTH - 20,
       );
-      yPosition += 16;
+      tempLines.forEach((line) => {
+        pdf.text(line, PdfExportService.MARGIN + 10, yPosition);
+        yPosition += 16;
+      });
 
-      pdf.text(
+      const conditionsLines = this.wrapText(
+        pdf,
         `Conditions: ${plan.weatherInfo.conditions}`,
-        PdfExportService.MARGIN + 10,
-        yPosition,
+        PdfExportService.CONTENT_WIDTH - 20,
       );
-      yPosition += 16;
+      conditionsLines.forEach((line) => {
+        pdf.text(line, PdfExportService.MARGIN + 10, yPosition);
+        yPosition += 16;
+      });
 
-      pdf.text(
+      const humidityLines = this.wrapText(
+        pdf,
         `Humidity: ${plan.weatherInfo.humidity}`,
-        PdfExportService.MARGIN + 10,
-        yPosition,
+        PdfExportService.CONTENT_WIDTH - 20,
       );
-      yPosition += 16;
+      humidityLines.forEach((line) => {
+        pdf.text(line, PdfExportService.MARGIN + 10, yPosition);
+        yPosition += 16;
+      });
 
       if (
         plan.weatherInfo.recommendations &&
@@ -752,8 +777,8 @@ export class PdfExportService {
         pdf.setFont("helvetica", "bold");
         pdf.text("Recommendations:", PdfExportService.MARGIN + 10, yPosition);
         yPosition += 16;
-
         pdf.setFont("helvetica", "normal");
+
         plan.weatherInfo.recommendations.forEach((rec) => {
           const recLines = this.wrapText(
             pdf,
@@ -780,10 +805,11 @@ export class PdfExportService {
 
         pdf.setFontSize(11);
         pdf.setFont("helvetica", "normal");
+
         const tipLines = this.wrapText(
           pdf,
           `• ${tip}`,
-          PdfExportService.CONTENT_WIDTH - 10,
+          PdfExportService.CONTENT_WIDTH - 20,
         );
         tipLines.forEach((line) => {
           pdf.text(line, PdfExportService.MARGIN + 10, yPosition);
@@ -806,12 +832,10 @@ export class PdfExportService {
           yPosition = PdfExportService.MARGIN;
         }
 
-        pdf.setFontSize(11);
-        pdf.setFont("helvetica", "normal");
         const tipLines = this.wrapText(
           pdf,
           `• ${tip}`,
-          PdfExportService.CONTENT_WIDTH - 10,
+          PdfExportService.CONTENT_WIDTH - 20,
         );
         tipLines.forEach((line) => {
           pdf.text(line, PdfExportService.MARGIN + 10, yPosition);
@@ -825,8 +849,6 @@ export class PdfExportService {
     if (plan.localCurrency) {
       yPosition = this.addSection(pdf, "Currency & Payments", yPosition);
 
-      pdf.setFontSize(12);
-      pdf.setFont("helvetica", "normal");
       pdf.text(
         `Local currency: ${plan.localCurrency.currency}`,
         PdfExportService.MARGIN + 10,
@@ -860,8 +882,8 @@ export class PdfExportService {
         pdf.setFont("helvetica", "bold");
         pdf.text("Money Tips:", PdfExportService.MARGIN + 10, yPosition);
         yPosition += 16;
-
         pdf.setFont("helvetica", "normal");
+
         plan.localCurrency.tips.forEach((tip) => {
           const tipLines = this.wrapText(
             pdf,
@@ -887,7 +909,6 @@ export class PdfExportService {
           yPosition = PdfExportService.MARGIN;
         }
 
-        pdf.setFontSize(12);
         pdf.setFont("helvetica", "bold");
         pdf.text(
           `${category.charAt(0).toUpperCase() + category.slice(1)}:`,
@@ -895,8 +916,8 @@ export class PdfExportService {
           yPosition,
         );
         yPosition += 16;
-
         pdf.setFont("helvetica", "normal");
+
         const tipLines = this.wrapText(
           pdf,
           tip,
@@ -915,8 +936,6 @@ export class PdfExportService {
     if (plan.tapWaterSafe) {
       yPosition = this.addSection(pdf, "Water Safety", yPosition);
 
-      pdf.setFontSize(12);
-      pdf.setFont("helvetica", "normal");
       const waterStatus = plan.tapWaterSafe.safe
         ? "Tap water is safe to drink."
         : "Tap water is not recommended for drinking.";
@@ -941,12 +960,10 @@ export class PdfExportService {
     if (plan.history) {
       yPosition = this.addSection(pdf, "Historical Context", yPosition);
 
-      pdf.setFontSize(11);
-      pdf.setFont("helvetica", "normal");
       const historyLines = this.wrapText(
         pdf,
         plan.history,
-        PdfExportService.CONTENT_WIDTH - 10,
+        PdfExportService.CONTENT_WIDTH - 20,
       );
       historyLines.forEach((line) => {
         if (yPosition > PdfExportService.PAGE_HEIGHT - 20) {
@@ -975,6 +992,8 @@ export class PdfExportService {
     pdf.setFontSize(14);
     pdf.setFont("helvetica", "bold");
     pdf.text(title, PdfExportService.MARGIN, yPosition);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(11);
     return yPosition + 30;
   }
 

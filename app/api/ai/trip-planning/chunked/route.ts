@@ -162,8 +162,6 @@ export function generateLocationsPrompt(request: AITripPlanningRequest): string 
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
 
 DESTINATION: ${destination.name}, ${destination.country}
-Destination Description: ${destination.description}
-Best Time to Visit: ${destination.bestTimeToVisit}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
@@ -257,18 +255,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
 
-CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON. 
-
-Use this exact structure, MAKE SURE there is a comma after each field:
-
-{
-  "neighborhoods": [{"name": "string", "summary": "string", "vibe": "string", "pros": ["string"], "cons": ["string"], "bestFor": "string"}],
-  "hotelRecommendations": [{"name": "string", "neighborhood": "string", "priceRange": "string", "description": "string", "amenities": ["string"], "airbnbLink": "string"}],
-  ${preferences.wantRestaurants ? `"restaurants": [{"name": "string", "cuisine": "string", "priceRange": "string", "description": "string", "neighborhood": "string", "specialDishes": ["string"], "reservationsRecommended": "string"}],` : ''}
-  ${preferences.wantBars ? `"bars": [{"name": "string", "type": "string", "atmosphere": "string", "description": "string", "category": "string", "neighborhood": "string"}]` : ''}
-}
-
-START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
+CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON.`;
 
   return prompt;
 }
@@ -282,8 +269,6 @@ export function generateFoodPrompt(request: AITripPlanningRequest): string {
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
 
 DESTINATION: ${destination.name}, ${destination.country}
-Destination Description: ${destination.description}
-Best Time to Visit: ${destination.bestTimeToVisit}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
@@ -358,16 +343,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
 
-CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON. 
-
-Use this exact structure, MAKE SURE there is a comma after each field:
-
-{
-  "placesToVisit": [{"name": "string", "description": "string", "category": "cultural|historical|nature|entertainment|museum|landmark|culinary", "priority": number, "ticketInfo": {"required": boolean, "recommended": boolean, "bookingAdvice": "string", "peakTime": ["string"], "averageWaitTime": "string"}}],
-  "mustTryFood": {"items": [{"name": "string", "description": "string", "category": "main|dessert|drink|snack", "whereToFind": "string", "priceRange": "string", "culturalContext": "string"}]}
-}
-
-START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
+CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON.`;
 
   return prompt;
 }
@@ -378,8 +354,6 @@ export function generatePracticalPrompt(request: AITripPlanningRequest): string 
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
 
 DESTINATION: ${destination.name}, ${destination.country}
-Destination Description: ${destination.description}
-Best Time to Visit: ${destination.bestTimeToVisit}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
@@ -483,21 +457,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
 
 Focus on creating authentic experiences that match their travel style while being comprehensive and practical. Consider their budget constraints, time limitations, and personal preferences throughout all recommendations.
 
-CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON. 
-
-Use this exact structure, MAKE SURE there is a comma after each field:
-
-{
-  "weatherInfo": {"season": "string", "temperature": "string", "conditions": "string", "humidity": "string", "dayNightTempDifference": "string", "airQuality": "string", "feelsLikeWarning": "string", "recommendations": ["string"]},
-  "socialEtiquette": ["string"],
-  "safetyTips": ["string"],
-  "transportationInfo": {"publicTransport": "string", "creditCardPayment": boolean, "airportTransport": {"airports": [{"name": "string", "code": "string", "distanceToCity": "string", "transportOptions": [{"type": "string", "cost": "string", "duration": "string", "description": "string", "notes": ["string"]}]}]}, "ridesharing": "string", "taxiInfo": {"available": boolean, "averageCost": "string", "tips": ["string"]}},
-  "localCurrency": {"currency": "string", "cashNeeded": boolean, "creditCardUsage": "string", "tips": ["string"], "exchangeRate": {"from": "USD", "to": "string", "rate": number, "lastUpdated": "string"}},
-  "tipEtiquette": {"restaurants": "string", "bars": "string", "taxis": "string", "hotels": "string", "tours": "string", "general": "string"},
-  "tapWaterSafe": {"safe": boolean, "details": "string"}
-}
-
-START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
+CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any text before or after the JSON. `;
 
   return prompt;
 }
@@ -509,8 +469,6 @@ export function generateCulturalPrompt(request: AITripPlanningRequest): string {
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
 
 DESTINATION: ${destination.name}, ${destination.country}
-Destination Description: ${destination.description}
-Best Time to Visit: ${destination.bestTimeToVisit}
 
 TRAVELER PROFILE:
 Type: ${travelerType.name} - ${travelerType.description}
@@ -611,16 +569,7 @@ Focus on creating authentic experiences that match their travel style while bein
 
 CRITICAL: Your response MUST be ONLY ONE valid JSON object. Do not include any text before or after the JSON. 
 
-Use this exact structure, MAKE SURE there is a comma after each field:
-
-{
-  "activities": [{"name": "string", "type": "string", "description": "string", "duration": "string", "localSpecific": boolean, "experienceType": "airbnb|getyourguide|viator|other"}],
-  "localEvents": [{"name": "string", "type": "string", "description": "string", "dates": "string", "location": "string"}],
-  "history": "string",
-  "itinerary": [{"day": number, "title": "string", "activities": [{"time": "string", "title": "string", "description": "string", "location": "string", "icon": "coffee|hotel|map|utensils|compass|camera|travel|suitcase|planning|adventure"}]}]
-}
-
-Ensure itinerary has at least ${days} days. START YOUR RESPONSE WITH { AND END WITH }. NO OTHER TEXT.`;
+Ensure itinerary has at least ${days} days.`;
 
   return prompt;
 }

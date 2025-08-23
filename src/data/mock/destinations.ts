@@ -10,7 +10,7 @@ export const destinations: Destination[] = [
     image:
       "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800",
     highlights: [
-      { name: "Beautiful beaches", description: "Stunning white sand beaches with turquoise waters perfect for swimming and relaxation" },
+      { name: "Super super super supser long named Beautiful beaches", description: "Stunning white sand beaches with turquoise waters perfect for swimming and relaxation" },
       { name: "Ancient temples", description: "Sacred Hindu temples with intricate architecture and spiritual significance" },
       { name: "Rice terraces", description: "Breathtaking emerald green terraced landscapes that showcase traditional farming" },
       { name: "Yoga retreats", description: "World-class wellness centers and yoga studios in serene natural settings" },

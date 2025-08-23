@@ -564,10 +564,10 @@ export const commonTripPlanningQuestions: Question[] = [
         label: "Hotel - Classic comfort zone",
         value: "hotel comfortable reliable accommodation",
       },
-      {
-        label: "Airbnb - Live like a local",
-        value: "airbnb local experience home stay",
-      },
+      // {
+      //   label: "Airbnb - Live like a local",
+      //   value: "airbnb local experience home stay",
+      // },
       // {
       //     label: 'Resort - All-inclusive paradise',
       //     value: 'resort all inclusive luxury amenities'

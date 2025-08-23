@@ -93,7 +93,7 @@ export function DestinationDetailsModal({
         </div>
 
         {/* Content */}
-        <div className="p-6 md:p-8 max-h-[50vh] overflow-y-auto">
+        <div className="p-6 md:p-8 max-h-[45vh] overflow-y-auto">
           {/* Quick info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 items-start">
             <div className="flex items-center">

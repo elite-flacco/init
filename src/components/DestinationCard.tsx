@@ -121,7 +121,7 @@ export function DestinationCard({
                   className="badge-secondary group flex items-center justify-start gap-1.5 rounded-lg hover:bg-secondary/20 transition-all duration-200"
                   title={`Search Google for ${highlight.name} in ${destination.name}`}
                 >
-                  <span className="text-xs font-semibold text-secondary">{highlight.name}</span>
+                  <span className="text-left text-xs font-semibold text-secondary">{highlight.name}</span>
                   <Search className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity duration-200" />
                 </button>
               ))}

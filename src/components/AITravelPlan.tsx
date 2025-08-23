@@ -163,7 +163,10 @@ export function AITravelPlan({
   }, [showMobileActions]);
 
   const handleExportToPdf = async () => {
-    if (!livePlan) return;
+    if (!livePlan) {
+      alert("Please wait for your travel plan to finish loading before exporting to PDF.");
+      return;
+    }
 
     try {
       // Track PDF export
@@ -186,7 +189,10 @@ export function AITravelPlan({
   };
 
   const handleExportToGoogleMaps = async () => {
-    if (!livePlan) return;
+    if (!livePlan) {
+      alert("Please wait for your travel plan to finish loading before exporting to Maps.");
+      return;
+    }
 
     setIsExportingKML(true);
 
@@ -194,14 +200,20 @@ export function AITravelPlan({
     trackTravelEvent.exportPlan('kml');
 
     try {
+      // Create plan object with destination info for KML service
+      const planWithDestination = {
+        ...livePlan,
+        destination: destination
+      };
+
       // First try with real coordinates, but with a shorter timeout
       try {
-        await KMLExportService.downloadKML(livePlan, undefined, {
+        await KMLExportService.downloadKML(planWithDestination, undefined, {
           useRealCoordinates: true,
         });
       } catch {
         // Fallback to approximate coordinates if geocoding fails
-        await KMLExportService.downloadKML(livePlan, undefined, {
+        await KMLExportService.downloadKML(planWithDestination, undefined, {
           useRealCoordinates: false,
         });
       }
@@ -461,7 +473,11 @@ export function AITravelPlan({
             {/* Right: Hamburger Menu */}
             <div className="relative flex-shrink-0" ref={mobileActionsRef}>
               <button
-                onClick={() => setShowMobileActions(!showMobileActions)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowMobileActions(!showMobileActions);
+                }}
                 className="btn-3d-outline p-2 flex items-center space-x-2"
                 title="Actions"
               >
@@ -472,34 +488,51 @@ export function AITravelPlan({
                 )}              </button>
 
               {showMobileActions && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-border/50 py-2 z-50">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-border/50 py-2 z-50 pointer-events-auto">
                   <button
-                    onClick={() => {
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       onRegeneratePlan();
                       setShowMobileActions(false);
                     }}
-                    className="flex items-center justify-start px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors"
+                    className="flex items-center justify-start px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors pointer-events-auto"
                   >
                     <RefreshCw className="w-4 h-4 mr-1" />
                     Regenerate Plan
                   </button>
                   <button
-                    onClick={() => {
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!livePlan) {
+                        alert("Please wait for your travel plan to finish loading before exporting to PDF.");
+                        return;
+                      }
                       handleExportToPdf();
                       setShowMobileActions(false);
                     }}
-                    className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors"
+                    disabled={!livePlan}
+                    className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     <FileText className="w-4 h-4 mr-1" />
                     Export to PDF
                   </button>
                   <button
-                    onClick={() => {
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!livePlan) {
+                        alert("Please wait for your travel plan to finish loading before exporting to Maps.");
+                        return;
+                      }
                       handleExportToGoogleMaps();
                       setShowMobileActions(false);
                     }}
-                    disabled={isExportingKML}
-                    className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50"
+                    disabled={isExportingKML || !livePlan}
+                    className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     {isExportingKML ? (
                       <Loader2 className="w-4 h-4 animate-spin mr-1" />
@@ -509,12 +542,19 @@ export function AITravelPlan({
                     Export to Maps
                   </button>
                   <button
-                    onClick={() => {
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!livePlan) {
+                        alert("Please wait for your plan to finish loading before sharing.");
+                        return;
+                      }
                       handleShare();
                       setShowMobileActions(false);
                     }}
-                    disabled={isSharing}
-                    className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50"
+                    disabled={isSharing || !livePlan}
+                    className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     {isSharing ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent mr-1"></div>
@@ -553,14 +593,14 @@ export function AITravelPlan({
                         <button
                           key={tab}
                           onClick={() => setActiveTab(tab as any)}
-                          className={`flex items-center space-x-1 p-1 text-xs font-medium rounded-full transition-all duration-300 ${activeTab === tab
+                          className={`flex items-center space-x-0 p-1 text-xs font-medium rounded-full transition-all duration-300 ${activeTab === tab
                             ? 'btn-3d-secondary !text-white [&>*]:!text-white transform rotate-1'
                             : 'text-foreground-secondary hover:text-primary hover:bg-primary/10'
                             }`}
                         >
-                          <span>{tabData.icon}</span>
+                          <span  className="w-6 h-8">{tabData.icon}</span>
                           {getTabLoadingState(tab as any).isLoading && (
-                            <Loader2 className="w-2 h-2 animate-spin" />
+                            <Loader2 className="w-2 h-2 animate-spin -ml-2" />
                           )}
                         </button>
                       );
@@ -572,7 +612,11 @@ export function AITravelPlan({
               {/* Right: Hamburger Menu */}
               <div className="relative" ref={mobileActionsRef}>
                 <button
-                  onClick={() => setShowMobileActions(!showMobileActions)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowMobileActions(!showMobileActions);
+                  }}
                   className="btn-3d-outline p-2"
                   title="Menu"
                 >
@@ -584,35 +628,50 @@ export function AITravelPlan({
                 </button>
 
                 {showMobileActions && (
-                  <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-lg border border-border/50 py-2 z-50">
+                  <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-lg border border-border/50 py-2 z-50 pointer-events-auto">
                     <button
-                      onClick={() => {
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         onRegeneratePlan();
                         setShowMobileActions(false);
                       }}
-                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors"
+                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors pointer-events-auto"
                     >
                       <RefreshCw className="w-4 h-4 mr-1 text-primary" />
                       <span>Regenerate Plan</span>
                     </button>
                     <hr className="border-border/30 mx-2" />
                     <button
-                      onClick={() => {
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!livePlan) {
+                          alert("Please wait for your travel plan to finish loading before exporting to PDF.");
+                          return;
+                        }
                         handleExportToPdf();
                         setShowMobileActions(false);
                       }}
-                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors"
+                      disabled={!livePlan}
+                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
                     >
                       <FileText className="w-4 h-4 mr-1 text-secondary" />
                       <span>Export to PDF</span>
                     </button>
                     <button
-                      onClick={() => {
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!livePlan) {
+                          alert("Please wait for your travel plan to finish loading before exporting to Maps.");
+                          return;
+                        }
                         handleExportToGoogleMaps();
                         setShowMobileActions(false);
                       }}
-                      disabled={isExportingKML}
-                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50"
+                      disabled={isExportingKML || !livePlan}
+                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
                     >
                       {isExportingKML ? (
                         <Loader2 className="w-4 h-4 animate-spin mr-1 text-accent" />
@@ -622,12 +681,18 @@ export function AITravelPlan({
                       <span>Export to Maps</span>
                     </button>
                     <button
-                      onClick={() => {
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!livePlan) {
+                          alert("Please wait for your plan to finish loading before sharing.");
+                          return;
+                        }
                         handleShare();
                         setShowMobileActions(false);
                       }}
-                      disabled={isSharing}
-                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50"
+                      disabled={isSharing || !livePlan}
+                      className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
                     >
                       {isSharing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent mr-1"></div>
@@ -1809,7 +1874,7 @@ export function AITravelPlan({
                               <p className="text-accent mr-2">•</p>
                               <p>Credit card usage</p>
                             </li>
-                            <span className="text-sm ml-4">
+                            <span className="text-sm ml-4 leading-[1rem]">
                               {livePlan?.localCurrency.creditCardUsage}
                             </span>
                             {livePlan?.localCurrency.tips.map((tip, index) => (
