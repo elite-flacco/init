@@ -17,7 +17,7 @@ function generateShareId(): string {
 
 // OPTIONS /api/shared-plans - Handle preflight CORS requests
 export async function OPTIONS(request: NextRequest) {
-  return SecurityMiddleware.createSecureResponse({}, 200);
+  return SecurityMiddleware.createSecureResponse({}, 200, request);
 }
 
 // POST /api/shared-plans - Create a new shared plan
@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
       return SecurityMiddleware.createSecureResponse(
         { error: "Missing required fields" },
         400,
+        request
       );
     }
 
@@ -61,8 +62,8 @@ export async function POST(request: NextRequest) {
       shareId,
       shareUrl: `${request.nextUrl.origin}/share/${shareId}`,
       expiresAt: expiresAt.toISOString(),
-    });
+    }, 200, request);
   } catch (error) {
-    return SecurityMiddleware.handleSecurityError(error as Error);
+    return SecurityMiddleware.handleSecurityError(error as Error, request);
   }
 }

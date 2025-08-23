@@ -252,12 +252,25 @@ export function AITravelPlan({
         travelerType,
         aiResponse: shareableAiResponse,
       };
-      const response = await fetch("/api/shared-plans", {
+      // Create absolute URL to avoid deployment issues
+      const baseUrl = typeof window !== 'undefined' 
+        ? window.location.origin 
+        : process.env.VERCEL_URL 
+          ? `https://${process.env.VERCEL_URL}` 
+          : 'http://localhost:3000';
+      
+      const response = await fetch(`${baseUrl}/api/shared-plans`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
+          // Add explicit origin header for better CORS handling
+          ...(typeof window !== 'undefined' && { "Origin": window.location.origin }),
         },
         body: JSON.stringify(requestPayload),
+        // Add explicit credentials and mode for better compatibility
+        credentials: "same-origin",
+        mode: "cors",
       });
 
       if (!response.ok) {
