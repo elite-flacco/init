@@ -5,6 +5,8 @@ declare global {
       targetId: string | Date | object,
       config?: object
     ) => void;
+    dataLayer: any[];
+    __GA_INITIALIZED__?: boolean;
   }
 }
 
@@ -13,41 +15,21 @@ export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 // Check if GA is enabled
 export const isGAEnabled = () => {
-  return GA_MEASUREMENT_ID && typeof window !== 'undefined';
+  // return GA_MEASUREMENT_ID && typeof window !== 'undefined';
+  return typeof window !== 'undefined' && Boolean(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID);
 };
 
-// Initialize Google Analytics
+// Initialize Google Analytics (now handled by GoogleAnalytics component)
 export const initGA = () => {
-  if (!isGAEnabled()) return;
-
-  // Create script element for gtag
-  const script = document.createElement('script');
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-  script.async = true;
-  document.head.appendChild(script);
-
-  // Initialize gtag function
-  window.gtag = function(...args: unknown[]) {
-    // Initialize dataLayer if it doesn't exist
-    if (!(window as typeof window & { dataLayer?: unknown[] }).dataLayer) {
-      (window as typeof window & { dataLayer?: unknown[] }).dataLayer = [];
-    }
-    (window as typeof window & { dataLayer: unknown[] }).dataLayer.push(args);
-  };
-
-  // Configure gtag
-  window.gtag('js', new Date());
-  window.gtag('config', GA_MEASUREMENT_ID!, {
-    page_title: document.title,
-    page_location: window.location.href,
-  });
+  // This is now handled by the GoogleAnalytics component using Next.js Script
+  return;
 };
 
 // Track page views
 export const trackPageView = (url: string, title?: string) => {
   if (!isGAEnabled()) return;
 
-  window.gtag('config', GA_MEASUREMENT_ID!, {
+  window.gtag('event', 'page_view', {
     page_path: url,
     page_title: title || document.title,
     page_location: window.location.href,
@@ -62,13 +44,16 @@ export const trackEvent = (
   value?: number
 ) => {
   if (!isGAEnabled()) return;
-
+  
+  console.log('📈 Sending GA event:', action, { category, label, value });
+  
   window.gtag('event', action, {
     event_category: category,
     event_label: label,
     value: value,
   });
 };
+
 
 // Track travel-specific events
 export const trackTravelEvent = {
