@@ -24,16 +24,8 @@ export default function GoogleAnalytics() {
             gtag('js', new Date());
             gtag('config', '${GA_MEASUREMENT_ID}', {
               page_title: document.title,
-              page_location: window.location.href,
-              debug_mode: true
+              page_location: window.location.href
             });
-            
-            // Test that GA loaded properly
-            setTimeout(() => {
-              gtag('get', '${GA_MEASUREMENT_ID}', 'client_id', (cid) => {
-                console.log('✅ GA4 loaded successfully, client_id:', cid);
-              });
-            }, 2000);
           `,
         }}
       />

@@ -45,8 +45,6 @@ export const trackEvent = (
 ) => {
   if (!isGAEnabled()) return;
   
-  console.log('📈 Sending GA event:', action, { category, label, value });
-  
   window.gtag('event', action, {
     event_category: category,
     event_label: label,
