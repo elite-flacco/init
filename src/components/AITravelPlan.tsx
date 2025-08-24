@@ -228,6 +228,58 @@ export function AITravelPlan({
     }
   };
 
+  const shareWithUser = async (shareUrl: string, destinationName: string) => {
+    // Check if native sharing is available (mobile devices)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Travel Plan for ${destinationName}`,
+          text: `Check out my travel plan for ${destinationName}!`,
+          url: shareUrl,
+        });
+        
+        // Success - no need for additional feedback as the OS handles it
+        return;
+      } catch (shareError) {
+        // User cancelled share or sharing failed
+        console.log('Native share cancelled or failed:', shareError);
+        
+        // Fall through to clipboard fallback
+      }
+    }
+
+    // Fallback to clipboard (desktop or if native share failed)
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        alert("Share link copied to clipboard! Send it around!");
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement("textarea");
+        textArea.value = shareUrl;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.select();
+        textArea.setSelectionRange(0, 99999); // For mobile devices
+        
+        const successful = document.execCommand("copy");
+        document.body.removeChild(textArea);
+        
+        if (successful) {
+          alert("Share link copied! Send it around!");
+        } else {
+          // Last resort - just show the URL
+          alert(`Here's your share link: ${shareUrl}`);
+        }
+      }
+    } catch (clipboardError) {
+      console.error('Clipboard access failed:', clipboardError);
+      // Last resort - just show the URL
+      alert(`Here's your share link: ${shareUrl}`);
+    }
+  };
+
   const handleShare = async () => {
     if (!livePlan) {
       alert("Please wait for your plan to finish loading before sharing.");
@@ -252,26 +304,16 @@ export function AITravelPlan({
         travelerType,
         aiResponse: shareableAiResponse,
       };
-      // Create absolute URL to avoid deployment issues
-      const baseUrl = typeof window !== 'undefined' 
-        ? window.location.origin 
-        : process.env.VERCEL_URL 
-          ? `https://${process.env.VERCEL_URL}` 
-          : 'http://localhost:3000';
-      
-      const response = await fetch(`${baseUrl}/api/shared-plans`, {
+      // Start fetch immediately to preserve user gesture context on mobile browsers
+      const fetchPromise = fetch("/api/shared-plans", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
-          // Add explicit origin header for better CORS handling
-          ...(typeof window !== 'undefined' && { "Origin": window.location.origin }),
         },
         body: JSON.stringify(requestPayload),
-        // Add explicit credentials and mode for better compatibility
-        credentials: "same-origin",
-        mode: "cors",
       });
+      
+      const response = await fetchPromise;
 
       if (!response.ok) {
         let errorText;
@@ -288,20 +330,8 @@ export function AITravelPlan({
       const { shareUrl: newShareUrl } = responseData;
       setShareUrl(newShareUrl);
 
-      // Copy to clipboard
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(newShareUrl);
-        alert("Share link copied! Send it around!");
-      } else {
-        // Fallback for older browsers
-        const textArea = document.createElement("textarea");
-        textArea.value = newShareUrl;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
-        alert(`Got your share link: ${newShareUrl}`);
-      }
+      // Smart sharing: Use native share API on mobile, clipboard on desktop
+      await shareWithUser(newShareUrl, destination.name);
     } catch (error) {
 
       alert(`Couldn't create the share link. Error: ${error instanceof Error ? error.message : String(error)}`);

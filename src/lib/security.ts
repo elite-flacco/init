@@ -300,7 +300,7 @@ export class SecurityMiddleware {
   /**
    * Create a security-wrapped response with additional headers
    */
-  static createSecureResponse(data: unknown, status = 200, request?: NextRequest): NextResponse {
+  static createSecureResponse(data: unknown, status = 200): NextResponse {
     const response = NextResponse.json(data, { status });
 
     // Add security headers
@@ -309,31 +309,20 @@ export class SecurityMiddleware {
     response.headers.set("X-XSS-Protection", "1; mode=block");
     response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
-    // Add CORS headers
-    const allowedOrigins = getAllowedOrigins();
+    // Add basic CORS headers
     if (process.env.NODE_ENV === "development") {
       response.headers.set("Access-Control-Allow-Origin", "*");
-    } else if (request && allowedOrigins.length > 0) {
-      // Check the actual request origin and allow if it's in the allowed list
-      const requestOrigin = request.headers.get("origin");
-      const allowedOrigin = allowedOrigins.find(origin => 
-        requestOrigin === origin || requestOrigin?.startsWith(origin)
-      );
-      
-      if (allowedOrigin) {
-        response.headers.set("Access-Control-Allow-Origin", requestOrigin || allowedOrigin);
-        response.headers.set("Vary", "Origin");
-      } else {
-        // Fallback to first allowed origin
+    } else {
+      // In production, use environment variable for allowed origins
+      const allowedOrigins = getAllowedOrigins();
+      if (allowedOrigins.length > 0) {
         response.headers.set("Access-Control-Allow-Origin", allowedOrigins[0]);
-        response.headers.set("Vary", "Origin");
       }
     }
     
     response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Origin, Accept");
-    response.headers.set("Access-Control-Allow-Credentials", "true");
-    response.headers.set("Access-Control-Max-Age", "86400"); // 24 hours
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    response.headers.set("Access-Control-Max-Age", "3600"); // 1 hour
 
     return response;
   }
@@ -341,16 +330,15 @@ export class SecurityMiddleware {
   /**
    * Handle security errors and return appropriate response
    */
-  static handleSecurityError(error: Error, request?: NextRequest): NextResponse {
+  static handleSecurityError(error: Error): NextResponse {
     if (error instanceof SecurityError) {
       return this.createSecureResponse(
         { error: error.message },
-        error.statusCode,
-        request
+        error.statusCode
       );
     }
 
-    return this.createSecureResponse({ error: "Internal server error" }, 500, request);
+    return this.createSecureResponse({ error: "Internal server error" }, 500);
   }
 
   /**
