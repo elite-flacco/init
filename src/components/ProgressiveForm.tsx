@@ -47,22 +47,32 @@ export function ProgressiveForm({
   //   [currentStep],
   // );
 
-  // Auto-scroll to current step - happens before animation starts
+  // Auto-scroll to current step - handle both first question and completed questions
   useEffect(() => {
     const timer = setTimeout(() => {
-      const currentStepElement = stepRefs.current[currentStep];
-      if (currentStepElement && editingStep === null) {
-        // Scroll to the current question immediately, before animation
-        currentStepElement.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-          inline: "center",
-        });
+      if (editingStep === null && currentStep < questions.length) {
+        // For the first question (currentStep 0), scroll to top to center the question
+        if (currentStep === 0) {
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: "smooth"
+          });
+        } else {
+          // For subsequent questions, scroll to show completed questions above
+          const currentStepElement = stepRefs.current[currentStep];
+          if (currentStepElement) {
+            currentStepElement.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+              inline: "center",
+            });
+          }
+        }
       }
     }, 50); // Quick delay for DOM updates
 
     return () => clearTimeout(timer);
-  }, [currentStep, editingStep]);
+  }, [currentStep, editingStep, questions.length]);
 
   // Removed buggy auto-editing scroll behavior - users can simply click to edit
 
@@ -80,17 +90,7 @@ export function ProgressiveForm({
       const nextUnansweredStep = findNextUnansweredStep(editingStep);
       if (nextUnansweredStep !== -1) {
         setCurrentStep(nextUnansweredStep);
-        // Scroll to new question immediately after editing
-        setTimeout(() => {
-          const nextStepElement = stepRefs.current[nextUnansweredStep];
-          if (nextStepElement) {
-            nextStepElement.scrollIntoView({
-              behavior: "smooth",
-              block: "center",
-              inline: "center",
-            });
-          }
-        }, 50);
+        // Don't scroll - let the centered positioning handle it
       } else {
         // All questions are answered, show smooth transition
         setIsTransitioning(true);
@@ -102,17 +102,7 @@ export function ProgressiveForm({
     if (currentStep < questions.length - 1) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
-      // Scroll to new question immediately, before animation starts
-      setTimeout(() => {
-        const nextStepElement = stepRefs.current[nextStep];
-        if (nextStepElement) {
-          nextStepElement.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-            inline: "center",
-          });
-        }
-      }, 100); // Immediate scroll, just after DOM updates
+      // Don't scroll - the current question is always centered via CSS positioning
     } else {
       // All questions completed, show smooth transition
       setIsTransitioning(true);

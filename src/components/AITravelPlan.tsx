@@ -71,6 +71,7 @@ export function AITravelPlan({
   const [isSharing, setIsSharing] = useState(false);
   const [, setShareUrl] = useState<string | null>(null);
   const [showMobileActions, setShowMobileActions] = useState(false);
+  const [showSharingToast, setShowSharingToast] = useState(false);
   const mobileActionsRef = useRef<HTMLDivElement>(null);
 
   // Initialize streaming hooks
@@ -237,13 +238,13 @@ export function AITravelPlan({
           text: `Check out my travel plan for ${destinationName}!`,
           url: shareUrl,
         });
-        
+
         // Success - no need for additional feedback as the OS handles it
         return;
       } catch (shareError) {
         // User cancelled share or sharing failed
         console.log('Native share cancelled or failed:', shareError);
-        
+
         // Fall through to clipboard fallback
       }
     }
@@ -262,10 +263,10 @@ export function AITravelPlan({
         document.body.appendChild(textArea);
         textArea.select();
         textArea.setSelectionRange(0, 99999); // For mobile devices
-        
+
         const successful = document.execCommand("copy");
         document.body.removeChild(textArea);
-        
+
         if (successful) {
           alert("Share link copied! Send it around!");
         } else {
@@ -287,6 +288,7 @@ export function AITravelPlan({
     }
 
     setIsSharing(true);
+    setShowSharingToast(true);
 
     // Track share attempt
     trackTravelEvent.sharePlan('url');
@@ -312,7 +314,7 @@ export function AITravelPlan({
         },
         body: JSON.stringify(requestPayload),
       });
-      
+
       const response = await fetchPromise;
 
       if (!response.ok) {
@@ -340,6 +342,7 @@ export function AITravelPlan({
       trackTravelEvent.error('share_failed');
     } finally {
       setIsSharing(false);
+      setShowSharingToast(false);
     }
   };
 
@@ -585,14 +588,15 @@ export function AITravelPlan({
                     Export to Maps
                   </button>
                   <button
-                    onPointerDown={(e) => {
+                    onPointerDown={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       if (!livePlan) {
                         alert("Please wait for your plan to finish loading before sharing.");
+                        setShowMobileActions(false);
                         return;
                       }
-                      handleShare();
+                      await handleShare();
                       setShowMobileActions(false);
                     }}
                     disabled={isSharing || !livePlan}
@@ -600,11 +604,11 @@ export function AITravelPlan({
                     style={{ pointerEvents: 'auto' }}
                   >
                     {isSharing ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent mr-1"></div>
+                      <Loader2 className="w-4 h-4 animate-spin mr-1" />
                     ) : (
                       <Share2 className="w-4 h-4 mr-1" />
                     )}
-                    Share Plan
+                    {isSharing ? "Creating share link..." : "Share Plan"}
                   </button>
                 </div>
               )}
@@ -641,7 +645,7 @@ export function AITravelPlan({
                             : 'text-foreground-secondary hover:text-primary hover:bg-primary/10'
                             }`}
                         >
-                          <span  className="w-6 h-8">{tabData.icon}</span>
+                          <span className="w-6 h-8">{tabData.icon}</span>
                           {getTabLoadingState(tab as any).isLoading && (
                             <Loader2 className="w-2 h-2 animate-spin -ml-2" />
                           )}
@@ -724,25 +728,26 @@ export function AITravelPlan({
                       <span>Export to Maps</span>
                     </button>
                     <button
-                      onPointerDown={(e) => {
+                      onPointerDown={async (e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         if (!livePlan) {
                           alert("Please wait for your plan to finish loading before sharing.");
+                          setShowMobileActions(false);
                           return;
                         }
-                        handleShare();
+                        await handleShare();
                         setShowMobileActions(false);
                       }}
                       disabled={isSharing || !livePlan}
                       className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
                     >
                       {isSharing ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent mr-1"></div>
+                        <Loader2 className="w-4 h-4 animate-spin mr-1 text-primary" />
                       ) : (
                         <Share2 className="w-4 h-4 mr-1 text-primary" />
                       )}
-                      <span>Share Plan</span>
+                      <span>{isSharing ? "Creating share link..." : "Share Plan"}</span>
                     </button>
                   </div>
                 )}
@@ -2039,6 +2044,23 @@ export function AITravelPlan({
         </div>
 
       </main>
+
+      {/* Share Loading Toast */}
+      {showSharingToast && (
+        <>
+          {/* Overlay layer */}
+          <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"></div>
+
+          <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+            <div className="bg-white/95 border border-border/50 rounded-2xl px-6 py-4 shadow-xl">
+              <div className="flex items-center space-x-3">
+                <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                <span className="text-sm font-medium text-foreground">Creating your shareable link...</span>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* KML Export Loading Overlay */}
       <KMLExportLoading isVisible={isExportingKML} />
