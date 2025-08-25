@@ -75,7 +75,7 @@ export function DestinationInputComponent({
               }`}
           >
             {/* Adventure Form Card */}
-            <div className="relative">
+            <div className="relative mb-16">
               {/* Glow Effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 rounded-3xl blur-xl opacity-50 animate-glow-pulse"></div>
 
@@ -90,7 +90,7 @@ export function DestinationInputComponent({
                         type="text"
                         value={destination}
                         onChange={handleInputChange}
-                        placeholder="Tokyo ramen district, Santorini sunset spots, Bali rice terraces..."
+                        placeholder="Bangkok, Santorini, Bali... (Be specific: Kyoto > Japan)"
                         className={`w-full px-6 py-4 text-sm bg-background/80 backdrop-blur-sm border-2 rounded-xl shadow-card transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:border-primary focus:shadow-card-hover focus:bg-background ${error
                             ? "border-red-300 bg-red-50/80"
                             : "border-border hover:border-border-secondary"
@@ -126,18 +126,18 @@ export function DestinationInputComponent({
                 </form>
 
                 {/* Asymmetrical Exploration Tips */}
-                <div className="mt-10 ml-8 lg:ml-16 mr-4 p-6 bg-gradient-to-br from-accent/10 via-transparent to-primary/10 border border-primary/20 rounded-2xl transform -rotate-1">
+                {/* <div className="mt-10 ml-8 lg:ml-16 mr-4 p-6 bg-gradient-to-br from-accent/10 via-transparent to-primary/10 border border-primary/20 rounded-2xl transform -rotate-1">
                   <div className="flex items-start space-x-4">
                     <div className="flex-shrink-0">
-                      <span className="text-2xl">💡</span>
+                      <span className="text-xl">💡</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-2">
-                        Explorer's Pro Tips:
-                      </h4>
+                      <h6 className="mb-2">
+                        Pro Tips:
+                      </h6>
                       <ul className="space-y-1 text-sm text-foreground-secondary">
                         <li>
-                          • Be specific: "Kyoto bamboo forest" &gt; "Japan"
+                          • Be specific: "Kyoto" &gt; "Japan"
                         </li>
                         <li>
                           • Include your vibe: "Buenos Aires tango districts"
@@ -149,7 +149,7 @@ export function DestinationInputComponent({
                       </ul>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

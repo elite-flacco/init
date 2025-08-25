@@ -164,7 +164,7 @@ export function TravelerTypeSelection({
         </div>
 
         {/* Asymmetrical Adventure Header */}
-        <div id="traveler-types-section" className="relative pt-4 mb-8 sm:mb-12 md:mb-16 lg:mb-20">
+        <div id="traveler-types-section" className="relative pt-4 mb-4 sm:mb-8 md:mb-12 lg:mb-16">
           {/* Main title section - offset left */}
           <div
             className={`ml-8 md:ml-16 lg:ml-24 transition-all duration-1000 ${isLoaded
@@ -189,7 +189,7 @@ export function TravelerTypeSelection({
 
         {/* Responsive Horizontal Staggered Layout */}
         <div
-          className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20"
+          className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-4 sm:py-6 md:py-8 lg:py-10 xl:py-12"
           role="group"
           aria-labelledby="step-title"
         >
