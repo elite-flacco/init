@@ -63,7 +63,7 @@ export function KMLExportLoading({ isVisible }: KMLExportLoadingProps) {
         progressInterval={800}
         progressIncrement={() => Math.random() * 15}
         centralIcon={MapIcon3D}
-        footerMessage="This may take a moment while we geocode your destinations..."
+        footerMessage="This will take a few minutes. Go grab a coffee while we geocode your destinations..."
         ariaLabel="Exporting travel plan to KML format"
         showStageIndicators={false}
         showOrbitingIcon={true}
