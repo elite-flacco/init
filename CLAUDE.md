@@ -41,7 +41,7 @@ Tests are configured to:
 
 ## Project Architecture
 
-This is a **Next.js 15 full-stack application** using the App Router with React 19 + TypeScript. The app follows a multi-step wizard pattern where users progress through different phases of travel planning with AI-powered recommendations and plan sharing capabilities.
+This is a **Next.js 15 full-stack application** using the App Router with React 19 + TypeScript. The app follows a multi-step wizard pattern where users progress through different phases of travel planning with AI-powered recommendations, plan sharing capabilities, and optional user accounts for saving plans and destinations.
 
 ### Core Application Flow
 
@@ -85,6 +85,33 @@ The application heavily relies on TypeScript interfaces:
 ### Component Organization
 
 Components follow a hierarchical pattern where each major step has its own component that handles that phase of the user journey. The main App component orchestrates the flow and manages state transitions.
+
+### User Accounts System
+
+The application includes an optional user accounts system that enhances the experience without disrupting the core flow:
+
+**Authentication Features:**
+- Email/password signup and login with Supabase Auth
+- Password reset functionality
+- Profile management with name and email updates
+- Secure session management with automatic token refresh
+
+**User Interface:**
+- **Sidebar-based UI**: User features are accessed via a slide-out sidebar instead of header dropdowns
+- **Non-intrusive prompts**: Gentle suggestions to create an account after generating plans
+- **Optional everywhere**: All account features enhance but don't interrupt the anonymous experience
+
+**Data Management:**
+- **Personal plan storage**: Save, name, and organize travel plans with tags and favorites
+- **Destination bookmarking**: Save interesting destinations with personal notes
+- **Plan collections**: Organize related plans (e.g., "Europe 2024", "Family Trips")
+- **Search and filter**: Find saved content quickly with built-in search
+
+**Architecture:**
+- **Database tables**: `user_travel_plans` and `user_saved_destinations` with RLS policies
+- **API routes**: RESTful endpoints in `/api/user/` for CRUD operations
+- **Context-based auth**: React context manages authentication state throughout the app
+- **Type-safe**: Full TypeScript support for all user-related data structures
 
 ## Development Guidelines
 
@@ -193,6 +220,18 @@ The Next.js backend provides several API endpoints:
 **Plan Management:**
 - **POST /api/shared-plans** - Create shareable plan with unique URL
 - **GET /api/shared-plans/[id]** - Retrieve shared plan by ID
+
+**User Management (Authentication Required):**
+- **GET /api/user/plans** - Get user's saved travel plans
+- **POST /api/user/plans** - Save a new travel plan
+- **GET /api/user/plans/[id]** - Get specific plan details
+- **PUT /api/user/plans/[id]** - Update plan (name, tags, favorite status)
+- **DELETE /api/user/plans/[id]** - Delete a saved plan
+- **GET /api/user/destinations** - Get user's saved destinations
+- **POST /api/user/destinations** - Save a new destination
+- **GET /api/user/destinations/[id]** - Get specific destination details
+- **PUT /api/user/destinations/[id]** - Update destination notes
+- **DELETE /api/user/destinations/[id]** - Remove saved destination
 
 **Testing & Utilities:**
 - **GET /api/ai/test** - Test AI service connectivity

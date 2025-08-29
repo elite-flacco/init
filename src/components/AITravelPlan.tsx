@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { trackTravelEvent } from "../lib/analytics";
 import { useStreamingTripPlanning } from "../hooks/useStreamingTripPlanning";
 import { useParallelTripPlanning } from "../hooks/useParallelTripPlanning";
+import { useAuth } from "../contexts/AuthContext";
 import { AITripPlanningRequest } from "../services/aiTripPlanningService";
 import {
   Sparkles,
@@ -27,6 +28,7 @@ import {
   MoreVertical,
   Menu,
   X,
+  Heart,
 } from "lucide-react";
 import { getActivityIcon } from "../utils/iconMappingUtils";
 import {
@@ -64,6 +66,7 @@ export function AITravelPlan({
   onRegeneratePlan,
   onBack,
 }: AITravelPlanProps) {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<
     "itinerary" | "info" | "food" | "practical"
   >("info");
@@ -72,6 +75,8 @@ export function AITravelPlan({
   const [, setShareUrl] = useState<string | null>(null);
   const [showMobileActions, setShowMobileActions] = useState(false);
   const [showSharingToast, setShowSharingToast] = useState(false);
+  const [isSavingPlan, setIsSavingPlan] = useState(false);
+  const [planSaved, setPlanSaved] = useState(false);
   const mobileActionsRef = useRef<HTMLDivElement>(null);
 
   // Initialize streaming hooks
@@ -343,6 +348,67 @@ export function AITravelPlan({
     } finally {
       setIsSharing(false);
       setShowSharingToast(false);
+    }
+  };
+
+  const handleSavePlan = async () => {
+    if (!user) {
+      alert("Please sign in to save your travel plan.");
+      return;
+    }
+
+    if (!livePlan) {
+      alert("Please wait for your plan to finish loading before saving.");
+      return;
+    }
+
+    setIsSavingPlan(true);
+
+    try {
+      // Generate a default name for the plan
+      const defaultPlanName = `${destination.name} ${travelerType.name} Trip`;
+
+      // Create the request payload
+      const requestPayload = {
+        name: defaultPlanName,
+        destination,
+        travelerType,
+        aiResponse: aiResponse || {
+          plan: livePlan,
+          streamingState: activeStreamingState,
+          streamingHooks: null,
+        },
+        tags: [travelerType.name.toLowerCase()],
+        is_favorite: false,
+      };
+
+      const response = await fetch("/api/user/plans", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestPayload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save plan");
+      }
+
+      // Success
+      setPlanSaved(true);
+      alert("Travel plan saved successfully! You can find it in your saved plans.");
+      
+      // Track save plan event
+      trackTravelEvent.sharePlan('save');
+    } catch (error) {
+      console.error("Error saving plan:", error);
+      alert(error instanceof Error ? error.message : "Failed to save plan. Please try again.");
+      
+      // Track error
+      trackTravelEvent.error('plan_save_failed');
+    } finally {
+      setIsSavingPlan(false);
     }
   };
 

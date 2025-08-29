@@ -1,0 +1,421 @@
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import { 
+  X, 
+  User, 
+  MapPin, 
+  Heart, 
+  Settings, 
+  LogOut, 
+  Search, 
+  Filter, 
+  Plus,
+  Trash2,
+  Edit3,
+  Calendar,
+  Tag,
+  Star,
+  Plane
+} from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Destination, EnhancedTravelPlan } from '../types/travel';
+
+interface UserSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onOpenAuthModal?: () => void;
+}
+
+interface SavedPlan {
+  id: string;
+  name: string;
+  destination: Destination;
+  created_at: string;
+  updated_at: string;
+  tags: string[];
+  is_favorite: boolean;
+}
+
+interface SavedDestination {
+  id: string;
+  destination: Destination;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+type SidebarTab = 'plans' | 'destinations' | 'profile' | 'settings';
+
+export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarProps) {
+  const { user, signOut, loading } = useAuth();
+  const [activeTab, setActiveTab] = useState<SidebarTab>('plans');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [savedPlans, setSavedPlans] = useState<SavedPlan[]>([]);
+  const [savedDestinations, setSavedDestinations] = useState<SavedDestination[]>([]);
+  const [plansLoading, setPlansLoading] = useState(false);
+  const [destinationsLoading, setDestinationsLoading] = useState(false);
+
+  // Close sidebar on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
+
+  // Load user data when sidebar opens and user is authenticated
+  useEffect(() => {
+    if (isOpen && user) {
+      loadSavedPlans();
+      loadSavedDestinations();
+    }
+  }, [isOpen, user]);
+
+  const loadSavedPlans = async () => {
+    if (!user) return;
+    
+    setPlansLoading(true);
+    try {
+      const response = await fetch('/api/user/plans');
+      if (response.ok) {
+        const plans = await response.json();
+        setSavedPlans(plans);
+      }
+    } catch (error) {
+      console.error('Failed to load saved plans:', error);
+    } finally {
+      setPlansLoading(false);
+    }
+  };
+
+  const loadSavedDestinations = async () => {
+    if (!user) return;
+    
+    setDestinationsLoading(true);
+    try {
+      const response = await fetch('/api/user/destinations');
+      if (response.ok) {
+        const destinations = await response.json();
+        setSavedDestinations(destinations);
+      }
+    } catch (error) {
+      console.error('Failed to load saved destinations:', error);
+    } finally {
+      setDestinationsLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    onClose();
+  };
+
+  const filteredPlans = savedPlans.filter(plan =>
+    plan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    plan.destination.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredDestinations = savedDestinations.filter(dest =>
+    dest.destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    dest.destination.country.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (!isOpen) return null;
+
+  // Show auth prompt if user is not authenticated
+  if (!user && !loading) {
+    return (
+      <div className={`fixed inset-0 z-50 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        {/* Backdrop */}
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+
+        {/* Sidebar */}
+        <div className={`absolute right-0 top-0 h-full w-full max-w-md bg-background border-l border-border shadow-2xl transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-border">
+            <h2 className="text-lg font-semibold text-foreground">Account Required</h2>
+            <button
+              onClick={onClose}
+              className="p-1 hover:bg-background-muted rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-foreground-secondary" />
+            </button>
+          </div>
+
+          {/* Auth Prompt */}
+          <div className="flex flex-col items-center justify-center h-full p-6 -mt-20">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <User className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Save Your Travel Plans
+                </h3>
+                <p className="text-sm text-foreground-secondary mb-6">
+                  Create an account to save your travel plans, bookmark destinations, and access them anytime.
+                </p>
+              </div>
+              <button
+                onClick={onOpenAuthModal}
+                className="btn-3d-primary px-6 py-2.5 font-medium"
+              >
+                Sign In or Sign Up
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`fixed inset-0 z-50 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+
+      {/* Sidebar */}
+      <div className={`absolute right-0 top-0 h-full w-full max-w-md bg-background border-l border-border shadow-2xl transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+              <User className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-foreground">
+                {user?.full_name || user?.email}
+              </h2>
+              <p className="text-xs text-foreground-secondary">{user?.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-background-muted rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-foreground-secondary" />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-border">
+          {[
+            { id: 'plans', label: 'My Plans', icon: Plane },
+            { id: 'destinations', label: 'Saved', icon: Heart },
+            { id: 'profile', label: 'Profile', icon: User },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as SidebarTab)}
+              className={`flex-1 flex items-center justify-center space-x-1 py-3 px-2 text-xs font-medium transition-colors ${
+                activeTab === tab.id
+                  ? 'text-primary border-b-2 border-primary bg-primary/5'
+                  : 'text-foreground-secondary hover:text-foreground hover:bg-background-muted'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-hidden">
+          {(activeTab === 'plans' || activeTab === 'destinations') && (
+            // Search Bar
+            <div className="p-4 border-b border-border">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground-secondary w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder={`Search ${activeTab === 'plans' ? 'plans' : 'destinations'}...`}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 text-sm bg-background-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="flex-1 overflow-y-auto">
+            {activeTab === 'plans' && (
+              <div className="p-4">
+                {plansLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                    <p className="text-sm text-foreground-secondary">Loading your plans...</p>
+                  </div>
+                ) : filteredPlans.length > 0 ? (
+                  <div className="space-y-3">
+                    {filteredPlans.map(plan => (
+                      <div key={plan.id} className="bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2">
+                              <h3 className="text-sm font-medium text-foreground truncate">
+                                {plan.name}
+                              </h3>
+                              {plan.is_favorite && (
+                                <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                              )}
+                            </div>
+                            <p className="text-xs text-foreground-secondary mt-1">
+                              {plan.destination.name}, {plan.destination.country}
+                            </p>
+                            <p className="text-xs text-foreground-secondary mt-1">
+                              <Calendar className="w-3 h-3 inline mr-1" />
+                              {new Date(plan.created_at).toLocaleDateString()}
+                            </p>
+                            {plan.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {plan.tags.slice(0, 3).map(tag => (
+                                  <span key={tag} className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-primary/10 text-primary">
+                                    <Tag className="w-2 h-2 mr-1" />
+                                    {tag}
+                                  </span>
+                                ))}
+                                {plan.tags.length > 3 && (
+                                  <span className="text-xs text-foreground-secondary">
+                                    +{plan.tags.length - 3} more
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <button className="p-1 hover:bg-background-muted rounded transition-colors">
+                            <Edit3 className="w-3 h-3 text-foreground-secondary" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Plane className="w-12 h-12 text-foreground-secondary mx-auto mb-3 opacity-50" />
+                    <h3 className="text-sm font-medium text-foreground mb-2">No saved plans yet</h3>
+                    <p className="text-xs text-foreground-secondary mb-4">
+                      Create your first travel plan to see it here!
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'destinations' && (
+              <div className="p-4">
+                {destinationsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                    <p className="text-sm text-foreground-secondary">Loading destinations...</p>
+                  </div>
+                ) : filteredDestinations.length > 0 ? (
+                  <div className="space-y-3">
+                    {filteredDestinations.map(item => (
+                      <div key={item.id} className="bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-medium text-foreground">
+                              {item.destination.name}
+                            </h3>
+                            <p className="text-xs text-foreground-secondary mt-1">
+                              <MapPin className="w-3 h-3 inline mr-1" />
+                              {item.destination.country}
+                            </p>
+                            {item.notes && (
+                              <p className="text-xs text-foreground-secondary mt-2 line-clamp-2">
+                                {item.notes}
+                              </p>
+                            )}
+                            <p className="text-xs text-foreground-secondary mt-2">
+                              Saved {new Date(item.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <button className="p-1 hover:bg-background-muted rounded transition-colors">
+                            <Heart className="w-4 h-4 text-red-500 fill-current" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Heart className="w-12 h-12 text-foreground-secondary mx-auto mb-3 opacity-50" />
+                    <h3 className="text-sm font-medium text-foreground mb-2">No saved destinations</h3>
+                    <p className="text-xs text-foreground-secondary mb-4">
+                      Save destinations you're interested in to see them here!
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'profile' && (
+              <div className="p-4 space-y-6">
+                {/* Profile Info */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground">Profile Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-medium text-foreground-secondary">Full Name</label>
+                      <p className="text-sm text-foreground mt-1">{user?.full_name || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-foreground-secondary">Email</label>
+                      <p className="text-sm text-foreground mt-1">{user?.email}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-foreground-secondary">Member Since</label>
+                      <p className="text-sm text-foreground mt-1">
+                        {new Date(user?.created_at || '').toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Stats */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground">Your Stats</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 bg-background-soft rounded-lg border border-border">
+                      <div className="text-lg font-semibold text-foreground">{savedPlans.length}</div>
+                      <div className="text-xs text-foreground-secondary">Travel Plans</div>
+                    </div>
+                    <div className="text-center p-3 bg-background-soft rounded-lg border border-border">
+                      <div className="text-lg font-semibold text-foreground">{savedDestinations.length}</div>
+                      <div className="text-xs text-foreground-secondary">Saved Places</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="space-y-3 pt-4 border-t border-border">
+                  <button className="w-full flex items-center space-x-3 p-3 text-sm text-foreground hover:bg-background-muted rounded-lg transition-colors">
+                    <Settings className="w-4 h-4 text-foreground-secondary" />
+                    <span>Account Settings</span>
+                  </button>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full flex items-center space-x-3 p-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

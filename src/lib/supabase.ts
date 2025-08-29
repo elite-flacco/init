@@ -33,6 +33,7 @@ export interface Database {
           ai_response: Record<string, unknown>;
           created_at: string;
           expires_at: string;
+          user_id?: string;
         };
         Insert: {
           id: string;
@@ -41,6 +42,7 @@ export interface Database {
           ai_response: Record<string, unknown>;
           created_at?: string;
           expires_at: string;
+          user_id?: string;
         };
         Update: {
           id?: string;
@@ -49,6 +51,71 @@ export interface Database {
           ai_response?: Record<string, unknown>;
           created_at?: string;
           expires_at?: string;
+          user_id?: string;
+        };
+      };
+      user_travel_plans: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          destination: Record<string, unknown>;
+          traveler_type: Record<string, unknown>;
+          ai_response: Record<string, unknown>;
+          created_at: string;
+          updated_at: string;
+          tags?: string[];
+          is_favorite: boolean;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          destination: Record<string, unknown>;
+          traveler_type: Record<string, unknown>;
+          ai_response: Record<string, unknown>;
+          created_at?: string;
+          updated_at?: string;
+          tags?: string[];
+          is_favorite?: boolean;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          destination?: Record<string, unknown>;
+          traveler_type?: Record<string, unknown>;
+          ai_response?: Record<string, unknown>;
+          created_at?: string;
+          updated_at?: string;
+          tags?: string[];
+          is_favorite?: boolean;
+        };
+      };
+      user_saved_destinations: {
+        Row: {
+          id: string;
+          user_id: string;
+          destination: Record<string, unknown>;
+          notes?: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          destination: Record<string, unknown>;
+          notes?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          destination?: Record<string, unknown>;
+          notes?: string;
+          created_at?: string;
+          updated_at?: string;
         };
       };
     };

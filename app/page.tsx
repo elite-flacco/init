@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plane } from "lucide-react";
+import { Plane, User } from "lucide-react";
 import { trackTravelEvent, trackPageView } from "../src/lib/analytics";
 import { useTypingEffect } from "../src/hooks/useTypingEffect";
+import { useAuth } from "../src/contexts/AuthContext";
+import { UserSidebar } from "../src/components/UserSidebar";
+import { AuthModalManager, useAuthModal } from "../src/components/auth";
 import { TravelerTypeSelection } from "../src/components/TravelerTypeSelection";
 import { DestinationKnowledgeSelection } from "../src/components/DestinationKnowledgeSelection";
 import { DestinationInputComponent } from "../src/components/DestinationInputComponent";
@@ -40,6 +43,7 @@ type AppStep =
   | "placeholder";
 
 export default function HomePage() {
+  const { user, loading: authLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState<AppStep>("traveler-type");
   const [selectedTravelerType, setSelectedTravelerType] =
     useState<TravelerType | null>(null);
@@ -59,6 +63,10 @@ export default function HomePage() {
   const [destinationError, setDestinationError] = useState<string | null>(null);
   const [previouslyShownDestinations, setPreviouslyShownDestinations] = useState<string[]>([]);
   const [previousStep, setPreviousStep] = useState<AppStep | null>(null);
+
+  // Sidebar and Auth Modal state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isOpen: isAuthModalOpen, modalType, openLogin, closeModal } = useAuthModal();
 
   // Typing effect for hero title
   const { displayedText: typedTitle, isComplete: titleComplete } = useTypingEffect({
@@ -284,6 +292,20 @@ export default function HomePage() {
     setCurrentStep("planning");
   };
 
+  // Sidebar and Auth handlers
+  const handleUserButtonClick = () => {
+    if (user) {
+      setIsSidebarOpen(true);
+    } else {
+      openLogin();
+    }
+  };
+
+  const handleAuthSuccess = () => {
+    // Optional: You can add any post-auth logic here
+    console.log('User authenticated successfully');
+  };
+
   const handleBack = () => {
     switch (currentStep) {
       case "placeholder":
@@ -432,35 +454,61 @@ export default function HomePage() {
         style={{ animationDelay: "1s" }}
       ></div>
 
-      {/* Logo - Top Left */}
-      <div className="fixed top-4 left-2 sm:top-4 sm:left-4 z-50">
-        <button
-          onClick={() => setCurrentStep("traveler-type")}
-          className="flex items-center p-2 space-x-1 hover:opacity-80 transition-opacity duration-300"
-          aria-label="Return to home"
-        >
-          {currentStep === "traveler-type" ? (
-            <>
+      {/* Header */}
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <div className="flex items-center justify-between p-4">
+          {/* Logo - Left */}
+          <button
+            onClick={() => setCurrentStep("traveler-type")}
+            className="flex items-center p-2 space-x-1 hover:opacity-80 transition-opacity duration-300"
+            aria-label="Return to home"
+          >
+            {currentStep === "traveler-type" ? (
+              <>
+                <div className="logo-3d p-1.5 sm:p-2 group">
+                  <Plane className="w-3 h-3 sm:w-4 sm:h-4 text-white group-hover:rotate-12 transition-transform duration-300" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <h1 className="text-base sm:text-lg font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent hidden md:block">
+                    {typedTitle}
+                    <span className={`inline-block w-0.5 h-3 sm:h-4 bg-primary ml-1 ${!titleComplete ? 'animate-pulse' : 'opacity-0'}`}>
+                    </span>
+                  </h1>
+                  <p className={`text-xs sm:text-sm text-foreground-secondary font-medium hidden md:block transition-opacity duration-500 ${titleComplete ? 'opacity-100' : 'opacity-0'}`}>
+                    Your travel planning partner
+                  </p>
+                </div>
+              </>
+            ) : (
               <div className="logo-3d p-1.5 sm:p-2 group">
-                <Plane className="w-3 h-3 sm:w-4 sm:h-4 text-white group-hover:rotate-12 transition-transform duration-300" />
+                <Plane className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
               </div>
-              <div className="flex flex-col items-start">
-                <h1 className="text-base sm:text-lg font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent hidden md:block">
-                  {typedTitle}
-                  <span className={`inline-block w-0.5 h-3 sm:h-4 bg-primary ml-1 ${!titleComplete ? 'animate-pulse' : 'opacity-0'}`}>
-                  </span>
-                </h1>
-                <p className={`text-xs sm:text-sm text-foreground-secondary font-medium hidden md:block transition-opacity duration-500 ${titleComplete ? 'opacity-100' : 'opacity-0'}`}>
-                  Your travel planning partner
-                </p>
-              </div>
-            </>
-          ) : (
-            <div className="logo-3d p-1.5 sm:p-2 group">
-              <Plane className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
-            </div>
+            )}
+          </button>
+
+          {/* User Button - Right */}
+          {!authLoading && (
+            <button
+              onClick={handleUserButtonClick}
+              className="btn-3d-outline group inline-flex items-center p-2 text-sm font-medium hover:bg-background-soft transition-colors duration-300"
+              aria-label={user ? "Open user menu" : "Sign in"}
+            >
+              {user ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="hidden sm:block">{user.full_name || user.email}</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <User className="w-4 h-4 text-foreground-secondary" />
+                  <span className="hidden sm:block">Sign In</span>
+                </div>
+              )}
+            </button>
           )}
-        </button>
+        </div>
       </div>
 
       {/* Navigation Elements - Right Side */}
@@ -494,11 +542,26 @@ export default function HomePage() {
       )}
 
       {/* Main content */}
-      <main className={`relative ${currentStep === 'placeholder' ? 'min-h-screen flex items-center justify-center' : 'py-4 px-4 sm:px-6 md:py-6 lg:py-8'}`}>
+      <main className={`relative ${currentStep === 'placeholder' ? 'min-h-screen flex items-center justify-center' : 'py-4 px-4 sm:px-6 md:py-6 lg:py-8'} mt-16`}>
         <div className="container mx-auto relative z-10 px-4">
           <div className="relative">{renderCurrentStep()}</div>
         </div>
       </main>
+
+      {/* User Sidebar */}
+      <UserSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        onOpenAuthModal={openLogin}
+      />
+
+      {/* Auth Modal */}
+      <AuthModalManager
+        initialModal={modalType}
+        isOpen={isAuthModalOpen}
+        onClose={closeModal}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }

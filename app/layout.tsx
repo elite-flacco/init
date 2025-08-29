@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import FeedbackButton from "../src/components/ui/FeedbackButton";
 import GoogleAnalytics from "../src/components/GoogleAnalytics";
+import { AuthProvider } from "../src/contexts/AuthContext";
 import "../src/index.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <GoogleAnalytics />
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <FeedbackButton />
       </body>
     </html>
