@@ -1,5 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../../src/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Create Supabase client for server-side auth
+function createSupabaseServerClient(request: NextRequest) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error("Missing Supabase environment variables");
+  }
+
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
+// Helper function to get user from auth header
+async function getUserFromRequest(request: NextRequest) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = authHeader.substring(7);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    return error ? null : user;
+  } catch {
+    return null;
+  }
+}
 
 interface UpdateDestinationRequest {
   notes?: string;
@@ -11,11 +49,15 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Get user from auth header
+    const user = await getUserFromRequest(request);
     
-    if (authError || !user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Create server client
+    const supabase = createSupabaseServerClient(request);
 
     const { data: destination, error } = await supabase
       .from('user_saved_destinations')
@@ -45,11 +87,15 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Get user from auth header
+    const user = await getUserFromRequest(request);
     
-    if (authError || !user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Create server client
+    const supabase = createSupabaseServerClient(request);
 
     const body: UpdateDestinationRequest = await request.json();
     
@@ -88,11 +134,15 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Get user from auth header
+    const user = await getUserFromRequest(request);
     
-    if (authError || !user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Create server client
+    const supabase = createSupabaseServerClient(request);
 
     const { error } = await supabase
       .from('user_saved_destinations')

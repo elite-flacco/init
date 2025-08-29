@@ -24,6 +24,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { makeAuthenticatedRequest } from '../lib/auth';
 import { Destination, EnhancedTravelPlan, TravelerType } from '../types/travel';
 import { DestinationDetailsModal } from './DestinationDetailsModal';
+import { ConfirmDialog } from './ui/ConfirmDialog';
 
 interface UserSidebarProps {
   isOpen: boolean;
@@ -65,6 +66,14 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
   const [destinationsLoading, setDestinationsLoading] = useState(false);
   const [plansLoaded, setPlansLoaded] = useState(false);
   const [destinationsLoaded, setDestinationsLoaded] = useState(false);
+
+  // Delete confirmation state
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    type: 'plan' | 'destination' | null;
+    item: SavedPlan | SavedDestination | null;
+    isLoading: boolean;
+  }>({ isOpen: false, type: null, item: null, isLoading: false });
 
   // Close sidebar on escape key
   useEffect(() => {
@@ -230,6 +239,63 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
     } finally {
       setOpeningPlanId(null);
     }
+  };
+
+  const handleDeletePlan = async (plan: SavedPlan) => {
+    setDeleteDialog({
+      isOpen: true,
+      type: 'plan',
+      item: plan,
+      isLoading: false
+    });
+  };
+
+  const handleDeleteDestination = async (destination: SavedDestination) => {
+    setDeleteDialog({
+      isOpen: true,
+      type: 'destination',
+      item: destination,
+      isLoading: false
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteDialog.item || !deleteDialog.type) return;
+
+    setDeleteDialog(prev => ({ ...prev, isLoading: true }));
+
+    try {
+      const endpoint = deleteDialog.type === 'plan'
+        ? `/api/user/plans/${deleteDialog.item.id}`
+        : `/api/user/destinations/${deleteDialog.item.id}`;
+
+      const response = await makeAuthenticatedRequest(endpoint, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete ${deleteDialog.type}`);
+      }
+
+      // Remove item from local state
+      if (deleteDialog.type === 'plan') {
+        setSavedPlans(prev => prev.filter(p => p.id !== deleteDialog.item!.id));
+      } else {
+        setSavedDestinations(prev => prev.filter(d => d.id !== deleteDialog.item!.id));
+      }
+
+      // Close dialog
+      setDeleteDialog({ isOpen: false, type: null, item: null, isLoading: false });
+      
+    } catch (error) {
+      console.error(`Error deleting ${deleteDialog.type}:`, error);
+      alert(`Failed to delete ${deleteDialog.type}. Please try again.`);
+      setDeleteDialog(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteDialog({ isOpen: false, type: null, item: null, isLoading: false });
   };
 
   const filteredPlans = savedPlans.filter(plan =>
@@ -400,16 +466,29 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                               {new Date(plan.created_at).toLocaleDateString()}
                             </p>
                           </div>
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Could add edit functionality here
-                              console.log('Edit plan:', plan);
-                            }}
-                            className="p-1 hover:bg-background-muted rounded transition-colors"
-                          >
-                            <Edit3 className="w-3 h-3 text-foreground-secondary" />
-                          </button>
+                          <div className="flex items-center space-x-1">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Could add edit functionality here
+                                console.log('Edit plan:', plan);
+                              }}
+                              className="p-1 hover:bg-background-muted rounded transition-colors"
+                              title="Edit plan"
+                            >
+                              <Edit3 className="w-3 h-3 text-foreground-secondary" />
+                            </button>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeletePlan(plan);
+                              }}
+                              className="p-1 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+                              title="Delete plan"
+                            >
+                              <Trash2 className="w-3 h-3 text-foreground-secondary" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -462,15 +541,18 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                               Saved {new Date(item.created_at).toLocaleDateString()}
                             </p>
                           </div>
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Could add remove functionality here
-                            }}
-                            className="p-1 hover:bg-background-muted rounded transition-colors"
-                          >
-                            <Heart className="w-4 h-4 text-red-500 fill-current" />
-                          </button>
+                          <div className="flex items-center space-x-1">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteDestination(item);
+                              }}
+                              className="p-1 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+                              title="Remove from saved destinations"
+                            >
+                              <Trash2 className="w-3 h-3 text-foreground-secondary" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -554,6 +636,25 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
           onSelectForPlanning={handleSelectForPlanning}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        title={`Delete ${deleteDialog.type === 'plan' ? 'Travel Plan' : 'Saved Destination'}?`}
+        message={
+          deleteDialog.type === 'plan' && deleteDialog.item
+            ? `Are you sure you want to delete "${(deleteDialog.item as SavedPlan).name}"? This action cannot be undone.`
+            : deleteDialog.type === 'destination' && deleteDialog.item
+            ? `Are you sure you want to remove "${(deleteDialog.item as SavedDestination).destination.name}" from your saved destinations? This action cannot be undone.`
+            : 'Are you sure you want to delete this item?'
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={deleteDialog.isLoading}
+      />
     </div>
   );
 }

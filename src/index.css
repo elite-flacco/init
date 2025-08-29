@@ -124,7 +124,15 @@
   }
 
   .btn-3d-outline {
-    @apply btn-3d bg-gradient-to-b from-background to-background-muted border-2 border-primary text-primary font-semibold;
+    @apply btn-3d bg-gradient-to-b from-background to-background-muted border-primary text-primary font-semibold;
+  }
+
+  .btn-3d-danger {
+    @apply btn-3d bg-gradient-to-b from-red-500 via-red-600 to-red-700 text-white font-semibold;
+  }
+
+  .btn-3d-danger:hover {
+    @apply from-red-400 via-red-500 to-red-600;
   }
 
   .btn-3d-gradient {
