@@ -62,6 +62,7 @@ interface UpdatePlanRequest {
   name?: string;
   tags?: string[];
   is_favorite?: boolean;
+  notes?: string;
 }
 
 // GET /api/user/plans/[id] - Get a specific plan
@@ -128,6 +129,7 @@ export async function PUT(
     if (body.name !== undefined) updateData.name = body.name;
     if (body.tags !== undefined) updateData.tags = body.tags;
     if (body.is_favorite !== undefined) updateData.is_favorite = body.is_favorite;
+    if (body.notes !== undefined) updateData.notes = body.notes;
 
     const { data: plan, error } = await supabase
       .from('user_travel_plans')

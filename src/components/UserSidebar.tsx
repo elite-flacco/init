@@ -20,7 +20,8 @@ import {
   ChevronRight,
   Loader2,
   Check,
-  X as XIcon
+  X as XIcon,
+  FileText
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { makeAuthenticatedRequest } from '../lib/auth';
@@ -42,6 +43,7 @@ interface SavedPlan {
   updated_at: string;
   tags: string[];
   is_favorite: boolean;
+  notes?: string;
   // traveler_type and ai_response are not included in list view for performance
 }
 
@@ -81,6 +83,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
   const [editingPlan, setEditingPlan] = useState<{
     id: string;
     name: string;
+    notes: string;
     isLoading: boolean;
   } | null>(null);
   const [editingDestination, setEditingDestination] = useState<{
@@ -317,43 +320,47 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
     setEditingPlan({
       id: plan.id,
       name: plan.name,
+      notes: plan.notes || '',
       isLoading: false
     });
   };
 
-  const savePlanName = async () => {
+  const savePlan = async () => {
     if (!editingPlan) return;
 
     setEditingPlan(prev => prev ? { ...prev, isLoading: true } : null);
 
     try {
+      const updateData = {
+        name: editingPlan.name.trim(),
+        notes: editingPlan.notes.trim()
+      };
+
       const response = await makeAuthenticatedRequest(`/api/user/plans/${editingPlan.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: editingPlan.name.trim(),
-        }),
+        body: JSON.stringify(updateData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update plan name');
+        throw new Error('Failed to update plan');
       }
 
       // Update local state
       setSavedPlans(prev => 
         prev.map(plan => 
           plan.id === editingPlan.id 
-            ? { ...plan, name: editingPlan.name.trim() }
+            ? { ...plan, ...updateData }
             : plan
         )
       );
 
       setEditingPlan(null);
     } catch (error) {
-      console.error('Error updating plan name:', error);
-      alert('Failed to update plan name. Please try again.');
+      console.error('Error updating plan:', error);
+      alert('Failed to update plan. Please try again.');
       setEditingPlan(prev => prev ? { ...prev, isLoading: false } : null);
     }
   };
@@ -479,7 +486,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
       {/* Sidebar */}
       <div className={`absolute right-0 top-0 h-full w-full max-w-md bg-background border-l border-border shadow-2xl transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-4 sm:px-4 sm:pb-8">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
               <User className="w-4 h-4 text-primary" />
@@ -509,14 +516,14 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as SidebarTab)}
-              className={`flex-1 flex items-center justify-center py-2 px-3 text-xs font-medium transition-colors ${
+              className={`flex-1 flex items-center justify-center py-2 px-3 text-xs font-medium rounded-none transition-colors ${
                 activeTab === tab.id
-                  ? 'text-primary border-b-2 border-primary bg-primary/5'
+                  ? 'text-primary border-b-2 border-primary'
                   : 'text-foreground-secondary hover:text-foreground hover:bg-background-muted'
               }`}
             >
               <tab.icon className="w-4 h-4" />
-              <span>{tab.label}</span>
+              <span className="text-sm">{tab.label}</span>
             </button>
           ))}
         </div>
@@ -525,7 +532,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
         <div className="flex-1 overflow-hidden">
           {(activeTab === 'plans' || activeTab === 'destinations') && (
             // Search Bar
-            <div className="p-4 border-b border-border">
+            <div className="p-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground-secondary w-4 h-4" />
                 <input
@@ -561,41 +568,82 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center space-x-2">
                               {editingPlan?.id === plan.id ? (
-                                <div className="flex items-center space-x-2 flex-1">
-                                  <input
-                                    type="text"
-                                    value={editingPlan.name}
-                                    onChange={(e) => setEditingPlan(prev => prev ? { ...prev, name: e.target.value } : null)}
-                                    className="flex-1 text-sm font-medium bg-background border border-border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent"
-                                    placeholder="Enter plan name"
-                                    disabled={editingPlan.isLoading}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') savePlanName();
-                                      if (e.key === 'Escape') cancelPlanEdit();
-                                    }}
-                                    autoFocus
-                                  />
-                                  <div className="flex items-center space-x-1">
-                                    <button
-                                      onClick={savePlanName}
-                                      disabled={editingPlan.isLoading || !editingPlan.name.trim()}
-                                      className="p-1 hover:bg-green-100 hover:text-green-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                      title="Save changes"
-                                    >
-                                      {editingPlan.isLoading ? (
-                                        <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                                      ) : (
-                                        <Check className="w-3 h-3 text-green-600" />
-                                      )}
-                                    </button>
-                                    <button
-                                      onClick={cancelPlanEdit}
-                                      disabled={editingPlan.isLoading}
-                                      className="p-1 hover:bg-red-100 hover:text-red-600 rounded transition-colors disabled:opacity-50"
-                                      title="Cancel editing"
-                                    >
-                                      <XIcon className="w-3 h-3 text-red-600" />
-                                    </button>
+                                <div className="flex-1">
+                                  <div className="space-y-3">
+                                    {/* Name field */}
+                                    <div>
+                                      <label className="text-xs font-medium text-foreground-secondary block mb-1">
+                                        Plan Name
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={editingPlan.name}
+                                        onChange={(e) => setEditingPlan(prev => prev ? { ...prev, name: e.target.value } : null)}
+                                        className="w-full text-sm font-medium bg-background border border-border rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent"
+                                        placeholder="Enter plan name"
+                                        disabled={editingPlan.isLoading}
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Escape') cancelPlanEdit();
+                                        }}
+                                        autoFocus
+                                      />
+                                    </div>
+                                    
+                                    {/* Notes field */}
+                                    <div>
+                                      <label className="text-xs font-medium text-foreground-secondary block mb-1">
+                                        Notes (optional)
+                                      </label>
+                                      <textarea
+                                        ref={(textarea) => {
+                                          if (textarea) {
+                                            // Auto-adjust height to content
+                                            textarea.style.height = 'auto';
+                                            textarea.style.height = `${Math.max(60, Math.min(100, textarea.scrollHeight))}px`;
+                                          }
+                                        }}
+                                        value={editingPlan.notes}
+                                        onChange={(e) => {
+                                          setEditingPlan(prev => prev ? { ...prev, notes: e.target.value } : null);
+                                          // Auto-adjust height on content change
+                                          const textarea = e.target as HTMLTextAreaElement;
+                                          textarea.style.height = 'auto';
+                                          textarea.style.height = `${Math.max(60, Math.min(100, textarea.scrollHeight))}px`;
+                                        }}
+                                        className="w-full text-xs bg-background border border-border rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent resize-y min-h-[60px] max-h-[100px]"
+                                        placeholder="Add notes about this travel plan..."
+                                        disabled={editingPlan.isLoading}
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter' && e.metaKey) savePlan();
+                                          if (e.key === 'Escape') cancelPlanEdit();
+                                        }}
+                                      />
+                                    </div>
+                                    
+                                    {/* Action buttons */}
+                                    <div className="flex items-center justify-end space-x-2">
+                                      <button
+                                        onClick={cancelPlanEdit}
+                                        disabled={editingPlan.isLoading}
+                                        className="px-3 py-1.5 text-xs text-foreground-secondary hover:text-foreground hover:bg-background-muted rounded transition-colors disabled:opacity-50"
+                                      >
+                                        Cancel
+                                      </button>
+                                      <button
+                                        onClick={savePlan}
+                                        disabled={editingPlan.isLoading || !editingPlan.name.trim()}
+                                        className="px-3 py-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
+                                      >
+                                        {editingPlan.isLoading ? (
+                                          <>
+                                            <Loader2 className="w-3 h-3 animate-spin" />
+                                            <span className="text-xs text-white">Saving...</span>
+                                          </>
+                                        ) : (
+                                          <span className="text-xs text-white">Save</span>
+                                        )}
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
                               ) : (
@@ -606,7 +654,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                                   {openingPlanId === plan.id ? (
                                     <Loader2 className="w-4 h-4 animate-spin text-primary" />
                                   ) : (
-                                    <ChevronRight className="w-4 h-4 text-foreground-secondary group-hover:text-primary transition-colors" />
+                                    <ChevronRight className="w-4 h-4 flex-shrink-0 text-foreground-secondary group-hover:text-primary transition-colors" />
                                   )}
                                   {plan.is_favorite && (
                                     <Star className="w-4 h-4 text-yellow-500 fill-current" />
@@ -619,6 +667,11 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                                 <p className="text-xs mt-1">
                                   {plan.destination.name}
                                 </p>
+                                {plan.notes && (
+                                  <p className="text-xs text-foreground-secondary mt-2 line-clamp-2">
+                                    {plan.notes}
+                                  </p>
+                                )}
                                 <p className="text-xs text-foreground-secondary mt-1">
                                   <Calendar className="w-3 h-3 inline mr-1" />
                                   {new Date(plan.created_at).toLocaleDateString()}
@@ -634,7 +687,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                                   handleEditPlan(plan);
                                 }}
                                 className="p-1 hover:bg-background-muted rounded transition-colors"
-                                title="Edit plan name"
+                                title="Edit plan"
                               >
                                 <Edit3 className="w-3 h-3 text-foreground-secondary" />
                               </button>
@@ -690,7 +743,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                                 {item.destination.name}
                               </p>
                               {editingDestination?.id !== item.id && (
-                                <ChevronRight className="w-3 h-3 text-foreground-secondary group-hover:text-primary transition-colors" />
+                                <ChevronRight className="w-4 h-4 flex-shrink-0 text-foreground-secondary group-hover:text-primary transition-colors" />
                               )}
                             </div>
                             <p className="text-xs text-foreground-secondary mt-1">
@@ -699,54 +752,60 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                             </p>
                             {editingDestination?.id === item.id ? (
                               <div className="mt-2">
-                                <textarea
-                                  ref={(textarea) => {
-                                    if (textarea) {
-                                      // Auto-adjust height to content
+                                <div>
+                                  <label className="text-xs font-medium text-foreground-secondary block mb-1">
+                                    Notes
+                                  </label>
+                                  <textarea
+                                    ref={(textarea) => {
+                                      if (textarea) {
+                                        // Auto-adjust height to content
+                                        textarea.style.height = 'auto';
+                                        textarea.style.height = `${Math.max(60, Math.min(100, textarea.scrollHeight))}px`;
+                                      }
+                                    }}
+                                    value={editingDestination.notes}
+                                    onChange={(e) => {
+                                      setEditingDestination(prev => prev ? { ...prev, notes: e.target.value } : null);
+                                      // Auto-adjust height on content change
+                                      const textarea = e.target as HTMLTextAreaElement;
                                       textarea.style.height = 'auto';
-                                      textarea.style.height = `${Math.max(60, Math.min(120, textarea.scrollHeight))}px`;
-                                    }
-                                  }}
-                                  value={editingDestination.notes}
-                                  onChange={(e) => {
-                                    setEditingDestination(prev => prev ? { ...prev, notes: e.target.value } : null);
-                                    // Auto-adjust height on content change
-                                    const textarea = e.target as HTMLTextAreaElement;
-                                    textarea.style.height = 'auto';
-                                    textarea.style.height = `${Math.max(60, Math.min(120, textarea.scrollHeight))}px`;
-                                  }}
-                                  className="w-full text-xs bg-background border border-border rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent resize-y min-h-[60px] max-h-[120px]"
-                                  placeholder="Add your notes about this destination..."
-                                  disabled={editingDestination.isLoading}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && e.metaKey) saveDestinationNotes();
-                                    if (e.key === 'Escape') cancelDestinationEdit();
-                                  }}
-                                  autoFocus
-                                />
-                                <div className="flex items-center justify-end mt-2">
-                                  <div className="flex items-center space-x-1">
-                                    <button
-                                      onClick={saveDestinationNotes}
-                                      disabled={editingDestination.isLoading}
-                                      className="p-1 hover:bg-green-100 hover:text-green-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                      title="Save notes"
-                                    >
-                                      {editingDestination.isLoading ? (
-                                        <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                                      ) : (
-                                        <Check className="w-3 h-3 text-green-600" />
-                                      )}
-                                    </button>
-                                    <button
-                                      onClick={cancelDestinationEdit}
-                                      disabled={editingDestination.isLoading}
-                                      className="p-1 hover:bg-red-100 hover:text-red-600 rounded transition-colors disabled:opacity-50"
-                                      title="Cancel editing"
-                                    >
-                                      <XIcon className="w-3 h-3 text-red-600" />
-                                    </button>
-                                  </div>
+                                      textarea.style.height = `${Math.max(60, Math.min(100, textarea.scrollHeight))}px`;
+                                    }}
+                                    className="w-full text-xs bg-background border border-border rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent resize-y min-h-[60px] max-h-[100px]"
+                                    placeholder="Add your notes about this destination..."
+                                    disabled={editingDestination.isLoading}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter' && e.metaKey) saveDestinationNotes();
+                                      if (e.key === 'Escape') cancelDestinationEdit();
+                                    }}
+                                    autoFocus
+                                  />
+                                </div>
+                                
+                                {/* Action buttons */}
+                                <div className="flex items-center justify-end space-x-2 mt-3">
+                                  <button
+                                    onClick={cancelDestinationEdit}
+                                    disabled={editingDestination.isLoading}
+                                    className="px-3 py-1.5 text-xs text-foreground-secondary hover:text-foreground hover:bg-background-muted rounded transition-colors disabled:opacity-50"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    onClick={saveDestinationNotes}
+                                    disabled={editingDestination.isLoading}
+                                    className="px-3 py-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
+                                  >
+                                    {editingDestination.isLoading ? (
+                                      <>
+                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                        <span className="text-xs text-white">Saving...</span>
+                                      </>
+                                    ) : (
+                                      <span className="text-xs text-white">Save</span>
+                                    )}
+                                  </button>
                                 </div>
                               </div>
                             ) : (

@@ -48,12 +48,14 @@ interface CreatePlanRequest {
   aiResponse: AITripPlanningResponse;
   tags?: string[];
   is_favorite?: boolean;
+  notes?: string;
 }
 
 interface UpdatePlanRequest {
   name?: string;
   tags?: string[];
   is_favorite?: boolean;
+  notes?: string;
 }
 
 // GET /api/user/plans - Get user's saved plans
@@ -72,7 +74,7 @@ export async function GET(request: NextRequest) {
     // Fetch user's plans (only necessary fields for sidebar display)
     const { data: plans, error } = await supabase
       .from('user_travel_plans')
-      .select('id, name, destination, traveler_type, ai_response, created_at, updated_at, tags, is_favorite')
+      .select('id, name, destination, traveler_type, ai_response, created_at, updated_at, tags, is_favorite, notes')
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false });
 
