@@ -63,7 +63,7 @@ export function useAuthForm(): UseAuthFormReturn {
     // Signup-specific validations
     if (mode === 'signup') {
       if (!formState.fullName?.trim()) {
-        newErrors.fullName = 'Full name is required';
+        newErrors.fullName = 'Username is required';
       }
 
       if (formState.password !== formState.confirmPassword) {

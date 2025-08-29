@@ -17,11 +17,12 @@ import {
   Tag,
   Star,
   Plane,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { makeAuthenticatedRequest } from '../lib/auth';
-import { Destination, EnhancedTravelPlan } from '../types/travel';
+import { Destination, EnhancedTravelPlan, TravelerType } from '../types/travel';
 import { DestinationDetailsModal } from './DestinationDetailsModal';
 
 interface UserSidebarProps {
@@ -34,6 +35,8 @@ interface SavedPlan {
   id: string;
   name: string;
   destination: Destination;
+  traveler_type: TravelerType;
+  ai_response: any; // AITripPlanningResponse
   created_at: string;
   updated_at: string;
   tags: string[];
@@ -55,6 +58,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
   const [activeTab, setActiveTab] = useState<SidebarTab>('plans');
   const [selectedDestination, setSelectedDestination] = useState<SavedDestination | null>(null);
   const [isDestinationModalOpen, setIsDestinationModalOpen] = useState(false);
+  const [openingPlanId, setOpeningPlanId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [savedPlans, setSavedPlans] = useState<SavedPlan[]>([]);
   const [savedDestinations, setSavedDestinations] = useState<SavedDestination[]>([]);
@@ -141,6 +145,41 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
     handleCloseDestinationModal();
     onClose();
     console.log('Selected for planning:', destination);
+  };
+
+  const handleViewSavedPlan = async (plan: SavedPlan) => {
+    setOpeningPlanId(plan.id);
+    
+    try {
+      // Create a temporary shared link for the saved plan
+      const response = await fetch('/api/shared-plans', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          destination: plan.destination,
+          travelerType: plan.traveler_type,
+          aiResponse: plan.ai_response,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create shareable link');
+      }
+
+      const { shareId } = await response.json();
+      
+      // Open the plan in a new tab
+      const shareUrl = `${window.location.origin}/share/${shareId}`;
+      window.open(shareUrl, '_blank');
+      
+    } catch (error) {
+      console.error('Error viewing saved plan:', error);
+      alert('Failed to open travel plan. Please try again.');
+    } finally {
+      setOpeningPlanId(null);
+    }
   };
 
   const filteredPlans = savedPlans.filter(plan =>
@@ -233,14 +272,14 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
         {/* Tabs */}
         <div className="flex border-b border-border">
           {[
-            { id: 'plans', label: 'My Plans', icon: Plane },
-            { id: 'destinations', label: 'Saved', icon: Heart },
+            { id: 'plans', label: 'My Trips', icon: Plane },
+            { id: 'destinations', label: 'Destinations', icon: Heart },
             { id: 'profile', label: 'Profile', icon: User },
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as SidebarTab)}
-              className={`flex-1 flex items-center justify-center space-x-1 py-3 px-2 text-xs font-medium transition-colors ${
+              className={`flex-1 flex items-center justify-center py-2 px-3 text-xs font-medium transition-colors ${
                 activeTab === tab.id
                   ? 'text-primary border-b-2 border-primary bg-primary/5'
                   : 'text-foreground-secondary hover:text-foreground hover:bg-background-muted'
@@ -283,46 +322,33 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                     {filteredPlans.map(plan => (
                       <div 
                         key={plan.id} 
-                        onClick={() => {
-                          // For now, just log - this could navigate to the plan or show in modal
-                          console.log('View saved plan:', plan);
-                          alert('Opening saved travel plans will be implemented soon!');
-                        }}
-                        className="bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors cursor-pointer group"
+                        onClick={() => openingPlanId !== plan.id && handleViewSavedPlan(plan)}
+                        className={`bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors group ${
+                          openingPlanId === plan.id ? 'cursor-wait opacity-75' : 'cursor-pointer'
+                        }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center space-x-2">
-                              <h3 className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                              <p className="font-medium truncate group-hover:text-primary transition-colors">
                                 {plan.name}
-                              </h3>
-                              <ChevronRight className="w-3 h-3 text-foreground-secondary group-hover:text-primary transition-colors" />
+                              </p>
+                              {openingPlanId === plan.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4 text-foreground-secondary group-hover:text-primary transition-colors" />
+                              )}
                               {plan.is_favorite && (
-                                <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                                <Star className="w-4 h-4 text-yellow-500 fill-current" />
                               )}
                             </div>
-                            <p className="text-xs text-foreground-secondary mt-1">
+                            <p className="text-xs mt-1">
                               {plan.destination.name}, {plan.destination.country}
                             </p>
                             <p className="text-xs text-foreground-secondary mt-1">
                               <Calendar className="w-3 h-3 inline mr-1" />
                               {new Date(plan.created_at).toLocaleDateString()}
                             </p>
-                            {plan.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mt-2">
-                                {plan.tags.slice(0, 3).map(tag => (
-                                  <span key={tag} className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-primary/10 text-primary">
-                                    <Tag className="w-2 h-2 mr-1" />
-                                    {tag}
-                                  </span>
-                                ))}
-                                {plan.tags.length > 3 && (
-                                  <span className="text-xs text-foreground-secondary">
-                                    +{plan.tags.length - 3} more
-                                  </span>
-                                )}
-                              </div>
-                            )}
                           </div>
                           <button 
                             onClick={(e) => {
@@ -368,9 +394,9 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center space-x-2">
-                              <h3 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                              <p className="font-medium group-hover:text-primary transition-colors">
                                 {item.destination.name}
-                              </h3>
+                              </p>
                               <ChevronRight className="w-3 h-3 text-foreground-secondary group-hover:text-primary transition-colors" />
                             </div>
                             <p className="text-xs text-foreground-secondary mt-1">
@@ -418,15 +444,15 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                   <h3 className="text-sm font-semibold text-foreground">Profile Information</h3>
                   <div className="space-y-3">
                     <div>
-                      <label className="text-xs font-medium text-foreground-secondary">Full Name</label>
+                      <label className="text-sm font-medium text-foreground-secondary">Username</label>
                       <p className="text-sm text-foreground mt-1">{user?.full_name || 'Not provided'}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-foreground-secondary">Email</label>
+                      <label className="text-sm font-medium text-foreground-secondary">Email</label>
                       <p className="text-sm text-foreground mt-1">{user?.email}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-foreground-secondary">Member Since</label>
+                      <label className="text-sm font-medium text-foreground-secondary">Member Since</label>
                       <p className="text-sm text-foreground mt-1">
                         {new Date(user?.created_at || '').toLocaleDateString()}
                       </p>
@@ -440,11 +466,11 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-3 bg-background-soft rounded-lg border border-border">
                       <div className="text-lg font-semibold text-foreground">{savedPlans.length}</div>
-                      <div className="text-xs text-foreground-secondary">Travel Plans</div>
+                      <div className="text-xs text-foreground-secondary">Trips</div>
                     </div>
                     <div className="text-center p-3 bg-background-soft rounded-lg border border-border">
                       <div className="text-lg font-semibold text-foreground">{savedDestinations.length}</div>
-                      <div className="text-xs text-foreground-secondary">Saved Places</div>
+                      <div className="text-xs text-foreground-secondary">Destinations</div>
                     </div>
                   </div>
                 </div>

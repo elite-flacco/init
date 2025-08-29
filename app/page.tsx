@@ -490,20 +490,18 @@ export default function HomePage() {
           {!authLoading && (
             <button
               onClick={handleUserButtonClick}
-              className="btn-3d-outline group inline-flex items-center p-2 text-sm font-medium hover:bg-background-soft transition-colors duration-300"
+              className="p-1 group inline-flex items-center"
               aria-label={user ? "Open user menu" : "Sign in"}
             >
               {user ? (
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-primary" />
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                    <User className="w-6 h-6 text-primary" />
                   </div>
-                  <span className="hidden sm:block">{user.full_name || user.email}</span>
                 </div>
               ) : (
-                <div className="flex items-center space-x-2">
-                  <User className="w-4 h-4 text-foreground-secondary" />
-                  <span className="hidden sm:block">Sign In</span>
+                <div className="flex items-center">
+                  <User className="w-6 h-6 text-foreground-secondary" />
                 </div>
               )}
             </button>

@@ -81,22 +81,22 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: Sig
             </p>
           </div>
 
-          {/* Full Name */}
+          {/* Username */}
           <div>
-            <label htmlFor="signup-fullname" className="block text-sm font-medium text-foreground mb-2">
-              Full Name
+            <label htmlFor="signup-username" className="block text-sm font-medium text-foreground mb-2">
+              Username
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <User className="h-4 w-4 text-foreground-secondary" />
               </div>
               <input
-                id="signup-fullname"
+                id="signup-username"
                 type="text"
                 value={formState.fullName || ''}
                 onChange={(e) => setFormState({ fullName: e.target.value })}
                 className="block w-full pl-10 pr-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Enter your full name"
+                placeholder="Enter your username"
                 disabled={loading}
               />
             </div>
