@@ -35,12 +35,11 @@ interface SavedPlan {
   id: string;
   name: string;
   destination: Destination;
-  traveler_type: TravelerType;
-  ai_response: any; // AITripPlanningResponse
   created_at: string;
   updated_at: string;
   tags: string[];
   is_favorite: boolean;
+  // traveler_type and ai_response are not included in list view for performance
 }
 
 interface SavedDestination {
@@ -64,6 +63,8 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
   const [savedDestinations, setSavedDestinations] = useState<SavedDestination[]>([]);
   const [plansLoading, setPlansLoading] = useState(false);
   const [destinationsLoading, setDestinationsLoading] = useState(false);
+  const [plansLoaded, setPlansLoaded] = useState(false);
+  const [destinationsLoaded, setDestinationsLoaded] = useState(false);
 
   // Close sidebar on escape key
   useEffect(() => {
@@ -82,26 +83,46 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
     };
   }, [isOpen, onClose]);
 
-  // Load user data when sidebar opens and user is authenticated
+  // Reset cache when user changes
   useEffect(() => {
-    if (isOpen && user) {
+    setPlansLoaded(false);
+    setDestinationsLoaded(false);
+    setSavedPlans([]);
+    setSavedDestinations([]);
+  }, [user?.id]);
+
+  // Eager loading: Start loading user data immediately when user is authenticated
+  // This makes sidebar opening feel instant since data is already loaded/loading
+  useEffect(() => {
+    if (user && !plansLoaded && !plansLoading) {
       loadSavedPlans();
+    }
+    if (user && !destinationsLoaded && !destinationsLoading) {
       loadSavedDestinations();
     }
-  }, [isOpen, user]);
+  }, [user, plansLoaded, plansLoading, destinationsLoaded, destinationsLoading]);
 
   const loadSavedPlans = async () => {
     if (!user) return;
     
     setPlansLoading(true);
     try {
-      const response = await makeAuthenticatedRequest('/api/user/plans');
+      // Use the lightweight list endpoint for faster sidebar loading
+      const response = await makeAuthenticatedRequest('/api/user/plans/list');
       if (response.ok) {
         const plans = await response.json();
         setSavedPlans(plans);
+        setPlansLoaded(true);
       }
     } catch (error) {
-      console.error('Failed to load saved plans:', error);
+      // Silently handle auth errors (user might be logging out)
+      if (error instanceof Error && error.message.includes('No authentication token available')) {
+        // This is expected during logout - just reset state
+        setSavedPlans([]);
+        setPlansLoaded(false);
+      } else {
+        console.error('Failed to load saved plans:', error);
+      }
     } finally {
       setPlansLoading(false);
     }
@@ -116,17 +137,39 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
       if (response.ok) {
         const destinations = await response.json();
         setSavedDestinations(destinations);
+        setDestinationsLoaded(true);
       }
     } catch (error) {
-      console.error('Failed to load saved destinations:', error);
+      // Silently handle auth errors (user might be logging out)
+      if (error instanceof Error && error.message.includes('No authentication token available')) {
+        // This is expected during logout - just reset state
+        setSavedDestinations([]);
+        setDestinationsLoaded(false);
+      } else {
+        console.error('Failed to load saved destinations:', error);
+      }
     } finally {
       setDestinationsLoading(false);
     }
   };
 
   const handleSignOut = async () => {
+    // Clear cached data on sign out
+    setSavedPlans([]);
+    setSavedDestinations([]);
+    setPlansLoaded(false);
+    setDestinationsLoaded(false);
     await signOut();
     onClose();
+  };
+
+  // Function to refresh data (can be called when new items are saved)
+  const refreshUserData = async () => {
+    setPlansLoaded(false);
+    setDestinationsLoaded(false);
+    if (user) {
+      await Promise.all([loadSavedPlans(), loadSavedDestinations()]);
+    }
   };
 
   const handleViewDestinationDetails = (destination: SavedDestination) => {
@@ -151,6 +194,13 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
     setOpeningPlanId(plan.id);
     
     try {
+      // First, get the full plan data including ai_response
+      const fullPlanResponse = await makeAuthenticatedRequest(`/api/user/plans/${plan.id}`);
+      if (!fullPlanResponse.ok) {
+        throw new Error('Failed to fetch full plan data');
+      }
+      const fullPlan = await fullPlanResponse.json();
+
       // Create a temporary shared link for the saved plan
       const response = await fetch('/api/shared-plans', {
         method: 'POST',
@@ -158,9 +208,9 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          destination: plan.destination,
-          travelerType: plan.traveler_type,
-          aiResponse: plan.ai_response,
+          destination: fullPlan.destination,
+          travelerType: fullPlan.traveler_type,
+          aiResponse: fullPlan.ai_response,
         }),
       });
 

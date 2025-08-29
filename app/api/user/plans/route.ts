@@ -69,10 +69,10 @@ export async function GET(request: NextRequest) {
     // Create server client
     const supabase = createSupabaseServerClient(request);
 
-    // Fetch user's plans
+    // Fetch user's plans (only necessary fields for sidebar display)
     const { data: plans, error } = await supabase
       .from('user_travel_plans')
-      .select('*')
+      .select('id, name, destination, traveler_type, ai_response, created_at, updated_at, tags, is_favorite')
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false });
 
