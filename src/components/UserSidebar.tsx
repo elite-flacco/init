@@ -16,11 +16,13 @@ import {
   Calendar,
   Tag,
   Star,
-  Plane
+  Plane,
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { makeAuthenticatedRequest } from '../lib/auth';
 import { Destination, EnhancedTravelPlan } from '../types/travel';
+import { DestinationDetailsModal } from './DestinationDetailsModal';
 
 interface UserSidebarProps {
   isOpen: boolean;
@@ -51,6 +53,8 @@ type SidebarTab = 'plans' | 'destinations' | 'profile' | 'settings';
 export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarProps) {
   const { user, signOut, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<SidebarTab>('plans');
+  const [selectedDestination, setSelectedDestination] = useState<SavedDestination | null>(null);
+  const [isDestinationModalOpen, setIsDestinationModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [savedPlans, setSavedPlans] = useState<SavedPlan[]>([]);
   const [savedDestinations, setSavedDestinations] = useState<SavedDestination[]>([]);
@@ -119,6 +123,24 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
   const handleSignOut = async () => {
     await signOut();
     onClose();
+  };
+
+  const handleViewDestinationDetails = (destination: SavedDestination) => {
+    setSelectedDestination(destination);
+    setIsDestinationModalOpen(true);
+  };
+
+  const handleCloseDestinationModal = () => {
+    setIsDestinationModalOpen(false);
+    setSelectedDestination(null);
+  };
+
+  const handleSelectForPlanning = (destination: Destination) => {
+    // This could integrate with the main app's planning flow
+    // For now, just close the modal and sidebar
+    handleCloseDestinationModal();
+    onClose();
+    console.log('Selected for planning:', destination);
   };
 
   const filteredPlans = savedPlans.filter(plan =>
@@ -322,12 +344,19 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                 ) : filteredDestinations.length > 0 ? (
                   <div className="space-y-3">
                     {filteredDestinations.map(item => (
-                      <div key={item.id} className="bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors">
+                      <div 
+                        key={item.id} 
+                        onClick={() => handleViewDestinationDetails(item)}
+                        className="bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors cursor-pointer group"
+                      >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-medium text-foreground">
-                              {item.destination.name}
-                            </h3>
+                            <div className="flex items-center space-x-2">
+                              <h3 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                                {item.destination.name}
+                              </h3>
+                              <ChevronRight className="w-3 h-3 text-foreground-secondary group-hover:text-primary transition-colors" />
+                            </div>
                             <p className="text-xs text-foreground-secondary mt-1">
                               <MapPin className="w-3 h-3 inline mr-1" />
                               {item.destination.country}
@@ -341,7 +370,13 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                               Saved {new Date(item.created_at).toLocaleDateString()}
                             </p>
                           </div>
-                          <button className="p-1 hover:bg-background-muted rounded transition-colors">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Could add remove functionality here
+                            }}
+                            className="p-1 hover:bg-background-muted rounded transition-colors"
+                          >
                             <Heart className="w-4 h-4 text-red-500 fill-current" />
                           </button>
                         </div>
@@ -417,6 +452,16 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
           </div>
         </div>
       </div>
+
+      {/* Destination Details Modal */}
+      {selectedDestination && (
+        <DestinationDetailsModal
+          destination={selectedDestination.destination}
+          isOpen={isDestinationModalOpen}
+          onClose={handleCloseDestinationModal}
+          onSelectForPlanning={handleSelectForPlanning}
+        />
+      )}
     </div>
   );
 }

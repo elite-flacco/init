@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, MapPin, ArrowRight, ImageIcon, Heart, Loader2 } from "lucide-react";
+import { X, MapPin, ArrowRight, ImageIcon, Heart, Loader2, Search } from "lucide-react";
 import { Destination } from "../types/travel";
 import { useDestinationImage } from '../hooks/useDestinationImage';
 import { useAuth } from '../contexts/AuthContext';
@@ -196,22 +196,29 @@ export function DestinationDetailsModal({
             <h6 className="mb-4">Highlights</h6>
             <div className="space-y-3">
               {destination.highlights.map((highlight, index) => (
-                <div
+                <button
                   key={index}
-                  className="px-4 py-2 bg-secondary/10 rounded-lg border border-secondary/20"
+                  onClick={() => {
+                    window.open(`https://www.google.com/search?q=${encodeURIComponent(highlight.name + ' ' + destination.name + ' ' + destination.country)}`, '_blank');
+                  }}
+                  className="w-full px-4 py-2 bg-secondary/10 hover:bg-secondary/20 rounded-lg border border-secondary/20 hover:border-secondary/30 transition-all duration-200 text-left group"
+                  title={`Search Google for ${highlight.name} in ${destination.name}`}
                 >
-                  <div className="text-sm">
-                    <span className="font-semibold text-secondary text-sm">
-                      {highlight.name}
-                    </span>
-                    {highlight.description && (
-                      <>
-                        <span className="text-secondary text-sm">: </span>
-                        <span className="text-foreground text-sm">{highlight.description}</span>
-                      </>
-                    )}
+                  <div className="flex items-start justify-between">
+                    <div className="text-sm flex-1">
+                      <span className="font-semibold text-secondary text-sm group-hover:text-secondary">
+                        {highlight.name}
+                      </span>
+                      {highlight.description && (
+                        <>
+                          <span className="text-secondary text-sm">: </span>
+                          <span className="text-foreground text-sm">{highlight.description}</span>
+                        </>
+                      )}
+                    </div>
+                    <Search className="w-3 h-3 text-secondary/60 group-hover:text-secondary transition-colors duration-200 ml-2 mt-0.5 flex-shrink-0" />
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
