@@ -1,7 +1,8 @@
-import React from "react";
-import { X, MapPin, ArrowRight, ImageIcon } from "lucide-react";
+import React, { useState } from "react";
+import { X, MapPin, ArrowRight, ImageIcon, Heart, Loader2 } from "lucide-react";
 import { Destination } from "../types/travel";
 import { useDestinationImage } from '../hooks/useDestinationImage';
+import { useAuth } from '../contexts/AuthContext';
 
 interface DestinationDetailsModalProps {
   destination: Destination;
@@ -16,11 +17,15 @@ export function DestinationDetailsModal({
   onClose,
   onSelectForPlanning,
 }: DestinationDetailsModalProps) {
+  const { user } = useAuth();
   const { imageUrl, isLoading } = useDestinationImage({
     destination: destination.name,
     country: destination.country,
     count: 1
   });
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   if (!isOpen) return null;
 
@@ -35,6 +40,53 @@ export function DestinationDetailsModal({
   const handleSelectForPlanning = () => {
     onSelectForPlanning(destination);
     onClose();
+  };
+
+  const handleSaveDestination = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      alert("Please sign in to save destinations.");
+      return;
+    }
+
+    if (isSaved) {
+      return; // Already saved
+    }
+
+    setIsSaving(true);
+
+    try {
+      const response = await fetch("/api/user/destinations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          destination,
+          notes: `Saved from destination details - ${destination.description.substring(0, 100)}...`,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 409) {
+          // Already saved
+          setIsSaved(true);
+          return;
+        }
+        throw new Error(errorData.error || "Failed to save destination");
+      }
+
+      setIsSaved(true);
+      // Optional: Show a brief success message
+    } catch (error) {
+      console.error("Error saving destination:", error);
+      alert(error instanceof Error ? error.message : "Failed to save destination. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -67,13 +119,38 @@ export function DestinationDetailsModal({
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 bg-white/90 hover:bg-white text-black rounded-full p-2 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          {/* Action buttons */}
+          <div className="absolute top-4 right-4 flex items-center gap-2">
+            {/* Save button */}
+            {user && (
+              <button
+                onClick={handleSaveDestination}
+                disabled={isSaving || isSaved}
+                className={`bg-white/90 hover:bg-white rounded-full p-2 transition-all duration-300 hover:scale-105 disabled:cursor-not-allowed ${
+                  isSaved 
+                    ? 'text-red-500' 
+                    : 'text-gray-600 hover:text-red-500'
+                }`}
+                title={isSaved ? "Destination saved!" : "Save destination"}
+              >
+                {isSaving ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Heart className={`w-5 h-5 transition-all duration-300 ${
+                    isSaved ? 'fill-current text-red-500' : ''
+                  }`} />
+                )}
+              </button>
+            )}
+
+            {/* Close button */}
+            <button
+              onClick={onClose}
+              className="bg-white/90 hover:bg-white text-black rounded-full p-2 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
           {/* Location badge */}
           <div className="absolute top-4 left-4">

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Calendar, DollarSign, ArrowRight, Search } from "lucide-react";
+import { Calendar, DollarSign, ArrowRight, Search, Heart, Loader2 } from "lucide-react";
 import { Destination } from "../types/travel";
 import { MapPinIcon3D } from "./ui/Icon3D";
 import { useDestinationImage } from '../hooks/useDestinationImage';
+import { useAuth } from '../contexts/AuthContext';
 
 interface DestinationCardProps {
   destination: Destination;
@@ -13,6 +14,7 @@ export function DestinationCard({
   destination,
   onViewDetails,
 }: DestinationCardProps) {
+  const { user } = useAuth();
   const { imageUrl } = useDestinationImage({
     destination: destination.name,
     country: destination.country,
@@ -20,9 +22,61 @@ export function DestinationCard({
   });
 
   const [isHovered, setIsHovered] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   const handleCardClick = () => {
     onViewDetails(destination);
+  };
+
+  const handleSaveDestination = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      alert("Please sign in to save destinations.");
+      return;
+    }
+
+    if (isSaved) {
+      return; // Already saved
+    }
+
+    setIsSaving(true);
+
+    try {
+      const response = await fetch("/api/user/destinations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          destination,
+          notes: `Saved from destination recommendations - ${destination.matchReason}`,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 409) {
+          // Already saved
+          setIsSaved(true);
+          return;
+        }
+        throw new Error(errorData.error || "Failed to save destination");
+      }
+
+      setIsSaved(true);
+      // Optional: Show a brief success message
+      setTimeout(() => {
+        // Could show a toast or other feedback here
+      }, 1000);
+    } catch (error) {
+      console.error("Error saving destination:", error);
+      alert(error instanceof Error ? error.message : "Failed to save destination. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const displayImage = imageUrl || destination.image;
@@ -64,6 +118,30 @@ export function DestinationCard({
               {destination.country}
             </div>
           </div>
+
+          {/* Save Button */}
+          {user && (
+            <div className="absolute top-6 right-6">
+              <button
+                onClick={handleSaveDestination}
+                disabled={isSaving || isSaved}
+                className={`glass p-2 rounded-full transition-all duration-300 hover:scale-110 disabled:cursor-not-allowed ${
+                  isSaved 
+                    ? 'bg-red-500/20 text-red-500' 
+                    : 'text-white hover:bg-white/20'
+                }`}
+                title={isSaved ? "Destination saved!" : "Save destination"}
+              >
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Heart className={`w-4 h-4 transition-all duration-300 ${
+                    isSaved ? 'fill-current text-red-500' : ''
+                  }`} />
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Destination Title */}
           <div className="absolute bottom-4 left-4 right-4">
