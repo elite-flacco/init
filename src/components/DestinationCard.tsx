@@ -4,6 +4,7 @@ import { Destination } from "../types/travel";
 import { MapPinIcon3D } from "./ui/Icon3D";
 import { useDestinationImage } from '../hooks/useDestinationImage';
 import { useAuth } from '../contexts/AuthContext';
+import { makeAuthenticatedRequest } from '../lib/auth';
 
 interface DestinationCardProps {
   destination: Destination;
@@ -45,11 +46,8 @@ export function DestinationCard({
     setIsSaving(true);
 
     try {
-      const response = await fetch("/api/user/destinations", {
+      const response = await makeAuthenticatedRequest("/api/user/destinations", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           destination,
           notes: `Saved from destination recommendations - ${destination.matchReason}`,

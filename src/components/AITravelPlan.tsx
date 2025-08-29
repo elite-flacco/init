@@ -4,6 +4,7 @@ import { trackTravelEvent } from "../lib/analytics";
 import { useStreamingTripPlanning } from "../hooks/useStreamingTripPlanning";
 import { useParallelTripPlanning } from "../hooks/useParallelTripPlanning";
 import { useAuth } from "../contexts/AuthContext";
+import { makeAuthenticatedRequest } from "../lib/auth";
 import { AITripPlanningRequest } from "../services/aiTripPlanningService";
 import {
   Sparkles,
@@ -382,11 +383,8 @@ export function AITravelPlan({
         is_favorite: false,
       };
 
-      const response = await fetch("/api/user/plans", {
+      const response = await makeAuthenticatedRequest("/api/user/plans", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(requestPayload),
       });
 

@@ -19,6 +19,7 @@ import {
   Plane
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { makeAuthenticatedRequest } from '../lib/auth';
 import { Destination, EnhancedTravelPlan } from '../types/travel';
 
 interface UserSidebarProps {
@@ -86,7 +87,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
     
     setPlansLoading(true);
     try {
-      const response = await fetch('/api/user/plans');
+      const response = await makeAuthenticatedRequest('/api/user/plans');
       if (response.ok) {
         const plans = await response.json();
         setSavedPlans(plans);
@@ -103,7 +104,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
     
     setDestinationsLoading(true);
     try {
-      const response = await fetch('/api/user/destinations');
+      const response = await makeAuthenticatedRequest('/api/user/destinations');
       if (response.ok) {
         const destinations = await response.json();
         setSavedDestinations(destinations);

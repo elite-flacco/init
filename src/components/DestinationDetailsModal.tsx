@@ -3,6 +3,7 @@ import { X, MapPin, ArrowRight, ImageIcon, Heart, Loader2 } from "lucide-react";
 import { Destination } from "../types/travel";
 import { useDestinationImage } from '../hooks/useDestinationImage';
 import { useAuth } from '../contexts/AuthContext';
+import { makeAuthenticatedRequest } from '../lib/auth';
 
 interface DestinationDetailsModalProps {
   destination: Destination;
@@ -58,11 +59,8 @@ export function DestinationDetailsModal({
     setIsSaving(true);
 
     try {
-      const response = await fetch("/api/user/destinations", {
+      const response = await makeAuthenticatedRequest("/api/user/destinations", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           destination,
           notes: `Saved from destination details - ${destination.description.substring(0, 100)}...`,
