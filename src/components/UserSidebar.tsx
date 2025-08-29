@@ -281,13 +281,22 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                 ) : filteredPlans.length > 0 ? (
                   <div className="space-y-3">
                     {filteredPlans.map(plan => (
-                      <div key={plan.id} className="bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors">
+                      <div 
+                        key={plan.id} 
+                        onClick={() => {
+                          // For now, just log - this could navigate to the plan or show in modal
+                          console.log('View saved plan:', plan);
+                          alert('Opening saved travel plans will be implemented soon!');
+                        }}
+                        className="bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors cursor-pointer group"
+                      >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center space-x-2">
-                              <h3 className="text-sm font-medium text-foreground truncate">
+                              <h3 className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
                                 {plan.name}
                               </h3>
+                              <ChevronRight className="w-3 h-3 text-foreground-secondary group-hover:text-primary transition-colors" />
                               {plan.is_favorite && (
                                 <Star className="w-3 h-3 text-yellow-500 fill-current" />
                               )}
@@ -315,7 +324,14 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                               </div>
                             )}
                           </div>
-                          <button className="p-1 hover:bg-background-muted rounded transition-colors">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Could add edit functionality here
+                              console.log('Edit plan:', plan);
+                            }}
+                            className="p-1 hover:bg-background-muted rounded transition-colors"
+                          >
                             <Edit3 className="w-3 h-3 text-foreground-secondary" />
                           </button>
                         </div>

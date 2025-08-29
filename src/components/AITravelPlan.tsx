@@ -674,6 +674,31 @@ export function AITravelPlan({
                     )}
                     {isSharing ? "Creating share link..." : "Share Plan"}
                   </button>
+                  {user && (
+                    <button
+                      onPointerDown={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!livePlan) {
+                          alert("Please wait for your plan to finish loading before saving.");
+                          setShowMobileActions(false);
+                          return;
+                        }
+                        await handleSavePlan();
+                        setShowMobileActions(false);
+                      }}
+                      disabled={isSavingPlan || !livePlan || planSaved}
+                      className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
+                      style={{ pointerEvents: 'auto' }}
+                    >
+                      {isSavingPlan ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                      ) : (
+                        <Heart className={`w-4 h-4 mr-1 ${planSaved ? 'fill-current text-red-500' : ''}`} />
+                      )}
+                      {isSavingPlan ? "Saving Plan..." : planSaved ? "Plan Saved" : "Save Plan"}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -813,6 +838,33 @@ export function AITravelPlan({
                       )}
                       <span>{isSharing ? "Creating share link..." : "Share Plan"}</span>
                     </button>
+                    {user && (
+                      <>
+                        <hr className="border-border/30 mx-2" />
+                        <button
+                          onPointerDown={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!livePlan) {
+                              alert("Please wait for your plan to finish loading before saving.");
+                              setShowMobileActions(false);
+                              return;
+                            }
+                            await handleSavePlan();
+                            setShowMobileActions(false);
+                          }}
+                          disabled={isSavingPlan || !livePlan || planSaved}
+                          className="flex items-center justify-start w-full px-4 py-3 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
+                        >
+                          {isSavingPlan ? (
+                            <Loader2 className="w-4 h-4 animate-spin mr-1 text-red-500" />
+                          ) : (
+                            <Heart className={`w-4 h-4 mr-1 ${planSaved ? 'fill-current text-red-500' : 'text-red-500'}`} />
+                          )}
+                          <span>{isSavingPlan ? "Saving Plan..." : planSaved ? "Plan Saved" : "Save Plan"}</span>
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
