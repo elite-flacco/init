@@ -367,7 +367,7 @@ export function AITravelPlan({
 
     try {
       // Generate a default name for the plan
-      const defaultPlanName = `${destination.name} ${travelerType.name} Trip`;
+      const defaultPlanName = `${destination.name} Trip`;
 
       // Create the request payload
       const requestPayload = {

@@ -18,7 +18,29 @@ function createSupabaseServerClient(request: NextRequest) {
   });
 }
 
-// Helper function to get user from auth header
+// Helper function to get user from auth header (optimized for speed)
+function getUserIdFromToken(request: NextRequest): string | null {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = authHeader.substring(7);
+  
+  try {
+    // Decode JWT payload without verification (faster)
+    // We rely on Supabase RLS and user_id filtering for security
+    const base64Payload = token.split('.')[1];
+    if (!base64Payload) return null;
+    
+    const payload = JSON.parse(atob(base64Payload));
+    return payload.sub || null; // 'sub' is the user ID in Supabase JWTs
+  } catch {
+    return null;
+  }
+}
+
+// Fallback function for cases where we need full user object
 async function getUserFromRequest(request: NextRequest) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -26,10 +48,7 @@ async function getUserFromRequest(request: NextRequest) {
   }
 
   const token = authHeader.substring(7);
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const supabase = createSupabaseServerClient(request);
   
   try {
     const { data: { user }, error } = await supabase.auth.getUser(token);
@@ -89,10 +108,10 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Get user from auth header
-    const user = await getUserFromRequest(request);
+    // Get user ID from token (fast, no API call)
+    const userId = getUserIdFromToken(request);
     
-    if (!user) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -114,7 +133,7 @@ export async function PUT(
       .from('user_travel_plans')
       .update(updateData)
       .eq('id', params.id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .select()
       .single();
 

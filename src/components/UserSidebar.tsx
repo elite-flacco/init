@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   X, 
   User, 
@@ -18,7 +18,9 @@ import {
   Star,
   Plane,
   ChevronRight,
-  Loader2
+  Loader2,
+  Check,
+  X as XIcon
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { makeAuthenticatedRequest } from '../lib/auth';
@@ -75,6 +77,18 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
     isLoading: boolean;
   }>({ isOpen: false, type: null, item: null, isLoading: false });
 
+  // Edit state for inline editing
+  const [editingPlan, setEditingPlan] = useState<{
+    id: string;
+    name: string;
+    isLoading: boolean;
+  } | null>(null);
+  const [editingDestination, setEditingDestination] = useState<{
+    id: string;
+    notes: string;
+    isLoading: boolean;
+  } | null>(null);
+
   // Close sidebar on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -100,18 +114,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
     setSavedDestinations([]);
   }, [user?.id]);
 
-  // Eager loading: Start loading user data immediately when user is authenticated
-  // This makes sidebar opening feel instant since data is already loaded/loading
-  useEffect(() => {
-    if (user && !plansLoaded && !plansLoading) {
-      loadSavedPlans();
-    }
-    if (user && !destinationsLoaded && !destinationsLoading) {
-      loadSavedDestinations();
-    }
-  }, [user, plansLoaded, plansLoading, destinationsLoaded, destinationsLoading]);
-
-  const loadSavedPlans = async () => {
+  const loadSavedPlans = useCallback(async () => {
     if (!user) return;
     
     setPlansLoading(true);
@@ -135,9 +138,9 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
     } finally {
       setPlansLoading(false);
     }
-  };
+  }, [user]);
 
-  const loadSavedDestinations = async () => {
+  const loadSavedDestinations = useCallback(async () => {
     if (!user) return;
     
     setDestinationsLoading(true);
@@ -160,7 +163,18 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
     } finally {
       setDestinationsLoading(false);
     }
-  };
+  }, [user]);
+
+  // Eager loading: Start loading user data immediately when user is authenticated
+  // This makes sidebar opening feel instant since data is already loaded/loading
+  useEffect(() => {
+    if (user && !plansLoaded && !plansLoading) {
+      loadSavedPlans();
+    }
+    if (user && !destinationsLoaded && !destinationsLoading) {
+      loadSavedDestinations();
+    }
+  }, [user, plansLoaded, plansLoading, destinationsLoaded, destinationsLoading, loadSavedPlans, loadSavedDestinations]);
 
   const handleSignOut = async () => {
     // Clear cached data on sign out
@@ -296,6 +310,106 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
 
   const cancelDelete = () => {
     setDeleteDialog({ isOpen: false, type: null, item: null, isLoading: false });
+  };
+
+  // Plan editing functions
+  const handleEditPlan = (plan: SavedPlan) => {
+    setEditingPlan({
+      id: plan.id,
+      name: plan.name,
+      isLoading: false
+    });
+  };
+
+  const savePlanName = async () => {
+    if (!editingPlan) return;
+
+    setEditingPlan(prev => prev ? { ...prev, isLoading: true } : null);
+
+    try {
+      const response = await makeAuthenticatedRequest(`/api/user/plans/${editingPlan.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: editingPlan.name.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update plan name');
+      }
+
+      // Update local state
+      setSavedPlans(prev => 
+        prev.map(plan => 
+          plan.id === editingPlan.id 
+            ? { ...plan, name: editingPlan.name.trim() }
+            : plan
+        )
+      );
+
+      setEditingPlan(null);
+    } catch (error) {
+      console.error('Error updating plan name:', error);
+      alert('Failed to update plan name. Please try again.');
+      setEditingPlan(prev => prev ? { ...prev, isLoading: false } : null);
+    }
+  };
+
+  const cancelPlanEdit = () => {
+    setEditingPlan(null);
+  };
+
+  // Destination editing functions
+  const handleEditDestination = (destination: SavedDestination) => {
+    setEditingDestination({
+      id: destination.id,
+      notes: destination.notes || '',
+      isLoading: false
+    });
+  };
+
+  const saveDestinationNotes = async () => {
+    if (!editingDestination) return;
+
+    setEditingDestination(prev => prev ? { ...prev, isLoading: true } : null);
+
+    try {
+      const response = await makeAuthenticatedRequest(`/api/user/destinations/${editingDestination.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          notes: editingDestination.notes.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update destination notes');
+      }
+
+      // Update local state
+      setSavedDestinations(prev => 
+        prev.map(dest => 
+          dest.id === editingDestination.id 
+            ? { ...dest, notes: editingDestination.notes.trim() }
+            : dest
+        )
+      );
+
+      setEditingDestination(null);
+    } catch (error) {
+      console.error('Error updating destination notes:', error);
+      alert('Failed to update destination notes. Please try again.');
+      setEditingDestination(prev => prev ? { ...prev, isLoading: false } : null);
+    }
+  };
+
+  const cancelDestinationEdit = () => {
+    setEditingDestination(null);
   };
 
   const filteredPlans = savedPlans.filter(plan =>
@@ -438,57 +552,104 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                     {filteredPlans.map(plan => (
                       <div 
                         key={plan.id} 
-                        onClick={() => openingPlanId !== plan.id && handleViewSavedPlan(plan)}
+                        onClick={() => openingPlanId !== plan.id && !editingPlan && handleViewSavedPlan(plan)}
                         className={`bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors group ${
-                          openingPlanId === plan.id ? 'cursor-wait opacity-75' : 'cursor-pointer'
+                          openingPlanId === plan.id ? 'cursor-wait opacity-75' : editingPlan?.id === plan.id ? 'cursor-default' : 'cursor-pointer'
                         }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center space-x-2">
-                              <p className="font-medium truncate group-hover:text-primary transition-colors">
-                                {plan.name}
-                              </p>
-                              {openingPlanId === plan.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                              {editingPlan?.id === plan.id ? (
+                                <div className="flex items-center space-x-2 flex-1">
+                                  <input
+                                    type="text"
+                                    value={editingPlan.name}
+                                    onChange={(e) => setEditingPlan(prev => prev ? { ...prev, name: e.target.value } : null)}
+                                    className="flex-1 text-sm font-medium bg-background border border-border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent"
+                                    placeholder="Enter plan name"
+                                    disabled={editingPlan.isLoading}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') savePlanName();
+                                      if (e.key === 'Escape') cancelPlanEdit();
+                                    }}
+                                    autoFocus
+                                  />
+                                  <div className="flex items-center space-x-1">
+                                    <button
+                                      onClick={savePlanName}
+                                      disabled={editingPlan.isLoading || !editingPlan.name.trim()}
+                                      className="p-1 hover:bg-green-100 hover:text-green-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                      title="Save changes"
+                                    >
+                                      {editingPlan.isLoading ? (
+                                        <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                                      ) : (
+                                        <Check className="w-3 h-3 text-green-600" />
+                                      )}
+                                    </button>
+                                    <button
+                                      onClick={cancelPlanEdit}
+                                      disabled={editingPlan.isLoading}
+                                      className="p-1 hover:bg-red-100 hover:text-red-600 rounded transition-colors disabled:opacity-50"
+                                      title="Cancel editing"
+                                    >
+                                      <XIcon className="w-3 h-3 text-red-600" />
+                                    </button>
+                                  </div>
+                                </div>
                               ) : (
-                                <ChevronRight className="w-4 h-4 text-foreground-secondary group-hover:text-primary transition-colors" />
-                              )}
-                              {plan.is_favorite && (
-                                <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                                <>
+                                  <p className="font-medium truncate group-hover:text-primary transition-colors">
+                                    {plan.name}
+                                  </p>
+                                  {openingPlanId === plan.id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                                  ) : (
+                                    <ChevronRight className="w-4 h-4 text-foreground-secondary group-hover:text-primary transition-colors" />
+                                  )}
+                                  {plan.is_favorite && (
+                                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                                  )}
+                                </>
                               )}
                             </div>
-                            <p className="text-xs mt-1">
-                              {plan.destination.name}, {plan.destination.country}
-                            </p>
-                            <p className="text-xs text-foreground-secondary mt-1">
-                              <Calendar className="w-3 h-3 inline mr-1" />
-                              {new Date(plan.created_at).toLocaleDateString()}
-                            </p>
+                            {editingPlan?.id !== plan.id && (
+                              <>
+                                <p className="text-xs mt-1">
+                                  {plan.destination.name}
+                                </p>
+                                <p className="text-xs text-foreground-secondary mt-1">
+                                  <Calendar className="w-3 h-3 inline mr-1" />
+                                  {new Date(plan.created_at).toLocaleDateString()}
+                                </p>
+                              </>
+                            )}
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // Could add edit functionality here
-                                console.log('Edit plan:', plan);
-                              }}
-                              className="p-1 hover:bg-background-muted rounded transition-colors"
-                              title="Edit plan"
-                            >
-                              <Edit3 className="w-3 h-3 text-foreground-secondary" />
-                            </button>
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeletePlan(plan);
-                              }}
-                              className="p-1 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
-                              title="Delete plan"
-                            >
-                              <Trash2 className="w-3 h-3 text-foreground-secondary" />
-                            </button>
-                          </div>
+                          {editingPlan?.id !== plan.id && (
+                            <div className="flex items-center space-x-1">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditPlan(plan);
+                                }}
+                                className="p-1 hover:bg-background-muted rounded transition-colors"
+                                title="Edit plan name"
+                              >
+                                <Edit3 className="w-3 h-3 text-foreground-secondary" />
+                              </button>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeletePlan(plan);
+                                }}
+                                className="p-1 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+                                title="Delete plan"
+                              >
+                                <Trash2 className="w-3 h-3 text-foreground-secondary" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -517,8 +678,10 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                     {filteredDestinations.map(item => (
                       <div 
                         key={item.id} 
-                        onClick={() => handleViewDestinationDetails(item)}
-                        className="bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors cursor-pointer group"
+                        onClick={() => !editingDestination && handleViewDestinationDetails(item)}
+                        className={`bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors group ${
+                          editingDestination?.id === item.id ? 'cursor-default' : 'cursor-pointer'
+                        }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -526,33 +689,103 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                               <p className="font-medium group-hover:text-primary transition-colors">
                                 {item.destination.name}
                               </p>
-                              <ChevronRight className="w-3 h-3 text-foreground-secondary group-hover:text-primary transition-colors" />
+                              {editingDestination?.id !== item.id && (
+                                <ChevronRight className="w-3 h-3 text-foreground-secondary group-hover:text-primary transition-colors" />
+                              )}
                             </div>
                             <p className="text-xs text-foreground-secondary mt-1">
                               <MapPin className="w-3 h-3 inline mr-1" />
                               {item.destination.country}
                             </p>
-                            {item.notes && (
-                              <p className="text-xs text-foreground-secondary mt-2 line-clamp-2">
-                                {item.notes}
-                              </p>
+                            {editingDestination?.id === item.id ? (
+                              <div className="mt-2">
+                                <textarea
+                                  ref={(textarea) => {
+                                    if (textarea) {
+                                      // Auto-adjust height to content
+                                      textarea.style.height = 'auto';
+                                      textarea.style.height = `${Math.max(60, Math.min(120, textarea.scrollHeight))}px`;
+                                    }
+                                  }}
+                                  value={editingDestination.notes}
+                                  onChange={(e) => {
+                                    setEditingDestination(prev => prev ? { ...prev, notes: e.target.value } : null);
+                                    // Auto-adjust height on content change
+                                    const textarea = e.target as HTMLTextAreaElement;
+                                    textarea.style.height = 'auto';
+                                    textarea.style.height = `${Math.max(60, Math.min(120, textarea.scrollHeight))}px`;
+                                  }}
+                                  className="w-full text-xs bg-background border border-border rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent resize-y min-h-[60px] max-h-[120px]"
+                                  placeholder="Add your notes about this destination..."
+                                  disabled={editingDestination.isLoading}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && e.metaKey) saveDestinationNotes();
+                                    if (e.key === 'Escape') cancelDestinationEdit();
+                                  }}
+                                  autoFocus
+                                />
+                                <div className="flex items-center justify-end mt-2">
+                                  <div className="flex items-center space-x-1">
+                                    <button
+                                      onClick={saveDestinationNotes}
+                                      disabled={editingDestination.isLoading}
+                                      className="p-1 hover:bg-green-100 hover:text-green-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                      title="Save notes"
+                                    >
+                                      {editingDestination.isLoading ? (
+                                        <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                                      ) : (
+                                        <Check className="w-3 h-3 text-green-600" />
+                                      )}
+                                    </button>
+                                    <button
+                                      onClick={cancelDestinationEdit}
+                                      disabled={editingDestination.isLoading}
+                                      className="p-1 hover:bg-red-100 hover:text-red-600 rounded transition-colors disabled:opacity-50"
+                                      title="Cancel editing"
+                                    >
+                                      <XIcon className="w-3 h-3 text-red-600" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                {item.notes && (
+                                  <p className="text-xs text-foreground-secondary mt-2 line-clamp-2">
+                                    {item.notes}
+                                  </p>
+                                )}
+                                <p className="text-xs text-foreground-secondary mt-2">
+                                  Saved {new Date(item.created_at).toLocaleDateString()}
+                                </p>
+                              </>
                             )}
-                            <p className="text-xs text-foreground-secondary mt-2">
-                              Saved {new Date(item.created_at).toLocaleDateString()}
-                            </p>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteDestination(item);
-                              }}
-                              className="p-1 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
-                              title="Remove from saved destinations"
-                            >
-                              <Trash2 className="w-3 h-3 text-foreground-secondary" />
-                            </button>
-                          </div>
+                          {editingDestination?.id !== item.id && (
+                            <div className="flex items-center space-x-1">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditDestination(item);
+                                }}
+                                className="p-1 hover:bg-background-muted rounded transition-colors"
+                                title="Edit notes"
+                              >
+                                <Edit3 className="w-3 h-3 text-foreground-secondary" />
+                              </button>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteDestination(item);
+                                }}
+                                className="p-1 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+                                title="Remove from saved destinations"
+                              >
+                                <Trash2 className="w-3 h-3 text-foreground-secondary" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

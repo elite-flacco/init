@@ -279,7 +279,7 @@ export default function HomePage() {
     const customDestination: Destination = {
       id: "user-input",
       name: destinationName,
-      country: "User Specified",
+      country: "",
       description: `Your chosen destination: ${destinationName}`,
       image: "",
       highlights: [],
