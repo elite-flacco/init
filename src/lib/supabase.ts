@@ -1,25 +1,30 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Missing Supabase environment variables");
-}
+// Check if Supabase is configured
+const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 
 // Public client for frontend operations (respects RLS)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = isSupabaseConfigured
+  ? createClient(supabaseUrl!, supabaseAnonKey!)
+  : null;
 
 // Admin client for server-side operations (bypasses RLS)
-export const supabaseAdmin = supabaseServiceKey
-  ? createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    })
-  : null;
+export const supabaseAdmin =
+  isSupabaseConfigured && supabaseServiceKey
+    ? createClient(supabaseUrl!, supabaseServiceKey, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      })
+    : null;
+
+// Helper function to check if Supabase is properly configured
+export const isSupabaseAvailable = () => isSupabaseConfigured;
 
 // Database types for TypeScript
 export interface Database {
