@@ -50,7 +50,7 @@ export const authService = {
       if (!isSupabaseAvailable() || !supabase) {
         return { error: "Authentication service not available" };
       }
-      
+
       const { data, error } = await supabase.auth.signUp({
         email: credentials.email,
         password: credentials.password,
@@ -81,7 +81,7 @@ export const authService = {
       if (!isSupabaseAvailable() || !supabase) {
         return { error: "Authentication service not available" };
       }
-      
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: credentials.email,
         password: credentials.password,
@@ -107,7 +107,7 @@ export const authService = {
       if (!isSupabaseAvailable() || !supabase) {
         return { error: "Authentication service not available" };
       }
-      
+
       const { error } = await supabase.auth.signOut();
       if (error) {
         return { error: error.message };
@@ -124,7 +124,7 @@ export const authService = {
       if (!isSupabaseAvailable() || !supabase) {
         return { session: null, error: "Authentication service not available" };
       }
-      
+
       const { data, error } = await supabase.auth.getSession();
       return { session: data.session, error };
     } catch (error) {
@@ -138,7 +138,7 @@ export const authService = {
       if (!isSupabaseAvailable() || !supabase) {
         return { user: null, error: "Authentication service not available" };
       }
-      
+
       const { data, error } = await supabase.auth.getUser();
       if (error || !data.user) {
         return { user: null, error };
@@ -155,7 +155,7 @@ export const authService = {
       if (!isSupabaseAvailable() || !supabase) {
         return { error: "Authentication service not available" };
       }
-      
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
@@ -174,7 +174,7 @@ export const authService = {
       if (!isSupabaseAvailable() || !supabase) {
         return { error: "Authentication service not available" };
       }
-      
+
       const { error } = await supabase.auth.updateUser({
         password: password,
       });
@@ -196,7 +196,7 @@ export const authService = {
       if (!isSupabaseAvailable() || !supabase) {
         return { error: "Authentication service not available" };
       }
-      
+
       const { data, error } = await supabase.auth.updateUser({
         data: updates,
       });
@@ -223,7 +223,7 @@ export const authService = {
       // Return a mock subscription that does nothing
       return {
         data: { subscription: null },
-        error: null
+        error: null,
       };
     }
     return supabase.auth.onAuthStateChange(callback);
@@ -238,7 +238,7 @@ export const makeAuthenticatedRequest = async (
   if (!isSupabaseAvailable() || !supabase) {
     throw new Error("Authentication service not available");
   }
-  
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
