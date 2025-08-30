@@ -1,5 +1,5 @@
 import { User, AuthError, Session } from "@supabase/supabase-js";
-import { supabase } from "./supabase";
+import { supabase, isSupabaseAvailable } from "./supabase";
 
 export interface AuthUser {
   id: string;
@@ -47,6 +47,10 @@ export const authService = {
   // Sign up with email and password
   async signUp(credentials: SignupCredentials): Promise<AuthResponse> {
     try {
+      if (!isSupabaseAvailable() || !supabase) {
+        return { error: "Authentication service not available" };
+      }
+      
       const { data, error } = await supabase.auth.signUp({
         email: credentials.email,
         password: credentials.password,
@@ -74,6 +78,10 @@ export const authService = {
   // Sign in with email and password
   async signIn(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
+      if (!isSupabaseAvailable() || !supabase) {
+        return { error: "Authentication service not available" };
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: credentials.email,
         password: credentials.password,
@@ -96,6 +104,10 @@ export const authService = {
   // Sign out
   async signOut(): Promise<{ error?: string }> {
     try {
+      if (!isSupabaseAvailable() || !supabase) {
+        return { error: "Authentication service not available" };
+      }
+      
       const { error } = await supabase.auth.signOut();
       if (error) {
         return { error: error.message };
@@ -109,6 +121,10 @@ export const authService = {
   // Get current session
   async getSession() {
     try {
+      if (!isSupabaseAvailable() || !supabase) {
+        return { session: null, error: "Authentication service not available" };
+      }
+      
       const { data, error } = await supabase.auth.getSession();
       return { session: data.session, error };
     } catch (error) {
@@ -119,6 +135,10 @@ export const authService = {
   // Get current user
   async getUser() {
     try {
+      if (!isSupabaseAvailable() || !supabase) {
+        return { user: null, error: "Authentication service not available" };
+      }
+      
       const { data, error } = await supabase.auth.getUser();
       if (error || !data.user) {
         return { user: null, error };
@@ -132,6 +152,10 @@ export const authService = {
   // Send password reset email
   async resetPassword(email: string): Promise<{ error?: string }> {
     try {
+      if (!isSupabaseAvailable() || !supabase) {
+        return { error: "Authentication service not available" };
+      }
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
@@ -147,6 +171,10 @@ export const authService = {
   // Update password
   async updatePassword(password: string): Promise<{ error?: string }> {
     try {
+      if (!isSupabaseAvailable() || !supabase) {
+        return { error: "Authentication service not available" };
+      }
+      
       const { error } = await supabase.auth.updateUser({
         password: password,
       });
@@ -165,6 +193,10 @@ export const authService = {
     avatar_url?: string;
   }): Promise<AuthResponse> {
     try {
+      if (!isSupabaseAvailable() || !supabase) {
+        return { error: "Authentication service not available" };
+      }
+      
       const { data, error } = await supabase.auth.updateUser({
         data: updates,
       });
@@ -187,6 +219,13 @@ export const authService = {
   onAuthStateChange(
     callback: (event: string, session: Session | null) => void,
   ) {
+    if (!isSupabaseAvailable() || !supabase) {
+      // Return a mock subscription that does nothing
+      return {
+        data: { subscription: null },
+        error: null
+      };
+    }
     return supabase.auth.onAuthStateChange(callback);
   },
 };
@@ -196,6 +235,10 @@ export const makeAuthenticatedRequest = async (
   url: string,
   options: RequestInit = {},
 ) => {
+  if (!isSupabaseAvailable() || !supabase) {
+    throw new Error("Authentication service not available");
+  }
+  
   const {
     data: { session },
   } = await supabase.auth.getSession();
