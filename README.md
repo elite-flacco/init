@@ -259,6 +259,7 @@ This project includes Claude Code integration for enhanced development workflow:
 ## API Routes
 
 ### AI Services
+
 - **POST /api/ai/destinations** - Get destination recommendations
 - **POST /api/ai/trip-planning/manifest** - Generate quick travel plan overview
 - **POST /api/ai/trip-planning/stream** - Real-time streaming trip planning (OpenAI)
@@ -267,10 +268,12 @@ This project includes Claude Code integration for enhanced development workflow:
 - **GET /api/images/destination** - Fetch dynamic destination images
 
 ### Plan Management
+
 - **POST /api/shared-plans** - Create shareable plan
 - **GET /api/shared-plans/[id]** - Retrieve shared plan
 
 ### User Account Management (Authentication Required)
+
 - **GET /api/user/plans** - Get user's saved travel plans
 - **POST /api/user/plans** - Save a new travel plan
 - **GET /api/user/plans/[id]** - Get specific plan details
