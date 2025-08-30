@@ -1,27 +1,21 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  X, 
-  User, 
-  MapPin, 
-  Heart, 
-  Settings, 
-  LogOut, 
-  Search, 
-  Filter, 
-  Plus,
+import {
+  X,
+  User,
+  MapPin,
+  Heart,
+  Settings,
+  LogOut,
+  Search,
   Trash2,
   Edit3,
   Calendar,
-  Tag,
   Star,
   Plane,
-  ChevronRight,
+  ArrowRight,
   Loader2,
-  Check,
-  X as XIcon,
-  FileText
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { makeAuthenticatedRequest } from '../lib/auth';
@@ -119,7 +113,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
 
   const loadSavedPlans = useCallback(async () => {
     if (!user) return;
-    
+
     setPlansLoading(true);
     try {
       // Use the lightweight list endpoint for faster sidebar loading
@@ -145,7 +139,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
 
   const loadSavedDestinations = useCallback(async () => {
     if (!user) return;
-    
+
     setDestinationsLoading(true);
     try {
       const response = await makeAuthenticatedRequest('/api/user/destinations');
@@ -218,7 +212,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
 
   const handleViewSavedPlan = async (plan: SavedPlan) => {
     setOpeningPlanId(plan.id);
-    
+
     try {
       // First, get the full plan data including ai_response
       const fullPlanResponse = await makeAuthenticatedRequest(`/api/user/plans/${plan.id}`);
@@ -245,11 +239,11 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
       }
 
       const { shareId } = await response.json();
-      
+
       // Open the plan in a new tab
       const shareUrl = `${window.location.origin}/share/${shareId}`;
       window.open(shareUrl, '_blank');
-      
+
     } catch (error) {
       console.error('Error viewing saved plan:', error);
       alert('Failed to open travel plan. Please try again.');
@@ -303,7 +297,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
 
       // Close dialog
       setDeleteDialog({ isOpen: false, type: null, item: null, isLoading: false });
-      
+
     } catch (error) {
       console.error(`Error deleting ${deleteDialog.type}:`, error);
       alert(`Failed to delete ${deleteDialog.type}. Please try again.`);
@@ -349,9 +343,9 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
       }
 
       // Update local state
-      setSavedPlans(prev => 
-        prev.map(plan => 
-          plan.id === editingPlan.id 
+      setSavedPlans(prev =>
+        prev.map(plan =>
+          plan.id === editingPlan.id
             ? { ...plan, ...updateData }
             : plan
         )
@@ -399,9 +393,9 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
       }
 
       // Update local state
-      setSavedDestinations(prev => 
-        prev.map(dest => 
-          dest.id === editingDestination.id 
+      setSavedDestinations(prev =>
+        prev.map(dest =>
+          dest.id === editingDestination.id
             ? { ...dest, notes: editingDestination.notes.trim() }
             : dest
         )
@@ -495,15 +489,22 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
               <h2 className="text-sm font-semibold text-foreground">
                 {user?.full_name || user?.email}
               </h2>
-              <p className="text-xs text-foreground-secondary">{user?.email}</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-background-muted rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-foreground-secondary" />
-          </button>
+          <div>
+            <button
+              onClick={handleSignOut}
+              className="p-1 hover:bg-background-muted rounded-lg transition-colors"
+            >
+              <LogOut className="w-4 h-4 text-foreground-secondary" />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1 hover:bg-background-muted rounded-lg transition-colors"
+            >
+              <X className="w-4 h-4 text-foreground-secondary" />
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -516,11 +517,10 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as SidebarTab)}
-              className={`flex-1 flex items-center justify-center py-2 px-3 text-xs font-medium rounded-none transition-colors ${
-                activeTab === tab.id
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-foreground-secondary hover:text-foreground hover:bg-background-muted'
-              }`}
+              className={`flex-1 flex items-center justify-center py-2 px-3 text-xs font-medium rounded-none transition-colors ${activeTab === tab.id
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-foreground-secondary hover:text-foreground hover:bg-background-muted'
+                }`}
             >
               <tab.icon className="w-4 h-4" />
               <span className="text-sm">{tab.label}</span>
@@ -540,7 +540,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                   placeholder={`Search ${activeTab === 'plans' ? 'plans' : 'destinations'}...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 text-sm bg-background-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 text-sm bg-background-soft border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
             </div>
@@ -557,12 +557,11 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                 ) : filteredPlans.length > 0 ? (
                   <div className="space-y-3">
                     {filteredPlans.map(plan => (
-                      <div 
-                        key={plan.id} 
+                      <div
+                        key={plan.id}
                         onClick={() => openingPlanId !== plan.id && !editingPlan && handleViewSavedPlan(plan)}
-                        className={`bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors group ${
-                          openingPlanId === plan.id ? 'cursor-wait opacity-75' : editingPlan?.id === plan.id ? 'cursor-default' : 'cursor-pointer'
-                        }`}
+                        className={`relative bg-background-soft shadow-md rounded-lg p-3  transition-colors group ${openingPlanId === plan.id ? 'cursor-wait opacity-75' : editingPlan?.id === plan.id ? 'cursor-default' : 'cursor-pointer'
+                          }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -588,7 +587,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                                         autoFocus
                                       />
                                     </div>
-                                    
+
                                     {/* Notes field */}
                                     <div>
                                       <label className="text-xs font-medium text-foreground-secondary block mb-1">
@@ -619,7 +618,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                                         }}
                                       />
                                     </div>
-                                    
+
                                     {/* Action buttons */}
                                     <div className="flex items-center justify-end space-x-2">
                                       <button
@@ -654,7 +653,9 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                                   {openingPlanId === plan.id ? (
                                     <Loader2 className="w-4 h-4 animate-spin text-primary" />
                                   ) : (
-                                    <ChevronRight className="w-4 h-4 flex-shrink-0 text-foreground-secondary group-hover:text-primary transition-colors" />
+                                    <div className="absolute bottom-2 right-4">
+                                      <ArrowRight className="w-4 h-4 flex-shrink-0 text-foreground-secondary group-hover:text-primary transition-colors" />
+                                    </div>
                                   )}
                                   {plan.is_favorite && (
                                     <Star className="w-4 h-4 text-yellow-500 fill-current" />
@@ -681,7 +682,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                           </div>
                           {editingPlan?.id !== plan.id && (
                             <div className="flex items-center space-x-1">
-                              <button 
+                              <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleEditPlan(plan);
@@ -691,7 +692,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                               >
                                 <Edit3 className="w-3 h-3 text-foreground-secondary" />
                               </button>
-                              <button 
+                              <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDeletePlan(plan);
@@ -729,12 +730,11 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                 ) : filteredDestinations.length > 0 ? (
                   <div className="space-y-3">
                     {filteredDestinations.map(item => (
-                      <div 
-                        key={item.id} 
+                      <div
+                        key={item.id}
                         onClick={() => !editingDestination && handleViewDestinationDetails(item)}
-                        className={`bg-background-soft border border-border rounded-lg p-3 hover:bg-background-muted transition-colors group ${
-                          editingDestination?.id === item.id ? 'cursor-default' : 'cursor-pointer'
-                        }`}
+                        className={`relative bg-background-soft shadow-md rounded-lg p-3 transition-colors group ${editingDestination?.id === item.id ? 'cursor-default' : 'cursor-pointer'
+                          }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -743,7 +743,9 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                                 {item.destination.name}
                               </p>
                               {editingDestination?.id !== item.id && (
-                                <ChevronRight className="w-4 h-4 flex-shrink-0 text-foreground-secondary group-hover:text-primary transition-colors" />
+                                <div className="absolute bottom-2 right-4">
+                                  <ArrowRight className="w-4 h-4 flex-shrink-0 text-foreground-secondary group-hover:text-primary transition-colors" />
+                                </div>
                               )}
                             </div>
                             <p className="text-xs text-foreground-secondary mt-1">
@@ -782,7 +784,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                                     autoFocus
                                   />
                                 </div>
-                                
+
                                 {/* Action buttons */}
                                 <div className="flex items-center justify-end space-x-2 mt-3">
                                   <button
@@ -823,7 +825,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                           </div>
                           {editingDestination?.id !== item.id && (
                             <div className="flex items-center space-x-1">
-                              <button 
+                              <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleEditDestination(item);
@@ -833,7 +835,7 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
                               >
                                 <Edit3 className="w-3 h-3 text-foreground-secondary" />
                               </button>
-                              <button 
+                              <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDeleteDestination(item);
@@ -863,55 +865,60 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
 
             {activeTab === 'profile' && (
               <div className="p-4 space-y-6">
-                {/* Profile Info */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-foreground">Profile Information</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-sm font-medium text-foreground-secondary">Username</label>
-                      <p className="text-sm text-foreground mt-1">{user?.full_name || 'Not provided'}</p>
+                {/* Profile Header Card */}
+                <div className="bg-background-soft rounded-lg p-4">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <User className="w-6 h-6 text-primary" />
                     </div>
-                    <div>
-                      <label className="text-sm font-medium text-foreground-secondary">Email</label>
-                      <p className="text-sm text-foreground mt-1">{user?.email}</p>
+                    <div className="flex-1 min-w-0">
+                      <h6 className="truncate">
+                        {user?.full_name || 'Travel Explorer'}
+                      </h6>
+                      <p className="text-sm text-foreground-secondary truncate">{user?.email}</p>
                     </div>
-                    <div>
-                      <label className="text-sm font-medium text-foreground-secondary">Member Since</label>
-                      <p className="text-sm text-foreground mt-1">
-                        {new Date(user?.created_at || '').toLocaleDateString()}
-                      </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-4 h-4 text-foreground-secondary" />
+                      <span className="text-xs text-foreground-secondary">TripWiser since</span>
+                      <span className="text-xs font-medium text-foreground">
+                        {new Date(user?.created_at || '').toLocaleDateString('en-US', {
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Stats */}
+                {/* Travel Stats */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-foreground">Your Stats</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 bg-background-soft rounded-lg border border-border">
-                      <div className="text-lg font-semibold text-foreground">{savedPlans.length}</div>
-                      <div className="text-xs text-foreground-secondary">Trips</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-background-soft rounded-lg p-4 shadow-lg transition-colors group">
+                      <div className="flex items-center justify-between mb-2">
+                        <Plane className="w-5 h-5 text-foreground-secondary group-hover:text-primary transition-colors" />
+                        <div className="text-2xl font-bold text-foreground">{savedPlans.length}</div>
+                      </div>
+                      <div className="text-xs font-medium text-foreground-secondary uppercase tracking-wide">Trips</div>
                     </div>
-                    <div className="text-center p-3 bg-background-soft rounded-lg border border-border">
-                      <div className="text-lg font-semibold text-foreground">{savedDestinations.length}</div>
-                      <div className="text-xs text-foreground-secondary">Destinations</div>
+                    <div className="bg-background-soft rounded-lg p-4 shadow-lg transition-colors group">
+                      <div className="flex items-center justify-between mb-2">
+                        <MapPin className="w-5 h-5 text-foreground-secondary group-hover:text-primary transition-colors" />
+                        <div className="text-2xl font-bold text-foreground">{savedDestinations.length}</div>
+                      </div>
+                      <div className="text-xs font-medium text-foreground-secondary uppercase tracking-wide">Destinations</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="space-y-3 pt-4 border-t border-border">
-                  <button className="w-full flex items-center space-x-3 p-3 text-sm text-foreground hover:bg-background-muted rounded-lg transition-colors">
-                    <Settings className="w-4 h-4 text-foreground-secondary" />
-                    <span>Account Settings</span>
-                  </button>
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full flex items-center space-x-3 p-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Sign Out</span>
-                  </button>
+                {/* Quick Actions */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+
+
+                  </div>
                 </div>
               </div>
             )}
@@ -939,8 +946,8 @@ export function UserSidebar({ isOpen, onClose, onOpenAuthModal }: UserSidebarPro
           deleteDialog.type === 'plan' && deleteDialog.item
             ? `Are you sure you want to delete "${(deleteDialog.item as SavedPlan).name}"? This action cannot be undone.`
             : deleteDialog.type === 'destination' && deleteDialog.item
-            ? `Are you sure you want to remove "${(deleteDialog.item as SavedDestination).destination.name}" from your saved destinations? This action cannot be undone.`
-            : 'Are you sure you want to delete this item?'
+              ? `Are you sure you want to remove "${(deleteDialog.item as SavedDestination).destination.name}" from your saved destinations? This action cannot be undone.`
+              : 'Are you sure you want to delete this item?'
         }
         confirmText="Delete"
         cancelText="Cancel"

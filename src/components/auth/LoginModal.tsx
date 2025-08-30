@@ -60,7 +60,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, onSuccess }: Log
     <AuthModal
       isOpen={isOpen}
       onClose={handleClose}
-      title={showForgotPassword ? "Reset Password" : "Welcome Back"}
+      title={showForgotPassword ? "Reset Password" : "Welcome, TripWiser"}
     >
       {showForgotPassword ? (
         // Forgot Password Form
