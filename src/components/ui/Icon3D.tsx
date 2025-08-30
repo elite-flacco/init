@@ -43,6 +43,7 @@ export function Icon3D({
 
   return (
     <div className={`${sizeClass} flex items-center justify-center overflow-hidden`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}

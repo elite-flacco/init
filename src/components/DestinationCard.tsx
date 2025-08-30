@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Image from "next/image";
 import { Calendar, DollarSign, ArrowRight, Search, Heart, Loader2 } from "lucide-react";
 import { Destination } from "../types/travel";
 import { MapPinIcon3D } from "./ui/Icon3D";
@@ -26,13 +27,8 @@ export function DestinationCard({
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
-  const handleCardClick = () => {
-    onViewDetails(destination);
-  };
-
   const handleSaveDestination = async (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation();
 
     if (!user) {
       alert("Please sign in to save destinations.");
@@ -81,7 +77,6 @@ export function DestinationCard({
 
   return (
     <div
-      onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="group h-full"
@@ -90,11 +85,11 @@ export function DestinationCard({
 
         {/* Hero Image Section */}
         <div className="relative h-72 overflow-hidden">
-          <img
+          <Image
             src={displayImage}
             alt={destination.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-            loading="lazy"
+            fill
+            className="object-cover group-hover:scale-110 transition-transform duration-700 z-0"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               console.error('Image failed to load:', target.src);
@@ -105,10 +100,10 @@ export function DestinationCard({
           />
 
           {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent z-10 pointer-events-none" />
 
           {/* Country Badge */}
-          <div className="absolute top-6 left-6">
+          <div className="absolute top-6 left-6 z-20 pointer-events-none">
             <div className="glass px-3 py-1 rounded-full text-sm text-white font-semibold depth-light flex items-center">
               <div>
                 <MapPinIcon3D size="2xs" />
@@ -119,7 +114,7 @@ export function DestinationCard({
 
           {/* Save Button */}
           {user && (
-            <div className="absolute top-6 right-6">
+            <div className="absolute top-6 right-6 z-30">
               <button
                 onClick={handleSaveDestination}
                 disabled={isSaving || isSaved}
@@ -142,7 +137,7 @@ export function DestinationCard({
           )}
 
           {/* Destination Title */}
-          <div className="absolute bottom-4 left-4 right-4">
+          <div className="absolute bottom-4 left-4 right-4 z-20 pointer-events-none">
             <h3 className="text-3d-title text-2xl md:text-3xl text-white mb-2">
               {destination.name}
             </h3>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Image from "next/image";
 import { X, MapPin, ArrowRight, ImageIcon, Heart, Loader2, Search } from "lucide-react";
 import { Destination } from "../types/travel";
 import { useDestinationImage } from '../hooks/useDestinationImage';
@@ -89,12 +90,12 @@ export function DestinationDetailsModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-in fade-in duration-200"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl relative mx-auto animate-in slide-in-from-bottom-4 duration-300">
+      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl relative mx-auto animate-in slide-in-from-bottom-4 duration-300 z-10">
         {/* Header with image */}
-        <div className="relative h-80 md:h-96">
+        <div className="relative h-80 md:h-96 z-0">
           {isLoading ? (
             <div className="w-full h-full bg-muted flex items-center justify-center">
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -103,10 +104,11 @@ export function DestinationDetailsModal({
               </div>
             </div>
           ) : (
-            <img
+            <Image
               src={displayImage}
               alt={destination.name}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover z-0"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 if (target.src !== destination.image) {
@@ -115,10 +117,10 @@ export function DestinationDetailsModal({
               }}
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10 pointer-events-none" />
 
           {/* Action buttons */}
-          <div className="absolute top-4 right-4 flex items-center gap-2">
+          <div className="absolute top-4 right-4 flex items-center gap-2 z-50">
             {/* Save button */}
             {user && (
               <button
@@ -151,7 +153,7 @@ export function DestinationDetailsModal({
           </div>
 
           {/* Location badge */}
-          <div className="absolute top-4 left-4">
+          <div className="absolute top-4 left-4 z-50">
             <div className="flex items-center bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
               <MapPin className="w-4 h-4 text-primary mr-1.5" />
               <span className="text-sm font-medium text-foreground">
@@ -161,9 +163,9 @@ export function DestinationDetailsModal({
           </div>
 
           {/* Title */}
-          <div className="absolute bottom-6 left-6 right-6">
-            <h2 className="mb-4 text-white">{destination.name}</h2>
-            <p className="max-w-2xl text-white">{destination.description}</p>
+          <div className="absolute bottom-6 left-6 right-6 z-20">
+            <h2 className="mb-4 text-white text-3xl font-bold drop-shadow-lg">{destination.name}</h2>
+            <p className="max-w-2xl text-white opacity-90 drop-shadow-md">{destination.description}</p>
           </div>
         </div>
 
