@@ -562,7 +562,7 @@ export default function HomePage() {
 
       {/* Main content */}
       <main
-        className={`relative ${currentStep === "placeholder" ? "min-h-screen flex items-center justify-center" : "py-4 px-4 sm:px-6 md:py-6 lg:py-8"} mt-16`}
+        className={`relative ${currentStep === "placeholder" ? "min-h-screen flex items-center justify-center" : "py-4 px-4 sm:px-6 md:py-6 lg:py-8"}`}
       >
         <div className="container mx-auto relative z-10 px-4">
           <div className="relative">{renderCurrentStep()}</div>

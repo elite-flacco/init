@@ -592,7 +592,7 @@ export function AITravelPlan({
     <div className="min-h-screen">
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           {/* Desktop Single Line Layout */}
           <div className="hidden lg:flex items-center justify-between h-16">
             {/* Left: Destination Info */}
