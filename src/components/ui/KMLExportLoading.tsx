@@ -1,5 +1,5 @@
 import React from "react";
-import { GlobeIcon3D, MapIcon3D,  TravelIcon3D, MapPinIcon3D } from "./Icon3D";
+import { GlobeIcon3D, MapIcon3D, TravelIcon3D, MapPinIcon3D } from "./Icon3D";
 import { BaseLoading, LoadingStage } from "./BaseLoading";
 
 interface KMLExportLoadingProps {

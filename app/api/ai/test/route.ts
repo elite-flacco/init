@@ -11,7 +11,7 @@ export async function GET() {
       model: config.model,
       maxTokens: config.maxTokens,
       temperature: config.temperature,
-      temperatureSupported: modelSupportsTemperature(config.model || ''),
+      temperatureSupported: modelSupportsTemperature(config.model || ""),
       // Don't expose the actual API key for security
       apiKeyPreview: config.apiKey
         ? `${config.apiKey.substring(0, 8)}...`

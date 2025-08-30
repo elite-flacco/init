@@ -11,7 +11,6 @@ import { destinations } from "../../data/mock/destinations";
 // Type declaration for Node.js global
 declare const global: typeof globalThis & { fetch: typeof globalThis.fetch };
 
-
 // Add global.fetch mock for Node.js environment
 beforeAll(() => {
   global.fetch = vi.fn();
@@ -129,16 +128,16 @@ describe("aiDestinationService", () => {
       const response =
         await aiDestinationService.getDestinationRecommendations(request);
 
-      response.destinations.forEach(destination => {
-        expect(destination).toHaveProperty('id')
-        expect(destination).toHaveProperty('name')
-        expect(destination).toHaveProperty('country')
-        expect(destination).toHaveProperty('description')
-        expect(destination).toHaveProperty('image')
-        expect(destination).toHaveProperty('highlights')
-        expect(destination).toHaveProperty('bestTimeToVisit')
-        expect(destination).toHaveProperty('estimatedCost')
-      })
-    })
-  })
-})
+      response.destinations.forEach((destination) => {
+        expect(destination).toHaveProperty("id");
+        expect(destination).toHaveProperty("name");
+        expect(destination).toHaveProperty("country");
+        expect(destination).toHaveProperty("description");
+        expect(destination).toHaveProperty("image");
+        expect(destination).toHaveProperty("highlights");
+        expect(destination).toHaveProperty("bestTimeToVisit");
+        expect(destination).toHaveProperty("estimatedCost");
+      });
+    });
+  });
+});

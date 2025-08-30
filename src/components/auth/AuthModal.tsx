@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
+import React, { useEffect } from "react";
+import { X } from "lucide-react";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -10,24 +10,29 @@ interface AuthModalProps {
   children: React.ReactNode;
 }
 
-export function AuthModal({ isOpen, onClose, title, children }: AuthModalProps) {
+export function AuthModal({
+  isOpen,
+  onClose,
+  title,
+  children,
+}: AuthModalProps) {
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
       // Prevent body scroll when modal is open
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen, onClose]);
 

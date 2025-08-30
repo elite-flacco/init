@@ -125,9 +125,13 @@ export function ItemCard({
         </div>
       </div>
 
-      {subtitle && <p className="text-sm text-foreground-secondary mt-1">{subtitle}</p>}
+      {subtitle && (
+        <p className="text-sm text-foreground-secondary mt-1">{subtitle}</p>
+      )}
 
-      {metadata && <p className="text-sm text-foreground-secondary mt-1">{metadata}</p>}
+      {metadata && (
+        <p className="text-sm text-foreground-secondary mt-1">{metadata}</p>
+      )}
 
       {description && <p className="text-foreground mt-2">{description}</p>}
 

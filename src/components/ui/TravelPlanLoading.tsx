@@ -1,5 +1,13 @@
 import React from "react";
-import { BrainIcon3D, CoffeeIcon3D, GlobeIcon3D, MapIcon3D, MapPinIcon3D, SuitcaseIcon3D, TravelIcon3D } from "./Icon3D";
+import {
+  BrainIcon3D,
+  CoffeeIcon3D,
+  GlobeIcon3D,
+  MapIcon3D,
+  MapPinIcon3D,
+  SuitcaseIcon3D,
+  TravelIcon3D,
+} from "./Icon3D";
 import { BaseLoading, LoadingStage } from "./BaseLoading";
 
 interface TravelPlanLoadingProps {
@@ -74,7 +82,6 @@ export function TravelPlanLoading({
         </>
       }
       ariaLabel="Generating personalized adventure plan"
-    >
-    </BaseLoading>
+    ></BaseLoading>
   );
 }

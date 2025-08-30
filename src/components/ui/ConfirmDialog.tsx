@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import React from "react";
+import { X, AlertTriangle } from "lucide-react";
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -11,7 +11,7 @@ interface ConfirmDialogProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  variant?: 'danger' | 'warning' | 'info';
+  variant?: "danger" | "warning" | "info";
   isLoading?: boolean;
 }
 
@@ -21,10 +21,10 @@ export function ConfirmDialog({
   onConfirm,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  variant = 'danger',
-  isLoading = false
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  variant = "danger",
+  isLoading = false,
 }: ConfirmDialogProps) {
   if (!isOpen) return null;
 
@@ -36,23 +36,23 @@ export function ConfirmDialog({
 
   const getVariantStyles = () => {
     switch (variant) {
-      case 'danger':
+      case "danger":
         return {
-          icon: 'text-red-500',
-          iconBg: 'bg-red-50',
-          confirmBtn: 'btn-3d-danger',
+          icon: "text-red-500",
+          iconBg: "bg-red-50",
+          confirmBtn: "btn-3d-danger",
         };
-      case 'warning':
+      case "warning":
         return {
-          icon: 'text-yellow-500',
-          iconBg: 'bg-yellow-50',
-          confirmBtn: 'btn-3d-warning',
+          icon: "text-yellow-500",
+          iconBg: "bg-yellow-50",
+          confirmBtn: "btn-3d-warning",
         };
       default:
         return {
-          icon: 'text-blue-500',
-          iconBg: 'bg-blue-50',
-          confirmBtn: 'btn-3d-primary',
+          icon: "text-blue-500",
+          iconBg: "bg-blue-50",
+          confirmBtn: "btn-3d-primary",
         };
     }
   };
@@ -62,8 +62,8 @@ export function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-[100] transition-opacity duration-200">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={handleBackdropClick}
       />
 
@@ -73,7 +73,9 @@ export function ConfirmDialog({
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center space-x-3">
-              <div className={`w-8 h-8 ${styles.iconBg} rounded-full flex items-center justify-center`}>
+              <div
+                className={`w-8 h-8 ${styles.iconBg} rounded-full flex items-center justify-center`}
+              >
                 <AlertTriangle className={`w-4 h-4 ${styles.icon}`} />
               </div>
               <h3 className="text-lg font-semibold text-foreground">{title}</h3>

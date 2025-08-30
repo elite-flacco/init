@@ -1,7 +1,4 @@
-import {
-  ArrowLeft,
-  Compass,
-} from "lucide-react";
+import { ArrowLeft, Compass } from "lucide-react";
 import React, { useState } from "react";
 import {
   commonFinalTripPlanningQuestions,
@@ -29,7 +26,10 @@ interface AITripPlanningPromptsProps {
   travelerType: TravelerType;
   destinationKnowledge: DestinationKnowledge | null;
   pickDestinationPreferences: PickDestinationPreferences | null;
-  onComplete: (response?: AITripPlanningResponse, streamingRequest?: AITripPlanningRequest) => void;
+  onComplete: (
+    response?: AITripPlanningResponse,
+    streamingRequest?: AITripPlanningRequest,
+  ) => void;
   onBack: () => void;
 }
 
@@ -42,7 +42,6 @@ export function AITripPlanningPrompts({
   onBack,
 }: AITripPlanningPromptsProps) {
   const [generationError, setGenerationError] = useState<string | null>(null);
-
 
   const getDestinationName = () => {
     if (destination) return destination.name;
@@ -97,18 +96,24 @@ export function AITripPlanningPrompts({
       destination ||
       (destinationKnowledge?.type === "yes"
         ? {
-          id: "user-destination",
-          name: answers.destination || "Your Destination",
-          country: "Unknown",
-          description: "Your chosen destination",
-          image: "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-          highlights: [{ name: "User selected destination", description: "Your personally chosen travel destination" }],
-          bestTimeToVisit: "Year-round",
-          budget: "$$$",
-          estimatedCost: "",
-          matchReason: "",
-          keyActivities: [],
-        }
+            id: "user-destination",
+            name: answers.destination || "Your Destination",
+            country: "Unknown",
+            description: "Your chosen destination",
+            image:
+              "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+            highlights: [
+              {
+                name: "User selected destination",
+                description: "Your personally chosen travel destination",
+              },
+            ],
+            bestTimeToVisit: "Year-round",
+            budget: "$$$",
+            estimatedCost: "",
+            matchReason: "",
+            keyActivities: [],
+          }
         : null);
 
     if (!effectiveDestination) {
@@ -120,7 +125,6 @@ export function AITripPlanningPrompts({
 
     // Add delay to allow the form's transition to complete and create anticipation
     setTimeout(async () => {
-
       try {
         const preferences: TripPreferences = {
           timeOfYear:
@@ -158,7 +162,7 @@ export function AITripPlanningPrompts({
         };
 
         // Track AI trip planning request
-        trackTravelEvent.requestAIRecommendations('trip_plan');
+        trackTravelEvent.requestAIRecommendations("trip_plan");
 
         // Create streaming request data
         const streamingRequest: AITripPlanningRequest = {
@@ -177,7 +181,7 @@ export function AITripPlanningPrompts({
             : "Failed to create trip planning request. Please try again.";
 
         // Track trip planning error
-        trackTravelEvent.error('trip_planning_request_failed', errorMessage);
+        trackTravelEvent.error("trip_planning_request_failed", errorMessage);
 
         setGenerationError(errorMessage);
       }
@@ -187,7 +191,6 @@ export function AITripPlanningPrompts({
   if (generationError) {
     return (
       <div className="flex items-center justify-center relative overflow-hidden">
-
         <div className="relative z-10 text-center p-8 max-w-2xl">
           {/* Adventure Error Container */}
           <div className="transform -rotate-1 hover:rotate-0 transition-transform duration-700">
@@ -220,10 +223,7 @@ export function AITripPlanningPrompts({
                   </div>
                 </button>
 
-                <button
-                  onClick={onBack}
-                  className="group btn-3d-outline"
-                >
+                <button onClick={onBack} className="group btn-3d-outline">
                   <div className="flex items-center justify-center">
                     <ArrowLeft className="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform duration-300" />
                     Go Back

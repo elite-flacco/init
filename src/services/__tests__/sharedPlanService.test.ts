@@ -31,7 +31,9 @@ const mockPlanInput = {
     country: "Japan",
     description: "Amazing city",
     image: "test.jpg",
-    highlights: [{ name: "temples", description: "Ancient temples and shrines" }],
+    highlights: [
+      { name: "temples", description: "Ancient temples and shrines" },
+    ],
     bestTimeToVisit: "Spring",
     keyActivities: ["sightseeing", "cultural tours"],
     matchReason: "Perfect for culture lovers",
@@ -52,7 +54,9 @@ const mockPlanInput = {
         country: "Japan",
         description: "Amazing city",
         image: "test.jpg",
-        highlights: [{ name: "temples", description: "Ancient temples and shrines" }],
+        highlights: [
+          { name: "temples", description: "Ancient temples and shrines" },
+        ],
         bestTimeToVisit: "Spring",
         keyActivities: ["sightseeing", "cultural tours"],
         matchReason: "Perfect for culture lovers",
@@ -73,36 +77,40 @@ const mockPlanInput = {
         dayNightTempDifference: "10°C",
         airQuality: "Good",
         feelsLikeWarning: "None",
-        recommendations: ["Light jacket recommended"]
+        recommendations: ["Light jacket recommended"],
       },
       transportationInfo: {
         publicTransport: "Excellent subway system",
         creditCardPayment: true,
         airportTransport: {
-          airports: [{
-            name: "Narita International",
-            code: "NRT",
-            distanceToCity: "60km",
-            transportOptions: [{
-              type: "Train",
-              cost: "¥1000",
-              duration: "45 minutes",
-              description: "Fast train service"
-            }]
-          }]
+          airports: [
+            {
+              name: "Narita International",
+              code: "NRT",
+              distanceToCity: "60km",
+              transportOptions: [
+                {
+                  type: "Train",
+                  cost: "¥1000",
+                  duration: "45 minutes",
+                  description: "Fast train service",
+                },
+              ],
+            },
+          ],
         },
         ridesharing: "Available",
         taxiInfo: {
           available: true,
           averageCost: "¥2000",
-          tips: ["Available 24/7"]
-        }
+          tips: ["Available 24/7"],
+        },
       },
       localCurrency: {
         currency: "JPY",
         cashNeeded: true,
         creditCardUsage: "Limited",
-        tips: ["Carry cash"]
+        tips: ["Carry cash"],
       },
       tipEtiquette: {
         restaurants: "",
@@ -167,7 +175,9 @@ describe("SharedPlanService", () => {
     });
 
     it("should handle database errors during creation", async () => {
-      mockInsert.mockReturnValue({ error: { message: "Database error" } } as any);
+      mockInsert.mockReturnValue({
+        error: { message: "Database error" },
+      } as any);
 
       const { SharedPlanService } = await import("../sharedPlanService");
 

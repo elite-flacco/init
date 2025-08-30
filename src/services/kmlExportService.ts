@@ -71,22 +71,25 @@ export class KMLExportService {
   /**
    * Get destination coordinates using geocoding service with caching
    */
-  private static async getDestinationCoordinatesAsync(destinationName: string, countryName: string): Promise<Coordinates> {
+  private static async getDestinationCoordinatesAsync(
+    destinationName: string,
+    countryName: string,
+  ): Promise<Coordinates> {
     const cacheKey = `${destinationName}, ${countryName}`.toLowerCase();
-    
+
     // Check cache first
     if (this.destinationCache.has(cacheKey)) {
       return this.destinationCache.get(cacheKey)!;
     }
-    
+
     try {
       const geocodingResult = await GeocodingService.geocodePlace(
         destinationName,
         destinationName,
         countryName,
-        'city'
+        "city",
       );
-      
+
       // Cache the result
       this.destinationCache.set(cacheKey, geocodingResult.coordinates);
       return geocodingResult.coordinates;
@@ -102,28 +105,37 @@ export class KMLExportService {
    * Add delay to avoid rate limiting
    */
   private static delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
    * Calculate distance between two coordinates using Haversine formula
    */
-  private static calculateDistance(coord1: Coordinates, coord2: Coordinates): number {
+  private static calculateDistance(
+    coord1: Coordinates,
+    coord2: Coordinates,
+  ): number {
     const R = 6371; // Earth's radius in kilometers
-    const dLat = (coord2.latitude - coord1.latitude) * Math.PI / 180;
-    const dLon = (coord2.longitude - coord1.longitude) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(coord1.latitude * Math.PI / 180) * Math.cos(coord2.latitude * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const dLat = ((coord2.latitude - coord1.latitude) * Math.PI) / 180;
+    const dLon = ((coord2.longitude - coord1.longitude) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((coord1.latitude * Math.PI) / 180) *
+        Math.cos((coord2.latitude * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
 
   /**
    * Fast bounds checking - much quicker than distance calculation
    */
-  private static isWithinBounds(coords: Coordinates, baseCoords: Coordinates, degreesRadius: number = 1): boolean {
+  private static isWithinBounds(
+    coords: Coordinates,
+    baseCoords: Coordinates,
+    degreesRadius: number = 1,
+  ): boolean {
     const latDiff = Math.abs(coords.latitude - baseCoords.latitude);
     const lonDiff = Math.abs(coords.longitude - baseCoords.longitude);
     return latDiff <= degreesRadius && lonDiff <= degreesRadius;
@@ -133,23 +145,30 @@ export class KMLExportService {
    * Check if coordinates are valid (not 0,0 and within reasonable distance from base)
    * Uses fast bounds checking first, then precise distance calculation only if needed
    */
-  private static isValidCoordinates(coords: Coordinates, baseCoords: Coordinates, maxDistanceKm: number = 200): boolean {
+  private static isValidCoordinates(
+    coords: Coordinates,
+    baseCoords: Coordinates,
+    maxDistanceKm: number = 200,
+  ): boolean {
     // Check for 0,0 coordinates (invalid geocoding result)
     if (coords.latitude === 0 && coords.longitude === 0) {
       return false;
     }
-    
+
     // If base coordinates are 0,0 (geocoding failed for destination), accept any non-zero coordinates
     if (baseCoords.latitude === 0 && baseCoords.longitude === 0) {
       return true;
     }
-    
+
     // More generous distance check (200km default to allow for day trips)
     const distance = this.calculateDistance(coords, baseCoords);
     return distance <= maxDistanceKm;
   }
 
-  private static generateRandomNearbyCoordinates(baseCoords: Coordinates, radiusKm: number = 10): Coordinates {
+  private static generateRandomNearbyCoordinates(
+    baseCoords: Coordinates,
+    radiusKm: number = 10,
+  ): Coordinates {
     // Generate random coordinates within a radius around the base coordinates
     const earthRadius = 6371; // Earth's radius in kilometers
     const randomDistance = Math.random() * radiusKm;
@@ -205,31 +224,36 @@ export class KMLExportService {
       return "";
     }
 
-    const baseCoords = await this.getDestinationCoordinatesAsync(plan.destination.name, plan.destination.country);
-    const activities = plan.itinerary.flatMap(day => 
-      day.activities.map(activity => ({ ...activity, day: day.day }))
+    const baseCoords = await this.getDestinationCoordinatesAsync(
+      plan.destination.name,
+      plan.destination.country,
     );
-    
-    let placemarks = '';
+    const activities = plan.itinerary.flatMap((day) =>
+      day.activities.map((activity) => ({ ...activity, day: day.day })),
+    );
+
+    let placemarks = "";
     for (const activity of activities) {
       let coordinates: Coordinates;
-      
+
       if (useRealCoordinates && activity.location) {
         try {
           const geocodingResult = await GeocodingService.geocodePlace(
             activity.location,
             plan.destination.name,
             plan.destination.country,
-            'attraction'
+            "attraction",
           );
-          
+
           // Simple filtering: exclude 0,0 coordinates and places too far away
-          if (this.isValidCoordinates(geocodingResult.coordinates, baseCoords)) {
+          if (
+            this.isValidCoordinates(geocodingResult.coordinates, baseCoords)
+          ) {
             coordinates = geocodingResult.coordinates;
           } else {
             coordinates = this.generateRandomNearbyCoordinates(baseCoords, 15);
           }
-          
+
           // Add delay between requests to avoid rate limiting
           await this.delay(200);
         } catch {
@@ -239,11 +263,15 @@ export class KMLExportService {
       } else {
         coordinates = this.generateRandomNearbyCoordinates(baseCoords, 15);
       }
-      
+
       const name = `Day ${activity.day}: ${activity.title}`;
       const searchQuery = activity.location || activity.title;
-      const mapsLink = this.generateGoogleMapsLink(searchQuery, plan.destination.name, plan.destination.country);
-      
+      const mapsLink = this.generateGoogleMapsLink(
+        searchQuery,
+        plan.destination.name,
+        plan.destination.country,
+      );
+
       const description = `<div>
 <h3>${this.escapeXML(activity.title)}</h3>
 <p><b>Time:</b> ${this.escapeXML(activity.time)}</p>
@@ -251,8 +279,13 @@ ${activity.location ? `<p><b>Location:</b> ${this.escapeXML(activity.location)}<
 ${activity.description ? `<p>${this.escapeXML(activity.description)}</p>` : ""}
 <p><a href="${mapsLink}" target="_blank">🗺️ Search on Google Maps</a></p>
 </div>`;
-      
-      placemarks += this.generatePlacemark(name, description, coordinates, 'itinerary-style');
+
+      placemarks += this.generatePlacemark(
+        name,
+        description,
+        coordinates,
+        "itinerary-style",
+      );
     }
 
     return `  <Folder>
@@ -270,29 +303,33 @@ ${placemarks}
       return "";
     }
 
-    const baseCoords = await this.getDestinationCoordinatesAsync(plan.destination.name, plan.destination.country);
-    console.log('Base coordinates:', baseCoords);
-    
-    let placemarks = '';
+    const baseCoords = await this.getDestinationCoordinatesAsync(
+      plan.destination.name,
+      plan.destination.country,
+    );
+    console.log("Base coordinates:", baseCoords);
+
+    let placemarks = "";
     for (const place of plan.placesToVisit) {
       let coordinates: Coordinates;
-      
+
       if (useRealCoordinates) {
         try {
           const geocodingResult = await GeocodingService.geocodePlace(
             place.name,
             plan.destination.name,
             plan.destination.country,
-            'attraction'
+            "attraction",
           );
-          
+
           // Simple filtering: exclude 0,0 coordinates and places too far away
-          if (this.isValidCoordinates(geocodingResult.coordinates, baseCoords)) {
+          if (
+            this.isValidCoordinates(geocodingResult.coordinates, baseCoords)
+          ) {
             coordinates = geocodingResult.coordinates;
           } else {
             coordinates = this.generateRandomNearbyCoordinates(baseCoords, 20);
           }
-          
         } catch {
           // Fall back to random coordinates on geocoding error
           coordinates = this.generateRandomNearbyCoordinates(baseCoords, 20);
@@ -300,17 +337,26 @@ ${placemarks}
       } else {
         coordinates = this.generateRandomNearbyCoordinates(baseCoords, 20);
       }
-      
-      const mapsLink = this.generateGoogleMapsLink(place.name, plan.destination.name, plan.destination.country);
-      
+
+      const mapsLink = this.generateGoogleMapsLink(
+        place.name,
+        plan.destination.name,
+        plan.destination.country,
+      );
+
       const description = `<div>
 <h3>${this.escapeXML(place.name)}</h3>
 <p><b>Category:</b> ${this.escapeXML(place.category)}</p>
 <p>${this.escapeXML(place.description)}</p>
 <p><a href="${mapsLink}" target="_blank">🗺️ Search on Google Maps</a></p>
 </div>`;
-      
-      placemarks += this.generatePlacemark(place.name, description, coordinates, 'attraction-style');
+
+      placemarks += this.generatePlacemark(
+        place.name,
+        description,
+        coordinates,
+        "attraction-style",
+      );
     }
 
     return `  <Folder>
@@ -328,28 +374,32 @@ ${placemarks}
       return "";
     }
 
-    const baseCoords = await this.getDestinationCoordinatesAsync(plan.destination.name, plan.destination.country);
-    
-    let placemarks = '';
+    const baseCoords = await this.getDestinationCoordinatesAsync(
+      plan.destination.name,
+      plan.destination.country,
+    );
+
+    let placemarks = "";
     for (const restaurant of plan.restaurants) {
       let coordinates: Coordinates;
-      
+
       if (useRealCoordinates) {
         try {
           const geocodingResult = await GeocodingService.geocodePlace(
             restaurant.name,
             plan.destination.name,
             plan.destination.country,
-            'restaurant'
+            "restaurant",
           );
-          
+
           // Simple filtering: exclude 0,0 coordinates and places too far away
-          if (this.isValidCoordinates(geocodingResult.coordinates, baseCoords)) {
+          if (
+            this.isValidCoordinates(geocodingResult.coordinates, baseCoords)
+          ) {
             coordinates = geocodingResult.coordinates;
           } else {
             coordinates = this.generateRandomNearbyCoordinates(baseCoords, 18);
           }
-          
         } catch {
           // Fall back to random coordinates on geocoding error
           coordinates = this.generateRandomNearbyCoordinates(baseCoords, 18);
@@ -357,9 +407,13 @@ ${placemarks}
       } else {
         coordinates = this.generateRandomNearbyCoordinates(baseCoords, 18);
       }
-      
-      const mapsLink = this.generateGoogleMapsLink(restaurant.name, plan.destination.name, plan.destination.country);
-      
+
+      const mapsLink = this.generateGoogleMapsLink(
+        restaurant.name,
+        plan.destination.name,
+        plan.destination.country,
+      );
+
       const description = `<div>
 <h3>${this.escapeXML(restaurant.name)}</h3>
 <p><b>Cuisine:</b> ${this.escapeXML(restaurant.cuisine)}</p>
@@ -370,8 +424,13 @@ ${restaurant.specialDishes ? `<p><b>Must Try:</b> ${this.escapeXML(restaurant.sp
 ${restaurant.reservationsRecommended === "Yes" ? "<p><b>Reservations recommended</b></p>" : ""}
 <p><a href="${mapsLink}" target="_blank">🗺️ Search on Google Maps</a></p>
 </div>`;
-      
-      placemarks += this.generatePlacemark(restaurant.name, description, coordinates, 'restaurant-style');
+
+      placemarks += this.generatePlacemark(
+        restaurant.name,
+        description,
+        coordinates,
+        "restaurant-style",
+      );
     }
 
     return `  <Folder>
@@ -389,28 +448,32 @@ ${placemarks}
       return "";
     }
 
-    const baseCoords = await this.getDestinationCoordinatesAsync(plan.destination.name, plan.destination.country);
-    
-    let placemarks = '';
+    const baseCoords = await this.getDestinationCoordinatesAsync(
+      plan.destination.name,
+      plan.destination.country,
+    );
+
+    let placemarks = "";
     for (const bar of plan.bars) {
       let coordinates: Coordinates;
-      
+
       if (useRealCoordinates) {
         try {
           const geocodingResult = await GeocodingService.geocodePlace(
             bar.name,
             plan.destination.name,
             plan.destination.country,
-            'bar'
+            "bar",
           );
-          
+
           // Simple filtering: exclude 0,0 coordinates and places too far away
-          if (this.isValidCoordinates(geocodingResult.coordinates, baseCoords)) {
+          if (
+            this.isValidCoordinates(geocodingResult.coordinates, baseCoords)
+          ) {
             coordinates = geocodingResult.coordinates;
           } else {
             coordinates = this.generateRandomNearbyCoordinates(baseCoords, 16);
           }
-
         } catch {
           // Fall back to random coordinates on geocoding error
           coordinates = this.generateRandomNearbyCoordinates(baseCoords, 16);
@@ -418,9 +481,13 @@ ${placemarks}
       } else {
         coordinates = this.generateRandomNearbyCoordinates(baseCoords, 16);
       }
-      
-      const mapsLink = this.generateGoogleMapsLink(bar.name, plan.destination.name, plan.destination.country);
-      
+
+      const mapsLink = this.generateGoogleMapsLink(
+        bar.name,
+        plan.destination.name,
+        plan.destination.country,
+      );
+
       const description = `<div>
 <h3>${this.escapeXML(bar.name)}</h3>
 <p><b>Type:</b> ${this.escapeXML(bar.type)}</p>
@@ -430,8 +497,13 @@ ${bar.neighborhood ? `<p><b>Neighborhood:</b> ${this.escapeXML(bar.neighborhood)
 <p>${this.escapeXML(bar.description)}</p>
 <p><a href="${mapsLink}" target="_blank">🗺️ Search on Google Maps</a></p>
 </div>`;
-      
-      placemarks += this.generatePlacemark(bar.name, description, coordinates, 'bar-style');
+
+      placemarks += this.generatePlacemark(
+        bar.name,
+        description,
+        coordinates,
+        "bar-style",
+      );
     }
 
     return `  <Folder>
@@ -449,28 +521,33 @@ ${placemarks}
       return "";
     }
 
-    const baseCoords = await this.getDestinationCoordinatesAsync(plan.destination.name, plan.destination.country);
-    
-    let placemarks = '';
+    const baseCoords = await this.getDestinationCoordinatesAsync(
+      plan.destination.name,
+      plan.destination.country,
+    );
+
+    let placemarks = "";
     for (const hotel of plan.hotelRecommendations) {
       let coordinates: Coordinates;
-      
+
       if (useRealCoordinates) {
         try {
           const geocodingResult = await GeocodingService.geocodePlace(
             hotel.name,
             plan.destination.name,
             plan.destination.country,
-            'hotel'
+            "hotel",
           );
-          
+
           // Simple filtering: exclude 0,0 coordinates and places too far away
-          if (this.isValidCoordinates(geocodingResult.coordinates, baseCoords)) {
+          if (
+            this.isValidCoordinates(geocodingResult.coordinates, baseCoords)
+          ) {
             coordinates = geocodingResult.coordinates;
           } else {
             coordinates = this.generateRandomNearbyCoordinates(baseCoords, 12);
           }
-          
+
           // Add delay between requests to avoid rate limiting
           await this.delay(200);
         } catch {
@@ -480,9 +557,13 @@ ${placemarks}
       } else {
         coordinates = this.generateRandomNearbyCoordinates(baseCoords, 12);
       }
-      
-      const mapsLink = this.generateGoogleMapsLink(hotel.name, plan.destination.name, plan.destination.country);
-      
+
+      const mapsLink = this.generateGoogleMapsLink(
+        hotel.name,
+        plan.destination.name,
+        plan.destination.country,
+      );
+
       const description = `<div>
 <h3>${this.escapeXML(hotel.name)}</h3>
 <p><b>Neighborhood:</b> ${this.escapeXML(hotel.neighborhood)}</p>
@@ -491,8 +572,13 @@ ${placemarks}
 ${hotel.amenities ? `<p><b>Amenities:</b> ${this.escapeXML(hotel.amenities.join(", "))}</p>` : ""}
 <p><a href="${mapsLink}" target="_blank">🗺️ Search on Google Maps</a></p>
 </div>`;
-      
-      placemarks += this.generatePlacemark(hotel.name, description, coordinates, 'hotel-style');
+
+      placemarks += this.generatePlacemark(
+        hotel.name,
+        description,
+        coordinates,
+        "hotel-style",
+      );
     }
 
     return `  <Folder>

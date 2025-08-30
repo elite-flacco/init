@@ -1,26 +1,26 @@
 "use client";
 
-import { useEffect, useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, EyeOff, Lock, AlertCircle, CheckCircle } from 'lucide-react';
-import { authService, validatePassword } from '../../src/lib/auth';
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Eye, EyeOff, Lock, AlertCircle, CheckCircle } from "lucide-react";
+import { authService, validatePassword } from "../../src/lib/auth";
 
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   // Check if we have access token in URL hash (from email link)
   useEffect(() => {
     const hash = window.location.hash;
     if (!hash) {
-      setError('Invalid reset link. Please request a new password reset.');
+      setError("Invalid reset link. Please request a new password reset.");
       return;
     }
 
@@ -30,7 +30,7 @@ function ResetPasswordForm() {
 
   const validateForm = () => {
     if (!password) {
-      setError('Password is required');
+      setError("Password is required");
       return false;
     }
 
@@ -41,7 +41,7 @@ function ResetPasswordForm() {
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return false;
     }
 
@@ -50,7 +50,7 @@ function ResetPasswordForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!validateForm()) return;
 
@@ -63,11 +63,11 @@ function ResetPasswordForm() {
         setSuccess(true);
         // Redirect to home page after 3 seconds
         setTimeout(() => {
-          router.push('/');
+          router.push("/");
         }, 3000);
       }
     } catch (error) {
-      setError('An unexpected error occurred');
+      setError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -85,7 +85,8 @@ function ResetPasswordForm() {
               Password Updated!
             </h1>
             <p className="text-foreground-secondary">
-              Your password has been successfully updated. You'll be redirected to the home page shortly.
+              Your password has been successfully updated. You'll be redirected
+              to the home page shortly.
             </p>
           </div>
         </div>
@@ -97,15 +98,16 @@ function ResetPasswordForm() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <h4 className="mb-4">
-            Reset Your Password
-          </h4>
+          <h4 className="mb-4">Reset Your Password</h4>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* New Password */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-foreground mb-2"
+            >
               New Password
             </label>
             <div className="relative">
@@ -114,7 +116,7 @@ function ResetPasswordForm() {
               </div>
               <input
                 id="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="block w-full pl-10 pr-10 py-2 text-xs border border-border rounded-lg bg-background text-foreground placeholder-foreground-secondary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -137,7 +139,10 @@ function ResetPasswordForm() {
 
           {/* Confirm Password */}
           <div>
-            <label htmlFor="confirm-password" className="block text-sm font-medium text-foreground mb-2">
+            <label
+              htmlFor="confirm-password"
+              className="block text-sm font-medium text-foreground mb-2"
+            >
               Confirm New Password
             </label>
             <div className="relative">
@@ -146,7 +151,7 @@ function ResetPasswordForm() {
               </div>
               <input
                 id="confirm-password"
-                type={showConfirmPassword ? 'text' : 'password'}
+                type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="block w-full pl-10 pr-10 py-2 text-xs border border-border rounded-lg bg-background text-foreground placeholder-foreground-secondary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -183,14 +188,14 @@ function ResetPasswordForm() {
             disabled={loading}
             className="w-full btn-3d-primary py-2.5 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Updating Password...' : 'Update Password'}
+            {loading ? "Updating Password..." : "Update Password"}
           </button>
 
           {/* Back to Home */}
           <div className="text-center">
             <button
               type="button"
-              onClick={() => router.push('/')}
+              onClick={() => router.push("/")}
               className="text-sm text-primary hover:text-primary/80 transition-colors"
             >
               Back to Home
@@ -204,16 +209,18 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-foreground-secondary">Loading...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <div className="w-full max-w-md space-y-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-foreground-secondary">Loading...</p>
+            </div>
           </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <ResetPasswordForm />
     </Suspense>
   );

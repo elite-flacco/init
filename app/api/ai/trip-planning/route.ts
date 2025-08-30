@@ -91,7 +91,7 @@ async function callAI(prompt: string, maxTokens?: number): Promise<string> {
 
 // Helper functions moved to chunked endpoint where they are actually used
 
-// Removed generateTripPlanningPrompt function - now handled by chunked endpoint  
+// Removed generateTripPlanningPrompt function - now handled by chunked endpoint
 /*
 function generateTripPlanningPrompt(request: AITripPlanningRequest): string {
   const { destination, travelerType, preferences } = request;
@@ -315,14 +315,14 @@ export async function POST(request: NextRequest) {
 
     // Always redirect to chunked endpoint for better UX
     return NextResponse.json(
-      { 
-        message: "Trip planning now uses progressive loading for better experience",
+      {
+        message:
+          "Trip planning now uses progressive loading for better experience",
         redirectTo: "chunked",
-        chunkedEndpoint: "/api/ai/trip-planning/chunked"
+        chunkedEndpoint: "/api/ai/trip-planning/chunked",
       },
-      { status: 307 } // Temporary Redirect
+      { status: 307 }, // Temporary Redirect
     );
-
   } catch (error) {
     return NextResponse.json(
       {

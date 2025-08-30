@@ -119,7 +119,8 @@ export const resetMocks = () => {
   vi.clearAllMocks();
   if (
     global.fetch &&
-    typeof (global.fetch as unknown as { mockReset?: () => void }).mockReset === "function"
+    typeof (global.fetch as unknown as { mockReset?: () => void }).mockReset ===
+      "function"
   ) {
     (global.fetch as unknown as { mockReset: () => void }).mockReset();
   }

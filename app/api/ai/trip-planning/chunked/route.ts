@@ -6,9 +6,9 @@ import {
   ACTIVITY_ICON_CATEGORIES,
 } from "../../../../../src/types/travel";
 import { getAIConfig, modelSupportsTemperature } from "../../config";
-import { 
-  calculateMaxTokensForRequest, 
-  getModelTokenLimit 
+import {
+  calculateMaxTokensForRequest,
+  getModelTokenLimit,
 } from "../../../../../src/lib/tokenUtils";
 
 export interface AITripPlanningRequest {
@@ -49,29 +49,34 @@ async function callAI(prompt: string, maxTokens?: number): Promise<string> {
     const controller = new AbortController();
     // Reduce timeout to 120 seconds for better UX
     const timeoutId = setTimeout(() => {
-      console.warn('OpenAI API request timed out after 120s');
+      console.warn("OpenAI API request timed out after 120s");
       controller.abort();
     }, 120000);
 
     try {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: config.model,
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: actualMaxTokens,
+            ...(modelSupportsTemperature(config.model || "") && {
+              temperature: config.temperature,
+            }),
+          }),
+          signal: controller.signal,
         },
-        body: JSON.stringify({
-          model: config.model,
-          messages: [{ role: "user", content: prompt }],
-          max_tokens: actualMaxTokens,
-          ...(modelSupportsTemperature(config.model || '') && { temperature: config.temperature }),
-        }),
-        signal: controller.signal,
-      });
+      );
 
       // Clear timeout on successful response
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
         throw new Error(`OpenAI API error: ${response.statusText}`);
       }
@@ -87,9 +92,9 @@ async function callAI(prompt: string, maxTokens?: number): Promise<string> {
 
   if (provider === "anthropic") {
     const controller = new AbortController();
-    // Reduce timeout to 60 seconds for better UX  
+    // Reduce timeout to 60 seconds for better UX
     const timeoutId = setTimeout(() => {
-      console.warn('Anthropic API request timed out after 60s');
+      console.warn("Anthropic API request timed out after 60s");
       controller.abort();
     }, 60000);
 
@@ -103,10 +108,10 @@ async function callAI(prompt: string, maxTokens?: number): Promise<string> {
         },
         body: JSON.stringify({
           model: config.model || "claude-3-sonnet-20240229",
-        max_tokens: actualMaxTokens,
-        messages: [{ role: "user", content: prompt }],
-      }),
-      signal: controller.signal,
+          max_tokens: actualMaxTokens,
+          messages: [{ role: "user", content: prompt }],
+        }),
+        signal: controller.signal,
       });
 
       // Clear timeout on successful response
@@ -134,31 +139,35 @@ const TRAVEL_PLAN_CHUNKS = [
     id: 1,
     section: "locations",
     description: "Neighborhoods, hotels, restaurants, and bars",
-    prompt: (request: AITripPlanningRequest) => generateLocationsPrompt(request)
+    prompt: (request: AITripPlanningRequest) =>
+      generateLocationsPrompt(request),
   },
   {
     id: 2,
     section: "attractions",
     description: "Places to visit and must-try local food and drink",
-    prompt: (request: AITripPlanningRequest) => generateFoodPrompt(request)
+    prompt: (request: AITripPlanningRequest) => generateFoodPrompt(request),
   },
   {
     id: 3,
     section: "practical",
     description: "Weather, safety, transportation, and money",
-    prompt: (request: AITripPlanningRequest) => generatePracticalPrompt(request)
+    prompt: (request: AITripPlanningRequest) =>
+      generatePracticalPrompt(request),
   },
   {
     id: 4,
     section: "cultural",
     description: "Activities, history, and detailed itinerary",
-    prompt: (request: AITripPlanningRequest) => generateCulturalPrompt(request)
-  }
+    prompt: (request: AITripPlanningRequest) => generateCulturalPrompt(request),
+  },
 ];
 
-export function generateLocationsPrompt(request: AITripPlanningRequest): string {
+export function generateLocationsPrompt(
+  request: AITripPlanningRequest,
+): string {
   const { destination, travelerType, preferences } = request;
-  
+
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
 
 DESTINATION: ${destination.name}, ${destination.country}
@@ -263,7 +272,12 @@ CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any tex
 export function generateFoodPrompt(request: AITripPlanningRequest): string {
   const { destination, travelerType, preferences } = request;
   const baseDays = parseInt(preferences.duration) || 7;
-  const activityMultiplier = preferences.activityLevel === "high" ? 4 : preferences.activityLevel === "low" ? 2 : 3;
+  const activityMultiplier =
+    preferences.activityLevel === "high"
+      ? 4
+      : preferences.activityLevel === "low"
+        ? 2
+        : 3;
   const placesCount = Math.ceil(baseDays * activityMultiplier);
 
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
@@ -348,9 +362,11 @@ CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any tex
   return prompt;
 }
 
-export function generatePracticalPrompt(request: AITripPlanningRequest): string {
+export function generatePracticalPrompt(
+  request: AITripPlanningRequest,
+): string {
   const { destination, travelerType, preferences } = request;
-  
+
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
 
 DESTINATION: ${destination.name}, ${destination.country}
@@ -465,7 +481,7 @@ CRITICAL: Your response MUST be ONLY a valid JSON object. Do not include any tex
 export function generateCulturalPrompt(request: AITripPlanningRequest): string {
   const { destination, preferences, travelerType } = request;
   const days = parseInt(preferences.duration) || 7;
-  
+
   let prompt = `You are an expert travel planner AI. Create a detailed, personalized travel plan for the following traveler:
 
 DESTINATION: ${destination.name}, ${destination.country}
@@ -523,7 +539,6 @@ TRIP PREFERENCES:
     prompt += `- Stress Level: ${preferences.stressLevel}\n`;
   }
 
-
   prompt += `
 
 Please create a comprehensive travel plan that includes ALL of the following detailed sections:
@@ -555,7 +570,7 @@ Please create a comprehensive travel plan that includes ALL of the following det
     - Consider travel time between locations
     - Balance must-see attractions with authentic local experiences
     - ENSURE number of days aligns with trip duration, and include AT LEAST FOUR (4) days of activities
-    - IMPORTANT: For each activity, you MUST choose an icon from this EXACT list: ${ACTIVITY_ICON_CATEGORIES.join(', ')}
+    - IMPORTANT: For each activity, you MUST choose an icon from this EXACT list: ${ACTIVITY_ICON_CATEGORIES.join(", ")}
     - Icon selection guide:
       * "coffee" - for cafes, drinks, beverages, relaxing
       * "hotel" - for accommodation, check-in/out, rest
@@ -577,75 +592,103 @@ Ensure itinerary has at least ${days} days.`;
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   let chunkParam: string | null = null;
-  
+
   try {
     const url = new URL(request.url);
-    chunkParam = url.searchParams.get('chunk');
-    
-    console.log(`[Chunked API] ${chunkParam ? `Chunk ${chunkParam}` : 'Session init'} request`);
-    
+    chunkParam = url.searchParams.get("chunk");
+
+    console.log(
+      `[Chunked API] ${chunkParam ? `Chunk ${chunkParam}` : "Session init"} request`,
+    );
+
     const body: AITripPlanningRequest = await request.json();
 
     if (!body.destination || !body.travelerType || !body.preferences) {
-      console.error('[Chunked API] Missing required fields:', {
+      console.error("[Chunked API] Missing required fields:", {
         hasDestination: !!body.destination,
         hasTravelerType: !!body.travelerType,
         hasPreferences: !!body.preferences,
       });
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const config = getAIConfig();
-    
+
     // If specific chunk requested
     if (chunkParam) {
       const chunkId = parseInt(chunkParam);
-      const chunk = TRAVEL_PLAN_CHUNKS.find(c => c.id === chunkId);
-      
+      const chunk = TRAVEL_PLAN_CHUNKS.find((c) => c.id === chunkId);
+
       if (!chunk) {
         console.error(`[Chunked API] Invalid chunk ID: ${chunkId}`);
         return NextResponse.json(
-          { error: "Invalid chunk ID", validChunks: TRAVEL_PLAN_CHUNKS.map(c => c.id) },
-          { status: 400 }
+          {
+            error: "Invalid chunk ID",
+            validChunks: TRAVEL_PLAN_CHUNKS.map((c) => c.id),
+          },
+          { status: 400 },
         );
       }
 
-      console.log(`[Chunked API] Generating ${chunk.section} for ${body.destination.name}`);
-      
+      console.log(
+        `[Chunked API] Generating ${chunk.section} for ${body.destination.name}`,
+      );
+
       const prompt = chunk.prompt(body);
-      const modelLimit = getModelTokenLimit(config.model || 'gpt-4');
-      const maxTokens = calculateMaxTokensForRequest(prompt, modelLimit, config.provider as 'openai' | 'anthropic');
-      
+      const modelLimit = getModelTokenLimit(config.model || "gpt-4");
+      const maxTokens = calculateMaxTokensForRequest(
+        prompt,
+        modelLimit,
+        config.provider as "openai" | "anthropic",
+      );
+
       let aiResponse: string;
       try {
-        aiResponse = await callAI(prompt, Math.min(maxTokens, config.chunkTokenLimit || 4000));
-        console.log(`[Chunked API] AI response received for chunk ${chunkId}, length: ${aiResponse.length} chars`);
+        aiResponse = await callAI(
+          prompt,
+          Math.min(maxTokens, config.chunkTokenLimit || 4000),
+        );
+        console.log(
+          `[Chunked API] AI response received for chunk ${chunkId}, length: ${aiResponse.length} chars`,
+        );
       } catch (aiError) {
-        console.error(`[Chunked API] AI call failed for chunk ${chunkId}:`, aiError);
+        console.error(
+          `[Chunked API] AI call failed for chunk ${chunkId}:`,
+          aiError,
+        );
         throw aiError;
       }
-      
+
       // Parse response
       let cleanResponse = aiResponse.trim();
       if (cleanResponse.startsWith("```json")) {
-        cleanResponse = cleanResponse.replace(/^```json\s*/, "").replace(/\s*```$/, "");
+        cleanResponse = cleanResponse
+          .replace(/^```json\s*/, "")
+          .replace(/\s*```$/, "");
       } else if (cleanResponse.startsWith("```")) {
-        cleanResponse = cleanResponse.replace(/^```\s*/, "").replace(/\s*```$/, "");
+        cleanResponse = cleanResponse
+          .replace(/^```\s*/, "")
+          .replace(/\s*```$/, "");
       }
 
       let parsedResponse;
       try {
         parsedResponse = JSON.parse(cleanResponse);
-        console.log(`[Chunked API] Successfully parsed JSON for chunk ${chunkId}`);
+        console.log(
+          `[Chunked API] Successfully parsed JSON for chunk ${chunkId}`,
+        );
       } catch (parseError) {
-        console.error(`[Chunked API] JSON parsing failed for chunk ${chunkId}:`, {
-          error: parseError,
-          responsePreview: cleanResponse.substring(0, 200),
-          responseLength: cleanResponse.length
-        });
+        console.error(
+          `[Chunked API] JSON parsing failed for chunk ${chunkId}:`,
+          {
+            error: parseError,
+            responsePreview: cleanResponse.substring(0, 200),
+            responseLength: cleanResponse.length,
+          },
+        );
         throw new Error(`Invalid JSON in chunk ${chunkId}: ${parseError}`);
       }
 
@@ -656,10 +699,10 @@ export async function POST(request: NextRequest) {
           chunkId,
           totalChunks: TRAVEL_PLAN_CHUNKS.length,
           section: chunk.section,
-          description: chunk.description
+          description: chunk.description,
         },
         data: parsedResponse,
-        isComplete: false // Individual chunks are never complete by themselves
+        isComplete: false, // Individual chunks are never complete by themselves
       };
 
       return NextResponse.json(response);
@@ -667,14 +710,13 @@ export async function POST(request: NextRequest) {
 
     // Return chunk information for client to request individual chunks
     return NextResponse.json({
-      chunks: TRAVEL_PLAN_CHUNKS.map(chunk => ({
+      chunks: TRAVEL_PLAN_CHUNKS.map((chunk) => ({
         id: chunk.id,
         section: chunk.section,
-        description: chunk.description
+        description: chunk.description,
       })),
-      totalChunks: TRAVEL_PLAN_CHUNKS.length
+      totalChunks: TRAVEL_PLAN_CHUNKS.length,
     });
-
   } catch (error) {
     const duration = Date.now() - startTime;
     const errorInfo = {
@@ -683,16 +725,16 @@ export async function POST(request: NextRequest) {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,
     };
-    
-    console.error('[Chunked API] Request failed:', errorInfo);
-    
+
+    console.error("[Chunked API] Request failed:", errorInfo);
+
     return NextResponse.json(
       {
         error: "Failed to generate chunked trip plan",
         details: error instanceof Error ? error.message : String(error),
         chunkId: chunkParam,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

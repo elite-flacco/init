@@ -43,14 +43,16 @@ export function DestinationKnowledgeSelection({
     <div className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header Section */}
       <div
-        className={`page-header transition-all duration-700 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-          }`}
+        className={`page-header transition-all duration-700 ${
+          isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+        }`}
         role="banner"
         aria-labelledby="step-title"
       >
         <h1 className="page-title">Where are we headed?</h1>
         <p className="page-subtitle max-w-2xl mx-auto mb-4">
-          Whether you've got your heart set on somewhere specific or you're completely open to suggestions, we're here for it.
+          Whether you've got your heart set on somewhere specific or you're
+          completely open to suggestions, we're here for it.
         </p>
       </div>
 
@@ -63,10 +65,11 @@ export function DestinationKnowledgeSelection({
         {destinationOptions.map((option, index) => (
           <div
             key={option.type}
-            className={`group relative cursor-pointer transition-all duration-500 ${isLoaded
+            className={`group relative cursor-pointer transition-all duration-500 ${
+              isLoaded
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-12"
-              }`}
+            }`}
             style={{
               transitionDelay: `${200 + index * 150}ms`,
             }}
@@ -81,8 +84,9 @@ export function DestinationKnowledgeSelection({
             tabIndex={0}
             aria-label={`Select ${option.label}: ${option.description}`}
           >
-            <div className={`option-card-rotating p-4 md:p-8 lg:pl-16 lg:pr-8 lg:pt-8 lg:pb-8 ${index % 2 === 0 ? 'card-3d-rotate-left' : 'card-3d-rotate-right'}`}>
-
+            <div
+              className={`option-card-rotating p-4 md:p-8 lg:pl-16 lg:pr-8 lg:pt-8 lg:pb-8 ${index % 2 === 0 ? "card-3d-rotate-left" : "card-3d-rotate-right"}`}
+            >
               <div className="flex items-center justify-between">
                 <span className="text-2xl mr-2 md:mr-3 lg:mr-4">
                   <div className="hidden sm:block">
@@ -94,9 +98,7 @@ export function DestinationKnowledgeSelection({
                 </span>
                 <div className="flex-1">
                   <div className="flex items-center">
-                    <h3 className="option-card-title">
-                      {option.label}
-                    </h3>
+                    <h3 className="option-card-title">{option.label}</h3>
                   </div>
                   <p className="option-card-description">
                     {option.description}

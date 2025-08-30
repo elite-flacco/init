@@ -14,15 +14,18 @@ export interface TokenEstimate {
  * OpenAI GPT models: ~4 characters per token on average
  * Anthropic Claude: ~3.5 characters per token on average
  */
-export function estimateTokens(text: string, provider: 'openai' | 'anthropic' = 'openai'): TokenEstimate {
+export function estimateTokens(
+  text: string,
+  provider: "openai" | "anthropic" = "openai",
+): TokenEstimate {
   const characters = text.length;
-  const charPerToken = provider === 'openai' ? 4 : 3.5;
+  const charPerToken = provider === "openai" ? 4 : 3.5;
   const tokens = Math.ceil(characters / charPerToken);
-  
+
   return {
     tokens,
     characters,
-    isApproximate: true
+    isApproximate: true,
   };
 }
 
@@ -32,12 +35,12 @@ export function estimateTokens(text: string, provider: 'openai' | 'anthropic' = 
 export function calculateMaxTokensForRequest(
   prompt: string,
   modelTokenLimit: number,
-  provider: 'openai' | 'anthropic' = 'openai'
+  provider: "openai" | "anthropic" = "openai",
 ): number {
   const promptTokens = estimateTokens(prompt, provider).tokens;
   const safetyBuffer = 100; // Small buffer for estimation errors
   const availableForResponse = modelTokenLimit - promptTokens - safetyBuffer;
-  
+
   // Ensure we have at least 500 tokens for response
   return Math.max(500, availableForResponse);
 }
@@ -47,19 +50,19 @@ export function calculateMaxTokensForRequest(
  */
 export const MODEL_TOKEN_LIMITS = {
   // OpenAI Models
-  'gpt-4': 8192,
-  'gpt-4-32k': 32768,
-  'gpt-4-turbo': 128000,
-  'gpt-4o': 128000,
-  'gpt-3.5-turbo': 4096,
-  'gpt-3.5-turbo-16k': 16384,
-  
+  "gpt-4": 8192,
+  "gpt-4-32k": 32768,
+  "gpt-4-turbo": 128000,
+  "gpt-4o": 128000,
+  "gpt-3.5-turbo": 4096,
+  "gpt-3.5-turbo-16k": 16384,
+
   // Anthropic Models
-  'claude-3-haiku': 200000,
-  'claude-3-sonnet': 200000,
-  'claude-3-opus': 200000,
-  'claude-3-sonnet-20240229': 200000,
-  'claude-3.5-sonnet': 200000,
+  "claude-3-haiku": 200000,
+  "claude-3-sonnet": 200000,
+  "claude-3-opus": 200000,
+  "claude-3-sonnet-20240229": 200000,
+  "claude-3.5-sonnet": 200000,
 } as const;
 
 /**
@@ -75,22 +78,22 @@ export function getModelTokenLimit(model: string): number {
 export function chunkTextByTokens(
   text: string,
   maxTokensPerChunk: number,
-  provider: 'openai' | 'anthropic' = 'openai'
+  provider: "openai" | "anthropic" = "openai",
 ): string[] {
   const totalTokens = estimateTokens(text, provider).tokens;
-  
+
   if (totalTokens <= maxTokensPerChunk) {
     return [text];
   }
-  
+
   const chunks: string[] = [];
-  const lines = text.split('\n');
-  let currentChunk = '';
-  
+  const lines = text.split("\n");
+  let currentChunk = "";
+
   for (const line of lines) {
-    const testChunk = currentChunk + (currentChunk ? '\n' : '') + line;
+    const testChunk = currentChunk + (currentChunk ? "\n" : "") + line;
     const tokenCount = estimateTokens(testChunk, provider).tokens;
-    
+
     if (tokenCount > maxTokensPerChunk && currentChunk) {
       // Current chunk is full, start a new one
       chunks.push(currentChunk);
@@ -99,10 +102,10 @@ export function chunkTextByTokens(
       currentChunk = testChunk;
     }
   }
-  
+
   if (currentChunk) {
     chunks.push(currentChunk);
   }
-  
+
   return chunks;
 }

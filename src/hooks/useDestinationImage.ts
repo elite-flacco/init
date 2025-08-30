@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface UseDestinationImageOptions {
   destination: string;
@@ -29,7 +29,7 @@ export function useDestinationImage({
   destination,
   country,
   count = 1,
-  enabled = true
+  enabled = true,
 }: UseDestinationImageOptions): UseDestinationImageResult {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[] | null>(null);
@@ -42,17 +42,17 @@ export function useDestinationImage({
     }
 
     // Create cache key
-    const cacheKey = `${destination}-${country || ''}-${count}`;
-    
+    const cacheKey = `${destination}-${country || ""}-${count}`;
+
     // Check if we have cached data
     const cached = imageCache.get(cacheKey);
     const now = Date.now();
-    
-    if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+
+    if (cached && now - cached.timestamp < CACHE_DURATION) {
       // Use cached data
       setIsLoading(false);
       setError(cached.error || null);
-      
+
       if (count === 1) {
         setImageUrl(cached.imageUrl || null);
         setImageUrls(null);
@@ -71,22 +71,22 @@ export function useDestinationImage({
         const params = new URLSearchParams({
           destination,
           ...(country && { country }),
-          count: count.toString()
+          count: count.toString(),
         });
 
         const response = await fetch(`/api/images/destination?${params}`);
-        
+
         if (!response.ok) {
-          throw new Error('Failed to fetch destination image');
+          throw new Error("Failed to fetch destination image");
         }
 
         const data = await response.json();
-        
+
         // Cache the result
         const cacheEntry: CacheEntry = {
-          timestamp: now
+          timestamp: now,
         };
-        
+
         if (count === 1) {
           cacheEntry.imageUrl = data.imageUrl;
           setImageUrl(data.imageUrl);
@@ -96,22 +96,22 @@ export function useDestinationImage({
           setImageUrls(data.imageUrls);
           setImageUrl(null);
         }
-        
+
         imageCache.set(cacheKey, cacheEntry);
-        
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error";
         setError(errorMessage);
-        
+
         // Set fallback image on error
         const fallbackImage = `https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop`;
-        
+
         // Cache the error and fallback
         const cacheEntry: CacheEntry = {
           error: errorMessage,
-          timestamp: now
+          timestamp: now,
         };
-        
+
         if (count === 1) {
           cacheEntry.imageUrl = fallbackImage;
           setImageUrl(fallbackImage);
@@ -119,7 +119,7 @@ export function useDestinationImage({
           cacheEntry.imageUrls = Array(count).fill(fallbackImage);
           setImageUrls(Array(count).fill(fallbackImage));
         }
-        
+
         imageCache.set(cacheKey, cacheEntry);
       } finally {
         setIsLoading(false);
@@ -133,6 +133,6 @@ export function useDestinationImage({
     imageUrl,
     imageUrls,
     isLoading,
-    error
+    error,
   };
 }

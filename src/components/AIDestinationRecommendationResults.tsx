@@ -52,10 +52,7 @@ export function AIDestinationRecommendationResults({
               Our AI took a little coffee break. {error}
             </p>
 
-            <button
-              onClick={onRegenerate}
-              className="btn-3d-gradient"
-            >
+            <button onClick={onRegenerate} className="btn-3d-gradient">
               <svg
                 className="w-5 h-5 mr-3 group-hover:rotate-180 transition-transform duration"
                 fill="none"
@@ -105,10 +102,15 @@ export function AIDestinationRecommendationResults({
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="mb-2 text-3d-gradient">Your Top Hits</h2>
-          <p className="page-subtitle text-left">We think you'll love these 😉</p>
+          <p className="page-subtitle text-left">
+            We think you'll love these 😉
+          </p>
         </div>
         {onRegenerate && destinations.length > 0 && (
-          <button onClick={onRegenerate} className="btn-3d-primary py-2 text-xs sm:text-sm">
+          <button
+            onClick={onRegenerate}
+            className="btn-3d-primary py-2 text-xs sm:text-sm"
+          >
             <RefreshCw className="w-4 h-4 mr-1" />
             Show Me More
           </button>
@@ -128,7 +130,9 @@ export function AIDestinationRecommendationResults({
 
       {destinations.length === 0 && (
         <div className="text-center py-16">
-          <h6 className="mb-4">Hmm, our AI is having a moment. Let's try this again.</h6>
+          <h6 className="mb-4">
+            Hmm, our AI is having a moment. Let's try this again.
+          </h6>
           {onRegenerate && (
             <button onClick={onRegenerate} className="btn-3d-primary">
               <RefreshCw className="w-4 h-4 mr-2" />

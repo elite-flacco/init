@@ -10,7 +10,13 @@ describe("KMLExportService", () => {
       country: "Japan",
       description: "Capital of Japan",
       image: "tokyo.jpg",
-      highlights: [{ name: "Shibuya", description: "Famous crossing and entertainment district" }, { name: "Harajuku", description: "Youth culture and fashion center" }],
+      highlights: [
+        {
+          name: "Shibuya",
+          description: "Famous crossing and entertainment district",
+        },
+        { name: "Harajuku", description: "Youth culture and fashion center" },
+      ],
       bestTimeToVisit: "Spring",
       estimatedCost: "$$",
       keyActivities: ["Visit Senso-ji Temple", "Tokyo National Museum"],
@@ -303,7 +309,7 @@ describe("KMLExportService", () => {
 
   it("should handle missing destination gracefully", async () => {
     const planWithoutDestination = {
-      ...mockTravelPlan
+      ...mockTravelPlan,
     };
     delete (planWithoutDestination as Record<string, unknown>).destination;
 

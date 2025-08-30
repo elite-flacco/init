@@ -16,18 +16,22 @@ This directory contains the database migration files needed to set up user accou
 This migration sets up the complete user accounts system including:
 
 **New Tables:**
+
 - `user_travel_plans` - Stores user's saved travel plans
 - `user_saved_destinations` - Stores user's bookmarked destinations
 
 **Table Modifications:**
+
 - Adds optional `user_id` column to existing `shared_plans` table
 
 **Security:**
+
 - Enables Row Level Security (RLS) on all tables
 - Creates policies ensuring users can only access their own data
 - Maintains public access to shared plans
 
 **Indexes:**
+
 - Performance indexes on user_id columns
 - Timestamp indexes for efficient sorting
 - Favorite plans index for quick access
@@ -52,6 +56,7 @@ This migration sets up the complete user accounts system including:
 ### Option 3: psql (Direct Database Access)
 
 If you have direct database access:
+
 ```bash
 psql "postgresql://postgres:[password]@[host]:[port]/postgres" -f migrations/001_user_auth_setup.sql
 ```
@@ -61,24 +66,26 @@ psql "postgresql://postgres:[password]@[host]:[port]/postgres" -f migrations/001
 After running the migration, verify the setup by checking:
 
 1. **Tables exist:**
+
    ```sql
-   SELECT table_name FROM information_schema.tables 
-   WHERE table_schema = 'public' 
+   SELECT table_name FROM information_schema.tables
+   WHERE table_schema = 'public'
    AND table_name IN ('user_travel_plans', 'user_saved_destinations');
    ```
 
 2. **RLS is enabled:**
+
    ```sql
-   SELECT tablename, rowsecurity 
-   FROM pg_tables 
-   WHERE schemaname = 'public' 
+   SELECT tablename, rowsecurity
+   FROM pg_tables
+   WHERE schemaname = 'public'
    AND tablename IN ('user_travel_plans', 'user_saved_destinations', 'shared_plans');
    ```
 
 3. **Policies are created:**
    ```sql
-   SELECT schemaname, tablename, policyname 
-   FROM pg_policies 
+   SELECT schemaname, tablename, policyname
+   FROM pg_policies
    WHERE tablename IN ('user_travel_plans', 'user_saved_destinations', 'shared_plans');
    ```
 
@@ -86,29 +93,29 @@ After running the migration, verify the setup by checking:
 
 ### user_travel_plans
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key |
-| user_id | UUID | Foreign key to auth.users |
-| name | TEXT | User-defined plan name |
-| destination | JSONB | Destination information |
-| traveler_type | JSONB | Traveler personality type |
-| ai_response | JSONB | Complete AI travel plan |
-| tags | TEXT[] | User-defined tags |
-| is_favorite | BOOLEAN | Favorite flag |
-| created_at | TIMESTAMPTZ | Creation timestamp |
-| updated_at | TIMESTAMPTZ | Last update timestamp |
+| Column        | Type        | Description               |
+| ------------- | ----------- | ------------------------- |
+| id            | UUID        | Primary key               |
+| user_id       | UUID        | Foreign key to auth.users |
+| name          | TEXT        | User-defined plan name    |
+| destination   | JSONB       | Destination information   |
+| traveler_type | JSONB       | Traveler personality type |
+| ai_response   | JSONB       | Complete AI travel plan   |
+| tags          | TEXT[]      | User-defined tags         |
+| is_favorite   | BOOLEAN     | Favorite flag             |
+| created_at    | TIMESTAMPTZ | Creation timestamp        |
+| updated_at    | TIMESTAMPTZ | Last update timestamp     |
 
 ### user_saved_destinations
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key |
-| user_id | UUID | Foreign key to auth.users |
-| destination | JSONB | Destination information |
-| notes | TEXT | User notes about destination |
-| created_at | TIMESTAMPTZ | Creation timestamp |
-| updated_at | TIMESTAMPTZ | Last update timestamp |
+| Column      | Type        | Description                  |
+| ----------- | ----------- | ---------------------------- |
+| id          | UUID        | Primary key                  |
+| user_id     | UUID        | Foreign key to auth.users    |
+| destination | JSONB       | Destination information      |
+| notes       | TEXT        | User notes about destination |
+| created_at  | TIMESTAMPTZ | Creation timestamp           |
+| updated_at  | TIMESTAMPTZ | Last update timestamp        |
 
 ## Security Model
 
@@ -124,6 +131,7 @@ The database uses Row Level Security (RLS) to ensure data privacy:
 Before applying migrations to production:
 
 1. **Backup your database:**
+
    ```bash
    supabase db dump --file backup_before_user_accounts.sql
    ```

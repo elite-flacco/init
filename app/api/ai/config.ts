@@ -24,18 +24,18 @@ export const defaultAIConfig: AIConfig = {
 
 // Models that don't support temperature parameter
 const MODELS_WITHOUT_TEMPERATURE = [
-  'gpt-5-mini',
-  'gpt-5-nano',
-  'o1-mini',
-  'o1-preview',
-  'o3-mini',
+  "gpt-5-mini",
+  "gpt-5-nano",
+  "o1-mini",
+  "o1-preview",
+  "o3-mini",
 ];
 
 // Helper function to check if a model supports temperature
 export const modelSupportsTemperature = (model?: string): boolean => {
   if (!model) return true; // Default to supporting temperature if model is not specified
-  return !MODELS_WITHOUT_TEMPERATURE.some(noTempModel => 
-    model.toLowerCase().includes(noTempModel.toLowerCase())
+  return !MODELS_WITHOUT_TEMPERATURE.some((noTempModel) =>
+    model.toLowerCase().includes(noTempModel.toLowerCase()),
   );
 };
 
@@ -55,8 +55,8 @@ export const getAIConfig = (): AIConfig => {
       ? parseFloat(process.env.AI_TEMPERATURE)
       : defaultAIConfig.temperature,
     // Chunking configuration
-    enableChunking: process.env.AI_ENABLE_CHUNKING 
-      ? process.env.AI_ENABLE_CHUNKING.toLowerCase() === 'true'
+    enableChunking: process.env.AI_ENABLE_CHUNKING
+      ? process.env.AI_ENABLE_CHUNKING.toLowerCase() === "true"
       : defaultAIConfig.enableChunking,
     chunkTokenLimit: process.env.AI_CHUNK_TOKEN_LIMIT
       ? parseInt(process.env.AI_CHUNK_TOKEN_LIMIT)

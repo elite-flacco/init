@@ -48,7 +48,14 @@ import { ItemGrid } from "./ui/ItemGrid";
 import { CategoryGroup } from "./ui/CategoryGroup";
 import { KMLExportLoading } from "./ui/KMLExportLoading";
 import { ContentGrid, ContentCard } from "./ui/ContentGrid";
-import { MapIcon3D, MapPinIcon3D, NotebookIcon3D, CalendarIcon3D, UtensilsIcon3D, CameraIcon3D } from "./ui/Icon3D";
+import {
+  MapIcon3D,
+  MapPinIcon3D,
+  NotebookIcon3D,
+  CalendarIcon3D,
+  UtensilsIcon3D,
+  CameraIcon3D,
+} from "./ui/Icon3D";
 
 interface AITravelPlanProps {
   destination: Destination;
@@ -82,7 +89,8 @@ export function AITravelPlan({
 
   // Initialize streaming hooks
   const { state: parallelState, generatePlan } = useParallelTripPlanning();
-  const { state: streamingState, generateStreamingPlan } = useStreamingTripPlanning();
+  const { state: streamingState, generateStreamingPlan } =
+    useStreamingTripPlanning();
 
   // Determine if we're in streaming mode
   const isStreamingMode = !!streamingRequest;
@@ -107,7 +115,12 @@ export function AITravelPlan({
 
       startStreaming();
     }
-  }, [streamingRequest, hasStartedStreaming, generateStreamingPlan, generatePlan]);
+  }, [
+    streamingRequest,
+    hasStartedStreaming,
+    generateStreamingPlan,
+    generatePlan,
+  ]);
 
   // Handle both streaming and completed plans
   const staticStreamingState = aiResponse?.streamingState;
@@ -115,37 +128,46 @@ export function AITravelPlan({
   const { plan } = aiResponse || {};
 
   // Determine which streaming state to use (live streaming or static from props)
-  const activeStreamingState = isStreamingMode ? streamingState : staticStreamingState;
-  const isActivelyStreaming = isStreamingMode ? (useStreaming && streamingState.isLoading) : (staticStreamingState && staticStreamingHooks);
+  const activeStreamingState = isStreamingMode
+    ? streamingState
+    : staticStreamingState;
+  const isActivelyStreaming = isStreamingMode
+    ? useStreaming && streamingState.isLoading
+    : staticStreamingState && staticStreamingHooks;
 
-  // Get the live plan data 
+  // Get the live plan data
   const livePlan = isStreamingMode
-    ? (useStreaming ? streamingState.combinedData : parallelState.combinedData) || plan
-    : (activeStreamingState?.combinedData || plan);
-
+    ? (useStreaming
+        ? streamingState.combinedData
+        : parallelState.combinedData) || plan
+    : activeStreamingState?.combinedData || plan;
 
   // Check which tabs have content vs are still loading based on chunk completion
-  const getTabLoadingState = (tab: 'itinerary' | 'info' | 'food' | 'practical') => {
-    if (!isActivelyStreaming) return { isLoading: false, hasContent: !!livePlan };
+  const getTabLoadingState = (
+    tab: "itinerary" | "info" | "food" | "practical",
+  ) => {
+    if (!isActivelyStreaming)
+      return { isLoading: false, hasContent: !!livePlan };
 
-    if (!activeStreamingState?.chunks) return { isLoading: true, hasContent: false };
+    if (!activeStreamingState?.chunks)
+      return { isLoading: true, hasContent: false };
 
     // Map tabs to their required chunks
     const tabChunkMap = {
       itinerary: [4], // Cultural chunk has activities and itinerary
-      info: [1],      // Places and neighborhoods only
-      food: [2],      // Dining, bars, and local food
-      practical: [3]  // Practical chunk
+      info: [1], // Places and neighborhoods only
+      food: [2], // Dining, bars, and local food
+      practical: [3], // Practical chunk
     };
 
     const requiredChunks = tabChunkMap[tab];
-    const completedChunks = requiredChunks.filter(chunkId =>
-      activeStreamingState.chunks[chunkId]?.finalData
+    const completedChunks = requiredChunks.filter(
+      (chunkId) => activeStreamingState.chunks[chunkId]?.finalData,
     );
 
     const result = {
       isLoading: completedChunks.length < requiredChunks.length,
-      hasContent: completedChunks.length > 0
+      hasContent: completedChunks.length > 0,
     };
 
     return result;
@@ -171,13 +193,15 @@ export function AITravelPlan({
 
   const handleExportToPdf = async () => {
     if (!livePlan) {
-      alert("Please wait for your travel plan to finish loading before exporting to PDF.");
+      alert(
+        "Please wait for your travel plan to finish loading before exporting to PDF.",
+      );
       return;
     }
 
     try {
       // Track PDF export
-      trackTravelEvent.exportPlan('pdf');
+      trackTravelEvent.exportPlan("pdf");
 
       await PdfExportService.exportTravelPlanToPdf({
         destination,
@@ -191,26 +215,28 @@ export function AITravelPlan({
       alert("Couldn't create the PDF. Give it another shot?");
 
       // Track export error
-      trackTravelEvent.error('pdf_export_failed');
+      trackTravelEvent.error("pdf_export_failed");
     }
   };
 
   const handleExportToGoogleMaps = async () => {
     if (!livePlan) {
-      alert("Please wait for your travel plan to finish loading before exporting to Maps.");
+      alert(
+        "Please wait for your travel plan to finish loading before exporting to Maps.",
+      );
       return;
     }
 
     setIsExportingKML(true);
 
     // Track KML export
-    trackTravelEvent.exportPlan('kml');
+    trackTravelEvent.exportPlan("kml");
 
     try {
       // Create plan object with destination info for KML service
       const planWithDestination = {
         ...livePlan,
-        destination: destination
+        destination: destination,
       };
 
       // First try with real coordinates, but with a shorter timeout
@@ -229,7 +255,7 @@ export function AITravelPlan({
       alert("Couldn't create the map file. Try again?");
 
       // Track export error
-      trackTravelEvent.error('kml_export_failed');
+      trackTravelEvent.error("kml_export_failed");
     } finally {
       setIsExportingKML(false);
     }
@@ -249,7 +275,7 @@ export function AITravelPlan({
         return;
       } catch (shareError) {
         // User cancelled share or sharing failed
-        console.log('Native share cancelled or failed:', shareError);
+        console.log("Native share cancelled or failed:", shareError);
 
         // Fall through to clipboard fallback
       }
@@ -281,7 +307,7 @@ export function AITravelPlan({
         }
       }
     } catch (clipboardError) {
-      console.error('Clipboard access failed:', clipboardError);
+      console.error("Clipboard access failed:", clipboardError);
       // Last resort - just show the URL
       alert(`Here's your share link: ${shareUrl}`);
     }
@@ -297,7 +323,7 @@ export function AITravelPlan({
     setShowSharingToast(true);
 
     // Track share attempt
-    trackTravelEvent.sharePlan('url');
+    trackTravelEvent.sharePlan("url");
 
     try {
       // Construct the AI response object from live data
@@ -328,9 +354,11 @@ export function AITravelPlan({
         try {
           errorText = await response.text();
         } catch (parseError) {
-          errorText = 'Unknown error response';
+          errorText = "Unknown error response";
         }
-        throw new Error(`Failed to create shared plan - Status: ${response.status}, Body: ${errorText}`);
+        throw new Error(
+          `Failed to create shared plan - Status: ${response.status}, Body: ${errorText}`,
+        );
       }
 
       const responseData = await response.json();
@@ -341,11 +369,12 @@ export function AITravelPlan({
       // Smart sharing: Use native share API on mobile, clipboard on desktop
       await shareWithUser(newShareUrl, destination.name);
     } catch (error) {
-
-      alert(`Couldn't create the share link. Error: ${error instanceof Error ? error.message : String(error)}`);
+      alert(
+        `Couldn't create the share link. Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
 
       // Track share error
-      trackTravelEvent.error('share_failed');
+      trackTravelEvent.error("share_failed");
     } finally {
       setIsSharing(false);
       setShowSharingToast(false);
@@ -395,16 +424,22 @@ export function AITravelPlan({
 
       // Success
       setPlanSaved(true);
-      alert("Travel plan saved successfully! You can find it in your saved plans.");
-      
+      alert(
+        "Travel plan saved successfully! You can find it in your saved plans.",
+      );
+
       // Track save plan event
-      trackTravelEvent.sharePlan('save');
+      trackTravelEvent.sharePlan("save");
     } catch (error) {
       console.error("Error saving plan:", error);
-      alert(error instanceof Error ? error.message : "Failed to save plan. Please try again.");
-      
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to save plan. Please try again.",
+      );
+
       // Track error
-      trackTravelEvent.error('plan_save_failed');
+      trackTravelEvent.error("plan_save_failed");
     } finally {
       setIsSavingPlan(false);
     }
@@ -438,18 +473,35 @@ export function AITravelPlan({
   const getIconComponent = (iconName: string) => {
     const getAnimationFromIconName = (name: string) => {
       switch (name) {
-        case "coffee": return "pulse";
-        case "map": return "bounce";
-        case "utensils": return "pulse";
-        case "compass": return "bounce";
-        case "camera": return "none";
-        case "exploration": return "none";
-        case "afternoon": return "none";
-        default: return "none";
+        case "coffee":
+          return "pulse";
+        case "map":
+          return "bounce";
+        case "utensils":
+          return "pulse";
+        case "compass":
+          return "bounce";
+        case "camera":
+          return "none";
+        case "exploration":
+          return "none";
+        case "afternoon":
+          return "none";
+        default:
+          return "none";
       }
     };
 
-    return getActivityIcon(iconName, "xs", getAnimationFromIconName(iconName) as "bounce" | "pulse" | "spin" | "float" | "none");
+    return getActivityIcon(
+      iconName,
+      "xs",
+      getAnimationFromIconName(iconName) as
+        | "bounce"
+        | "pulse"
+        | "spin"
+        | "float"
+        | "none",
+    );
   };
 
   // Render a single activity
@@ -484,7 +536,9 @@ export function AITravelPlan({
                   {activity.location && (
                     <div className="flex items-center text-sm mb-3">
                       <MapPin className="w-3 h-3 mr-1" />
-                      <span className="font-medium text-xs">{activity.location}</span>
+                      <span className="font-medium text-xs">
+                        {activity.location}
+                      </span>
                     </div>
                   )}
                   {activity.description && (
@@ -495,7 +549,6 @@ export function AITravelPlan({
                     </div>
                   )}
                 </div>
-
               </div>
             </div>
           </div>
@@ -554,10 +607,22 @@ export function AITravelPlan({
             <nav className="flex items-center space-x-2 flex-1 justify-center max-w-5xl">
               {["itinerary", "info", "food", "practical"].map((tab) => {
                 const tabDataMap = {
-                  itinerary: { label: "Itinerary", icon: <MapPinIcon3D size="xs" /> },
-                  info: { label: "What to See & Do", icon: <CameraIcon3D size="xs" /> },
-                  food: { label: "What to Eat", icon: <UtensilsIcon3D size="xs" /> },
-                  practical: { label: "Practical Info", icon: <NotebookIcon3D size="xs" /> },
+                  itinerary: {
+                    label: "Itinerary",
+                    icon: <MapPinIcon3D size="xs" />,
+                  },
+                  info: {
+                    label: "What to See & Do",
+                    icon: <CameraIcon3D size="xs" />,
+                  },
+                  food: {
+                    label: "What to Eat",
+                    icon: <UtensilsIcon3D size="xs" />,
+                  },
+                  practical: {
+                    label: "Practical Info",
+                    icon: <NotebookIcon3D size="xs" />,
+                  },
                 } as const;
                 const tabData = tabDataMap[tab as keyof typeof tabDataMap];
 
@@ -565,13 +630,16 @@ export function AITravelPlan({
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab as any)}
-                    className={`flex items-center space-x-0 px-4 py-1 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === tab
-                      ? 'btn-3d-gradient !text-white [&>*]:!text-white rotate-1'
-                      : 'text-foreground-secondary hover:text-primary hover:bg-primary/10 hover:transform hover:-rotate-1'
-                      }`}
+                    className={`flex items-center space-x-0 px-4 py-1 rounded-xl text-sm font-medium transition-all duration-300 ${
+                      activeTab === tab
+                        ? "btn-3d-gradient !text-white [&>*]:!text-white rotate-1"
+                        : "text-foreground-secondary hover:text-primary hover:bg-primary/10 hover:transform hover:-rotate-1"
+                    }`}
                   >
                     <span className="w-8 h-12">{tabData.icon}</span>
-                    <p className="hidden xl:inline font-bold -ml-6">{tabData.label}</p>
+                    <p className="hidden xl:inline font-bold -ml-6">
+                      {tabData.label}
+                    </p>
                     {getTabLoadingState(tab as any).isLoading && (
                       <Loader2 className="w-3 h-3 animate-spin" />
                     )}
@@ -595,7 +663,8 @@ export function AITravelPlan({
                   <X className="w-4 h-4" />
                 ) : (
                   <MoreVertical className="w-4 h-4" />
-                )}              </button>
+                )}{" "}
+              </button>
 
               {showMobileActions && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-border/50 py-2 z-50 pointer-events-auto">
@@ -616,7 +685,9 @@ export function AITravelPlan({
                       e.preventDefault();
                       e.stopPropagation();
                       if (!livePlan) {
-                        alert("Please wait for your travel plan to finish loading before exporting to PDF.");
+                        alert(
+                          "Please wait for your travel plan to finish loading before exporting to PDF.",
+                        );
                         return;
                       }
                       handleExportToPdf();
@@ -624,7 +695,7 @@ export function AITravelPlan({
                     }}
                     disabled={!livePlan}
                     className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
-                    style={{ pointerEvents: 'auto' }}
+                    style={{ pointerEvents: "auto" }}
                   >
                     <FileText className="w-4 h-4 mr-1" />
                     Export to PDF
@@ -634,7 +705,9 @@ export function AITravelPlan({
                       e.preventDefault();
                       e.stopPropagation();
                       if (!livePlan) {
-                        alert("Please wait for your travel plan to finish loading before exporting to Maps.");
+                        alert(
+                          "Please wait for your travel plan to finish loading before exporting to Maps.",
+                        );
                         return;
                       }
                       handleExportToGoogleMaps();
@@ -642,7 +715,7 @@ export function AITravelPlan({
                     }}
                     disabled={isExportingKML || !livePlan}
                     className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
-                    style={{ pointerEvents: 'auto' }}
+                    style={{ pointerEvents: "auto" }}
                   >
                     {isExportingKML ? (
                       <Loader2 className="w-4 h-4 animate-spin mr-1" />
@@ -656,7 +729,9 @@ export function AITravelPlan({
                       e.preventDefault();
                       e.stopPropagation();
                       if (!livePlan) {
-                        alert("Please wait for your plan to finish loading before sharing.");
+                        alert(
+                          "Please wait for your plan to finish loading before sharing.",
+                        );
                         setShowMobileActions(false);
                         return;
                       }
@@ -665,7 +740,7 @@ export function AITravelPlan({
                     }}
                     disabled={isSharing || !livePlan}
                     className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
-                    style={{ pointerEvents: 'auto' }}
+                    style={{ pointerEvents: "auto" }}
                   >
                     {isSharing ? (
                       <Loader2 className="w-4 h-4 animate-spin mr-1" />
@@ -680,7 +755,9 @@ export function AITravelPlan({
                         e.preventDefault();
                         e.stopPropagation();
                         if (!livePlan) {
-                          alert("Please wait for your plan to finish loading before saving.");
+                          alert(
+                            "Please wait for your plan to finish loading before saving.",
+                          );
                           setShowMobileActions(false);
                           return;
                         }
@@ -689,14 +766,20 @@ export function AITravelPlan({
                       }}
                       disabled={isSavingPlan || !livePlan || planSaved}
                       className="flex items-center justify-start w-full px-4 py-2 text-sm text-left hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
-                      style={{ pointerEvents: 'auto' }}
+                      style={{ pointerEvents: "auto" }}
                     >
                       {isSavingPlan ? (
                         <Loader2 className="w-4 h-4 animate-spin mr-1" />
                       ) : (
-                        <Heart className={`w-4 h-4 mr-1 ${planSaved ? 'fill-current text-red-500' : ''}`} />
+                        <Heart
+                          className={`w-4 h-4 mr-1 ${planSaved ? "fill-current text-red-500" : ""}`}
+                        />
                       )}
-                      {isSavingPlan ? "Saving Plan..." : planSaved ? "Plan Saved" : "Save Plan"}
+                      {isSavingPlan
+                        ? "Saving Plan..."
+                        : planSaved
+                          ? "Plan Saved"
+                          : "Save Plan"}
                     </button>
                   )}
                 </div>
@@ -709,8 +792,7 @@ export function AITravelPlan({
             {/* Mobile Header */}
             <div className="flex items-center justify-between h-12">
               {/* Left: Destination */}
-              <div className="flex items-center space-x-3">
-              </div>
+              <div className="flex items-center space-x-3"></div>
 
               {/* Mobile Navigation Tabs */}
               <div>
@@ -718,21 +800,35 @@ export function AITravelPlan({
                   <div className="flex space-x-1rounded-full">
                     {["itinerary", "info", "food", "practical"].map((tab) => {
                       const tabDataMap = {
-                        itinerary: { label: "Itinerary", icon: <MapPinIcon3D size="2xs" /> },
-                        info: { label: "Places", icon: <CameraIcon3D size="2xs" /> },
-                        food: { label: "Food", icon: <UtensilsIcon3D size="2xs" /> },
-                        practical: { label: "Practical", icon: <NotebookIcon3D size="2xs" /> },
+                        itinerary: {
+                          label: "Itinerary",
+                          icon: <MapPinIcon3D size="2xs" />,
+                        },
+                        info: {
+                          label: "Places",
+                          icon: <CameraIcon3D size="2xs" />,
+                        },
+                        food: {
+                          label: "Food",
+                          icon: <UtensilsIcon3D size="2xs" />,
+                        },
+                        practical: {
+                          label: "Practical",
+                          icon: <NotebookIcon3D size="2xs" />,
+                        },
                       } as const;
-                      const tabData = tabDataMap[tab as keyof typeof tabDataMap];
+                      const tabData =
+                        tabDataMap[tab as keyof typeof tabDataMap];
 
                       return (
                         <button
                           key={tab}
                           onClick={() => setActiveTab(tab as any)}
-                          className={`flex items-center space-x-0 p-1 text-xs font-medium rounded-full transition-all duration-300 ${activeTab === tab
-                            ? 'btn-3d-secondary !text-white [&>*]:!text-white transform rotate-1'
-                            : 'text-foreground-secondary hover:text-primary hover:bg-primary/10'
-                            }`}
+                          className={`flex items-center space-x-0 p-1 text-xs font-medium rounded-full transition-all duration-300 ${
+                            activeTab === tab
+                              ? "btn-3d-secondary !text-white [&>*]:!text-white transform rotate-1"
+                              : "text-foreground-secondary hover:text-primary hover:bg-primary/10"
+                          }`}
                         >
                           <span className="w-6 h-8">{tabData.icon}</span>
                           {getTabLoadingState(tab as any).isLoading && (
@@ -783,7 +879,9 @@ export function AITravelPlan({
                         e.preventDefault();
                         e.stopPropagation();
                         if (!livePlan) {
-                          alert("Please wait for your travel plan to finish loading before exporting to PDF.");
+                          alert(
+                            "Please wait for your travel plan to finish loading before exporting to PDF.",
+                          );
                           return;
                         }
                         handleExportToPdf();
@@ -800,7 +898,9 @@ export function AITravelPlan({
                         e.preventDefault();
                         e.stopPropagation();
                         if (!livePlan) {
-                          alert("Please wait for your travel plan to finish loading before exporting to Maps.");
+                          alert(
+                            "Please wait for your travel plan to finish loading before exporting to Maps.",
+                          );
                           return;
                         }
                         handleExportToGoogleMaps();
@@ -821,7 +921,9 @@ export function AITravelPlan({
                         e.preventDefault();
                         e.stopPropagation();
                         if (!livePlan) {
-                          alert("Please wait for your plan to finish loading before sharing.");
+                          alert(
+                            "Please wait for your plan to finish loading before sharing.",
+                          );
                           setShowMobileActions(false);
                           return;
                         }
@@ -836,7 +938,9 @@ export function AITravelPlan({
                       ) : (
                         <Share2 className="w-4 h-4 mr-1 text-primary" />
                       )}
-                      <span>{isSharing ? "Creating share link..." : "Share Plan"}</span>
+                      <span>
+                        {isSharing ? "Creating share link..." : "Share Plan"}
+                      </span>
                     </button>
                     {user && (
                       <>
@@ -846,7 +950,9 @@ export function AITravelPlan({
                             e.preventDefault();
                             e.stopPropagation();
                             if (!livePlan) {
-                              alert("Please wait for your plan to finish loading before saving.");
+                              alert(
+                                "Please wait for your plan to finish loading before saving.",
+                              );
                               setShowMobileActions(false);
                               return;
                             }
@@ -859,9 +965,17 @@ export function AITravelPlan({
                           {isSavingPlan ? (
                             <Loader2 className="w-4 h-4 animate-spin mr-1 text-red-500" />
                           ) : (
-                            <Heart className={`w-4 h-4 mr-1 ${planSaved ? 'fill-current text-red-500' : 'text-red-500'}`} />
+                            <Heart
+                              className={`w-4 h-4 mr-1 ${planSaved ? "fill-current text-red-500" : "text-red-500"}`}
+                            />
                           )}
-                          <span>{isSavingPlan ? "Saving Plan..." : planSaved ? "Plan Saved" : "Save Plan"}</span>
+                          <span>
+                            {isSavingPlan
+                              ? "Saving Plan..."
+                              : planSaved
+                                ? "Plan Saved"
+                                : "Save Plan"}
+                          </span>
                         </button>
                       </>
                     )}
@@ -875,7 +989,6 @@ export function AITravelPlan({
 
       <main className="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2 sm:py-4">
         <div className="pt-4">
-
           {/* Tab Content */}
           {activeTab === "itinerary" && (
             <div className="space-y-8 relative">
@@ -888,7 +1001,8 @@ export function AITravelPlan({
                 ) : (
                   <div className="space-y-6">
                     {/* Streaming skeleton for itinerary */}
-                    {isActivelyStreaming && getTabLoadingState('itinerary').isLoading ? (
+                    {isActivelyStreaming &&
+                    getTabLoadingState("itinerary").isLoading ? (
                       <div className="space-y-4">
                         <div className="text-center mb-8">
                           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
@@ -900,8 +1014,11 @@ export function AITravelPlan({
                         </div>
 
                         {/* Day skeleton loaders */}
-                        {[1, 2, 3].map(day => (
-                          <div key={day} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
+                        {[1, 2, 3].map((day) => (
+                          <div
+                            key={day}
+                            className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50"
+                          >
                             <div className="flex items-center gap-3 mb-4">
                               <div className="w-8 h-8 bg-primary/20 rounded-full animate-pulse"></div>
                               <div className="h-5 bg-gray-200 rounded w-24 animate-pulse"></div>
@@ -924,7 +1041,8 @@ export function AITravelPlan({
                             Adventure Map Loading...
                           </h3>
                           <p>
-                            No expedition details available for this destination yet.
+                            No expedition details available for this destination
+                            yet.
                           </p>
                         </div>
                       </div>
@@ -938,7 +1056,7 @@ export function AITravelPlan({
           {activeTab === "info" && (
             <div className="space-y-8">
               {/* Streaming progress indicator for info tab */}
-              {isActivelyStreaming && getTabLoadingState('info').isLoading && (
+              {isActivelyStreaming && getTabLoadingState("info").isLoading && (
                 <div className="text-center">
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-full">
                     <Loader2 className="w-4 h-4 animate-spin text-secondary" />
@@ -969,7 +1087,10 @@ export function AITravelPlan({
                         acc[category].push(place);
                         return acc;
                       },
-                      {} as Record<string, NonNullable<typeof livePlan>['placesToVisit']>,
+                      {} as Record<
+                        string,
+                        NonNullable<typeof livePlan>["placesToVisit"]
+                      >,
                     );
 
                     return Object.entries(placesByCategory || {}).map(
@@ -986,22 +1107,26 @@ export function AITravelPlan({
                                 key={index}
                                 title={place.name}
                                 description={place.description}
-                                searchLink={generateGoogleSearchLink(place.name)}
+                                searchLink={generateGoogleSearchLink(
+                                  place.name,
+                                )}
                               >
                                 {place.ticketInfo && (
                                   <div className="mt-3 space-y-2">
-                                    {(place.ticketInfo.required || place.ticketInfo.recommended) && (
+                                    {(place.ticketInfo.required ||
+                                      place.ticketInfo.recommended) && (
                                       <div className="flex flex-col items-start justify-start space-y-2">
                                         {place.ticketInfo.required && (
                                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-error/10 text-error border border-error/20">
                                             🎫 Tickets Required
                                           </span>
                                         )}
-                                        {place.ticketInfo.recommended && !place.ticketInfo.required && (
-                                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber/10 text-amber border border-amber/20">
-                                            🎫 Tickets Recommended
-                                          </span>
-                                        )}
+                                        {place.ticketInfo.recommended &&
+                                          !place.ticketInfo.required && (
+                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber/10 text-amber border border-amber/20">
+                                              🎫 Tickets Recommended
+                                            </span>
+                                          )}
 
                                         <div>
                                           <p className="text-sm">
@@ -1009,18 +1134,21 @@ export function AITravelPlan({
                                           </p>
                                           {place.ticketInfo.peakTime && (
                                             <p className="text-xs mt-2">
-                                              <strong>Peak time:</strong> {place.ticketInfo.peakTime.join(", ")}
+                                              <strong>Peak time:</strong>{" "}
+                                              {place.ticketInfo.peakTime.join(
+                                                ", ",
+                                              )}
                                             </p>
                                           )}
                                           {place.ticketInfo.averageWaitTime && (
                                             <p className="text-xs">
-                                              <strong>Wait time:</strong> {place.ticketInfo.averageWaitTime}
+                                              <strong>Wait time:</strong>{" "}
+                                              {place.ticketInfo.averageWaitTime}
                                             </p>
                                           )}
                                         </div>
                                       </div>
                                     )}
-
                                   </div>
                                 )}
                               </ItemCard>
@@ -1031,26 +1159,30 @@ export function AITravelPlan({
                     );
                   })()}
                 </TravelPlanSection>
-              ) : isActivelyStreaming && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                        <span className="text-sm font-bold">🏛️ Must-See Spots</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                          <span className="text-sm font-bold">
+                            🏛️ Must-See Spots
+                          </span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="space-y-3">
+                          <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="space-y-3">
-                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                )
               )}
 
               {/* Best Neighborhoods */}
@@ -1072,22 +1204,33 @@ export function AITravelPlan({
                       >
                         <div className="mt-2">
                           <p className="italic mb-4 text-sm">
-                            <span className="font-bold text-sm text-primary">Best for:</span> {neighborhood.bestFor.slice(9)}
+                            <span className="font-bold text-sm text-primary">
+                              Best for:
+                            </span>{" "}
+                            {neighborhood.bestFor.slice(9)}
                           </p>
                           <div className="flex gap-4">
                             <div className="flex-1 flex flex-col items-start">
-                              <p className="bg-success/10 border border-success/20 rounded-lg p-1 font-medium text-sm text-success mb-2">Pros</p>
+                              <p className="bg-success/10 border border-success/20 rounded-lg p-1 font-medium text-sm text-success mb-2">
+                                Pros
+                              </p>
                               <ul className="text-foreground/80">
                                 {neighborhood.pros.map((pro, idx) => (
-                                  <li className="mr-2 text-sm" key={idx}>• {pro}</li>
+                                  <li className="mr-2 text-sm" key={idx}>
+                                    • {pro}
+                                  </li>
                                 ))}
                               </ul>
                             </div>
                             <div className="flex-1 flex flex-col items-start">
-                              <p className="bg-error/10 border border-error/20 rounded-lg p-1 font-medium text-sm text-error mb-2">Cons</p>
+                              <p className="bg-error/10 border border-error/20 rounded-lg p-1 font-medium text-sm text-error mb-2">
+                                Cons
+                              </p>
                               <ul className="text-foreground/80">
                                 {neighborhood.cons.map((con, idx) => (
-                                  <li className="mr-2 text-sm" key={idx}>• {con}</li>
+                                  <li className="mr-2 text-sm" key={idx}>
+                                    • {con}
+                                  </li>
                                 ))}
                               </ul>
                             </div>
@@ -1097,26 +1240,30 @@ export function AITravelPlan({
                     ))}
                   </ItemGrid>
                 </TravelPlanSection>
-              ) : isActivelyStreaming && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
-                        <span className="text-sm font-bold">🏡 Perfect Base Camps</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
+                          <span className="text-sm font-bold">
+                            🏡 Perfect Base Camps
+                          </span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-accent" />
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="space-y-3">
+                          <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="space-y-3">
-                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                )
               )}
 
               {/* Hotel Recommendations */}
@@ -1141,7 +1288,10 @@ export function AITravelPlan({
                           acc[neighborhood].push(hotel);
                           return acc;
                         },
-                        {} as Record<string, NonNullable<typeof livePlan>['hotelRecommendations']>,
+                        {} as Record<
+                          string,
+                          NonNullable<typeof livePlan>["hotelRecommendations"]
+                        >,
                       );
 
                     return Object.entries(hotelsByNeighborhood || {}).map(
@@ -1158,7 +1308,9 @@ export function AITravelPlan({
                                 title={hotel.name}
                                 subtitle={hotel.priceRange}
                                 description={hotel.description}
-                                searchLink={generateGoogleSearchLink(hotel.name)}
+                                searchLink={generateGoogleSearchLink(
+                                  hotel.name,
+                                )}
                                 tags={hotel.amenities}
                               />
                             ))}
@@ -1168,30 +1320,34 @@ export function AITravelPlan({
                     );
                   })()}
                 </TravelPlanSection>
-              ) : isActivelyStreaming && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
-                        <span className="text-sm font-bold">🛏️ Great Places to Stay</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
+                          <span className="text-sm font-bold">
+                            🛏️ Great Places to Stay
+                          </span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-secondary" />
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-secondary" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="space-y-3">
+                          <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="space-y-3">
-                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                )
               )}
 
               {/* Local Events */}
-              {(livePlan?.localEvents && livePlan.localEvents.length > 0) ? (
+              {livePlan?.localEvents && livePlan.localEvents.length > 0 ? (
                 <TravelPlanSection rotation="left" glowColor="primary">
                   <SectionHeader
                     icon={Calendar}
@@ -1211,26 +1367,30 @@ export function AITravelPlan({
                     ))}
                   </ItemGrid>
                 </TravelPlanSection>
-              ) : isActivelyStreaming && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                        <span className="text-sm font-bold">🎪 Local Festivities</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                          <span className="text-sm font-bold">
+                            🎪 Local Festivities
+                          </span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="space-y-3">
+                          <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="space-y-3">
-                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                )
               )}
 
               {/* Activities & Experiences */}
@@ -1252,7 +1412,7 @@ export function AITravelPlan({
                       ) {
                         tags.push(
                           activity.experienceType.charAt(0).toUpperCase() +
-                          activity.experienceType.slice(1),
+                            activity.experienceType.slice(1),
                         );
                       }
 
@@ -1269,26 +1429,30 @@ export function AITravelPlan({
                     })}
                   </ItemGrid>
                 </TravelPlanSection>
-              ) : isActivelyStreaming && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
-                        <span className="text-sm font-bold">⚡ Cool Local Experiences</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
+                          <span className="text-sm font-bold">
+                            ⚡ Cool Local Experiences
+                          </span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-accent" />
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="space-y-3">
+                          <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="space-y-3">
-                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                )
               )}
 
               {/* Local History */}
@@ -1301,26 +1465,31 @@ export function AITravelPlan({
                     badgeColor="secondary"
                   />
 
-                  <p className="leading-relaxed">
-                    {livePlan?.history}
-                  </p>
+                  <p className="leading-relaxed">{livePlan?.history}</p>
                 </TravelPlanSection>
-              ) : isActivelyStreaming && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
-                        <span className="text-sm font-bold">🏰 Local History</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
+                          <span className="text-sm font-bold">
+                            🏰 Local History
+                          </span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-secondary" />
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-secondary" />
+                    </div>
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="h-3 bg-gray-200 rounded animate-pulse"
+                        ></div>
+                      ))}
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                    ))}
-                  </div>
-                </div>
+                )
               )}
             </div>
           )}
@@ -1328,7 +1497,7 @@ export function AITravelPlan({
           {activeTab === "food" && (
             <div className="space-y-8">
               {/* Streaming progress indicator for food tab */}
-              {isActivelyStreaming && getTabLoadingState('food').isLoading && (
+              {isActivelyStreaming && getTabLoadingState("food").isLoading && (
                 <div className="text-center">
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
                     <Loader2 className="w-4 h-4 animate-spin text-accent" />
@@ -1340,7 +1509,7 @@ export function AITravelPlan({
               )}
 
               {/* Dining & Nightlife */}
-              {(livePlan?.restaurants && livePlan?.bars) ? (
+              {livePlan?.restaurants && livePlan?.bars ? (
                 <TravelPlanSection rotation="left" glowColor="primary">
                   <SectionHeader
                     icon={Utensils}
@@ -1350,11 +1519,13 @@ export function AITravelPlan({
                   />
                   {(() => {
                     // Separate restaurants and bars with type indicators
-                    const restaurants = (livePlan?.restaurants || []).map((restaurant) => ({
-                      ...restaurant,
-                      type: "restaurant" as const,
-                      searchType: "restaurant",
-                    }));
+                    const restaurants = (livePlan?.restaurants || []).map(
+                      (restaurant) => ({
+                        ...restaurant,
+                        type: "restaurant" as const,
+                        searchType: "restaurant",
+                      }),
+                    );
 
                     const bars = (livePlan?.bars || []).map((bar) => ({
                       name: bar.name,
@@ -1410,7 +1581,8 @@ export function AITravelPlan({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                           {/* Restaurants column */}
                           {restaurantsByNeighborhood[neighborhood] &&
-                            restaurantsByNeighborhood[neighborhood].length > 0 && (
+                            restaurantsByNeighborhood[neighborhood].length >
+                              0 && (
                               <div>
                                 <h5 className="mb-3 flex items-center">
                                   <Utensils className="w-5 h-5 mr-2 text-accent" />
@@ -1432,10 +1604,10 @@ export function AITravelPlan({
                                       >
                                         {restaurant.reservationsRecommended ===
                                           "Yes" && (
-                                            <div className="mt-3 text-sm text-amber font-medium">
-                                              💡 Reservations recommended
-                                            </div>
-                                          )}
+                                          <div className="mt-3 text-sm text-amber font-medium">
+                                            💡 Reservations recommended
+                                          </div>
+                                        )}
                                       </ItemCard>
                                     ),
                                   )}
@@ -1474,43 +1646,47 @@ export function AITravelPlan({
                     ));
                   })()}
                 </TravelPlanSection>
-              ) : isActivelyStreaming && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                        <span className="text-sm font-bold">🍴 Where to Eat & Drink</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                          <span className="text-sm font-bold">
+                            🍴 Where to Eat & Drink
+                          </span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Utensils className="w-5 h-5 text-accent" />
+                          <span className="font-medium">Restaurants</span>
+                        </div>
+                        {[1, 2].map((item) => (
+                          <div key={item} className="space-y-3">
+                            <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                            <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <BeerIcon className="w-5 h-5 text-secondary" />
+                          <span className="font-medium">Bars & Nightlife</span>
+                        </div>
+                        {[1, 2].map((item) => (
+                          <div key={item} className="space-y-3">
+                            <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                            <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Utensils className="w-5 h-5 text-accent" />
-                        <span className="font-medium">Restaurants</span>
-                      </div>
-                      {[1, 2].map(item => (
-                        <div key={item} className="space-y-3">
-                          <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                          <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <BeerIcon className="w-5 h-5 text-secondary" />
-                        <span className="font-medium">Bars & Nightlife</span>
-                      </div>
-                      {[1, 2].map(item => (
-                        <div key={item} className="space-y-3">
-                          <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                          <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                )
               )}
 
               {/* Local Specialties */}
@@ -1524,7 +1700,9 @@ export function AITravelPlan({
                   />
                   {(() => {
                     // Group food items by category
-                    const foodByCategory = (livePlan?.mustTryFood?.items || []).reduce(
+                    const foodByCategory = (
+                      livePlan?.mustTryFood?.items || []
+                    ).reduce(
                       (acc, item) => {
                         const category = item.category;
                         if (!acc[category]) {
@@ -1533,7 +1711,12 @@ export function AITravelPlan({
                         acc[category].push(item);
                         return acc;
                       },
-                      {} as Record<string, NonNullable<NonNullable<typeof livePlan>['mustTryFood']>['items']>,
+                      {} as Record<
+                        string,
+                        NonNullable<
+                          NonNullable<typeof livePlan>["mustTryFood"]
+                        >["items"]
+                      >,
                     );
 
                     const categoryTitles: Record<string, string> = {
@@ -1545,9 +1728,9 @@ export function AITravelPlan({
 
                     // Separate main dishes from other categories
                     const mainDishes = foodByCategory["main"] || [];
-                    const otherCategories = Object.entries(foodByCategory).filter(
-                      ([category]) => category !== "main",
-                    );
+                    const otherCategories = Object.entries(
+                      foodByCategory,
+                    ).filter(([category]) => category !== "main");
 
                     return (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1609,44 +1792,48 @@ export function AITravelPlan({
                     );
                   })()}
                 </TravelPlanSection>
-              ) : isActivelyStreaming && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
-                        <span className="text-sm font-bold">🤤 Must-Try Local Flavors</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-accent/20 text-accent rounded-full">
+                          <span className="text-sm font-bold">
+                            🤤 Must-Try Local Flavors
+                          </span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-accent" />
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Utensils className="w-5 h-5 text-secondary" />
+                          <span className="font-medium">Main Dishes</span>
+                        </div>
+                        {[1, 2, 3].map((item) => (
+                          <div key={item} className="space-y-3">
+                            <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                            <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                            <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Coffee className="w-5 h-5 text-accent" />
+                          <span className="font-medium">Desserts & Drinks</span>
+                        </div>
+                        {[1, 2].map((item) => (
+                          <div key={item} className="space-y-3">
+                            <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                            <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Utensils className="w-5 h-5 text-secondary" />
-                        <span className="font-medium">Main Dishes</span>
-                      </div>
-                      {[1, 2, 3].map(item => (
-                        <div key={item} className="space-y-3">
-                          <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                          <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
-                          <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse"></div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Coffee className="w-5 h-5 text-accent" />
-                        <span className="font-medium">Desserts & Drinks</span>
-                      </div>
-                      {[1, 2].map(item => (
-                        <div key={item} className="space-y-3">
-                          <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                          <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                )
               )}
             </div>
           )}
@@ -1654,16 +1841,17 @@ export function AITravelPlan({
           {activeTab === "practical" && (
             <div className="space-y-8">
               {/* Streaming progress indicator for practical tab */}
-              {isActivelyStreaming && getTabLoadingState('practical').isLoading && (
-                <div className="text-center">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
-                    <Loader2 className="w-4 h-4 animate-spin text-accent" />
-                    <span className="text-sm font-medium text-accent">
-                      Compiling practical travel guide...
-                    </span>
+              {isActivelyStreaming &&
+                getTabLoadingState("practical").isLoading && (
+                  <div className="text-center">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
+                      <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                      <span className="text-sm font-medium text-accent">
+                        Compiling practical travel guide...
+                      </span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Getting Around */}
               {livePlan?.transportationInfo ? (
@@ -1682,14 +1870,13 @@ export function AITravelPlan({
                         {livePlan?.transportationInfo.publicTransport}
                       </p>
                       <div className="flex items-center">
-                        <span className="text-sm mr-2">
-                          💳 Credit cards:
-                        </span>
+                        <span className="text-sm mr-2">💳 Credit cards:</span>
                         <span
-                          className={`text-sm font-medium px-2 py-1 rounded-full ${livePlan?.transportationInfo.creditCardPayment
-                            ? "bg-green-100 text-green-700"
-                            : "bg-amber-100 text-amber-700"
-                            }`}
+                          className={`text-sm font-medium px-2 py-1 rounded-full ${
+                            livePlan?.transportationInfo.creditCardPayment
+                              ? "bg-green-100 text-green-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}
                         >
                           {livePlan?.transportationInfo.creditCardPayment
                             ? "Accepted"
@@ -1703,9 +1890,7 @@ export function AITravelPlan({
                         {livePlan?.transportationInfo.ridesharing}
                       </p>
                       <div className="flex flex-col justify-start items-start mb-3">
-                        <p className="font-bold mb-2">
-                          💰 Taxi Average cost
-                        </p>
+                        <p className="font-bold mb-2">💰 Taxi Average cost</p>
                         <span className="text-sm text-primary">
                           {livePlan?.transportationInfo.taxiInfo?.averageCost}
                         </span>
@@ -1714,9 +1899,7 @@ export function AITravelPlan({
                         <div>
                           <div className="flex items-center mb-2">
                             {/* <span className="text-sm mr-2">💡</span> */}
-                            <p className="font-bold">
-                              💡 Pro Tips
-                            </p>
+                            <p className="font-bold">💡 Pro Tips</p>
                           </div>
                           <ul className="space-y-1">
                             {livePlan?.transportationInfo.taxiInfo.tips.map(
@@ -1725,12 +1908,8 @@ export function AITravelPlan({
                                   key={index}
                                   className="flex items-start text-sm"
                                 >
-                                  <span className="text-primary mr-2">
-                                    •
-                                  </span>
-                                  <span>
-                                    {tip}
-                                  </span>
+                                  <span className="text-primary mr-2">•</span>
+                                  <span>{tip}</span>
                                 </li>
                               ),
                             )}
@@ -1744,9 +1923,7 @@ export function AITravelPlan({
 
                   <div className="border-t border-border/30 pt-8">
                     <div className="flex items-center mb-6">
-                      <h6>
-                        ✈️ Airport Transportation
-                      </h6>
+                      <h6>✈️ Airport Transportation</h6>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                       {livePlan?.transportationInfo.airportTransport?.airports?.map(
@@ -1757,9 +1934,7 @@ export function AITravelPlan({
                           >
                             <div className="mb-6">
                               <div className="flex items-center mb-2">
-                                <h6 className="font-medium">
-                                  {airport.name}
-                                </h6>
+                                <h6 className="font-medium">{airport.name}</h6>
                               </div>
                               <div className="flex items-center gap-3">
                                 <span className="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full">
@@ -1792,32 +1967,35 @@ export function AITravelPlan({
                                       </div>
                                     </div>
 
-                                    <p>
-                                      {option.description}
-                                    </p>
+                                    <p>{option.description}</p>
 
-                                    {option.notes && option.notes.length > 0 && (
-                                      <div className="flex items-start bg-accent/10 border border-accent/20 rounded-lg p-2 mt-2">
-                                        <div className="flex items-center">
-                                          <span className="text-sm mr-2">💡</span>
+                                    {option.notes &&
+                                      option.notes.length > 0 && (
+                                        <div className="flex items-start bg-accent/10 border border-accent/20 rounded-lg p-2 mt-2">
+                                          <div className="flex items-center">
+                                            <span className="text-sm mr-2">
+                                              💡
+                                            </span>
+                                          </div>
+                                          <ul className="space-y-1">
+                                            {option.notes.map(
+                                              (note, noteIndex) => (
+                                                <li
+                                                  key={noteIndex}
+                                                  className="flex items-start"
+                                                >
+                                                  <span className="text-accent mr-2 text-xs">
+                                                    •
+                                                  </span>
+                                                  <span className="text-sm">
+                                                    {note}
+                                                  </span>
+                                                </li>
+                                              ),
+                                            )}
+                                          </ul>
                                         </div>
-                                        <ul className="space-y-1">
-                                          {option.notes.map((note, noteIndex) => (
-                                            <li
-                                              key={noteIndex}
-                                              className="flex items-start"
-                                            >
-                                              <span className="text-accent mr-2 text-xs">
-                                                •
-                                              </span>
-                                              <span className="text-sm">
-                                                {note}
-                                              </span>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
+                                      )}
                                   </div>
                                 ),
                               )}
@@ -1827,28 +2005,31 @@ export function AITravelPlan({
                       )}
                     </div>
                   </div>
-
                 </TravelPlanSection>
-              ) : isActivelyStreaming && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                        <span className="text-sm font-bold">🚌 Getting Around</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                          <span className="text-sm font-bold">
+                            🚌 Getting Around
+                          </span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[1, 2].map((i) => (
+                        <div key={i} className="space-y-3">
+                          <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[1, 2].map(i => (
-                      <div key={i} className="space-y-3">
-                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                )
               )}
 
               {/* Weather Information */}
@@ -1862,62 +2043,58 @@ export function AITravelPlan({
                   />
 
                   <ContentGrid columns={2}>
-                    <ContentCard
-                      title="Weather Conditions"
-                      icon="🌡️"
-                    >
+                    <ContentCard title="Weather Conditions" icon="🌡️">
                       <p className="font-bold">Temperature</p>
                       <p className="mb-4">
                         {livePlan?.weatherInfo.temperature}
                       </p>
                       <p className="font-bold">Conditions</p>
-                      <p className="mb-4">
-                        {livePlan?.weatherInfo.conditions}
-                      </p>
+                      <p className="mb-4">{livePlan?.weatherInfo.conditions}</p>
                       <p className="font-bold">Humidity</p>
-                      <p className="mb-4">
-                        {livePlan?.weatherInfo.humidity}
-                      </p>
+                      <p className="mb-4">{livePlan?.weatherInfo.humidity}</p>
                       <p className="font-bold">Day/Night Temp Difference</p>
                       <p className="mb-4">
                         {livePlan?.weatherInfo.dayNightTempDifference}
                       </p>
                     </ContentCard>
-                    <ContentCard
-                      title="What to Pack:"
-                      icon="🎒"
-                    >
+                    <ContentCard title="What to Pack:" icon="🎒">
                       <ul className="space-y-2">
-                        {livePlan?.weatherInfo.recommendations?.map((rec, index) => (
-                          <li key={index} className="flex items-start">
-                            <span className="text-primary mr-2">•</span>
-                            <p>{rec}</p>
-                          </li>
-                        ))}
+                        {livePlan?.weatherInfo.recommendations?.map(
+                          (rec, index) => (
+                            <li key={index} className="flex items-start">
+                              <span className="text-primary mr-2">•</span>
+                              <p>{rec}</p>
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </ContentCard>
                   </ContentGrid>
                 </TravelPlanSection>
-              ) : isActivelyStreaming && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
-                        <span className="text-sm font-bold">☀️ Weather Info</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-secondary/20 text-secondary rounded-full">
+                          <span className="text-sm font-bold">
+                            ☀️ Weather Info
+                          </span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-secondary" />
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-secondary" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[1, 2].map((i) => (
+                        <div key={i} className="space-y-3">
+                          <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                          <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[1, 2].map(i => (
-                      <div key={i} className="space-y-3">
-                        <div className="h-5 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                )
               )}
 
               {/* Safety & Cultural Tips */}
@@ -1935,30 +2112,35 @@ export function AITravelPlan({
                     <ul className="space-y-1">
                       {livePlan?.safetyTips.map((tip, index) => (
                         <li key={index} className="flex items-start">
-                          <span className="text-secondary mr-2">
-                            •
-                          </span>
+                          <span className="text-secondary mr-2">•</span>
                           <p>{tip}</p>
                         </li>
                       ))}
                     </ul>
                   </TravelPlanSection>
-                ) : isActivelyStreaming && (
-                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center gap-2">
-                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                          <span className="text-sm font-bold">⚠️ Safety Tips</span>
+                ) : (
+                  isActivelyStreaming && (
+                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                            <span className="text-sm font-bold">
+                              ⚠️ Safety Tips
+                            </span>
+                          </div>
+                          <Loader2 className="w-4 h-4 animate-spin text-primary" />
                         </div>
-                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      </div>
+                      <div className="space-y-3">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div
+                            key={i}
+                            className="h-3 bg-gray-200 rounded animate-pulse"
+                          ></div>
+                        ))}
                       </div>
                     </div>
-                    <div className="space-y-3">
-                      {[1, 2, 3, 4].map(i => (
-                        <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                      ))}
-                    </div>
-                  </div>
+                  )
                 )}
 
                 {/* Cultural Quest Guide */}
@@ -1979,22 +2161,29 @@ export function AITravelPlan({
                       ))}
                     </ul>
                   </TravelPlanSection>
-                ) : isActivelyStreaming && (
-                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center gap-2">
-                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                          <span className="text-sm font-bold">🏹 Cultural Insights</span>
+                ) : (
+                  isActivelyStreaming && (
+                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                            <span className="text-sm font-bold">
+                              🏹 Cultural Insights
+                            </span>
+                          </div>
+                          <Loader2 className="w-4 h-4 animate-spin text-primary" />
                         </div>
-                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      </div>
+                      <div className="space-y-3">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div
+                            key={i}
+                            className="h-3 bg-gray-200 rounded animate-pulse"
+                          ></div>
+                        ))}
                       </div>
                     </div>
-                    <div className="space-y-3">
-                      {[1, 2, 3, 4].map(i => (
-                        <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                      ))}
-                    </div>
-                  </div>
+                  )
                 )}
               </div>
 
@@ -2077,39 +2266,51 @@ export function AITravelPlan({
                     </TravelPlanSection>
                   )}
                 </div>
-              ) : isActivelyStreaming && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center gap-2">
-                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                          <span className="text-sm font-bold">💰 Payment Guide</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                            <span className="text-sm font-bold">
+                              💰 Payment Guide
+                            </span>
+                          </div>
+                          <Loader2 className="w-4 h-4 animate-spin text-primary" />
                         </div>
-                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      </div>
+                      <div className="space-y-3">
+                        {[1, 2].map((i) => (
+                          <div
+                            key={i}
+                            className="h-3 bg-gray-200 rounded animate-pulse"
+                          ></div>
+                        ))}
                       </div>
                     </div>
-                    <div className="space-y-3">
-                      {[1, 2].map(i => (
-                        <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center gap-2">
-                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                          <span className="text-sm font-bold">💰 Tipping Etiquette</span>
+                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                            <span className="text-sm font-bold">
+                              💰 Tipping Etiquette
+                            </span>
+                          </div>
+                          <Loader2 className="w-4 h-4 animate-spin text-primary" />
                         </div>
-                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      </div>
+                      <div className="space-y-3">
+                        {[1, 2].map((i) => (
+                          <div
+                            key={i}
+                            className="h-3 bg-gray-200 rounded animate-pulse"
+                          ></div>
+                        ))}
                       </div>
                     </div>
-                    <div className="space-y-3">
-                      {[1, 2].map(i => (
-                        <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                      ))}
-                    </div>
                   </div>
-                </div>
+                )
               )}
 
               {/* Drinking Water */}
@@ -2138,27 +2339,33 @@ export function AITravelPlan({
                     </div>
                   </div>
                 </TravelPlanSection>
-              ) : isActivelyStreaming && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
-                        <span className="text-sm font-bold">💧 Drinking Water</span>
+              ) : (
+                isActivelyStreaming && (
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="px-3 py-1 bg-primary/20 text-primary rounded-full">
+                          <span className="text-sm font-bold">
+                            💧 Drinking Water
+                          </span>
+                        </div>
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       </div>
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    </div>
+                    <div className="space-y-3">
+                      {[1, 2].map((i) => (
+                        <div
+                          key={i}
+                          className="h-3 bg-gray-200 rounded animate-pulse"
+                        ></div>
+                      ))}
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    {[1, 2].map(i => (
-                      <div key={i} className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                    ))}
-                  </div>
-                </div>
+                )
               )}
             </div>
           )}
         </div>
-
       </main>
 
       {/* Share Loading Toast */}
@@ -2171,7 +2378,9 @@ export function AITravelPlan({
             <div className="bg-white/95 border border-border/50 rounded-2xl px-6 py-4 shadow-xl">
               <div className="flex items-center space-x-3">
                 <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                <span className="text-sm font-medium text-foreground">Creating your shareable link...</span>
+                <span className="text-sm font-medium text-foreground">
+                  Creating your shareable link...
+                </span>
               </div>
             </div>
           </div>
@@ -2189,7 +2398,7 @@ export function AITravelPlan({
           transition={{
             duration: 0.4,
             delay: 0.8,
-            ease: [0.25, 0.46, 0.45, 0.94]
+            ease: [0.25, 0.46, 0.45, 0.94],
           }}
           onClick={onBack}
           className="fixed bottom-12 sm:bottom-18 right-2 sm:right-6 btn-3d-primary z-50 flex items-center p-2"

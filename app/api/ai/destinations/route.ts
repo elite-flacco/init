@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from 'openai';
+import OpenAI from "openai";
 import { destinations } from "../../../../src/data/mock/destinations";
 import {
   Destination,
@@ -34,7 +34,7 @@ const DESTINATION_SCHEMA = {
           bestTimeToVisit: { type: "string" },
           keyActivities: {
             type: "array",
-            items: { type: "string", "pattern": "^[A-Z][^\n\r]*$" }
+            items: { type: "string", pattern: "^[A-Z][^\n\r]*$" },
           },
           matchReason: { type: "string" },
           estimatedCost: { type: "string" },
@@ -43,26 +43,39 @@ const DESTINATION_SCHEMA = {
             items: {
               type: "object",
               properties: {
-                name: { type: "string", "pattern": "^[A-Z][^\n\r]*$" },
-                description: { type: "string" }
+                name: { type: "string", pattern: "^[A-Z][^\n\r]*$" },
+                description: { type: "string" },
               },
               required: ["name", "description"],
-              additionalProperties: false
-            }
+              additionalProperties: false,
+            },
           },
-          details: { type: "string" }
+          details: { type: "string" },
         },
-        required: ["name", "country", "description", "bestTimeToVisit", "keyActivities", "matchReason", "estimatedCost", "highlights", "details"],
-        additionalProperties: false
-      }
+        required: [
+          "name",
+          "country",
+          "description",
+          "bestTimeToVisit",
+          "keyActivities",
+          "matchReason",
+          "estimatedCost",
+          "highlights",
+          "details",
+        ],
+        additionalProperties: false,
+      },
     },
-    summary: { type: "string" }
+    summary: { type: "string" },
   },
   required: ["destinations", "summary"],
-  additionalProperties: false
+  additionalProperties: false,
 };
 
-async function callAI(prompt: string, excludeDestinations: string[] = []): Promise<string> {
+async function callAI(
+  prompt: string,
+  excludeDestinations: string[] = [],
+): Promise<string> {
   const config = getAIConfig();
   const { provider, apiKey } = config;
 
@@ -71,14 +84,16 @@ async function callAI(prompt: string, excludeDestinations: string[] = []): Promi
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Filter out previously shown destinations
-    const availableDestinations = destinations.filter(dest => 
-      !excludeDestinations.some(excluded => 
-        excluded.toLowerCase() === dest.name.toLowerCase()
-      )
+    const availableDestinations = destinations.filter(
+      (dest) =>
+        !excludeDestinations.some(
+          (excluded) => excluded.toLowerCase() === dest.name.toLowerCase(),
+        ),
     );
 
     // If no destinations are available after filtering, use all destinations
-    const destinationsToUse = availableDestinations.length > 0 ? availableDestinations : destinations;
+    const destinationsToUse =
+      availableDestinations.length > 0 ? availableDestinations : destinations;
 
     // Select 2-3 random destinations from filtered data
     const shuffledDestinations = [...destinationsToUse].sort(
@@ -101,39 +116,44 @@ async function callAI(prompt: string, excludeDestinations: string[] = []): Promi
 
     return JSON.stringify({
       destinations: transformedDestinations,
-      summary: "Based on your preferences for authentic experiences and adventure level, I've selected destinations that offer the perfect balance of cultural immersion and natural beauty from our curated collection."
+      summary:
+        "Based on your preferences for authentic experiences and adventure level, I've selected destinations that offer the perfect balance of cultural immersion and natural beauty from our curated collection.",
     });
   }
 
   // Real AI API calls
   if (provider === "openai") {
     const openai = new OpenAI({
-      apiKey: apiKey
+      apiKey: apiKey,
     });
 
     try {
       const response = await openai.responses.create({
-        model: config.model || 'gpt-4o-2024-08-06',
+        model: config.model || "gpt-4o-2024-08-06",
         input: [{ role: "user", content: prompt }],
         text: {
-          format: { 
-            type: "json_schema", 
-            schema: DESTINATION_SCHEMA, 
-            strict: true, 
-            name: "destination_recommendations" 
+          format: {
+            type: "json_schema",
+            schema: DESTINATION_SCHEMA,
+            strict: true,
+            name: "destination_recommendations",
           },
         },
         max_output_tokens: config.maxTokens,
-        ...(modelSupportsTemperature(config.model || '') && { temperature: config.temperature }),
+        ...(modelSupportsTemperature(config.model || "") && {
+          temperature: config.temperature,
+        }),
       });
 
       return response.output_text || "No response from AI";
     } catch (error) {
-      console.error('OpenAI API Error Details:', {
+      console.error("OpenAI API Error Details:", {
         error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       });
-      throw new Error(`OpenAI API error: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `OpenAI API error: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -154,12 +174,14 @@ async function callAI(prompt: string, excludeDestinations: string[] = []): Promi
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('Anthropic API Error Details:', {
+      console.error("Anthropic API Error Details:", {
         status: response.status,
         statusText: response.statusText,
-        error: errorData
+        error: errorData,
       });
-      throw new Error(`Anthropic API error: ${response.statusText} - ${JSON.stringify(errorData)}`);
+      throw new Error(
+        `Anthropic API error: ${response.statusText} - ${JSON.stringify(errorData)}`,
+      );
     }
 
     const data = await response.json();
@@ -170,7 +192,12 @@ async function callAI(prompt: string, excludeDestinations: string[] = []): Promi
 }
 
 function generatePrompt(request: AIDestinationRequest): string {
-  const { travelerType, preferences, destinationKnowledge, excludeDestinations } = request;
+  const {
+    travelerType,
+    preferences,
+    destinationKnowledge,
+    excludeDestinations,
+  } = request;
 
   const prompt = `You are an expert travel advisor specializing in personalized destination recommendations. Your task is to recommend 3-6 destinations that perfectly match this traveler's personality and preferences.
 
@@ -178,11 +205,15 @@ function generatePrompt(request: AIDestinationRequest): string {
 **Type:** ${travelerType.name} - ${travelerType.description}
 **Destination Knowledge:** ${destinationKnowledge.label} - ${destinationKnowledge.description}
 
-${excludeDestinations && excludeDestinations.length > 0 ? `## PREVIOUS RECOMMENDATIONS TO AVOID
+${
+  excludeDestinations && excludeDestinations.length > 0
+    ? `## PREVIOUS RECOMMENDATIONS TO AVOID
 The following destinations have already been recommended and should NOT be included in your response:
-${excludeDestinations.map(dest => `- ${dest}`).join('\n')}
+${excludeDestinations.map((dest) => `- ${dest}`).join("\n")}
 
-Please suggest completely different destinations that have not been mentioned before.` : ''}
+Please suggest completely different destinations that have not been mentioned before.`
+    : ""
+}
 
 ${
   preferences
@@ -271,27 +302,28 @@ export async function POST(request: NextRequest) {
     try {
       parsedResponse = JSON.parse(aiResponse);
     } catch (parseError) {
-      console.error('JSON Parse Error:', {
+      console.error("JSON Parse Error:", {
         error: parseError,
-        responsePreview: aiResponse.substring(0, 500)
+        responsePreview: aiResponse.substring(0, 500),
       });
-      throw new Error('Invalid JSON response from AI');
+      throw new Error("Invalid JSON response from AI");
     }
 
     // Validate the parsed response structure
     if (!parsedResponse || !Array.isArray(parsedResponse.destinations)) {
-      console.error('Invalid AI response structure:', {
+      console.error("Invalid AI response structure:", {
         hasDestinations: !!parsedResponse?.destinations,
         isArray: Array.isArray(parsedResponse?.destinations),
-        responseKeys: parsedResponse ? Object.keys(parsedResponse) : 'null'
+        responseKeys: parsedResponse ? Object.keys(parsedResponse) : "null",
       });
-      throw new Error('AI response missing destinations array');
+      throw new Error("AI response missing destinations array");
     }
 
     // Transform AI response to our destination format
     parsedResponse.destinations.forEach((dest: Destination) => {
       dest.id = `ai-${dest.name.toLowerCase().replace(/\s+/g, "-")}`;
-      dest.image = "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
+      dest.image =
+        "https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
     });
 
     return NextResponse.json({
@@ -303,14 +335,14 @@ export async function POST(request: NextRequest) {
       confidence: 85, // Default confidence score
     });
   } catch (error) {
-    console.error('Destination API Error:', {
+    console.error("Destination API Error:", {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,
     });
     return NextResponse.json(
-      { 
+      {
         error: "Failed to generate destination recommendations",
-        details: error instanceof Error ? error.message : String(error)
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     );

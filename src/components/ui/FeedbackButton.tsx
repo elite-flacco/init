@@ -3,7 +3,6 @@
 import { MessageSquare } from "lucide-react";
 
 const FeedbackButton = () => {
-
   const handleFeedbackClick = () => {
     window.open(
       "https://forms.gle/1WVFyBzvGFzkMB7A8",

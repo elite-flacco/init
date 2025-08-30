@@ -282,15 +282,18 @@ const explorerTripPlanningQuestions: Question[] = [
     options: [
       {
         label: "Pack the agenda, I want to see everything",
-        value: "high energy very tight and active adventurous schedule, pack more activities into the itinerary with minimal breaks",
+        value:
+          "high energy very tight and active adventurous schedule, pack more activities into the itinerary with minimal breaks",
       },
       {
         label: "Balanced vibes - Adventure with strategic nap breaks",
-        value: "moderate energy balanced adventure and relaxation, include breaks between activities",
+        value:
+          "moderate energy balanced adventure and relaxation, include breaks between activities",
       },
       {
         label: "I like to take it slow, 2 activities a day, max",
-        value: "low energy relaxed adventurous mindset, don't include more than 3 activities per day",
+        value:
+          "low energy relaxed adventurous mindset, don't include more than 3 activities per day",
       },
     ],
   },
@@ -593,7 +596,8 @@ export const commonTripPlanningQuestions: Question[] = [
       },
       {
         label: "🍸 Nightlife & social vibes",
-        value: "prioritize nightlife and social activities, bars, clubs, parties",
+        value:
+          "prioritize nightlife and social activities, bars, clubs, parties",
       },
       {
         label: "🛍️ Shopping (sorry, credit card)",
@@ -601,7 +605,8 @@ export const commonTripPlanningQuestions: Question[] = [
       },
       {
         label: "📸 Instagram-worthy spots",
-        value: "prioritize photogenic and scenic locations, beaches, parks, landmarks",
+        value:
+          "prioritize photogenic and scenic locations, beaches, parks, landmarks",
       },
     ],
   },
@@ -667,15 +672,12 @@ export const commonTripPlanningQuestions: Question[] = [
   // }
 ];
 
-
 export const commonFinalTripPlanningQuestions: Question[] = [
   {
     id: "specialActivities",
     type: "textarea",
-    question:
-      "Lastly... anything else we should know about?",
-    placeholder:
-      "e.g. bucket list activities, special requests, etc.",
+    question: "Lastly... anything else we should know about?",
+    placeholder: "e.g. bucket list activities, special requests, etc.",
   },
 ];
 

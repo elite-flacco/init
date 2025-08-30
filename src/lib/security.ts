@@ -319,9 +319,15 @@ export class SecurityMiddleware {
         response.headers.set("Access-Control-Allow-Origin", allowedOrigins[0]);
       }
     }
-    
-    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+    response.headers.set(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS",
+    );
+    response.headers.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization",
+    );
     response.headers.set("Access-Control-Max-Age", "3600"); // 1 hour
 
     return response;
@@ -334,7 +340,7 @@ export class SecurityMiddleware {
     if (error instanceof SecurityError) {
       return this.createSecureResponse(
         { error: error.message },
-        error.statusCode
+        error.statusCode,
       );
     }
 

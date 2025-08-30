@@ -1,5 +1,5 @@
-import { User, AuthError, Session } from '@supabase/supabase-js';
-import { supabase } from './supabase';
+import { User, AuthError, Session } from "@supabase/supabase-js";
+import { supabase } from "./supabase";
 
 export interface AuthUser {
   id: string;
@@ -65,9 +65,9 @@ export const authService = {
         return { user: mapSupabaseUser(data.user) };
       }
 
-      return { error: 'Failed to create account' };
+      return { error: "Failed to create account" };
     } catch (error) {
-      return { error: 'An unexpected error occurred' };
+      return { error: "An unexpected error occurred" };
     }
   },
 
@@ -87,9 +87,9 @@ export const authService = {
         return { user: mapSupabaseUser(data.user) };
       }
 
-      return { error: 'Failed to sign in' };
+      return { error: "Failed to sign in" };
     } catch (error) {
-      return { error: 'An unexpected error occurred' };
+      return { error: "An unexpected error occurred" };
     }
   },
 
@@ -102,7 +102,7 @@ export const authService = {
       }
       return {};
     } catch (error) {
-      return { error: 'An unexpected error occurred' };
+      return { error: "An unexpected error occurred" };
     }
   },
 
@@ -140,7 +140,7 @@ export const authService = {
       }
       return {};
     } catch (error) {
-      return { error: 'An unexpected error occurred' };
+      return { error: "An unexpected error occurred" };
     }
   },
 
@@ -155,7 +155,7 @@ export const authService = {
       }
       return {};
     } catch (error) {
-      return { error: 'An unexpected error occurred' };
+      return { error: "An unexpected error occurred" };
     }
   },
 
@@ -177,29 +177,36 @@ export const authService = {
         return { user: mapSupabaseUser(data.user) };
       }
 
-      return { error: 'Failed to update profile' };
+      return { error: "Failed to update profile" };
     } catch (error) {
-      return { error: 'An unexpected error occurred' };
+      return { error: "An unexpected error occurred" };
     }
   },
 
   // Subscribe to auth state changes
-  onAuthStateChange(callback: (event: string, session: Session | null) => void) {
+  onAuthStateChange(
+    callback: (event: string, session: Session | null) => void,
+  ) {
     return supabase.auth.onAuthStateChange(callback);
   },
 };
 
 // Helper function to make authenticated API requests
-export const makeAuthenticatedRequest = async (url: string, options: RequestInit = {}) => {
-  const { data: { session } } = await supabase.auth.getSession();
-  
+export const makeAuthenticatedRequest = async (
+  url: string,
+  options: RequestInit = {},
+) => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   if (!session?.access_token) {
-    throw new Error('No authentication token available');
+    throw new Error("No authentication token available");
   }
 
   const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session.access_token}`,
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${session.access_token}`,
     ...options.headers,
   };
 
@@ -215,18 +222,32 @@ export const validateEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-export const validatePassword = (password: string): { valid: boolean; message?: string } => {
+export const validatePassword = (
+  password: string,
+): { valid: boolean; message?: string } => {
   if (password.length < 8) {
-    return { valid: false, message: 'Password must be at least 8 characters long' };
+    return {
+      valid: false,
+      message: "Password must be at least 8 characters long",
+    };
   }
   if (!/(?=.*[a-z])/.test(password)) {
-    return { valid: false, message: 'Password must contain at least one lowercase letter' };
+    return {
+      valid: false,
+      message: "Password must contain at least one lowercase letter",
+    };
   }
   if (!/(?=.*[A-Z])/.test(password)) {
-    return { valid: false, message: 'Password must contain at least one uppercase letter' };
+    return {
+      valid: false,
+      message: "Password must contain at least one uppercase letter",
+    };
   }
   if (!/(?=.*\d)/.test(password)) {
-    return { valid: false, message: 'Password must contain at least one number' };
+    return {
+      valid: false,
+      message: "Password must contain at least one number",
+    };
   }
   return { valid: true };
 };

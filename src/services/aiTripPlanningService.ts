@@ -6,7 +6,7 @@ import {
   PickDestinationPreferences,
   EnhancedTravelPlan as ImportedEnhancedTravelPlan,
 } from "../types/travel";
-import { StreamingTripPlanningState } from '../hooks/useStreamingTripPlanning';
+import { StreamingTripPlanningState } from "../hooks/useStreamingTripPlanning";
 
 export interface AITripPlanningRequest {
   destination: Destination;
@@ -25,7 +25,10 @@ export interface AITripPlanningResponse {
   streamingState?: StreamingTripPlanningState;
   streamingHooks?: {
     generateStreamingPlan: (request: AITripPlanningRequest) => Promise<void>;
-    retryChunk: (chunkId: number, request: AITripPlanningRequest) => Promise<void>;
+    retryChunk: (
+      chunkId: number,
+      request: AITripPlanningRequest,
+    ) => Promise<void>;
     streamingRequest?: AITripPlanningRequest;
   };
 }
@@ -61,7 +64,9 @@ class AITripPlanningService {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to initialize chunked session: ${response.statusText}`);
+        throw new Error(
+          `Failed to initialize chunked session: ${response.statusText}`,
+        );
       }
 
       return await response.json();
@@ -96,11 +101,13 @@ class AITripPlanningService {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(request),
-        }
+        },
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to get chunk ${chunkId}: ${response.statusText}`);
+        throw new Error(
+          `Failed to get chunk ${chunkId}: ${response.statusText}`,
+        );
       }
 
       return await response.json();
@@ -112,21 +119,25 @@ class AITripPlanningService {
   }
 
   async generateChunkedTravelPlan(
-    request: AITripPlanningRequest
+    request: AITripPlanningRequest,
   ): Promise<AITripPlanningResponse> {
     try {
       // Initialize chunked session
       const session = await this.initializeChunkedTravelPlan(request);
-      
+
       let combinedData: Record<string, unknown> = {};
       // Removed unused totalChunks variable
-      
+
       // Request each chunk
       for (let i = 0; i < session.chunks.length; i++) {
         const chunk = session.chunks[i];
-        
-        const chunkResponse = await this.getChunk(request, chunk.id, session.sessionId);
-        
+
+        const chunkResponse = await this.getChunk(
+          request,
+          chunk.id,
+          session.sessionId,
+        );
+
         // Merge chunk data
         combinedData = { ...combinedData, ...chunkResponse.data };
 

@@ -15,23 +15,25 @@ function getCardColors(typeId: string) {
   const colorSchemes = {
     explorer: {
       titleHover: "group-hover:text-primary",
-      textHover: "group-hover:text-foreground"
+      textHover: "group-hover:text-foreground",
     },
     "type-a": {
       titleHover: "group-hover:text-secondary",
-      textHover: "group-hover:text-foreground"
+      textHover: "group-hover:text-foreground",
     },
     overthinker: {
       titleHover: "group-hover:text-accent",
-      textHover: "group-hover:text-foreground"
+      textHover: "group-hover:text-foreground",
     },
     chill: {
       titleHover: "group-hover:text-coral",
-      textHover: "group-hover:text-foreground"
-    }
+      textHover: "group-hover:text-foreground",
+    },
   };
 
-  return colorSchemes[typeId as keyof typeof colorSchemes] || colorSchemes.explorer;
+  return (
+    colorSchemes[typeId as keyof typeof colorSchemes] || colorSchemes.explorer
+  );
 }
 
 // Helper function to render traveler cards
@@ -68,25 +70,29 @@ function renderTravelerCard(
           {/* Icon */}
           <div className="text-center mb-4 sm:mb-6">
             <div className="inline-block rotate-hover group-hover:scale-110 group-hover:rotate-12 transition-transform duration-500">
-            <div className="block sm:block md:hidden">
-              {getTravelerTypeIcon(type.id, "md")}
-            </div>
-            <div className="hidden sm:hidden md:block">
-              {getTravelerTypeIcon(type.id, "xl")}
-            </div>
+              <div className="block sm:block md:hidden">
+                {getTravelerTypeIcon(type.id, "md")}
+              </div>
+              <div className="hidden sm:hidden md:block">
+                {getTravelerTypeIcon(type.id, "xl")}
+              </div>
             </div>
           </div>
 
           {/* Title */}
           <div className="text-center mb-4 sm:mb-6 md:mb-8">
-            <h5 className={`text-3d-title text-lg sm:text-xl lg:text-2xl ${colors.titleHover} transition-colors duration-500`}>
+            <h5
+              className={`text-3d-title text-lg sm:text-xl lg:text-2xl ${colors.titleHover} transition-colors duration-500`}
+            >
               {type.name}
             </h5>
           </div>
 
           {/* Description */}
           <div className="flex-grow flex items-center justify-center">
-            <p className={`text-sm sm:text-base lg:text-lg text-foreground-secondary text-center font-medium ${colors.textHover} mb-2 sm:mb-4 transition-colors duration-500 max-w-sm`}>
+            <p
+              className={`text-sm sm:text-base lg:text-lg text-foreground-secondary text-center font-medium ${colors.textHover} mb-2 sm:mb-4 transition-colors duration-500 max-w-sm`}
+            >
               {type.description}
             </p>
           </div>
@@ -101,34 +107,35 @@ export function TravelerTypeSelection({
 }: TravelerTypeSelectionProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hoveredType, setHoveredType] = useState<string | null>(null);
-  
+
   // Typing effect for hero title
-  const { displayedText: typedHeroTitle, isComplete: heroTitleComplete } = useTypingEffect({
-    text: "Plan your trip, your way",
-    speed: 80,
-    delay: 800
-  });
+  const { displayedText: typedHeroTitle, isComplete: heroTitleComplete } =
+    useTypingEffect({
+      text: "Plan your trip, your way",
+      speed: 80,
+      delay: 800,
+    });
 
   useEffect(() => {
     setTimeout(() => setIsLoaded(true), 100);
   }, []);
 
   const scrollToTravelerTypes = () => {
-    const element = document.getElementById('traveler-types-section');
-    element?.scrollIntoView({ behavior: 'smooth' });
+    const element = document.getElementById("traveler-types-section");
+    element?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <div className="relative overflow-hidden">
-
       <div className="container mx-auto relative z-10">
         {/* Hero Section */}
         <div className="text-center min-h-screen flex items-center justify-center mb-12">
           <div
-            className={`transition-all duration-1000 ${isLoaded
-              ? "opacity-100 -translate-y-16"
-              : "opacity-0 translate-y-12"
-              }`}
+            className={`transition-all duration-1000 ${
+              isLoaded
+                ? "opacity-100 -translate-y-16"
+                : "opacity-0 translate-y-12"
+            }`}
           >
             {/* Hero Icons Section */}
             <div className="relative max-w-6xl mx-auto mb-8 sm:mb-12">
@@ -139,49 +146,57 @@ export function TravelerTypeSelection({
             {/* Hero Title */}
             <h1 className="text-3d-gradient mb-4 sm:mb-6 px-2">
               {typedHeroTitle}
-              <span className={`inline-block w-1 h-4 sm:h-6 md:h-8 lg:h-12 xl:h-16 bg-primary ml-1 sm:ml-2 ${!heroTitleComplete ? 'animate-pulse' : 'opacity-0'} transition-opacity duration-500`}>
-              </span>
+              <span
+                className={`inline-block w-1 h-4 sm:h-6 md:h-8 lg:h-12 xl:h-16 bg-primary ml-1 sm:ml-2 ${!heroTitleComplete ? "animate-pulse" : "opacity-0"} transition-opacity duration-500`}
+              ></span>
             </h1>
             {/* Hero Subtitle */}
-            <p className={`text-3d-title text-base sm:text-lg md:text-xl lg:text-2xl text-foreground-secondary max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed transition-all duration-700 px-4 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <p
+              className={`text-3d-title text-base sm:text-lg md:text-xl lg:text-2xl text-foreground-secondary max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed transition-all duration-700 px-4 ${heroTitleComplete ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+            >
               Spreadsheets or vibes - we've got you.
             </p>
             {/* Blurb */}
-            <p className={`text-sm sm:text-base md:text-lg max-w-3xl mx-auto mb-8 sm:mb-12 leading-relaxed transition-all duration-700 delay-300 px-4 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              Not a travel agent. Just the smart, thoughtful co-pilot that helps you figure out where to go and what to do — so that you can focus on the fun stuff.
+            <p
+              className={`text-sm sm:text-base md:text-lg max-w-3xl mx-auto mb-8 sm:mb-12 leading-relaxed transition-all duration-700 delay-300 px-4 ${heroTitleComplete ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+            >
+              Not a travel agent. Just the smart, thoughtful co-pilot that helps
+              you figure out where to go and what to do — so that you can focus
+              on the fun stuff.
             </p>
 
             <button
               onClick={scrollToTravelerTypes}
-              className={`btn-3d-primary px-8 py-4 rounded-full text-lg lift-hover transition-all duration-700 delay-500 ${heroTitleComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+              className={`btn-3d-primary px-8 py-4 rounded-full text-lg lift-hover transition-all duration-700 delay-500 ${heroTitleComplete ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
               Let's Go
               <ArrowDown className="w-5 h-5 text-white animate-bounce" />
             </button>
-            
-
           </div>
         </div>
 
         {/* Asymmetrical Adventure Header */}
-        <div id="traveler-types-section" className="relative pt-4 mb-4 sm:mb-8 md:mb-12 lg:mb-16">
+        <div
+          id="traveler-types-section"
+          className="relative pt-4 mb-4 sm:mb-8 md:mb-12 lg:mb-16"
+        >
           {/* Main title section - offset left */}
           <div
-            className={`ml-8 md:ml-16 lg:ml-24 transition-all duration-1000 ${isLoaded
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-12"
-              }`}
+            className={`ml-8 md:ml-16 lg:ml-24 transition-all duration-1000 ${
+              isLoaded
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12"
+            }`}
             role="banner"
             aria-labelledby="step-title"
           >
-            <h2 className="text-3d-hero mb-6">
-              How do you travel?
-            </h2>
+            <h2 className="text-3d-hero mb-6">How do you travel?</h2>
 
             {/* Offset subtitle block */}
             <div className="ml-8 md:ml-16 max-w-2xl space-y-3">
               <p className="text-base md:text-lg text-foreground-secondary leading-relaxed font-medium">
-                No judgment here — we've all got our thing. Whether you're a spreadsheet person or a 'wing it' person, we've got you covered.
+                No judgment here — we've all got our thing. Whether you're a
+                spreadsheet person or a 'wing it' person, we've got you covered.
               </p>
             </div>
           </div>
@@ -214,8 +229,7 @@ export function TravelerTypeSelection({
             {travelerTypes.map((type, index) => (
               <div
                 key={type.id}
-                className={`flex-1 ${index % 2 === 0 ? "mt-0" : "mt-16"
-                  }`}
+                className={`flex-1 ${index % 2 === 0 ? "mt-0" : "mt-16"}`}
                 style={{
                   minWidth: "280px",
                   maxWidth: "320px",

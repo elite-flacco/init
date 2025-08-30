@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react';
-import { AuthModal } from './AuthModal';
-import { useAuthForm } from '../../hooks/useAuth';
+import React, { useState } from "react";
+import { Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react";
+import { AuthModal } from "./AuthModal";
+import { useAuthForm } from "../../hooks/useAuth";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -12,7 +12,12 @@ interface LoginModalProps {
   onSuccess?: () => void;
 }
 
-export function LoginModal({ isOpen, onClose, onSwitchToSignup, onSuccess }: LoginModalProps) {
+export function LoginModal({
+  isOpen,
+  onClose,
+  onSwitchToSignup,
+  onSuccess,
+}: LoginModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const {
@@ -40,7 +45,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, onSuccess }: Log
     if (success) {
       setShowForgotPassword(false);
       // Show success message
-      alert('Password reset email sent! Check your inbox.');
+      alert("Password reset email sent! Check your inbox.");
     }
   };
 
@@ -67,13 +72,17 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, onSuccess }: Log
         <form onSubmit={handleForgotPassword} className="space-y-4">
           <div>
             <p className="text-sm text-foreground-secondary mb-4">
-              Enter your email address and we'll send you a link to reset your password.
+              Enter your email address and we'll send you a link to reset your
+              password.
             </p>
           </div>
 
           {/* Email */}
           <div>
-            <label htmlFor="reset-email" className="block text-sm font-medium text-foreground mb-2">
+            <label
+              htmlFor="reset-email"
+              className="block text-sm font-medium text-foreground mb-2"
+            >
               Email Address
             </label>
             <div className="relative">
@@ -115,7 +124,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, onSuccess }: Log
               disabled={loading}
               className="w-full btn-3d-primary py-2.5 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Sending...' : 'Send Reset Link'}
+              {loading ? "Sending..." : "Send Reset Link"}
             </button>
 
             <button
@@ -138,7 +147,10 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, onSuccess }: Log
 
           {/* Email */}
           <div>
-            <label htmlFor="login-email" className="block text-sm font-medium text-foreground mb-2">
+            <label
+              htmlFor="login-email"
+              className="block text-sm font-medium text-foreground mb-2"
+            >
               Email Address
             </label>
             <div className="relative">
@@ -165,7 +177,10 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, onSuccess }: Log
 
           {/* Password */}
           <div>
-            <label htmlFor="login-password" className="block text-sm font-medium text-foreground mb-2">
+            <label
+              htmlFor="login-password"
+              className="block text-sm font-medium text-foreground mb-2"
+            >
               Password
             </label>
             <div className="relative">
@@ -174,7 +189,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, onSuccess }: Log
               </div>
               <input
                 id="login-password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={formState.password}
                 onChange={(e) => setFormState({ password: e.target.value })}
                 className="block w-full pl-10 pr-10 py-2 border border-border rounded-lg bg-background text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -229,12 +244,12 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup, onSuccess }: Log
               disabled={loading}
               className="w-full btn-3d-primary py-2.5 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
 
             <div className="text-center">
               <span className="text-sm text-foreground-secondary">
-                Don't have an account?{' '}
+                Don't have an account?{" "}
                 <button
                   type="button"
                   onClick={handleSwitchToSignup}

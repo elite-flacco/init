@@ -1,9 +1,9 @@
 declare global {
   interface Window {
     gtag: (
-      command: 'config' | 'event' | 'js' | 'set',
+      command: "config" | "event" | "js" | "set",
       targetId: string | Date | object,
-      config?: object
+      config?: object,
     ) => void;
     dataLayer: any[];
     __GA_INITIALIZED__?: boolean;
@@ -16,7 +16,10 @@ export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 // Check if GA is enabled
 export const isGAEnabled = () => {
   // return GA_MEASUREMENT_ID && typeof window !== 'undefined';
-  return typeof window !== 'undefined' && Boolean(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID);
+  return (
+    typeof window !== "undefined" &&
+    Boolean(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID)
+  );
 };
 
 // Initialize Google Analytics (now handled by GoogleAnalytics component)
@@ -29,7 +32,7 @@ export const initGA = () => {
 export const trackPageView = (url: string, title?: string) => {
   if (!isGAEnabled()) return;
 
-  window.gtag('event', 'page_view', {
+  window.gtag("event", "page_view", {
     page_path: url,
     page_title: title || document.title,
     page_location: window.location.href,
@@ -41,82 +44,85 @@ export const trackEvent = (
   action: string,
   category: string,
   label?: string,
-  value?: number
+  value?: number,
 ) => {
   if (!isGAEnabled()) return;
-  
-  window.gtag('event', action, {
+
+  window.gtag("event", action, {
     event_category: category,
     event_label: label,
     value: value,
   });
 };
 
-
 // Track travel-specific events
 export const trackTravelEvent = {
   // Track when user selects traveler type
   selectTravelerType: (travelerType: string) => {
-    trackEvent('select_traveler_type', 'travel_flow', travelerType);
+    trackEvent("select_traveler_type", "travel_flow", travelerType);
   },
 
   // Track destination knowledge selection
   selectDestinationKnowledge: (knowledge: string) => {
-    trackEvent('select_destination_knowledge', 'travel_flow', knowledge);
+    trackEvent("select_destination_knowledge", "travel_flow", knowledge);
   },
 
   // Track when user inputs destination manually
   inputDestination: (destination: string) => {
-    trackEvent('input_destination', 'travel_flow', destination);
+    trackEvent("input_destination", "travel_flow", destination);
   },
 
   // Track when user completes destination preferences
   completeDestinationPreferences: (preferences: object) => {
-    trackEvent('complete_destination_preferences', 'travel_flow', JSON.stringify(preferences));
+    trackEvent(
+      "complete_destination_preferences",
+      "travel_flow",
+      JSON.stringify(preferences),
+    );
   },
 
   // Track when user selects a destination
   selectDestination: (destination: string) => {
-    trackEvent('select_destination', 'travel_flow', destination);
+    trackEvent("select_destination", "travel_flow", destination);
   },
 
   // Track when user completes trip planning
   completeTripPlanning: () => {
-    trackEvent('complete_trip_planning', 'travel_flow');
+    trackEvent("complete_trip_planning", "travel_flow");
   },
 
   // Track when user views final plan
   viewTravelPlan: (destination: string) => {
-    trackEvent('view_travel_plan', 'travel_flow', destination);
+    trackEvent("view_travel_plan", "travel_flow", destination);
   },
 
   // Track when user regenerates plan
   regeneratePlan: () => {
-    trackEvent('regenerate_plan', 'travel_flow');
+    trackEvent("regenerate_plan", "travel_flow");
   },
 
   // Track when user shares plan
   sharePlan: (method: string) => {
-    trackEvent('share_plan', 'engagement', method);
+    trackEvent("share_plan", "engagement", method);
   },
 
   // Track when user exports plan
   exportPlan: (format: string) => {
-    trackEvent('export_plan', 'engagement', format);
+    trackEvent("export_plan", "engagement", format);
   },
 
   // Track AI recommendation requests
-  requestAIRecommendations: (type: 'destinations' | 'trip_plan') => {
-    trackEvent('request_ai_recommendations', 'ai_usage', type);
+  requestAIRecommendations: (type: "destinations" | "trip_plan") => {
+    trackEvent("request_ai_recommendations", "ai_usage", type);
   },
 
   // Track step navigation
   navigateStep: (fromStep: string, toStep: string) => {
-    trackEvent('navigate_step', 'navigation', `${fromStep}_to_${toStep}`);
+    trackEvent("navigate_step", "navigation", `${fromStep}_to_${toStep}`);
   },
 
   // Track errors
   error: (errorType: string, errorMessage?: string) => {
-    trackEvent('error', 'errors', errorType, errorMessage ? 1 : 0);
+    trackEvent("error", "errors", errorType, errorMessage ? 1 : 0);
   },
 };

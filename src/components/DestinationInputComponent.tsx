@@ -27,9 +27,7 @@ export function DestinationInputComponent({
     }
 
     if (destination.length < 2) {
-      setError(
-        'That\'s a bit short — try something like "Paris" or "Tokyo".',
-      );
+      setError('That\'s a bit short — try something like "Paris" or "Tokyo".');
       return;
     }
 
@@ -43,36 +41,35 @@ export function DestinationInputComponent({
 
   return (
     <div className="container overflow-hidden">
-
       <div className="container mx-auto px-4 relative z-10 flex items-center">
         <div className="w-full max-w-4xl mx-auto">
           {/* Expedition Header */}
           <div
-            className={`text-center mb-16 transition-all duration-1000 ${isAnimated
+            className={`text-center mb-16 transition-all duration-1000 ${
+              isAnimated
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-12"
-              }`}
+            }`}
           >
-
             {/* Expedition Title */}
-            <h1 className="page-title">
-              Alright, spill it — where to?
-            </h1>
+            <h1 className="page-title">Alright, spill it — where to?</h1>
 
             {/* Personalized Adventure Message */}
             <div className="max-w-3xl mx-auto space-y-4">
               <p className="page-subtitle">
-                Tell us where your heart wants to go and we'll build you the perfect trip.
+                Tell us where your heart wants to go and we'll build you the
+                perfect trip.
               </p>
             </div>
           </div>
 
           {/* Expedition Planning Interface */}
           <div
-            className={`max-w-2xl mx-auto transition-all duration-1000 delay-300 ${isAnimated
+            className={`max-w-2xl mx-auto transition-all duration-1000 delay-300 ${
+              isAnimated
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-8"
-              }`}
+            }`}
           >
             {/* Adventure Form Card */}
             <div className="relative mb-16">
@@ -80,24 +77,22 @@ export function DestinationInputComponent({
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 rounded-3xl blur-xl opacity-50 animate-glow-pulse"></div>
 
               <div className="relative bg-gradient-to-br from-background/95 to-background-card/90 backdrop-blur-xl border-2 border-border/50 rounded-3xl shadow-adventure-float p-8 lg:p-12">
-
                 <form onSubmit={handleSubmit} className="space-y-8">
                   {/* Destination Input */}
                   <div className="relative">
-
                     <div className="relative">
                       <input
                         type="text"
                         value={destination}
                         onChange={handleInputChange}
                         placeholder="Bangkok, Santorini, Bali... (Be specific: Kyoto > Japan)"
-                        className={`w-full px-6 py-4 text-sm bg-background/80 backdrop-blur-sm border-2 rounded-xl shadow-card transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:border-primary focus:shadow-card-hover focus:bg-background ${error
+                        className={`w-full px-6 py-4 text-sm bg-background/80 backdrop-blur-sm border-2 rounded-xl shadow-card transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:border-primary focus:shadow-card-hover focus:bg-background ${
+                          error
                             ? "border-red-300 bg-red-50/80"
                             : "border-border hover:border-border-secondary"
-                          }`}
+                        }`}
                         autoFocus
                       />
-
                     </div>
 
                     {error && (

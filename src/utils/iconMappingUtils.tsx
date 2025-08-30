@@ -20,7 +20,7 @@ import {
 // Emoji to text keyword mapping
 export const emojiToKeyword: Record<string, string> = {
   "☕": "coffee",
-  "🍴": "utensils", 
+  "🍴": "utensils",
   "🍽️": "utensils",
   "🥄": "utensils",
   "🍞": "food",
@@ -63,7 +63,8 @@ export const emojiToKeyword: Record<string, string> = {
 
 // Helper function to detect if string contains emoji
 export function containsEmoji(str: string): boolean {
-  const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+  const emojiRegex =
+    /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
   return emojiRegex.test(str);
 }
 
@@ -73,15 +74,20 @@ export function normalizeIconName(iconName: string): string {
   if (containsEmoji(iconName)) {
     const keyword = emojiToKeyword[iconName.trim()];
     if (keyword) return keyword;
-    
+
     // If no direct emoji match, try to extract any text that might be mixed with emoji
-    const textOnly = iconName.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+    const textOnly = iconName
+      .replace(
+        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu,
+        "",
+      )
+      .trim();
     if (textOnly) return textOnly;
-    
+
     // No match found, return original
     return iconName;
   }
-  
+
   // If it's not an emoji, return as-is (lowercase will be handled in switch)
   return iconName;
 }
@@ -90,12 +96,18 @@ export function normalizeIconName(iconName: string): string {
 export function getActivityIcon(
   iconName: string | ActivityIconCategory,
   size: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" = "sm",
-  animation: "float" | "pulse" | "bounce" | "spin" | "none" = "none"
+  animation: "float" | "pulse" | "bounce" | "spin" | "none" = "none",
 ) {
-  const iconProps = { size, animation, className: "transition-all duration-300" };
-  
+  const iconProps = {
+    size,
+    animation,
+    className: "transition-all duration-300",
+  };
+
   // Normalize the icon name (handle emojis and extract keywords)
-  const normalizedName = normalizeIconName(iconName).toLowerCase() as ActivityIconCategory;
+  const normalizedName = normalizeIconName(
+    iconName,
+  ).toLowerCase() as ActivityIconCategory;
 
   switch (normalizedName) {
     case "coffee":
@@ -119,7 +131,7 @@ export function getActivityIcon(
 
 export function getTravelerTypeIcon(
   travelerTypeId: string,
-  size: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" = "xl"
+  size: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" = "xl",
 ) {
   const iconProps = { size, className: "object-contain" };
 
@@ -139,7 +151,7 @@ export function getTravelerTypeIcon(
 
 export function getDestinationKnowledgeIcon(
   destinationKnowledgeId: string,
-  size: "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" = "sm"
+  size: "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" = "sm",
 ) {
   const iconProps = { size, className: "object-contain" };
 
@@ -157,7 +169,7 @@ export function getDestinationKnowledgeIcon(
 
 export function getProgressStepIcon(
   stepId: string,
-  size: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" = "sm"
+  size: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" = "sm",
 ) {
   const iconProps = { size };
 

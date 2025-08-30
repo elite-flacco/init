@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
-import { LoginModal } from './LoginModal';
-import { SignupModal } from './SignupModal';
+import React, { useState } from "react";
+import { LoginModal } from "./LoginModal";
+import { SignupModal } from "./SignupModal";
 
-type AuthModalType = 'login' | 'signup' | null;
+type AuthModalType = "login" | "signup" | null;
 
 interface AuthModalManagerProps {
   initialModal?: AuthModalType;
@@ -13,11 +13,11 @@ interface AuthModalManagerProps {
   onSuccess?: () => void;
 }
 
-export function AuthModalManager({ 
-  initialModal = 'login', 
-  isOpen, 
-  onClose, 
-  onSuccess 
+export function AuthModalManager({
+  initialModal = "login",
+  isOpen,
+  onClose,
+  onSuccess,
 }: AuthModalManagerProps) {
   const [currentModal, setCurrentModal] = useState<AuthModalType>(initialModal);
 
@@ -34,15 +34,15 @@ export function AuthModalManager({
   return (
     <>
       <LoginModal
-        isOpen={isOpen && currentModal === 'login'}
+        isOpen={isOpen && currentModal === "login"}
         onClose={handleClose}
-        onSwitchToSignup={() => setCurrentModal('signup')}
+        onSwitchToSignup={() => setCurrentModal("signup")}
         onSuccess={handleSuccess}
       />
       <SignupModal
-        isOpen={isOpen && currentModal === 'signup'}
+        isOpen={isOpen && currentModal === "signup"}
         onClose={handleClose}
-        onSwitchToLogin={() => setCurrentModal('login')}
+        onSwitchToLogin={() => setCurrentModal("login")}
         onSuccess={handleSuccess}
       />
     </>
@@ -50,11 +50,11 @@ export function AuthModalManager({
 }
 
 // Hook for managing auth modal state
-export function useAuthModal(initialModal: AuthModalType = 'login') {
+export function useAuthModal(initialModal: AuthModalType = "login") {
   const [isOpen, setIsOpen] = useState(false);
   const [modalType, setModalType] = useState<AuthModalType>(initialModal);
 
-  const openModal = (type: AuthModalType = 'login') => {
+  const openModal = (type: AuthModalType = "login") => {
     setModalType(type);
     setIsOpen(true);
   };
@@ -63,8 +63,8 @@ export function useAuthModal(initialModal: AuthModalType = 'login') {
     setIsOpen(false);
   };
 
-  const openLogin = () => openModal('login');
-  const openSignup = () => openModal('signup');
+  const openLogin = () => openModal("login");
+  const openSignup = () => openModal("signup");
 
   return {
     isOpen,

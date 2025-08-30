@@ -9,9 +9,7 @@ import {
   mockPickDestinationPreferences,
   resetMocks,
 } from "../../test/mocks";
-import {
-  TripPreferences,
-} from "../../types/travel";
+import { TripPreferences } from "../../types/travel";
 
 // Note: This component no longer directly uses aiTripPlanningService
 // It now passes streaming requests to the parent component
@@ -113,10 +111,10 @@ describe("AITripPlanningPrompts", () => {
             destination: mockDestinations.tokyo,
             preferences: expect.any(Object),
             travelerType: mockTravelerTypes.culture,
-          })
+          }),
         );
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
   });
 
@@ -146,10 +144,10 @@ describe("AITripPlanningPrompts", () => {
               specialActivities: "cultural",
             }),
             travelerType: mockTravelerTypes.culture,
-          })
+          }),
         );
       },
-      { timeout: 8000 }
+      { timeout: 8000 },
     );
   }, 10000);
 
@@ -172,7 +170,7 @@ describe("AITripPlanningPrompts", () => {
           screen.getByText("Houston, we have a problem..."),
         ).toBeInTheDocument();
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
   });
 
@@ -192,7 +190,7 @@ describe("AITripPlanningPrompts", () => {
       () => {
         expect(screen.getByText("Give It Another Shot")).toBeInTheDocument();
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     const retryButton = screen.getByText("Give It Another Shot");
@@ -221,7 +219,7 @@ describe("AITripPlanningPrompts", () => {
           screen.getByText("Houston, we have a problem..."),
         ).toBeInTheDocument();
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
   });
 
@@ -241,7 +239,7 @@ describe("AITripPlanningPrompts", () => {
       () => {
         expect(screen.getByText("Go Back")).toBeInTheDocument();
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     const backButton = screen.getByText("Go Back");
@@ -253,9 +251,7 @@ describe("AITripPlanningPrompts", () => {
   it("should display destination name in title", () => {
     render(<AITripPlanningPrompts {...defaultProps} />);
 
-    expect(
-      screen.getByText("Let's plan your Tokyo trip!"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Let's plan your Tokyo trip!")).toBeInTheDocument();
   });
 
   it("should handle destination from preferences when no destination selected", () => {
@@ -283,9 +279,12 @@ describe("AITripPlanningPrompts", () => {
 
     // This test just verifies the component doesn't crash during the process
     // The actual loading tips would be shown in the parent component that handles streaming
-    await waitFor(() => {
-      expect(mockOnComplete).toHaveBeenCalled();
-    }, { timeout: 8000 });
+    await waitFor(
+      () => {
+        expect(mockOnComplete).toHaveBeenCalled();
+      },
+      { timeout: 8000 },
+    );
   });
 
   it("should merge preferences from pick destination flow", async () => {
@@ -313,7 +312,7 @@ describe("AITripPlanningPrompts", () => {
           }),
         );
       },
-      { timeout: 8000 }
+      { timeout: 8000 },
     );
   }, 10000);
 });

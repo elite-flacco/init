@@ -11,7 +11,7 @@ export const travelerTypes: TravelerType[] = [
   },
   {
     id: "type-a",
-    name: "Type A", 
+    name: "Type A",
     description:
       "I have spreadsheets for my spreadsheets. Every minute planned, every detail covered.",
     icon: "type-a", // Now handled by icon mapping
@@ -28,7 +28,7 @@ export const travelerTypes: TravelerType[] = [
     showPlaceholder: true,
     placeholderMessage:
       "We're busy overthinking how to help you stop overthinking. Stay tuned.",
-    greeting: "We see those 47 tabs, friend."
+    greeting: "We see those 47 tabs, friend.",
   },
   {
     id: "chill",

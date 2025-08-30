@@ -30,7 +30,8 @@ export function PickMyDestinationFlow({
           <div className="text-center py-16">
             <h3 className="mb-4">Oops, we hit a snag</h3>
             <p>
-              Looks like something got lost along the way. Mind going back and trying again?
+              Looks like something got lost along the way. Mind going back and
+              trying again?
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from 'openai';
+import OpenAI from "openai";
 import {
   TravelerType,
   Destination,
@@ -15,10 +15,10 @@ export interface AITripPlanningRequest {
 
 // JSON Schema for structured outputs (keeping existing schemas)
 const CHUNK_SCHEMAS = {
-  1: { // Locations
+  1: {
+    // Locations
     type: "object",
     properties: {
-
       neighborhoods: {
         type: "array",
         items: {
@@ -29,17 +29,17 @@ const CHUNK_SCHEMAS = {
             vibe: { type: "string" },
             pros: {
               type: "array",
-              items: { type: "string" }
+              items: { type: "string" },
             },
             cons: {
               type: "array",
-              items: { type: "string" }
+              items: { type: "string" },
             },
-            bestFor: { type: "string" }
+            bestFor: { type: "string" },
           },
           required: ["name", "summary", "vibe", "pros", "cons", "bestFor"],
-          additionalProperties: false
-        }
+          additionalProperties: false,
+        },
       },
       hotelRecommendations: {
         type: "array",
@@ -48,20 +48,31 @@ const CHUNK_SCHEMAS = {
           properties: {
             name: { type: "string" },
             neighborhood: { type: "string" },
-            priceRange: { type: "string", maxLength: 100, pattern: "^[^\\r\\n]+$" },
+            priceRange: {
+              type: "string",
+              maxLength: 100,
+              pattern: "^[^\\r\\n]+$",
+            },
             description: { type: "string" },
             amenities: {
               type: "array",
-              items: { type: "string" }
+              items: { type: "string" },
             },
             airbnbLink: {
               type: "string",
-              description: "Airbnb link if applicable, otherwise empty string"
-            }
+              description: "Airbnb link if applicable, otherwise empty string",
+            },
           },
-          required: ["name", "neighborhood", "priceRange", "description", "amenities", "airbnbLink"],
-          additionalProperties: false
-        }
+          required: [
+            "name",
+            "neighborhood",
+            "priceRange",
+            "description",
+            "amenities",
+            "airbnbLink",
+          ],
+          additionalProperties: false,
+        },
       },
       restaurants: {
         type: "array",
@@ -70,18 +81,30 @@ const CHUNK_SCHEMAS = {
           properties: {
             name: { type: "string" },
             cuisine: { type: "string" },
-            priceRange: { type: "string", maxLength: 100, pattern: "^[^\\r\\n]+$" },
+            priceRange: {
+              type: "string",
+              maxLength: 100,
+              pattern: "^[^\\r\\n]+$",
+            },
             description: { type: "string" },
             neighborhood: { type: "string" },
             specialDishes: {
               type: "array",
-              items: { type: "string" }
+              items: { type: "string" },
             },
-            reservationsRecommended: { type: "string" }
+            reservationsRecommended: { type: "string" },
           },
-          required: ["name", "cuisine", "priceRange", "description", "neighborhood", "specialDishes", "reservationsRecommended"],
-          additionalProperties: false
-        }
+          required: [
+            "name",
+            "cuisine",
+            "priceRange",
+            "description",
+            "neighborhood",
+            "specialDishes",
+            "reservationsRecommended",
+          ],
+          additionalProperties: false,
+        },
       },
       bars: {
         type: "array",
@@ -91,19 +114,31 @@ const CHUNK_SCHEMAS = {
             name: { type: "string" },
             type: { type: "string" },
             atmosphere: { type: "string" },
-            description: { type: "string", maxLength: 200, pattern: "^[^\\r\\n]+$" },
+            description: {
+              type: "string",
+              maxLength: 200,
+              pattern: "^[^\\r\\n]+$",
+            },
             category: { type: "string" },
-            neighborhood: { type: "string" }
+            neighborhood: { type: "string" },
           },
-          required: ["name", "type", "atmosphere", "description", "category", "neighborhood"],
-          additionalProperties: false
-        }
+          required: [
+            "name",
+            "type",
+            "atmosphere",
+            "description",
+            "category",
+            "neighborhood",
+          ],
+          additionalProperties: false,
+        },
       },
     },
     required: ["neighborhoods", "hotelRecommendations", "restaurants", "bars"],
-    additionalProperties: false
+    additionalProperties: false,
   },
-  2: { // Attractions & food schema
+  2: {
+    // Attractions & food schema
     type: "object",
     properties: {
       placesToVisit: {
@@ -113,17 +148,17 @@ const CHUNK_SCHEMAS = {
           properties: {
             name: { type: "string" },
             description: { type: "string", pattern: "^[^\\r\\n]+$" },
-            category: { 
+            category: {
               type: "string",
               enum: [
                 "cultural",
-                "historical", 
+                "historical",
                 "nature",
                 "entertainment",
                 "museum",
                 "landmark",
-                "culinary"
-              ]
+                "culinary",
+              ],
             },
             priority: { type: "number" },
             ticketInfo: {
@@ -134,17 +169,29 @@ const CHUNK_SCHEMAS = {
                 bookingAdvice: { type: "string" },
                 peakTime: {
                   type: "array",
-                  items: { type: "string" }
+                  items: { type: "string" },
                 },
-                averageWaitTime: { type: "string" }
+                averageWaitTime: { type: "string" },
               },
-              required: ["required", "recommended", "bookingAdvice", "peakTime", "averageWaitTime"],
-              additionalProperties: false
-            }
+              required: [
+                "required",
+                "recommended",
+                "bookingAdvice",
+                "peakTime",
+                "averageWaitTime",
+              ],
+              additionalProperties: false,
+            },
           },
-          required: ["name", "description", "category", "priority", "ticketInfo"],
-          additionalProperties: false
-        }
+          required: [
+            "name",
+            "description",
+            "category",
+            "priority",
+            "ticketInfo",
+          ],
+          additionalProperties: false,
+        },
       },
       mustTryFood: {
         type: "object",
@@ -158,24 +205,35 @@ const CHUNK_SCHEMAS = {
                 description: { type: "string", pattern: "^[^\\r\\n]+$" },
                 category: {
                   type: "string",
-                  enum: ["main", "dessert", "drink", "snack"]
+                  enum: ["main", "dessert", "drink", "snack"],
                 },
                 whereToFind: { type: "string" },
-                priceRange: { type: "string", maxLength: 100, pattern: "^[^\\r\\n]+$" }
+                priceRange: {
+                  type: "string",
+                  maxLength: 100,
+                  pattern: "^[^\\r\\n]+$",
+                },
               },
-              required: ["name", "description", "category", "whereToFind", "priceRange"],
-              additionalProperties: false
-            }
-          }
+              required: [
+                "name",
+                "description",
+                "category",
+                "whereToFind",
+                "priceRange",
+              ],
+              additionalProperties: false,
+            },
+          },
         },
         required: ["items"],
-        additionalProperties: false
-      }
+        additionalProperties: false,
+      },
     },
     required: ["placesToVisit", "mustTryFood"],
-    additionalProperties: false
+    additionalProperties: false,
   },
-  3: { // Practical info schema
+  3: {
+    // Practical info schema
     type: "object",
     properties: {
       weatherInfo: {
@@ -190,11 +248,20 @@ const CHUNK_SCHEMAS = {
           feelsLikeWarning: { type: "string" },
           recommendations: {
             type: "array",
-            items: { type: "string" }
-          }
+            items: { type: "string" },
+          },
         },
-        required: ["season", "temperature", "conditions", "humidity", "dayNightTempDifference", "airQuality", "feelsLikeWarning", "recommendations"],
-        additionalProperties: false
+        required: [
+          "season",
+          "temperature",
+          "conditions",
+          "humidity",
+          "dayNightTempDifference",
+          "airQuality",
+          "feelsLikeWarning",
+          "recommendations",
+        ],
+        additionalProperties: false,
       },
       localCurrency: {
         type: "object",
@@ -204,7 +271,7 @@ const CHUNK_SCHEMAS = {
           creditCardUsage: { type: "string" },
           tips: {
             type: "array",
-            items: { type: "string" }
+            items: { type: "string" },
           },
           exchangeRate: {
             type: "object",
@@ -212,22 +279,28 @@ const CHUNK_SCHEMAS = {
               from: { type: "string" },
               to: { type: "string" },
               rate: { type: "number" },
-              lastUpdated: { type: "string" }
+              lastUpdated: { type: "string" },
             },
             required: ["from", "to", "rate", "lastUpdated"],
-            additionalProperties: false
-          }
+            additionalProperties: false,
+          },
         },
-        required: ["currency", "cashNeeded", "creditCardUsage", "tips", "exchangeRate"],
-        additionalProperties: false
+        required: [
+          "currency",
+          "cashNeeded",
+          "creditCardUsage",
+          "tips",
+          "exchangeRate",
+        ],
+        additionalProperties: false,
       },
       safetyTips: {
         type: "array",
-        items: { type: "string" }
+        items: { type: "string" },
       },
       socialEtiquette: {
         type: "array",
-        items: { type: "string" }
+        items: { type: "string" },
       },
       transportationInfo: {
         type: "object",
@@ -257,21 +330,33 @@ const CHUNK_SCHEMAS = {
                           notes: {
                             type: "array",
                             items: { type: "string" },
-                            description: "Additional notes or warnings, can be empty array"
-                          }
+                            description:
+                              "Additional notes or warnings, can be empty array",
+                          },
                         },
-                        required: ["type", "cost", "duration", "description", "notes"],
-                        additionalProperties: false
-                      }
-                    }
+                        required: [
+                          "type",
+                          "cost",
+                          "duration",
+                          "description",
+                          "notes",
+                        ],
+                        additionalProperties: false,
+                      },
+                    },
                   },
-                  required: ["name", "code", "distanceToCity", "transportOptions"],
-                  additionalProperties: false
-                }
-              }
+                  required: [
+                    "name",
+                    "code",
+                    "distanceToCity",
+                    "transportOptions",
+                  ],
+                  additionalProperties: false,
+                },
+              },
             },
             required: ["airports"],
-            additionalProperties: false
+            additionalProperties: false,
           },
           ridesharing: { type: "string" },
           taxiInfo: {
@@ -281,15 +366,21 @@ const CHUNK_SCHEMAS = {
               averageCost: { type: "string" },
               tips: {
                 type: "array",
-                items: { type: "string" }
-              }
+                items: { type: "string" },
+              },
             },
             required: ["available", "averageCost", "tips"],
-            additionalProperties: false
-          }
+            additionalProperties: false,
+          },
         },
-        required: ["publicTransport", "creditCardPayment", "airportTransport", "ridesharing", "taxiInfo"],
-        additionalProperties: false
+        required: [
+          "publicTransport",
+          "creditCardPayment",
+          "airportTransport",
+          "ridesharing",
+          "taxiInfo",
+        ],
+        additionalProperties: false,
       },
       tipEtiquette: {
         type: "object",
@@ -299,25 +390,41 @@ const CHUNK_SCHEMAS = {
           taxis: { type: "string" },
           hotels: { type: "string" },
           tours: { type: "string" },
-          general: { type: "string" }
+          general: { type: "string" },
         },
-        required: ["restaurants", "bars", "taxis", "hotels", "tours", "general"],
-        additionalProperties: false
+        required: [
+          "restaurants",
+          "bars",
+          "taxis",
+          "hotels",
+          "tours",
+          "general",
+        ],
+        additionalProperties: false,
       },
       tapWaterSafe: {
         type: "object",
         properties: {
           safe: { type: "boolean" },
-          details: { type: "string" }
+          details: { type: "string" },
         },
         required: ["safe", "details"],
-        additionalProperties: false
-      }
+        additionalProperties: false,
+      },
     },
-    required: ["weatherInfo", "localCurrency", "safetyTips", "socialEtiquette", "transportationInfo", "tipEtiquette", "tapWaterSafe"],
-    additionalProperties: false
+    required: [
+      "weatherInfo",
+      "localCurrency",
+      "safetyTips",
+      "socialEtiquette",
+      "transportationInfo",
+      "tipEtiquette",
+      "tapWaterSafe",
+    ],
+    additionalProperties: false,
   },
-  4: { // Cultural schema
+  4: {
+    // Cultural schema
     type: "object",
     properties: {
       activities: {
@@ -332,12 +439,19 @@ const CHUNK_SCHEMAS = {
             localSpecific: { type: "boolean" },
             experienceType: {
               type: "string",
-              enum: ["airbnb", "getyourguide", "viator", "other"]
-            }
+              enum: ["airbnb", "getyourguide", "viator", "other"],
+            },
           },
-          required: ["name", "type", "description", "duration", "localSpecific", "experienceType"],
-          additionalProperties: false
-        }
+          required: [
+            "name",
+            "type",
+            "description",
+            "duration",
+            "localSpecific",
+            "experienceType",
+          ],
+          additionalProperties: false,
+        },
       },
       localEvents: {
         type: "array",
@@ -348,11 +462,11 @@ const CHUNK_SCHEMAS = {
             type: { type: "string" },
             description: { type: "string" },
             dates: { type: "string" },
-            location: { type: "string" }
+            location: { type: "string" },
           },
           required: ["name", "type", "description", "dates", "location"],
-          additionalProperties: false
-        }
+          additionalProperties: false,
+        },
       },
       history: { type: "string" },
       itinerary: {
@@ -371,21 +485,21 @@ const CHUNK_SCHEMAS = {
                   title: { type: "string" },
                   description: { type: "string" },
                   location: { type: "string" },
-                  icon: { type: "string" }
+                  icon: { type: "string" },
                 },
                 required: ["time", "title", "description", "location", "icon"],
-                additionalProperties: false
-              }
-            }
+                additionalProperties: false,
+              },
+            },
           },
           required: ["day", "title", "activities"],
-          additionalProperties: false
-        }
-      }
+          additionalProperties: false,
+        },
+      },
     },
     required: ["activities", "localEvents", "history", "itinerary"],
-    additionalProperties: false
-  }
+    additionalProperties: false,
+  },
 };
 
 // Import the existing prompt generators from chunked route
@@ -393,14 +507,14 @@ import {
   generateLocationsPrompt,
   generateFoodPrompt,
   generatePracticalPrompt,
-  generateCulturalPrompt
-} from '../chunked/route';
+  generateCulturalPrompt,
+} from "../chunked/route";
 
 const CHUNK_GENERATORS = {
   1: generateLocationsPrompt,
   2: generateFoodPrompt,
   3: generatePracticalPrompt,
-  4: generateCulturalPrompt
+  4: generateCulturalPrompt,
 };
 
 export const runtime = "nodejs"; // More efficient for streaming workloads
@@ -411,50 +525,54 @@ const sse = (obj: object) => enc.encode(`data: ${JSON.stringify(obj)}\n\n`);
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const chunkId = searchParams.get('chunk');
+  const chunkId = searchParams.get("chunk");
 
   if (!chunkId) {
-    return new NextResponse('Missing chunk parameter', { status: 400 });
+    return new NextResponse("Missing chunk parameter", { status: 400 });
   }
 
-  return new NextResponse('Use POST for streaming requests', { status: 405 });
+  return new NextResponse("Use POST for streaming requests", { status: 405 });
 }
 
 export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const chunkId = parseInt(searchParams.get('chunk') || '1');
+  const chunkId = parseInt(searchParams.get("chunk") || "1");
 
   try {
     const body: AITripPlanningRequest = await request.json();
     const config = getAIConfig();
 
-    if (config.provider === 'mock') {
+    if (config.provider === "mock") {
       // For mock, just return regular JSON (no streaming)
       return NextResponse.json({
         message: "Mock mode doesn't support streaming",
-        useRegularEndpoint: true
+        useRegularEndpoint: true,
       });
     }
 
-    if (config.provider !== 'openai') {
-      return new NextResponse('Streaming only supported with OpenAI provider', { status: 400 });
+    if (config.provider !== "openai") {
+      return new NextResponse("Streaming only supported with OpenAI provider", {
+        status: 400,
+      });
     }
 
     const openai = new OpenAI({
-      apiKey: config.apiKey
+      apiKey: config.apiKey,
     });
 
-    const promptGenerator = CHUNK_GENERATORS[chunkId as keyof typeof CHUNK_GENERATORS];
+    const promptGenerator =
+      CHUNK_GENERATORS[chunkId as keyof typeof CHUNK_GENERATORS];
     const schema = CHUNK_SCHEMAS[chunkId as keyof typeof CHUNK_SCHEMAS];
 
     if (!promptGenerator || !schema) {
-      return new NextResponse('Invalid chunk ID', { status: 400 });
+      return new NextResponse("Invalid chunk ID", { status: 400 });
     }
 
     const prompt = promptGenerator(body);
 
     let controllerClosed = false;
-    let respStream: Awaited<ReturnType<typeof openai.responses.stream>> | null = null;
+    let respStream: Awaited<ReturnType<typeof openai.responses.stream>> | null =
+      null;
 
     // Create ReadableStream for Server-Sent Events using OpenAI Responses API
     const stream = new ReadableStream<Uint8Array>({
@@ -462,10 +580,18 @@ export async function POST(request: NextRequest) {
         // Handle client aborts (e.g., tab closed)
         const abort = () => {
           if (!controllerClosed) {
-            try { respStream?.abort?.(); } catch (error) {
-              console.error('Error aborting stream:', error);
+            try {
+              respStream?.abort?.();
+            } catch (error) {
+              console.error("Error aborting stream:", error);
             }
-            controller.enqueue(sse({ type: "error", error: "client_aborted", timestamp: Date.now() }));
+            controller.enqueue(
+              sse({
+                type: "error",
+                error: "client_aborted",
+                timestamp: Date.now(),
+              }),
+            );
             controller.enqueue(enc.encode("data: [DONE]\n\n"));
             controller.close();
             controllerClosed = true;
@@ -480,18 +606,20 @@ export async function POST(request: NextRequest) {
 
           // Use OpenAI's Responses API - purpose-built for structured streaming outputs
           respStream = await openai.responses.stream({
-            model: config.model || 'gpt-4o-2024-08-06',
+            model: config.model || "gpt-4o-2024-08-06",
             input: [{ role: "user", content: prompt }],
             text: {
-              format: { 
-                type: "json_schema", 
-                schema: schema, 
-                strict: true, 
-                name: `chunk_${chunkId}_response` 
+              format: {
+                type: "json_schema",
+                schema: schema,
+                strict: true,
+                name: `chunk_${chunkId}_response`,
               },
             },
             max_output_tokens: config.chunkTokenLimit || 4000,
-            ...(modelSupportsTemperature(config.model || '') && { temperature: config.temperature || 0.3 })
+            ...(modelSupportsTemperature(config.model || "") && {
+              temperature: config.temperature || 0.3,
+            }),
           });
 
           let buffer = "";
@@ -508,7 +636,7 @@ export async function POST(request: NextRequest) {
                   type: "content_delta",
                   delta,
                   accumulated: buffer,
-                  timestamp: Date.now()
+                  timestamp: Date.now(),
                 });
               }
             }
@@ -518,7 +646,7 @@ export async function POST(request: NextRequest) {
               push({
                 type: "refusal",
                 delta: event.delta,
-                timestamp: Date.now()
+                timestamp: Date.now(),
               });
             }
           }
@@ -530,45 +658,48 @@ export async function POST(request: NextRequest) {
               type: "complete",
               chunkId,
               data: finalData,
-              timestamp: Date.now()
+              timestamp: Date.now(),
             });
           } catch (e: unknown) {
             // Sanitized error for client - don't expose internal details in production
             push({
               type: "error",
               error: "response_parse_failed",
-              message: process.env.NODE_ENV === 'development' 
-                ? `Parse error: ${e instanceof Error ? e.message : "unknown"}` 
-                : "Failed to parse AI response",
+              message:
+                process.env.NODE_ENV === "development"
+                  ? `Parse error: ${e instanceof Error ? e.message : "unknown"}`
+                  : "Failed to parse AI response",
               timestamp: Date.now(),
             });
           }
-
-        } catch (err: unknown) {          
+        } catch (err: unknown) {
           // Sanitize error message for security
           let sanitizedError = "streaming_error";
           if (err instanceof Error) {
             // Only expose safe error messages in production
-            if (process.env.NODE_ENV === 'development') {
-              sanitizedError = err.message.length < 100 ? err.message : err.message.substring(0, 100);
+            if (process.env.NODE_ENV === "development") {
+              sanitizedError =
+                err.message.length < 100
+                  ? err.message
+                  : err.message.substring(0, 100);
             } else {
               // Production: categorize common errors
-              if (err.message.includes('timeout')) {
+              if (err.message.includes("timeout")) {
                 sanitizedError = "Request timeout";
-              } else if (err.message.includes('abort')) {
+              } else if (err.message.includes("abort")) {
                 sanitizedError = "Request cancelled";
-              } else if (err.message.includes('network')) {
+              } else if (err.message.includes("network")) {
                 sanitizedError = "Network error";
               } else {
                 sanitizedError = "Service temporarily unavailable";
               }
             }
           }
-          
+
           push({
             type: "error",
             error: sanitizedError,
-            timestamp: Date.now()
+            timestamp: Date.now(),
           });
         } finally {
           if (!controllerClosed) {
@@ -585,28 +716,28 @@ export async function POST(request: NextRequest) {
       headers: {
         "Content-Type": "text/event-stream; charset=utf-8",
         "Cache-Control": "no-cache, no-transform",
-        "Connection": "keep-alive",
+        Connection: "keep-alive",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
     });
-
-  } catch (error) {    
+  } catch (error) {
     // Generic error handler - sanitize error message for security
-    const sanitizedError = error instanceof Error && error.message.length < 200 
-      ? error.message 
-      : 'Internal server error';
-      
+    const sanitizedError =
+      error instanceof Error && error.message.length < 200
+        ? error.message
+        : "Internal server error";
+
     return new NextResponse(
       JSON.stringify({
-        error: 'Failed to process request',
-        message: sanitizedError
+        error: "Failed to process request",
+        message: sanitizedError,
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      }
+        headers: { "Content-Type": "application/json" },
+      },
     );
   }
 }

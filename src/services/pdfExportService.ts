@@ -33,11 +33,11 @@ export class PdfExportService {
 
     try {
       const pdf = new jsPDF("p", "pt", "a4");
-      
+
       // Set default font for entire document
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(11);
-      
+
       let yPosition = PdfExportService.MARGIN;
 
       // Add title page
@@ -79,7 +79,7 @@ export class PdfExportService {
     const titleX = (PdfExportService.PAGE_WIDTH - titleWidth) / 2;
     const titleY = PdfExportService.PAGE_HEIGHT / 2;
     pdf.text(title, titleX, titleY);
-    
+
     return titleY + 40;
   }
 
@@ -305,8 +305,8 @@ export class PdfExportService {
           pdf.setFont("helvetica", "normal");
           // Normalize Unicode characters that can cause spacing issues
           const cleanAmenities = hotel.amenities
-            .filter(a => a && a.trim())
-            .map(a => a.replace(/[\u2011\u2012\u2013\u2014\u2015]/g, '-')); // Replace various Unicode dashes with regular hyphen
+            .filter((a) => a && a.trim())
+            .map((a) => a.replace(/[\u2011\u2012\u2013\u2014\u2015]/g, "-")); // Replace various Unicode dashes with regular hyphen
           const amenitiesText = `Amenities: ${cleanAmenities.join(", ")}`;
           pdf.text(amenitiesText, PdfExportService.MARGIN + 20, yPosition);
           yPosition += 15;

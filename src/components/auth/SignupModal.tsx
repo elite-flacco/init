@@ -1,9 +1,17 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react';
-import { AuthModal } from './AuthModal';
-import { useAuthForm } from '../../hooks/useAuth';
+import React, { useState } from "react";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  User,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
+import { AuthModal } from "./AuthModal";
+import { useAuthForm } from "../../hooks/useAuth";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -12,18 +20,17 @@ interface SignupModalProps {
   onSuccess?: () => void;
 }
 
-export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: SignupModalProps) {
+export function SignupModal({
+  isOpen,
+  onClose,
+  onSwitchToLogin,
+  onSuccess,
+}: SignupModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const {
-    formState,
-    setFormState,
-    errors,
-    loading,
-    signUp,
-    clearErrors,
-  } = useAuthForm();
+  const { formState, setFormState, errors, loading, signUp, clearErrors } =
+    useAuthForm();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +75,8 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: Sig
               Account Created Successfully!
             </h3>
             <p className="text-sm text-foreground-secondary">
-              You can now save your travel plans and destinations. Welcome aboard!
+              You can now save your travel plans and destinations. Welcome
+              aboard!
             </p>
           </div>
         </div>
@@ -77,13 +85,17 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: Sig
         <form onSubmit={handleSignUp} className="space-y-4">
           <div>
             <p className="text-sm text-foreground-secondary mb-4">
-              Create an account to save your travel plans and personalize your experience.
+              Create an account to save your travel plans and personalize your
+              experience.
             </p>
           </div>
 
           {/* Username */}
           <div>
-            <label htmlFor="signup-username" className="block text-sm font-medium text-foreground mb-2">
+            <label
+              htmlFor="signup-username"
+              className="block text-sm font-medium text-foreground mb-2"
+            >
               Username
             </label>
             <div className="relative">
@@ -93,7 +105,7 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: Sig
               <input
                 id="signup-username"
                 type="text"
-                value={formState.fullName || ''}
+                value={formState.fullName || ""}
                 onChange={(e) => setFormState({ fullName: e.target.value })}
                 className="block w-full pl-10 pr-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Enter your username"
@@ -110,7 +122,10 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: Sig
 
           {/* Email */}
           <div>
-            <label htmlFor="signup-email" className="block text-sm font-medium text-foreground mb-2">
+            <label
+              htmlFor="signup-email"
+              className="block text-sm font-medium text-foreground mb-2"
+            >
               Email Address
             </label>
             <div className="relative">
@@ -137,7 +152,10 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: Sig
 
           {/* Password */}
           <div>
-            <label htmlFor="signup-password" className="block text-sm font-medium text-foreground mb-2">
+            <label
+              htmlFor="signup-password"
+              className="block text-sm font-medium text-foreground mb-2"
+            >
               Password
             </label>
             <div className="relative">
@@ -146,7 +164,7 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: Sig
               </div>
               <input
                 id="signup-password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={formState.password}
                 onChange={(e) => setFormState({ password: e.target.value })}
                 className="block w-full pl-10 pr-10 py-2 border border-border rounded-lg bg-background text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -175,7 +193,10 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: Sig
 
           {/* Confirm Password */}
           <div>
-            <label htmlFor="signup-confirm-password" className="block text-sm font-medium text-foreground mb-2">
+            <label
+              htmlFor="signup-confirm-password"
+              className="block text-sm font-medium text-foreground mb-2"
+            >
               Confirm Password
             </label>
             <div className="relative">
@@ -184,9 +205,11 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: Sig
               </div>
               <input
                 id="signup-confirm-password"
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={formState.confirmPassword || ''}
-                onChange={(e) => setFormState({ confirmPassword: e.target.value })}
+                type={showConfirmPassword ? "text" : "password"}
+                value={formState.confirmPassword || ""}
+                onChange={(e) =>
+                  setFormState({ confirmPassword: e.target.value })
+                }
                 className="block w-full pl-10 pr-10 py-2 border border-border rounded-lg bg-background text-foreground placeholder-foreground-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Confirm your password"
                 disabled={loading}
@@ -239,12 +262,12 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin, onSuccess }: Sig
               disabled={loading}
               className="w-full btn-3d-primary py-2.5 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? "Creating account..." : "Create Account"}
             </button>
 
             <div className="text-center">
               <span className="text-sm text-foreground-secondary">
-                Already have an account?{' '}
+                Already have an account?{" "}
                 <button
                   type="button"
                   onClick={handleSwitchToLogin}

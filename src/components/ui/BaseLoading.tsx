@@ -75,14 +75,23 @@ export function BaseLoading({
       clearInterval(stageTimer);
       clearInterval(progressTimer);
     };
-  }, [isVisible, stages.length, stageInterval, progressInterval, maxProgress, progressIncrement]);
+  }, [
+    isVisible,
+    stages.length,
+    stageInterval,
+    progressInterval,
+    maxProgress,
+    progressIncrement,
+  ]);
 
   if (!isVisible) return null;
 
   const currentStage = stages[currentStageIndex];
 
   return (
-    <div className={`flex items-center justify-center min-h-[calc(100vh-80px)] relative overflow-hidden ${className}`}>
+    <div
+      className={`flex items-center justify-center min-h-[calc(100vh-80px)] relative overflow-hidden ${className}`}
+    >
       {children}
 
       <div className="relative z-10 max-w-3xl w-full">
@@ -122,9 +131,7 @@ export function BaseLoading({
 
             {/* Title and Stage Info */}
             <div className="mb-10">
-              <h2 className="text-3d-gradient mb-6 leading-tight">
-                {title}
-              </h2>
+              <h2 className="text-3d-gradient mb-6 leading-tight">{title}</h2>
               {subtitle && (
                 <p className="text-sm text-foreground-secondary mb-4">
                   {subtitle}
@@ -183,56 +190,58 @@ export function BaseLoading({
             {/* Stage Indicators */}
             {showStageIndicators && (
               <div className="flex justify-center space-x-3 mb-8">
-                {simpleStageIndicators ? (
-                  // Simple dot indicators
-                  stages.map((_, index) => (
-                    <div
-                      key={index}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentStageIndex
-                          ? "bg-primary scale-125 shadow-glow"
-                          : index < currentStageIndex
-                            ? "bg-success"
-                            : "bg-border"
-                        }`}
-                    />
-                  ))
-                ) : (
-                  // Icon-based indicators
-                  stages.map((stage, index) => {
-                    const StageIcon = stage.icon;
-                    return (
+                {simpleStageIndicators
+                  ? // Simple dot indicators
+                    stages.map((_, index) => (
                       <div
                         key={index}
-                        className={`relative transition-all duration-500 ${index === currentStageIndex
-                            ? "scale-125 transform"
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          index === currentStageIndex
+                            ? "bg-primary scale-125 shadow-glow"
                             : index < currentStageIndex
-                              ? "scale-100"
-                              : "scale-75 opacity-50"
-                          }`}
-                      >
+                              ? "bg-success"
+                              : "bg-border"
+                        }`}
+                      />
+                    ))
+                  : // Icon-based indicators
+                    stages.map((stage, index) => {
+                      const StageIcon = stage.icon;
+                      return (
                         <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${index === currentStageIndex
-                              ? "bg-primary/30 border-primary shadow-glow animate-pulse-slow"
+                          key={index}
+                          className={`relative transition-all duration-500 ${
+                            index === currentStageIndex
+                              ? "scale-125 transform"
                               : index < currentStageIndex
-                                ? "bg-accent/30 border-accent"
-                                : "bg-border/30 border-border"
-                            }`}
+                                ? "scale-100"
+                                : "scale-75 opacity-50"
+                          }`}
                         >
-                          <StageIcon
-                            size="xs"
-                            animation="none"
-                            className={index === currentStageIndex
-                                ? "text-primary"
+                          <div
+                            className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                              index === currentStageIndex
+                                ? "bg-primary/30 border-primary shadow-glow animate-pulse-slow"
                                 : index < currentStageIndex
-                                  ? "text-accent"
-                                  : "text-foreground-muted"
+                                  ? "bg-accent/30 border-accent"
+                                  : "bg-border/30 border-border"
+                            }`}
+                          >
+                            <StageIcon
+                              size="xs"
+                              animation="none"
+                              className={
+                                index === currentStageIndex
+                                  ? "text-primary"
+                                  : index < currentStageIndex
+                                    ? "text-accent"
+                                    : "text-foreground-muted"
                               }
-                          />
+                            />
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })
-                )}
+                      );
+                    })}
               </div>
             )}
 

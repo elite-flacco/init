@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import { Calendar, DollarSign, ArrowRight, Search, Heart, Loader2 } from "lucide-react";
+import {
+  Calendar,
+  DollarSign,
+  ArrowRight,
+  Search,
+  Heart,
+  Loader2,
+} from "lucide-react";
 import { Destination } from "../types/travel";
 import { MapPinIcon3D } from "./ui/Icon3D";
-import { useDestinationImage } from '../hooks/useDestinationImage';
-import { useAuth } from '../contexts/AuthContext';
-import { makeAuthenticatedRequest } from '../lib/auth';
+import { useDestinationImage } from "../hooks/useDestinationImage";
+import { useAuth } from "../contexts/AuthContext";
+import { makeAuthenticatedRequest } from "../lib/auth";
 
 interface DestinationCardProps {
   destination: Destination;
@@ -20,7 +27,7 @@ export function DestinationCard({
   const { imageUrl } = useDestinationImage({
     destination: destination.name,
     country: destination.country,
-    count: 1
+    count: 1,
   });
 
   const [isHovered, setIsHovered] = useState(false);
@@ -42,13 +49,16 @@ export function DestinationCard({
     setIsSaving(true);
 
     try {
-      const response = await makeAuthenticatedRequest("/api/user/destinations", {
-        method: "POST",
-        body: JSON.stringify({
-          destination,
-          notes: `Saved from destination recommendations - ${destination.matchReason}`,
-        }),
-      });
+      const response = await makeAuthenticatedRequest(
+        "/api/user/destinations",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            destination,
+            notes: `Saved from destination recommendations - ${destination.matchReason}`,
+          }),
+        },
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -67,7 +77,11 @@ export function DestinationCard({
       }, 1000);
     } catch (error) {
       console.error("Error saving destination:", error);
-      alert(error instanceof Error ? error.message : "Failed to save destination. Please try again.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to save destination. Please try again.",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -82,7 +96,6 @@ export function DestinationCard({
       className="group h-full"
     >
       <div className="card-3d-destination h-full overflow-hidden">
-
         {/* Hero Image Section */}
         <div className="relative h-72 overflow-hidden">
           <Image
@@ -92,7 +105,7 @@ export function DestinationCard({
             className="object-cover group-hover:scale-110 transition-transform duration-700 z-0"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              console.error('Image failed to load:', target.src);
+              console.error("Image failed to load:", target.src);
               if (target.src !== destination.image) {
                 target.src = destination.image;
               }
@@ -119,18 +132,20 @@ export function DestinationCard({
                 onClick={handleSaveDestination}
                 disabled={isSaving || isSaved}
                 className={`glass p-2 rounded-full transition-all duration-300 hover:scale-110 disabled:cursor-not-allowed ${
-                  isSaved 
-                    ? 'bg-red-500/20 text-red-500' 
-                    : 'text-white hover:bg-white/20'
+                  isSaved
+                    ? "bg-red-500/20 text-red-500"
+                    : "text-white hover:bg-white/20"
                 }`}
                 title={isSaved ? "Destination saved!" : "Save destination"}
               >
                 {isSaving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <Heart className={`w-4 h-4 transition-all duration-300 ${
-                    isSaved ? 'fill-current text-red-500' : ''
-                  }`} />
+                  <Heart
+                    className={`w-4 h-4 transition-all duration-300 ${
+                      isSaved ? "fill-current text-red-500" : ""
+                    }`}
+                  />
                 )}
               </button>
             </div>
@@ -158,7 +173,7 @@ export function DestinationCard({
             <div className="card-3d-soft p-4">
               <div className="flex items-center mb-2">
                 <span className="text-sm font-semibold text-secondary">
-                📅 Best Time
+                  📅 Best Time
                 </span>
               </div>
               <p className="text-sm text-foreground font-medium">
@@ -169,7 +184,7 @@ export function DestinationCard({
             <div className="card-3d-soft p-4">
               <div className="flex items-center mb-2">
                 <span className="text-sm font-semibold text-secondary">
-                💰 Cost
+                  💰 Cost
                 </span>
               </div>
               <p className="text-sm text-foreground font-medium">
@@ -187,12 +202,17 @@ export function DestinationCard({
                   key={index}
                   onClick={(e) => {
                     e.stopPropagation();
-                    window.open(`https://www.google.com/search?q=${encodeURIComponent(highlight.name + ' ' + destination.name + ' ' + destination.country)}`, '_blank');
+                    window.open(
+                      `https://www.google.com/search?q=${encodeURIComponent(highlight.name + " " + destination.name + " " + destination.country)}`,
+                      "_blank",
+                    );
                   }}
                   className="badge-secondary group flex items-center justify-start gap-1.5 rounded-lg hover:bg-secondary/20 transition-all duration-200"
                   title={`Search Google for ${highlight.name} in ${destination.name}`}
                 >
-                  <span className="text-left text-xs font-semibold text-secondary">{highlight.name}</span>
+                  <span className="text-left text-xs font-semibold text-secondary">
+                    {highlight.name}
+                  </span>
                   <Search className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity duration-200" />
                 </button>
               ))}

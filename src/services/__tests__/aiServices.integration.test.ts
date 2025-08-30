@@ -100,42 +100,62 @@ describe("AI Services Integration", () => {
       const mockSession = {
         sessionId: "test-session-123",
         chunks: [
-          { id: 1, section: "places", description: "Places to visit and hotels" },
+          {
+            id: 1,
+            section: "places",
+            description: "Places to visit and hotels",
+          },
           { id: 2, section: "food", description: "Restaurants and bars" },
-          { id: 3, section: "info", description: "Weather, safety and transport" },
-          { id: 4, section: "activities", description: "Activities and itinerary" }
+          {
+            id: 3,
+            section: "info",
+            description: "Weather, safety and transport",
+          },
+          {
+            id: 4,
+            section: "activities",
+            description: "Activities and itinerary",
+          },
         ],
-        totalChunks: 4
+        totalChunks: 4,
       };
 
       globalThis.fetch = vi.fn().mockImplementation((url: string) => {
-        if (url.includes('/api/ai/trip-planning/chunked') && !url.includes('?chunk=')) {
+        if (
+          url.includes("/api/ai/trip-planning/chunked") &&
+          !url.includes("?chunk=")
+        ) {
           return Promise.resolve({
             ok: true,
             json: () => Promise.resolve(mockSession),
           });
-        } else if (url.includes('?chunk=4')) {
+        } else if (url.includes("?chunk=4")) {
           return Promise.resolve({
             ok: true,
-            json: () => Promise.resolve({
-              chunk: mockSession.chunks.find(c => c.id === 4),
-              data: mockPlan, // Complete plan in the final chunk
-              isComplete: true,
-              sessionId: "test-session-123"
-            }),
+            json: () =>
+              Promise.resolve({
+                chunk: mockSession.chunks.find((c) => c.id === 4),
+                data: mockPlan, // Complete plan in the final chunk
+                isComplete: true,
+                sessionId: "test-session-123",
+              }),
           });
-        } else if (url.includes('?chunk=')) {
+        } else if (url.includes("?chunk=")) {
           return Promise.resolve({
             ok: true,
-            json: () => Promise.resolve({
-              chunk: mockSession.chunks.find(c => c.id === parseInt(url.match(/chunk=(\d+)/)?.[1] || '1')),
-              data: {},
-              isComplete: false,
-              sessionId: "test-session-123"
-            }),
+            json: () =>
+              Promise.resolve({
+                chunk: mockSession.chunks.find(
+                  (c) =>
+                    c.id === parseInt(url.match(/chunk=(\d+)/)?.[1] || "1"),
+                ),
+                data: {},
+                isComplete: false,
+                sessionId: "test-session-123",
+              }),
           });
         }
-        
+
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve(mockResponse),

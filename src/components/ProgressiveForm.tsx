@@ -55,7 +55,7 @@ export function ProgressiveForm({
         if (currentStep === 0) {
           window.scrollTo({
             top: document.documentElement.scrollHeight,
-            behavior: "smooth"
+            behavior: "smooth",
           });
         } else {
           // For subsequent questions, scroll to show completed questions above
@@ -126,7 +126,6 @@ export function ProgressiveForm({
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         {/* Asymmetrical Adventure Header */}
         {(title || subtitle) && (
@@ -181,39 +180,42 @@ export function ProgressiveForm({
                     delay: index * 0.15,
                   }}
                   className="flex justify-center items-center py-2"
-                  ref={(el) => { stepRefs.current[index] = el; }}
+                  ref={(el) => {
+                    stepRefs.current[index] = el;
+                  }}
                 >
                   {/* Asymmetrical question layout */}
                   <motion.div
-                    className={`w-full max-w-3xl transition-all duration-150 cursor-pointer ${index % 2 === 0 ? "ml-8 lg:ml-16" : "mr-8 lg:mr-16"
-                      }`}
+                    className={`w-full max-w-3xl transition-all duration-150 cursor-pointer ${
+                      index % 2 === 0 ? "ml-8 lg:ml-16" : "mr-8 lg:mr-16"
+                    }`}
                     whileHover={
                       !isCurrentlyEditing
                         ? {
-                          scale: 1.03,
-                          transition: {
-                            duration: 0.3,
-                            ease: [0.25, 0.46, 0.45, 0.94],
-                          },
-                        }
+                            scale: 1.03,
+                            transition: {
+                              duration: 0.3,
+                              ease: [0.25, 0.46, 0.45, 0.94],
+                            },
+                          }
                         : {}
                     }
                     animate={
                       isCurrentlyEditing
                         ? {
-                          scale: 1.05,
-                          transition: {
-                            duration: 0.5,
-                            ease: [0.25, 0.46, 0.45, 0.94],
-                          },
-                        }
+                            scale: 1.05,
+                            transition: {
+                              duration: 0.5,
+                              ease: [0.25, 0.46, 0.45, 0.94],
+                            },
+                          }
                         : {
-                          scale: 1,
-                          transition: {
-                            duration: 0.3,
-                            ease: [0.25, 0.46, 0.45, 0.94],
-                          },
-                        }
+                            scale: 1,
+                            transition: {
+                              duration: 0.3,
+                              ease: [0.25, 0.46, 0.45, 0.94],
+                            },
+                          }
                     }
                     onClick={() => !isCurrentlyEditing && handleStepEdit(index)}
                   >
@@ -256,11 +258,11 @@ export function ProgressiveForm({
               editingStep === null &&
               !isTransitioning && (
                 <div className="min-h-screen relative px-4">
-                  <div 
-                    className="absolute left-1/2 w-full max-w-3xl" 
-                    style={{ 
-                      top: '55%',
-                      transform: 'translate(-50%, -50%)' 
+                  <div
+                    className="absolute left-1/2 w-full max-w-3xl"
+                    style={{
+                      top: "55%",
+                      transform: "translate(-50%, -50%)",
                     }}
                   >
                     <motion.div
@@ -271,11 +273,19 @@ export function ProgressiveForm({
                       transition={{
                         duration: 0.8,
                         ease: [0.25, 0.46, 0.45, 0.94],
-                        opacity: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
-                        scale: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
+                        opacity: {
+                          duration: 0.6,
+                          ease: [0.25, 0.46, 0.45, 0.94],
+                        },
+                        scale: {
+                          duration: 0.7,
+                          ease: [0.25, 0.46, 0.45, 0.94],
+                        },
                         y: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] },
                       }}
-                      ref={(el) => { stepRefs.current[currentStep] = el; }}
+                      ref={(el) => {
+                        stepRefs.current[currentStep] = el;
+                      }}
                     >
                       <motion.div
                         initial={{
@@ -323,7 +333,6 @@ export function ProgressiveForm({
                 }}
                 className="text-center relative z-10"
               >
-
                 {/* Progressive text sequence */}
                 <motion.h3
                   initial={{ opacity: 0, y: 15 }}
@@ -336,7 +345,7 @@ export function ProgressiveForm({
                 >
                   🎯 Got it! Looking for your perfect trip
                 </motion.h3>
-                
+
                 {/* Animated dots to show processing */}
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -349,12 +358,12 @@ export function ProgressiveForm({
                       key={i}
                       animate={{
                         scale: [1, 1.5, 1],
-                        opacity: [0.5, 1, 0.5]
+                        opacity: [0.5, 1, 0.5],
                       }}
                       transition={{
                         duration: 1.5,
                         repeat: Infinity,
-                        delay: i * 0.3
+                        delay: i * 0.3,
                       }}
                       className="w-2 h-2 bg-primary rounded-full"
                     />
@@ -367,9 +376,7 @@ export function ProgressiveForm({
 
         {/* Adventure Scroll Hint */}
         {currentStep > 0 && (
-          <div
-            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
-          >
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
             <div className="bg-gradient-to-r from-primary/90 to-secondary/90 backdrop-blur-md shadow-glow rounded-full px-6 py-3 text-sm text-white font-medium border border-white/20">
               <span className="mr-2">✏️</span>
               Scroll up to edit your answers

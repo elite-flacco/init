@@ -38,10 +38,12 @@ export function QuestionStep({
   const [localValue, setLocalValue] = useState(value);
   const [localLabel, setLocalLabel] = useState(() => {
     if (!question.options) return "";
-    const matchingOption = question.options.find((option) => 
-      typeof option === 'string' ? option === value : option.value === value
+    const matchingOption = question.options.find((option) =>
+      typeof option === "string" ? option === value : option.value === value,
     );
-    return typeof matchingOption === 'string' ? matchingOption : (matchingOption?.label || "");
+    return typeof matchingOption === "string"
+      ? matchingOption
+      : matchingOption?.label || "";
   });
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
@@ -167,16 +169,13 @@ export function QuestionStep({
 
   return (
     <div className="question-card-active">
-
       <form onSubmit={handleSubmit}>
         <div className="mb-8">
           {/* Question Header */}
           <div className="mb-4">
             <div className="flex items-center">
               <span className="text-2xl mr-2 rotate-subtle">🤔</span>
-              <h4 className="text-3d-title max-w-2xl">
-                {question.question}
-              </h4>
+              <h4 className="text-3d-title max-w-2xl">{question.question}</h4>
             </div>
           </div>
         </div>

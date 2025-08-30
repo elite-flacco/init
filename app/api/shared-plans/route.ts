@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     if (!body.destination || !body.travelerType || !body.aiResponse) {
       return SecurityMiddleware.createSecureResponse(
         { error: "Missing required fields" },
-        400
+        400,
       );
     }
 

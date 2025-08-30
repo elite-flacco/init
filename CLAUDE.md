@@ -91,23 +91,27 @@ Components follow a hierarchical pattern where each major step has its own compo
 The application includes an optional user accounts system that enhances the experience without disrupting the core flow:
 
 **Authentication Features:**
+
 - Email/password signup and login with Supabase Auth
 - Password reset functionality
 - Profile management with name and email updates
 - Secure session management with automatic token refresh
 
 **User Interface:**
+
 - **Sidebar-based UI**: User features are accessed via a slide-out sidebar instead of header dropdowns
 - **Non-intrusive prompts**: Gentle suggestions to create an account after generating plans
 - **Optional everywhere**: All account features enhance but don't interrupt the anonymous experience
 
 **Data Management:**
+
 - **Personal plan storage**: Save, name, and organize travel plans with tags and favorites
 - **Destination bookmarking**: Save interesting destinations with personal notes
 - **Plan collections**: Organize related plans (e.g., "Europe 2024", "Family Trips")
 - **Search and filter**: Find saved content quickly with built-in search
 
 **Architecture:**
+
 - **Database tables**: `user_travel_plans` and `user_saved_destinations` with RLS policies
 - **API routes**: RESTful endpoints in `/api/user/` for CRUD operations
 - **Context-based auth**: React context manages authentication state throughout the app
@@ -158,15 +162,18 @@ The AI services are used in two main flows:
 The system uses a hybrid approach with intelligent fallback based on AI provider capabilities:
 
 ### **Flow Overview:**
+
 Both streaming and non-streaming modes follow the same two-step process:
+
 1. **Step 1: Manifest Generation** - Quick travel overview (2-3 seconds) via `/api/ai/trip-planning/manifest`
 2. **Step 2: Parallel Chunk Processing** - All 4 travel plan sections processed simultaneously
 
 ### **Implementation Details:**
 
 **1. Real-Time Streaming Mode (OpenAI Provider)**
+
 - **Trigger**: When `AI_PROVIDER=openai` and OpenAI API key is available
-- **Hook**: `useStreamingTripPlanning()` 
+- **Hook**: `useStreamingTripPlanning()`
 - **Step 1**: Calls `/api/ai/trip-planning/manifest` for instant travel overview
 - **Step 2**: Initiates **parallel streaming connections** to `/api/ai/trip-planning/stream` for all 4 chunks simultaneously
 - **Streaming Features**:
@@ -177,6 +184,7 @@ Both streaming and non-streaming modes follow the same two-step process:
   - Real-time progress indicators showing streaming status
 
 **2. Parallel Processing Mode (Other Providers)**
+
 - **Trigger**: When using Anthropic, Claude, or when OpenAI streaming fails
 - **Hook**: `useParallelTripPlanning()` (automatic fallback)
 - **Step 1**: Calls `/api/ai/trip-planning/manifest` for instant travel overview (same as streaming)
@@ -188,18 +196,21 @@ Both streaming and non-streaming modes follow the same two-step process:
   - `ManifestDrivenLoading` component shows completion status
 
 **3. Mock Mode (Development)**
+
 - **Trigger**: When `AI_PROVIDER=mock` or no API keys provided
 - **Features**: Simulated responses with realistic delays, same UI flow as production
 
 ### **Key Technical Details:**
+
 - **Always Manifest-First**: Both modes start with quick manifest generation for immediate user feedback
 - **Always Parallel Processing**: All 4 chunks process simultaneously (never sequential) regardless of streaming vs non-streaming
 - **Intelligent Fallback**: System attempts streaming first, gracefully falls back to parallel processing if streaming fails
 - **Same Content Structure**: Both approaches generate identical travel plan data structure
 
 **Content Structure (All Approaches):**
+
 - **Chunk 1**: Places to visit, neighborhoods, hotels
-- **Chunk 2**: Restaurants, bars, local food recommendations  
+- **Chunk 2**: Restaurants, bars, local food recommendations
 - **Chunk 3**: Weather, safety, transportation, currency info
 - **Chunk 4**: Activities, history, detailed itinerary
 
@@ -208,20 +219,24 @@ Both streaming and non-streaming modes follow the same two-step process:
 The Next.js backend provides several API endpoints:
 
 **Destination Services:**
+
 - **POST /api/ai/destinations** - Generate AI destination recommendations
 - **GET /api/images/destination** - Fetch dynamic destination images via Pixabay API
 
 **Trip Planning Services:**
+
 - **POST /api/ai/trip-planning/manifest** - Generate quick travel plan overview (2-3s response)
 - **POST /api/ai/trip-planning/stream** - OpenAI streaming API with structured outputs (real-time)
 - **POST /api/ai/trip-planning/chunked** - Parallel chunk processing (fallback)
 - **POST /api/ai/trip-planning** - Legacy endpoint (redirects to chunked)
 
 **Plan Management:**
+
 - **POST /api/shared-plans** - Create shareable plan with unique URL
 - **GET /api/shared-plans/[id]** - Retrieve shared plan by ID
 
 **User Management (Authentication Required):**
+
 - **GET /api/user/plans** - Get user's saved travel plans
 - **POST /api/user/plans** - Save a new travel plan
 - **GET /api/user/plans/[id]** - Get specific plan details
@@ -234,6 +249,7 @@ The Next.js backend provides several API endpoints:
 - **DELETE /api/user/destinations/[id]** - Remove saved destination
 
 **Testing & Utilities:**
+
 - **GET /api/ai/test** - Test AI service connectivity
 
 ### Plan Sharing & Export
@@ -294,6 +310,7 @@ By default, the app runs in mock mode with simulated AI responses. To enable rea
 The app includes dynamic destination image fetching using Pixabay API:
 
 ### Features
+
 - **Dynamic Images**: Fetch high-quality destination images via Pixabay API
 - **Automatic Fallback**: Falls back to static Pexels images if Pixabay is unavailable
 - **Loading States**: Shows loading indicators while fetching images
@@ -302,20 +319,24 @@ The app includes dynamic destination image fetching using Pixabay API:
 - **High Resolution**: Prefers high-resolution images suitable for destination cards
 
 ### API Endpoints
+
 - **GET /api/images/destination** - Fetch destination images
   - `destination` (required): Destination name to search for
   - `country` (optional): Country name for more specific results
   - `count` (optional): Number of images to fetch (default: 1)
 
 ### Components Using Dynamic Images
+
 - `DestinationCard` - Uses single image for destination cards
 - `DestinationDetailsModal` - Uses single image for modal header
 - Hook: `useDestinationImage` - Custom hook for fetching destination images
 
 ### Configuration
+
 Set `PIXABAY_API_KEY` environment variable with your Pixabay API key. Without this key, the app will use static fallback images.
 
 ### Pixabay API Features Used
+
 - Image type: photo
 - Orientation: horizontal (landscape)
 - Category: travel

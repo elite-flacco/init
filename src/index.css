@@ -7,7 +7,9 @@
 @layer base {
   html {
     @apply antialiased text-foreground bg-background;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
     scroll-behavior: smooth;
   }
 
@@ -25,7 +27,12 @@
     @apply ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display tracking-tight text-foreground;
     text-wrap: balance;
   }
@@ -68,7 +75,9 @@
     @apply font-medium text-primary hover:text-primary-dark transition-colors duration-300;
   }
 
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     @apply w-full px-4 py-3 text-foreground bg-background border border-border rounded-xl transition-all duration-300 focus:ring-2 focus:ring-primary focus:border-primary;
   }
 
@@ -82,7 +91,7 @@
   .btn-3d {
     @apply text-xs sm:text-base p-2 sm:p-4 relative overflow-hidden transform-gpu transition-all duration-300;
     transform: translateY(-3px) scale(1.02);
-    box-shadow: 
+    box-shadow:
       0 8px 20px rgba(0, 0, 0, 0.18),
       0 4px 12px rgba(0, 0, 0, 0.12),
       0 12px 35px rgba(0, 0, 0, 0.08),
@@ -94,7 +103,7 @@
 
   .btn-3d:hover {
     transform: translateY(-4px) scale(1.03);
-    box-shadow: 
+    box-shadow:
       0 12px 24px rgba(0, 0, 0, 0.18),
       0 6px 16px rgba(0, 0, 0, 0.12),
       0 15px 35px rgba(0, 0, 0, 0.08),
@@ -104,7 +113,7 @@
 
   .btn-3d:active {
     transform: translateY(-1px) scale(0.98);
-    box-shadow: 
+    box-shadow:
       0 3px 6px rgba(0, 0, 0, 0.18),
       0 1px 3px rgba(0, 0, 0, 0.12),
       inset 0 2px 4px rgba(0, 0, 0, 0.25),
@@ -141,7 +150,7 @@
   /* === 3D CARD SYSTEM === */
   .card-3d {
     @apply flex flex-col relative bg-gradient-to-br from-background via-background-card to-background-muted rounded-3xl border border-border/30 overflow-hidden;
-    box-shadow: 
+    box-shadow:
       0 20px 50px rgba(0, 0, 0, 0.18),
       0 12px 25px rgba(0, 0, 0, 0.12),
       0 30px 80px rgba(0, 0, 0, 0.08),
@@ -150,13 +159,15 @@
       inset 0 4px 0 rgba(255, 255, 255, 0.3),
       inset 0 -4px 0 rgba(0, 0, 0, 0.12),
       inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-    transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) translateY(-6px) scale(1.02);
+    transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) translateY(-6px)
+      scale(1.02);
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .card-3d:hover {
-    transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) translateY(-16px) scale(1.04);
-    box-shadow: 
+    transform: perspective(1000px) rotateX(4deg) rotateY(-4deg)
+      translateY(-16px) scale(1.04);
+    box-shadow:
       0 35px 70px rgba(0, 0, 0, 0.22),
       0 18px 40px rgba(0, 0, 0, 0.15),
       0 45px 100px rgba(0, 0, 0, 0.1),
@@ -170,12 +181,14 @@
   /* === ROTATING CARD VARIANTS === */
   .card-3d-rotate-left {
     @apply card-3d;
-    transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) rotateZ(-2deg) translateY(-6px) scale(1.02);
+    transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) rotateZ(-2deg)
+      translateY(-6px) scale(1.02);
   }
 
   .card-3d-rotate-left:hover {
-    transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) rotateZ(0deg) translateY(-16px) scale(1.04);
-    box-shadow: 
+    transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) rotateZ(0deg)
+      translateY(-16px) scale(1.04);
+    box-shadow:
       0 35px 70px rgba(0, 0, 0, 0.22),
       0 18px 40px rgba(0, 0, 0, 0.15),
       0 45px 100px rgba(0, 0, 0, 0.1),
@@ -188,12 +201,14 @@
 
   .card-3d-rotate-right {
     @apply card-3d;
-    transform: perspective(1000px) rotateX(2deg) rotateY(1deg) rotateZ(2deg) translateY(-6px) scale(1.02);
+    transform: perspective(1000px) rotateX(2deg) rotateY(1deg) rotateZ(2deg)
+      translateY(-6px) scale(1.02);
   }
 
   .card-3d-rotate-right:hover {
-    transform: perspective(1000px) rotateX(4deg) rotateY(4deg) rotateZ(0deg) translateY(-16px) scale(1.04);
-    box-shadow: 
+    transform: perspective(1000px) rotateX(4deg) rotateY(4deg) rotateZ(0deg)
+      translateY(-16px) scale(1.04);
+    box-shadow:
       0 35px 70px rgba(0, 0, 0, 0.22),
       0 18px 40px rgba(0, 0, 0, 0.15),
       0 45px 100px rgba(0, 0, 0, 0.1),
@@ -214,8 +229,9 @@
   }
 
   .card-3d-destination:hover {
-    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) rotateZ(0deg) translateY(-8px) scale(1.02);
-    box-shadow: 
+    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) rotateZ(0deg)
+      translateY(-8px) scale(1.02);
+    box-shadow:
       0 20px 40px rgba(0, 0, 0, 0.15),
       0 8px 20px rgba(0, 0, 0, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -223,7 +239,7 @@
 
   .card-3d-soft {
     @apply card-3d;
-    box-shadow: 
+    box-shadow:
       0 6px 20px rgba(0, 0, 0, 0.08),
       0 2px 8px rgba(0, 0, 0, 0.04),
       inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -232,7 +248,7 @@
   /* === 3D TEXT EFFECTS === */
   .text-3d-hero {
     @apply font-bold text-primary-600;
-    text-shadow: 
+    text-shadow:
       0 2px 4px rgba(24, 181, 193, 0.4),
       0 4px 8px rgba(24, 181, 193, 0.3),
       0 6px 12px rgba(0, 0, 0, 0.12),
@@ -242,7 +258,7 @@
 
   .text-3d-title {
     @apply font-semibold text-foreground;
-    text-shadow: 
+    text-shadow:
       0 2px 4px rgba(0, 0, 0, 0.12),
       0 4px 8px rgba(0, 0, 0, 0.08),
       0 1px 2px rgba(0, 0, 0, 0.15);
@@ -250,8 +266,7 @@
 
   .text-3d-gradient {
     @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent font-bold;
-    filter: 
-      drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))
       drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))
       drop-shadow(0 6px 12px rgba(0, 0, 0, 0.05))
       drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
@@ -260,7 +275,7 @@
   /* === LOGO 3D EFFECT === */
   .logo-3d {
     @apply bg-gradient-to-br from-primary via-primary-600 to-primary-dark rounded-xl border border-primary-300/30;
-    box-shadow: 
+    box-shadow:
       0 8px 25px rgba(0, 0, 0, 0.15),
       0 4px 12px rgba(0, 0, 0, 0.12),
       0 15px 40px rgba(0, 0, 0, 0.08),
@@ -268,13 +283,15 @@
       inset 0 2px 0 rgba(255, 255, 255, 0.3),
       inset 0 -2px 0 rgba(0, 0, 0, 0.15),
       inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-    transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) translateY(-3px) scale(1.02);
+    transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) translateY(-3px)
+      scale(1.02);
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .logo-3d:hover {
-    transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) translateY(-8px) scale(1.04);
-    box-shadow: 
+    transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) translateY(-8px)
+      scale(1.04);
+    box-shadow:
       0 15px 40px rgba(0, 0, 0, 0.18),
       0 8px 20px rgba(0, 0, 0, 0.15),
       0 25px 60px rgba(0, 0, 0, 0.1),
@@ -287,28 +304,34 @@
   /* === TRAVELER CARD === */
   .traveler-card {
     @apply card-3d-interactive p-4 sm:p-6 md:p-8 h-full min-h-[240px] sm:min-h-[280px] lg:min-h-[320px];
-    transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) rotateZ(-1deg) translateY(-6px) scale(1.02);
+    transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) rotateZ(-1deg)
+      translateY(-6px) scale(1.02);
   }
 
   .traveler-card:nth-child(even) {
-    transform: perspective(1000px) rotateX(2deg) rotateY(1deg) rotateZ(1deg) translateY(-6px) scale(1.02);
+    transform: perspective(1000px) rotateX(2deg) rotateY(1deg) rotateZ(1deg)
+      translateY(-6px) scale(1.02);
   }
 
   .traveler-card:hover {
-    transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) rotateZ(0deg) translateY(-16px) scale(1.04);
+    transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) rotateZ(0deg)
+      translateY(-16px) scale(1.04);
   }
 
   .traveler-card:nth-child(even):hover {
-    transform: perspective(1000px) rotateX(4deg) rotateY(4deg) rotateZ(0deg) translateY(-16px) scale(1.04);
+    transform: perspective(1000px) rotateX(4deg) rotateY(4deg) rotateZ(0deg)
+      translateY(-16px) scale(1.04);
   }
 
   .traveler-card::before {
-    content: '';
+    content: "";
     @apply absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-500 rounded-3xl;
-    background: linear-gradient(135deg, 
-      rgba(255, 107, 53, 0.1) 0%, 
-      rgba(42, 157, 143, 0.1) 50%, 
-      rgba(244, 162, 97, 0.1) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(255, 107, 53, 0.1) 0%,
+      rgba(42, 157, 143, 0.1) 50%,
+      rgba(244, 162, 97, 0.1) 100%
+    );
   }
 
   .traveler-card:hover::before {
@@ -342,7 +365,7 @@
   }
 
   .option-card-rotating::before {
-    content: '';
+    content: "";
     @apply absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 rounded-3xl blur-xl opacity-0 transition-opacity duration-700 -z-10;
   }
 
@@ -366,12 +389,14 @@
   /* === QUESTION CARDS === */
   .question-card-active {
     @apply card-3d p-4 sm:p-8 lg:pl-16 lg:pr-8 lg:pt-12 lg:pb-8 mb-6 relative;
-    transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) rotateZ(-2deg) scale(1.02);
+    transform: perspective(1000px) rotateX(2deg) rotateY(-1deg) rotateZ(-2deg)
+      scale(1.02);
   }
 
   .question-card-active:hover {
-    transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) rotateZ(0deg) translateY(-10px) scale(1.04);
-    box-shadow: 
+    transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) rotateZ(0deg)
+      translateY(-10px) scale(1.04);
+    box-shadow:
       0 35px 70px rgba(0, 0, 0, 0.22),
       0 18px 40px rgba(0, 0, 0, 0.15),
       0 8px 20px rgba(0, 0, 0, 0.08),
@@ -379,7 +404,7 @@
   }
 
   .question-card-active::before {
-    content: '';
+    content: "";
     @apply absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 rounded-3xl blur-xl opacity-50 -z-10;
   }
 
@@ -388,7 +413,7 @@
   }
 
   .question-card-completed::before {
-    content: '';
+    content: "";
     @apply absolute inset-0 bg-gradient-to-br from-secondary/10 via-accent/5 to-primary/10 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10;
   }
 
@@ -407,7 +432,7 @@
   }
 
   .question-option-btn::before {
-    content: '';
+    content: "";
     @apply absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl;
   }
 
@@ -442,7 +467,6 @@
     @apply badge bg-secondary/10 text-secondary border border-secondary/20;
   }
 
-
   /* === FORMS === */
   .form-field {
     @apply space-y-2;
@@ -455,10 +479,6 @@
   .form-input {
     @apply w-full px-6 py-4 bg-background border border-border rounded-xl transition-all duration-300 focus:ring-2 focus:ring-primary focus:border-primary;
   }
-
-
-
-
 }
 
 @layer utilities {
@@ -482,20 +502,20 @@
 
   /* === 3D UTILITIES === */
   .shadow-3d-soft {
-    box-shadow: 
+    box-shadow:
       0 4px 12px rgba(0, 0, 0, 0.08),
       0 2px 6px rgba(0, 0, 0, 0.04);
   }
 
   .shadow-3d-medium {
-    box-shadow: 
+    box-shadow:
       0 8px 20px rgba(0, 0, 0, 0.12),
       0 4px 10px rgba(0, 0, 0, 0.06),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
   .shadow-3d-strong {
-    box-shadow: 
+    box-shadow:
       0 12px 30px rgba(0, 0, 0, 0.15),
       0 6px 15px rgba(0, 0, 0, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -556,23 +576,44 @@
 
   /* === ANIMATIONS === */
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes slideUp {
-    from { opacity: 0; transform: translateY(32px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(32px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes shimmer {
-    0% { background-position: -200px 0; }
-    100% { background-position: calc(200px + 100%) 0; }
+    0% {
+      background-position: -200px 0;
+    }
+    100% {
+      background-position: calc(200px + 100%) 0;
+    }
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
   }
 
   .animate-fade-in {
@@ -588,13 +629,13 @@
   }
 
   .shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
     background-size: 200px 100%;
     animation: shimmer 1.5s infinite;
   }
-
-
-
-
-
 }

@@ -17,7 +17,7 @@ export interface Destination {
   matchReason: string;
   estimatedCost: string;
   image: string;
-  highlights: { name: string; description: string; }[];
+  highlights: { name: string; description: string }[];
   bestTimeToVisit: string;
   details?: string;
 }
@@ -96,15 +96,15 @@ export interface EnhancedTravelPlan {
 // Place categories for structured classification
 export const PLACE_CATEGORIES = [
   "cultural",
-  "historical", 
+  "historical",
   "nature",
   "entertainment",
   "museum",
   "landmark",
-  "culinary"
+  "culinary",
 ] as const;
 
-export type PlaceCategory = typeof PLACE_CATEGORIES[number];
+export type PlaceCategory = (typeof PLACE_CATEGORIES)[number];
 
 export interface PlaceToVisit {
   name: string;
@@ -275,16 +275,16 @@ export interface ItineraryDay {
 
 // Define fixed icon categories that map to our icon system
 export const ACTIVITY_ICON_CATEGORIES = [
-  "coffee",        // Coffee/drinks/beverages
-  "hotel",         // Hotels/accommodation/lodging  
-  "utensils",      // Food/restaurants/dining/meals
-  "compass",       // Exploration/discovery/wandering
-  "camera",        // Sightseeing/photography/attractions/monuments
-  "travel",        // Transportation/flights/journeys
-  "adventure"      // Activities/outdoor/excursions/tours
+  "coffee", // Coffee/drinks/beverages
+  "hotel", // Hotels/accommodation/lodging
+  "utensils", // Food/restaurants/dining/meals
+  "compass", // Exploration/discovery/wandering
+  "camera", // Sightseeing/photography/attractions/monuments
+  "travel", // Transportation/flights/journeys
+  "adventure", // Activities/outdoor/excursions/tours
 ] as const;
 
-export type ActivityIconCategory = typeof ACTIVITY_ICON_CATEGORIES[number];
+export type ActivityIconCategory = (typeof ACTIVITY_ICON_CATEGORIES)[number];
 
 export interface Activity {
   time: string;
@@ -301,7 +301,7 @@ export interface DestinationRecommendation {
   summary: string;
   images: string[];
   moreInfoLink: string;
-  highlights: { name: string; description: string; }[];
+  highlights: { name: string; description: string }[];
   bestFor: string[];
 }
 
@@ -326,7 +326,7 @@ export interface ParallelChunkingState {
   completedChunks: number;
   totalChunks: number;
   chunks: Record<number, Record<string, unknown>>;
-  chunkStatuses: Record<number, 'pending' | 'loading' | 'completed' | 'error'>;
+  chunkStatuses: Record<number, "pending" | "loading" | "completed" | "error">;
   combinedData: EnhancedTravelPlan | null;
   error: string | null;
 }

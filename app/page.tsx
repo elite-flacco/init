@@ -22,7 +22,10 @@ import {
   DestinationKnowledge,
   PickDestinationPreferences,
 } from "../src/types/travel";
-import { AITripPlanningResponse, AITripPlanningRequest } from "../src/services/aiTripPlanningService";
+import {
+  AITripPlanningResponse,
+  AITripPlanningRequest,
+} from "../src/services/aiTripPlanningService";
 import {
   AIDestinationResponse,
   aiDestinationService,
@@ -61,19 +64,26 @@ export default function HomePage() {
     useState<AIDestinationResponse | null>(null);
   const [isLoadingDestinations, setIsLoadingDestinations] = useState(false);
   const [destinationError, setDestinationError] = useState<string | null>(null);
-  const [previouslyShownDestinations, setPreviouslyShownDestinations] = useState<string[]>([]);
+  const [previouslyShownDestinations, setPreviouslyShownDestinations] =
+    useState<string[]>([]);
   const [previousStep, setPreviousStep] = useState<AppStep | null>(null);
 
   // Sidebar and Auth Modal state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { isOpen: isAuthModalOpen, modalType, openLogin, closeModal } = useAuthModal();
+  const {
+    isOpen: isAuthModalOpen,
+    modalType,
+    openLogin,
+    closeModal,
+  } = useAuthModal();
 
   // Typing effect for hero title
-  const { displayedText: typedTitle, isComplete: titleComplete } = useTypingEffect({
-    text: "TripWise",
-    speed: 150,
-    delay: 500
-  });
+  const { displayedText: typedTitle, isComplete: titleComplete } =
+    useTypingEffect({
+      text: "TripWise",
+      speed: 150,
+      delay: 500,
+    });
 
   // Track step changes
   useEffect(() => {
@@ -87,8 +97,8 @@ export default function HomePage() {
     setPreviousStep(currentStep);
 
     // Scroll to top when navigating to plan results or any step change
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [currentStep, previousStep]);
 
@@ -180,12 +190,14 @@ export default function HomePage() {
     setCurrentStep("destination-recommendations");
 
     // Track AI recommendation request
-    trackTravelEvent.requestAIRecommendations('destinations');
+    trackTravelEvent.requestAIRecommendations("destinations");
 
     try {
       // For regeneration, pass previously shown destinations to exclude them
-      const excludeDestinations = isRegeneration ? previouslyShownDestinations : [];
-      
+      const excludeDestinations = isRegeneration
+        ? previouslyShownDestinations
+        : [];
+
       const response = await aiDestinationService.getDestinationRecommendations(
         {
           travelerType: selectedTravelerType,
@@ -197,10 +209,13 @@ export default function HomePage() {
 
       // Track new destinations being shown
       if (response.destinations) {
-        const newDestinationNames = response.destinations.map(d => d.name);
+        const newDestinationNames = response.destinations.map((d) => d.name);
         if (isRegeneration) {
           // Add new destinations to the list of previously shown
-          setPreviouslyShownDestinations(prev => [...prev, ...newDestinationNames]);
+          setPreviouslyShownDestinations((prev) => [
+            ...prev,
+            ...newDestinationNames,
+          ]);
         } else {
           // Reset for fresh start, then track initial destinations
           setPreviouslyShownDestinations(newDestinationNames);
@@ -209,13 +224,17 @@ export default function HomePage() {
 
       setAiDestinationResponse(response);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       setDestinationError(
         "Failed to get destination recommendations. Please try again.",
       );
 
       // Track error
-      trackTravelEvent.error('destination_recommendations_failed', errorMessage);
+      trackTravelEvent.error(
+        "destination_recommendations_failed",
+        errorMessage,
+      );
     } finally {
       setIsLoadingDestinations(false);
     }
@@ -230,7 +249,10 @@ export default function HomePage() {
     setCurrentStep("planning");
   };
 
-  const handleTripPlanningComplete = (response?: AITripPlanningResponse, streamingRequest?: AITripPlanningRequest) => {
+  const handleTripPlanningComplete = (
+    response?: AITripPlanningResponse,
+    streamingRequest?: AITripPlanningRequest,
+  ) => {
     try {
       if (response) {
         // Traditional response - set the response data
@@ -248,7 +270,7 @@ export default function HomePage() {
       setCurrentStep("plan");
     } catch {
       // Track error and stay on planning step
-      trackTravelEvent.error('trip_planning_failed');
+      trackTravelEvent.error("trip_planning_failed");
     }
   };
 
@@ -259,7 +281,7 @@ export default function HomePage() {
     // Clear both response types
     setAiTripPlanningResponse(null);
     setStreamingTripPlanningRequest(null);
-    
+
     setCurrentStep("planning");
   };
 
@@ -303,7 +325,7 @@ export default function HomePage() {
 
   const handleAuthSuccess = () => {
     // Optional: You can add any post-auth logic here
-    console.log('User authenticated successfully');
+    console.log("User authenticated successfully");
   };
 
   const handleBack = () => {
@@ -369,7 +391,9 @@ export default function HomePage() {
 
       case "destination-knowledge":
         return (
-          <DestinationKnowledgeSelection onSelect={handleDestinationKnowledgeSelect} />
+          <DestinationKnowledgeSelection
+            onSelect={handleDestinationKnowledgeSelect}
+          />
         );
 
       case "destination-input":
@@ -402,7 +426,9 @@ export default function HomePage() {
             aiResponse={aiDestinationResponse}
             onSelect={handleDestinationSelect}
             onBack={() => setCurrentStep("pick-destination")}
-            onRegenerate={() => generateDestinationRecommendations(undefined, true)}
+            onRegenerate={() =>
+              generateDestinationRecommendations(undefined, true)
+            }
             isLoading={isLoadingDestinations}
             error={destinationError}
           />
@@ -416,9 +442,7 @@ export default function HomePage() {
             destinationKnowledge={destinationKnowledge}
             pickDestinationPreferences={pickDestinationPreferences}
             onComplete={handleTripPlanningComplete}
-            onBack={
-              aiDestinationResponse ? handleBackToDestinations : () => {}
-            }
+            onBack={aiDestinationResponse ? handleBackToDestinations : () => {}}
           />
         );
 
@@ -471,10 +495,13 @@ export default function HomePage() {
                 <div className="flex flex-col items-start">
                   <h1 className="text-base sm:text-lg font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent hidden md:block">
                     {typedTitle}
-                    <span className={`inline-block w-0.5 h-3 sm:h-4 bg-primary ml-1 ${!titleComplete ? 'animate-pulse' : 'opacity-0'}`}>
-                    </span>
+                    <span
+                      className={`inline-block w-0.5 h-3 sm:h-4 bg-primary ml-1 ${!titleComplete ? "animate-pulse" : "opacity-0"}`}
+                    ></span>
                   </h1>
-                  <p className={`text-xs sm:text-sm text-foreground-secondary font-medium hidden md:block transition-opacity duration-500 ${titleComplete ? 'opacity-100' : 'opacity-0'}`}>
+                  <p
+                    className={`text-xs sm:text-sm text-foreground-secondary font-medium hidden md:block transition-opacity duration-500 ${titleComplete ? "opacity-100" : "opacity-0"}`}
+                  >
                     Your travel planning partner
                   </p>
                 </div>
@@ -534,7 +561,9 @@ export default function HomePage() {
       )}
 
       {/* Main content */}
-      <main className={`relative ${currentStep === 'placeholder' ? 'min-h-screen flex items-center justify-center' : 'py-4 px-4 sm:px-6 md:py-6 lg:py-8'} mt-16`}>
+      <main
+        className={`relative ${currentStep === "placeholder" ? "min-h-screen flex items-center justify-center" : "py-4 px-4 sm:px-6 md:py-6 lg:py-8"} mt-16`}
+      >
         <div className="container mx-auto relative z-10 px-4">
           <div className="relative">{renderCurrentStep()}</div>
         </div>

@@ -6,7 +6,13 @@ export interface Icon3DProps {
   alt: string;
   className?: string;
   size?: "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
-  animation?: "float" | "pulse" | "bounce" | "spin" | "spin-horizontal" | "none";
+  animation?:
+    | "float"
+    | "pulse"
+    | "bounce"
+    | "spin"
+    | "spin-horizontal"
+    | "none";
   animationDelay?: string;
 }
 
@@ -36,18 +42,20 @@ export function Icon3D({
   className = "",
   size = "md",
   animation = "none",
-  animationDelay = "0s"
+  animationDelay = "0s",
 }: Icon3DProps) {
   const sizeClass = sizeClasses[size];
   const animationClass = animationClasses[animation];
 
   return (
-    <div className={`${sizeClass} flex items-center justify-center overflow-hidden`}>
+    <div
+      className={`${sizeClass} flex items-center justify-center overflow-hidden`}
+    >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}
-        className={`object-contain ${src === "/icons/brain.png" ? "scale-150" : src === "/icons/map.png" ? "scale-250" : (animation === "none" || animation === "pulse" || animation === "bounce") ? "scale-200" : ""} ${animationClass} ${className}`}
+        className={`object-contain ${src === "/icons/brain.png" ? "scale-150" : src === "/icons/map.png" ? "scale-250" : animation === "none" || animation === "pulse" || animation === "bounce" ? "scale-200" : ""} ${animationClass} ${className}`}
         style={animationDelay !== "0s" ? { animationDelay } : undefined}
       />
     </div>

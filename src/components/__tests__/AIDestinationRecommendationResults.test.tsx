@@ -43,7 +43,9 @@ describe("AIDestinationRecommendationResults", () => {
     render(<AIDestinationRecommendationResults {...defaultProps} />);
 
     expect(screen.getByText("Your Top Hits")).toBeInTheDocument();
-    expect(screen.getByText("We think you'll love these 😉")).toBeInTheDocument();
+    expect(
+      screen.getByText("We think you'll love these 😉"),
+    ).toBeInTheDocument();
   });
 
   it("should render destination cards for each destination", () => {
@@ -97,9 +99,7 @@ describe("AIDestinationRecommendationResults", () => {
     expect(
       screen.getByText("Hmm, our AI is having a moment. Let's try this again."),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("Try Again"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Try Again")).toBeInTheDocument();
   });
 
   it("should call onRegenerate when try different recommendations button is clicked", async () => {
@@ -116,9 +116,7 @@ describe("AIDestinationRecommendationResults", () => {
 
     render(<AIDestinationRecommendationResults {...propsWithEmptyResults} />);
 
-    const tryDifferentButton = screen.getByText(
-      "Try Again",
-    );
+    const tryDifferentButton = screen.getByText("Try Again");
     await userEvent.click(tryDifferentButton);
 
     expect(mockOnRegenerate).toHaveBeenCalledTimes(1);
@@ -128,11 +126,11 @@ describe("AIDestinationRecommendationResults", () => {
     render(<AIDestinationRecommendationResults {...defaultProps} />);
 
     expect(
-      screen.queryByText("Hmm, our AI is having a moment. Let's try this again."),
+      screen.queryByText(
+        "Hmm, our AI is having a moment. Let's try this again.",
+      ),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("Try Again"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Try Again")).not.toBeInTheDocument();
   });
 
   it("should render correct number of destination cards", () => {

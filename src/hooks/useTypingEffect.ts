@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface UseTypingEffectOptions {
   text: string;
@@ -6,12 +6,16 @@ interface UseTypingEffectOptions {
   delay?: number;
 }
 
-export const useTypingEffect = ({ text, speed = 100, delay = 0 }: UseTypingEffectOptions) => {
-  const [displayedText, setDisplayedText] = useState('');
+export const useTypingEffect = ({
+  text,
+  speed = 100,
+  delay = 0,
+}: UseTypingEffectOptions) => {
+  const [displayedText, setDisplayedText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    setDisplayedText('');
+    setDisplayedText("");
     setIsComplete(false);
 
     const startTyping = () => {

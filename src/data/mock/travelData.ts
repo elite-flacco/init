@@ -182,7 +182,8 @@ export const generatePlacesToVisit = (
       ticketInfo: {
         required: false,
         recommended: false,
-        bookingAdvice: "Free to explore, just walk around and enjoy the architecture",
+        bookingAdvice:
+          "Free to explore, just walk around and enjoy the architecture",
         peakTime: [],
         averageWaitTime: "No wait time",
       },
@@ -209,7 +210,8 @@ export const generatePlacesToVisit = (
       ticketInfo: {
         required: true,
         recommended: true,
-        bookingAdvice: "Advance booking highly recommended, especially during peak season",
+        bookingAdvice:
+          "Advance booking highly recommended, especially during peak season",
         peakTime: ["Summer", "Holiday weekends"],
         averageWaitTime: "30-60 minutes without advance tickets",
       },
@@ -223,7 +225,8 @@ export const generatePlacesToVisit = (
       ticketInfo: {
         required: false,
         recommended: false,
-        bookingAdvice: "Free access, but check weather conditions before visiting",
+        bookingAdvice:
+          "Free access, but check weather conditions before visiting",
         peakTime: ["Sunset hours", "Clear weather days"],
         averageWaitTime: "No wait time typically",
       },
@@ -239,7 +242,8 @@ export const generatePlacesToVisit = (
       ticketInfo: {
         required: true,
         recommended: true,
-        bookingAdvice: "Advance booking required for most activities, especially during peak season",
+        bookingAdvice:
+          "Advance booking required for most activities, especially during peak season",
         peakTime: ["Summer", "School holidays"],
         averageWaitTime: "45-90 minutes without booking",
       },
@@ -255,7 +259,8 @@ export const generatePlacesToVisit = (
       ticketInfo: {
         required: false,
         recommended: true,
-        bookingAdvice: "No tickets needed for most venues, but VIP tables may require reservations",
+        bookingAdvice:
+          "No tickets needed for most venues, but VIP tables may require reservations",
         peakTime: ["Weekend nights", "Holiday weekends"],
         averageWaitTime: "15-30 minutes at popular venues",
       },
