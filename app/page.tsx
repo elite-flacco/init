@@ -479,55 +479,54 @@ export default function HomePage() {
       ></div>
 
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <div className="flex items-center justify-between p-4">
-          {/* Logo - Left */}
-          <button
-            onClick={() => setCurrentStep("traveler-type")}
-            className="flex items-center p-2 space-x-1 hover:opacity-80 transition-opacity duration-300"
-            aria-label="Return to home"
-          >
-            {currentStep === "traveler-type" ? (
-              <>
-                <div className="logo-3d p-1.5 sm:p-2 group">
-                  <Plane className="w-3 h-3 sm:w-4 sm:h-4 text-white group-hover:rotate-12 transition-transform duration-300" />
-                </div>
-                <div className="flex flex-col items-start">
-                  <h1 className="text-base sm:text-lg font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent hidden md:block">
-                    {typedTitle}
-                    <span
-                      className={`inline-block w-0.5 h-3 sm:h-4 bg-primary ml-1 ${!titleComplete ? "animate-pulse" : "opacity-0"}`}
-                    ></span>
-                  </h1>
-                  <p
-                    className={`text-xs sm:text-sm text-foreground-secondary font-medium hidden md:block transition-opacity duration-500 ${titleComplete ? "opacity-100" : "opacity-0"}`}
-                  >
-                    Your travel planning partner
-                  </p>
-                </div>
-              </>
-            ) : (
+      <div className="fixed top-4 left-2 sm:top-4 sm:left-4 z-50">
+        {/* Logo - Left */}
+        <button
+          onClick={() => setCurrentStep("traveler-type")}
+          className="flex items-center p-2 space-x-1 hover:opacity-80 transition-opacity duration-300"
+          aria-label="Return to home"
+        >
+          {currentStep === "traveler-type" ? (
+            <>
               <div className="logo-3d p-1.5 sm:p-2 group">
-                <Plane className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
+                <Plane className="w-3 h-3 sm:w-4 sm:h-4 text-white group-hover:rotate-12 transition-transform duration-300" />
               </div>
+              <div className="flex flex-col items-start">
+                <h1 className="text-base sm:text-lg font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent hidden md:block">
+                  {typedTitle}
+                  <span
+                    className={`inline-block w-0.5 h-3 sm:h-4 bg-primary ml-1 ${!titleComplete ? "animate-pulse" : "opacity-0"}`}
+                  ></span>
+                </h1>
+                <p
+                  className={`text-xs sm:text-sm text-foreground-secondary font-medium hidden md:block transition-opacity duration-500 ${titleComplete ? "opacity-100" : "opacity-0"}`}
+                >
+                  Your travel planning partner
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="logo-3d p-1.5 sm:p-2 group">
+              <Plane className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:rotate-12 transition-transform duration-300" />
+            </div>
+          )}
+        </button>
+      </div>
+      <div className="fixed top-4 right-2 sm:top-4 sm:right-4 z-50 p-2">
+        {/* User Button - Right */}
+        {!authLoading && (
+          <button
+            onClick={handleUserButtonClick}
+            className="btn-3d flex items-center p-2 space-x-1 transform translate-y-0"
+            aria-label={user ? "Open user menu" : "Sign in"}
+          >
+            {user ? (
+              <User className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+            ) : (
+              <User className="w-3 h-3 sm:w-4 sm:h-4 text-foreground-secondary" />
             )}
           </button>
-
-          {/* User Button - Right */}
-          {!authLoading && (
-            <button
-              onClick={handleUserButtonClick}
-              className="btn-3d p-2 group inline-flex items-center"
-              aria-label={user ? "Open user menu" : "Sign in"}
-            >
-              {user ? (
-                <User className="w-6 h-6 text-primary" />
-              ) : (
-                <User className="w-6 h-6 text-foreground-secondary" />
-              )}
-            </button>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Navigation Elements - Right Side */}
