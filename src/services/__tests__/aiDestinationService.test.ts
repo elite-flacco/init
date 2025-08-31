@@ -1,4 +1,11 @@
-import { describe, it, expect, beforeEach, vi, beforeAll } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  jest,
+  beforeAll,
+} from "@jest/globals";
 import { aiDestinationService } from "../aiDestinationService";
 import {
   mockTravelerTypes,
@@ -13,7 +20,7 @@ declare const global: typeof globalThis & { fetch: typeof globalThis.fetch };
 
 // Add global.fetch mock for Node.js environment
 beforeAll(() => {
-  global.fetch = vi.fn();
+  global.fetch = jest.fn();
 });
 
 describe("aiDestinationService", () => {
@@ -25,7 +32,7 @@ describe("aiDestinationService", () => {
       reasoning: "Perfect destinations for your travel style",
       confidence: 0.9,
     };
-    global.fetch = vi.fn().mockResolvedValue({
+    global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(mockResponse),
     });
@@ -78,7 +85,7 @@ describe("aiDestinationService", () => {
     });
 
     it("should handle API errors gracefully", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      global.fetch = jest.fn().mockResolvedValue({
         ok: false,
         status: 500,
         statusText: "Internal Server Error",
@@ -99,7 +106,7 @@ describe("aiDestinationService", () => {
     });
 
     it("should handle network errors gracefully", async () => {
-      global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
+      global.fetch = jest.fn().mockRejectedValue(new Error("Network error"));
 
       const request = {
         travelerType: mockTravelerTypes.explorer,

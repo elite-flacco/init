@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import { aiTripPlanningService } from "../aiTripPlanningService";
 import {
   mockTravelerTypes,
@@ -95,7 +95,7 @@ describe("aiTripPlanningService", () => {
       4: mockPlan, // Complete plan in the final chunk as per service implementation
     };
 
-    globalThis.fetch = vi.fn().mockImplementation((url: string) => {
+    globalThis.fetch = jest.fn().mockImplementation((url: string) => {
       if (
         url.includes("/api/ai/trip-planning/chunked") &&
         !url.includes("?chunk=")
@@ -219,7 +219,7 @@ describe("aiTripPlanningService", () => {
     });
 
     it("should handle API errors gracefully", async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = jest.fn().mockResolvedValue({
         ok: false,
         status: 500,
         statusText: "Internal Server Error",
@@ -234,7 +234,9 @@ describe("aiTripPlanningService", () => {
     });
 
     it("should handle network errors gracefully", async () => {
-      globalThis.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
+      globalThis.fetch = jest
+        .fn()
+        .mockRejectedValue(new Error("Network error"));
 
       await expect(
         aiTripPlanningService.generateTravelPlan(baseRequest),

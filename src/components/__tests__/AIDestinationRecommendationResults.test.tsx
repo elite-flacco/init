@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AIDestinationRecommendationResults } from "../AIDestinationRecommendationResults";
 import { mockDestinations, resetMocks } from "../../test/mocks";
 
 // Mock the useDestinationImage hook to prevent async state updates
-vi.mock("../../hooks/useDestinationImage", () => ({
-  useDestinationImage: vi.fn(() => ({
+jest.mock("../../hooks/useDestinationImage", () => ({
+  useDestinationImage: jest.fn(() => ({
     imageUrl: null,
     imageUrls: null,
     isLoading: false,
@@ -14,9 +14,9 @@ vi.mock("../../hooks/useDestinationImage", () => ({
   })),
 }));
 
-const mockOnSelect = vi.fn();
-const mockOnBack = vi.fn();
-const mockOnRegenerate = vi.fn();
+const mockOnSelect = jest.fn();
+const mockOnBack = jest.fn();
+const mockOnRegenerate = jest.fn();
 
 const mockAiResponse = {
   destinations: [mockDestinations.bali, mockDestinations.tokyo],
