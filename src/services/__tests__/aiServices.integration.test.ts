@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import { aiDestinationService } from "../aiDestinationService";
 import { aiTripPlanningService } from "../aiTripPlanningService";
 import {
@@ -24,7 +24,7 @@ describe("AI Services Integration", () => {
         confidence: 0.9,
       };
 
-      globalThis.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = jest.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       });
@@ -56,7 +56,7 @@ describe("AI Services Integration", () => {
         confidence: 0.85,
       };
 
-      globalThis.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = jest.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       });
@@ -120,7 +120,7 @@ describe("AI Services Integration", () => {
         totalChunks: 4,
       };
 
-      globalThis.fetch = vi.fn().mockImplementation((url: string) => {
+      globalThis.fetch = jest.fn().mockImplementation((url: string) => {
         if (
           url.includes("/api/ai/trip-planning/chunked") &&
           !url.includes("?chunk=")
@@ -185,7 +185,9 @@ describe("AI Services Integration", () => {
 
   describe("Error handling", () => {
     it("should handle network errors gracefully", async () => {
-      globalThis.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
+      globalThis.fetch = jest
+        .fn()
+        .mockRejectedValue(new Error("Network error"));
 
       const destinationRequest = {
         travelerType: mockTravelerTypes.culture,

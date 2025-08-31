@@ -1,23 +1,23 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 
 // Mock Supabase admin with proper method chaining
-const mockSingle = vi.fn();
-const mockEq = vi.fn(() => ({ single: mockSingle }));
-const mockSelect = vi.fn(() => ({ eq: mockEq, single: mockSingle }));
-const mockInsert = vi.fn(() => ({ error: null }));
-const mockDelete = vi.fn(() => ({
-  eq: vi.fn(() => ({ error: null })),
-  lt: vi.fn(() => ({
-    select: vi.fn(() => ({ data: [], error: null })),
+const mockSingle = jest.fn();
+const mockEq = jest.fn(() => ({ single: mockSingle }));
+const mockSelect = jest.fn(() => ({ eq: mockEq, single: mockSingle }));
+const mockInsert = jest.fn(() => ({ error: null }));
+const mockDelete = jest.fn(() => ({
+  eq: jest.fn(() => ({ error: null })),
+  lt: jest.fn(() => ({
+    select: jest.fn(() => ({ data: [], error: null })),
   })),
 }));
-const mockFrom = vi.fn(() => ({
+const mockFrom = jest.fn(() => ({
   insert: mockInsert,
   select: mockSelect,
   delete: mockDelete,
 }));
 
-vi.mock("../../lib/supabase", () => ({
+jest.mock("../../lib/supabase", () => ({
   supabaseAdmin: {
     from: mockFrom,
   },
@@ -145,7 +145,7 @@ const mockDbRow = {
 
 describe("SharedPlanService", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe("createSharedPlan", () => {
@@ -224,9 +224,9 @@ describe("SharedPlanService", () => {
       mockSingle.mockResolvedValue({ data: expiredDbRow, error: null });
 
       // Mock the deleteSharedPlan method
-      const mockDeleteEq = vi.fn(() => ({ error: null }));
-      const mockDeleteLt = vi.fn(() => ({
-        select: vi.fn(() => ({ data: [], error: null })),
+      const mockDeleteEq = jest.fn(() => ({ error: null }));
+      const mockDeleteLt = jest.fn(() => ({
+        select: jest.fn(() => ({ data: [], error: null })),
       }));
       mockDelete.mockReturnValue({ eq: mockDeleteEq, lt: mockDeleteLt });
 
@@ -257,12 +257,12 @@ describe("SharedPlanService", () => {
 
   describe("cleanupExpiredPlans", () => {
     it("should cleanup expired plans successfully", async () => {
-      const mockSelectForCleanup = vi.fn(() => ({
+      const mockSelectForCleanup = jest.fn(() => ({
         data: [{ id: "expired-1" }, { id: "expired-2" }],
         error: null,
       }));
-      const mockLt = vi.fn(() => ({ select: mockSelectForCleanup }));
-      const mockEq = vi.fn(() => ({ error: null }));
+      const mockLt = jest.fn(() => ({ select: mockSelectForCleanup }));
+      const mockEq = jest.fn(() => ({ error: null }));
       mockDelete.mockReturnValue({ eq: mockEq, lt: mockLt });
 
       const { SharedPlanService } = await import("../sharedPlanService");
@@ -274,12 +274,12 @@ describe("SharedPlanService", () => {
     });
 
     it("should handle cleanup errors gracefully", async () => {
-      const mockSelectForCleanup = vi.fn(() => ({
+      const mockSelectForCleanup = jest.fn(() => ({
         data: [],
         error: null,
       }));
-      const mockLt = vi.fn(() => ({ select: mockSelectForCleanup }));
-      const mockEq = vi.fn(() => ({ error: null }));
+      const mockLt = jest.fn(() => ({ select: mockSelectForCleanup }));
+      const mockEq = jest.fn(() => ({ error: null }));
       mockDelete.mockReturnValue({ eq: mockEq, lt: mockLt });
 
       const { SharedPlanService } = await import("../sharedPlanService");

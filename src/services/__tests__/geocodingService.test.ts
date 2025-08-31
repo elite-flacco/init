@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { GeocodingService } from "../geocodingService";
 
 // Mock fetch globally
-global.fetch = vi.fn() as unknown as typeof fetch;
+global.fetch = jest.fn() as unknown as typeof fetch;
 
 describe("GeocodingService", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     GeocodingService.clearCache();
   });
 
@@ -19,7 +19,7 @@ describe("GeocodingService", () => {
       },
     ];
 
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    (global.fetch as ReturnType<typeof jest.fn>).mockResolvedValueOnce({
       ok: true,
       json: async () => mockResponse,
     });
@@ -38,7 +38,7 @@ describe("GeocodingService", () => {
   });
 
   it("should return fallback coordinates when geocoding fails", async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    (global.fetch as ReturnType<typeof jest.fn>).mockResolvedValueOnce({
       ok: true,
       json: async () => [],
     });
@@ -64,7 +64,7 @@ describe("GeocodingService", () => {
       },
     ];
 
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    (global.fetch as ReturnType<typeof jest.fn>).mockResolvedValueOnce({
       ok: true,
       json: async () => mockResponse,
     });
@@ -88,7 +88,7 @@ describe("GeocodingService", () => {
   });
 
   it("should handle network errors gracefully", async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+    (global.fetch as ReturnType<typeof jest.fn>).mockRejectedValueOnce(
       new Error("Network error"),
     );
 
@@ -120,7 +120,7 @@ describe("GeocodingService", () => {
       },
     ];
 
-    (global.fetch as ReturnType<typeof vi.fn>)
+    (global.fetch as ReturnType<typeof jest.fn>)
       .mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse1,
@@ -155,7 +155,7 @@ describe("GeocodingService", () => {
       },
     ];
 
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (global.fetch as ReturnType<typeof jest.fn>).mockResolvedValue({
       ok: true,
       json: async () => mockResponse,
     });
@@ -183,7 +183,7 @@ describe("GeocodingService", () => {
     ];
 
     // Mock multiple responses: first with bad coordinates, then empty results
-    (global.fetch as ReturnType<typeof vi.fn>)
+    (global.fetch as ReturnType<typeof jest.fn>)
       .mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
@@ -214,7 +214,7 @@ describe("GeocodingService", () => {
       },
     ];
 
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    (global.fetch as ReturnType<typeof jest.fn>).mockResolvedValueOnce({
       ok: true,
       json: async () => mockResponse,
     });
@@ -227,7 +227,7 @@ describe("GeocodingService", () => {
     );
 
     // Should have been called with a type-specific query first
-    const firstCall = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    const firstCall = (fetch as ReturnType<typeof jest.fn>).mock.calls[0];
     const url = new URL(firstCall[0]);
     const query = url.searchParams.get("q");
 

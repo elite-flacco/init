@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+// Mock utilities for Jest tests
 import {
   Destination,
   PickDestinationPreferences,
@@ -116,7 +116,7 @@ export const mockFetchResponse = (data: unknown, ok = true, status = 200) => {
 
 // Reset all mocks
 export const resetMocks = () => {
-  vi.clearAllMocks();
+  jest.clearAllMocks();
   if (
     global.fetch &&
     typeof (global.fetch as unknown as { mockReset?: () => void }).mockReset ===
