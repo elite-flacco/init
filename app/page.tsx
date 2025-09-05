@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plane, User } from "lucide-react";
 import { trackTravelEvent, trackPageView } from "../src/lib/analytics";
 import { useTypingEffect } from "../src/hooks/useTypingEffect";
 import { useAuth } from "../src/contexts/AuthContext";
-import { UserSidebar } from "../src/components/UserSidebar";
+import { UserSidebar, UserSidebarRef } from "../src/components/UserSidebar";
 import { AuthModalManager, useAuthModal } from "../src/components/auth";
 import { TravelerTypeSelection } from "../src/components/TravelerTypeSelection";
 import { DestinationKnowledgeSelection } from "../src/components/DestinationKnowledgeSelection";
@@ -70,6 +70,7 @@ export default function HomePage() {
 
   // Sidebar and Auth Modal state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const sidebarRef = useRef<UserSidebarRef>(null);
   const {
     isOpen: isAuthModalOpen,
     modalType,
@@ -328,6 +329,13 @@ export default function HomePage() {
     console.log("User authenticated successfully");
   };
 
+  const handlePlanSaved = () => {
+    // Refresh sidebar data when a plan is saved
+    if (sidebarRef.current) {
+      sidebarRef.current.refreshUserData();
+    }
+  };
+
   const handleBack = () => {
     switch (currentStep) {
       case "placeholder":
@@ -460,6 +468,7 @@ export default function HomePage() {
             streamingRequest={streamingTripPlanningRequest || undefined}
             onRegeneratePlan={handleRegeneratePlan}
             onBack={handleBack}
+            onPlanSaved={handlePlanSaved}
           />
         );
 
@@ -570,6 +579,7 @@ export default function HomePage() {
 
       {/* User Sidebar */}
       <UserSidebar
+        ref={sidebarRef}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         onOpenAuthModal={openLogin}

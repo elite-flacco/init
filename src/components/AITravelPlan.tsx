@@ -64,6 +64,7 @@ interface AITravelPlanProps {
   streamingRequest?: AITripPlanningRequest; // Add streaming request data
   onRegeneratePlan: () => void;
   onBack?: () => void;
+  onPlanSaved?: () => void;
 }
 
 export function AITravelPlan({
@@ -73,6 +74,7 @@ export function AITravelPlan({
   streamingRequest,
   onRegeneratePlan,
   onBack,
+  onPlanSaved,
 }: AITravelPlanProps) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<
@@ -430,6 +432,11 @@ export function AITravelPlan({
 
       // Track save plan event
       trackTravelEvent.sharePlan("save");
+
+      // Notify parent that a plan was saved to refresh data
+      if (onPlanSaved) {
+        onPlanSaved();
+      }
     } catch (error) {
       console.error("Error saving plan:", error);
       alert(
