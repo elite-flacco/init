@@ -92,8 +92,7 @@ export function CardTitle({
   );
 }
 
-interface CardDescriptionProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {
+interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
   className?: string;
   children: React.ReactNode;
 }
