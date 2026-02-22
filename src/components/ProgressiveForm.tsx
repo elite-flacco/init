@@ -16,19 +16,12 @@ export function ProgressiveForm({
   subtitle,
 }: ProgressiveFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>(() =>
+    Object.fromEntries(questions.map((q) => [q.id, ""])),
+  );
   const [editingStep, setEditingStep] = useState<number | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  // Initialize answers
-  useEffect(() => {
-    const initialAnswers: Record<string, string> = {};
-    questions.forEach((q) => {
-      initialAnswers[q.id] = "";
-    });
-    setAnswers(initialAnswers);
-  }, [questions]);
 
   // Helper functions defined before useEffect that uses them
   const isStepCompleted = useCallback(
