@@ -49,7 +49,7 @@ export function useDestinationImage({
     const now = Date.now();
 
     if (cached && now - cached.timestamp < CACHE_DURATION) {
-      // Use cached data
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- early return with cached values is intentional
       setIsLoading(false);
       setError(cached.error || null);
 

@@ -20,6 +20,7 @@ function ResetPasswordForm() {
   useEffect(() => {
     const hash = window.location.hash;
     if (!hash) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time mount validation
       setError("Invalid reset link. Please request a new password reset.");
       return;
     }

@@ -95,6 +95,7 @@ export default function HomePage() {
     // Track page view for step changes
     trackPageView(`/step/${currentStep}`, `Travel Planning - ${currentStep}`);
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- tracking previous step for analytics
     setPreviousStep(currentStep);
 
     // Scroll to top when navigating to plan results or any step change
@@ -114,6 +115,7 @@ export default function HomePage() {
       try {
         const { travelerType, destination, response } = generateDevMockData();
 
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- dev mode one-time setup
         setSelectedTravelerType(travelerType);
         setSelectedDestination(destination);
         setAiTripPlanningResponse(response);

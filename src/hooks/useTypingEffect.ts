@@ -15,6 +15,7 @@ export const useTypingEffect = ({
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional state reset when dependencies change
     setDisplayedText("");
     setIsComplete(false);
 
