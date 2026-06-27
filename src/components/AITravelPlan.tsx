@@ -103,6 +103,7 @@ export function AITravelPlan({
 
   useEffect(() => {
     if (streamingRequest && !hasStartedStreaming) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time guard to prevent re-triggering
       setHasStartedStreaming(true);
 
       const startStreaming = async () => {

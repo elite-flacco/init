@@ -53,6 +53,7 @@ export function BaseLoading({
 
   useEffect(() => {
     if (!isVisible) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional reset when component becomes hidden
       setCurrentStageIndex(0);
       setProgress(0);
       return;

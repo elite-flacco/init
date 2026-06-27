@@ -48,6 +48,7 @@ export function QuestionStep({
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing local state from prop
     setLocalValue(value);
   }, [value]);
 
