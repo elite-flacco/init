@@ -21,12 +21,7 @@ export class GeocodingService {
     cityName: string,
     countryName: string,
     placeType?:
-      | "restaurant"
-      | "hotel"
-      | "attraction"
-      | "bar"
-      | "activity"
-      | "city",
+      "restaurant" | "hotel" | "attraction" | "bar" | "activity" | "city",
   ): Promise<GeocodingResult> {
     const cacheKey = `${placeName}-${cityName}-${countryName}`.toLowerCase();
 
