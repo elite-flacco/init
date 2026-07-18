@@ -504,11 +504,7 @@ export function AITravelPlan({
       iconName,
       "xs",
       getAnimationFromIconName(iconName) as
-        | "bounce"
-        | "pulse"
-        | "spin"
-        | "float"
-        | "none",
+        "bounce" | "pulse" | "spin" | "float" | "none",
     );
   };
 
