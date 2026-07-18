@@ -7,12 +7,7 @@ export interface Icon3DProps {
   className?: string;
   size?: "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
   animation?:
-    | "float"
-    | "pulse"
-    | "bounce"
-    | "spin"
-    | "spin-horizontal"
-    | "none";
+    "float" | "pulse" | "bounce" | "spin" | "spin-horizontal" | "none";
   animationDelay?: string;
 }
 
