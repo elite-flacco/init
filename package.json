@@ -16,7 +16,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@anthropic-ai/claude-code": "^2.1.247",
+    "@anthropic-ai/claude-code": "^2.1.258",
     "@supabase/supabase-js": "^2.112.4",
     "@types/jspdf": "^2.0.0",
     "clsx": "^2.1.1",
