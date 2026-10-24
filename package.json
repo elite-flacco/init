@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@anthropic-ai/claude-code": "^2.1.306",
-    "@supabase/supabase-js": "^2.117.3",
+    "@supabase/supabase-js": "^2.118.0",
     "@types/jspdf": "^2.0.0",
     "clsx": "^2.1.1",
     "dotenv": "^18.0.8",
