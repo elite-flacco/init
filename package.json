@@ -20,7 +20,7 @@
     "@supabase/supabase-js": "^2.118.0",
     "@types/jspdf": "^2.0.0",
     "clsx": "^2.1.1",
-    "dotenv": "^18.0.8",
+    "dotenv": "^18.0.9",
     "framer-motion": "^14.7.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
